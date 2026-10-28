@@ -13,14 +13,31 @@ precisamente lo que tu prueba puede responder.
   según versión y sistema; no están probados.
 - El sitio servido con aislamiento de origen cruzado (COOP/COEP), que ya da `tools/serve.py`.
 
-## Cómo arrancarlo
+## Qué instalar en tu equipo
+
+Linux o macOS; en Windows, dentro de WSL2 (los scripts son de shell POSIX). Hace falta: `git`, `python3`, `cmake`
+(3.24 o posterior), `ninja` y `cargo` (Rust). `tools/fetch_sources.sh` usa `cargo` para descargar SQLite (el *crate*
+`libsqlite3-sys`). Además, Emscripten 6.0.13:
 
 ```sh
-source <emsdk>/emsdk_env.sh
+git clone https://github.com/emscripten-core/emsdk.git ~/emsdk
+cd ~/emsdk && ./emsdk install 6.0.13 && ./emsdk activate 6.0.13
+```
+
+## Cómo arrancarlo
+
+Desde la carpeta del repositorio (`<emsdk>` es la carpeta donde instalaste emsdk; con el ejemplo de arriba,
+`~/emsdk`):
+
+```sh
+source ~/emsdk/emsdk_env.sh
 tools/fetch_sources.sh
 tools/build_web.sh
 python3 tools/serve.py 8080 build/site
 ```
+
+La primera compilación tarda: son unas 1.900 unidades del juego más Aurora y sus dependencias. El servidor sigue en
+marcha hasta que lo detengas con Ctrl+C.
 
 Abre `http://127.0.0.1:8080` y:
 

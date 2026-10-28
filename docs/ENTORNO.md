@@ -25,6 +25,9 @@
 
 ## Instalación
 
+Además de Emscripten: `git`, `python3`, `cmake` (3.24 o posterior), `ninja` y `cargo` (Rust: `tools/fetch_sources.sh`
+descarga con él el *crate* de SQLite). En Windows, dentro de WSL2.
+
 ```sh
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk && ./emsdk install 6.0.13 && ./emsdk activate 6.0.13
