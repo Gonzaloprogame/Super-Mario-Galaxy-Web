@@ -1,7 +1,8 @@
 // Prueba de humo en Chromium (Playwright): la página carga el motor en un worker, lee una partición sintética y muestra
 // el resultado real del motor, en sus dos modos: diagnóstico (sin renderizador) y con gráficos (Aurora sobre WebGPU,
 // que debe arrancar en el worker del motor antes de que el motor llegue al mismo error). Sin aislamiento de origen
-// cruzado, la página se niega a arrancar y lo explica.
+// cruzado, coi-serviceworker lo da (como en GitHub Pages); sin él (sin service workers), la página se niega a
+// arrancar y lo explica.
 //   node web/tests/browser_smoke.mjs   (tras tools/build_web.sh; usa el Chromium preinstalado de Playwright)
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
@@ -53,9 +54,14 @@ async function withPlainServer(fn) {
   }
 }
 
-async function run(url, pak, timeoutMs, mode = 'diagnostic') {
+async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}) {
   const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
-  const page = await browser.newPage();
+  const page = await (await browser.newContext(contextOptions)).newPage();
+  if (!pak && contextOptions.serviceWorkers !== 'block') {
+    // Without COOP/COEP from the server, coi-serviceworker registers and reloads the page once
+    await page.goto(url);
+    await page.waitForFunction(() => self.crossOriginIsolated === true, null, { timeout: 30000 }).catch(() => {});
+  }
   const consoleErrors = [];
   page.on('pageerror', (e) => consoleErrors.push(String(e)));
   await page.goto(url);
@@ -104,7 +110,11 @@ await withServer('isolated', async (url) => {
 });
 
 await withPlainServer(async (url) => {
-  const r = await run(url, null, 10000);
+  // Like GitHub Pages: the service worker gives the isolation
+  const s = await run(url, null, 30000);
+  check(s.isolated === true && s.state === 'ready', `sin COOP/COEP del servidor, coi-serviceworker aísla la página (${s.state})`);
+  // Without service workers, nothing can: the page refuses and says why
+  const r = await run(url, null, 10000, 'diagnostic', { serviceWorkers: 'block' });
   check(r.isolated === false && r.state === 'unsupported', 'sin COOP/COEP la página no arranca el motor');
   check(/SharedArrayBuffer/.test(r.status), `y explica el motivo: "${r.status.trim().slice(0, 90)}…"`);
 });
