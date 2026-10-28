@@ -52,6 +52,10 @@ if (r && !r.error) {
   check(near(rgb(r.corner), [24, 32, 96]), `EFB esquina = color de borrado (24, 32, 96): ${rgb(r.corner)}`);
   check(near(rgb(r.outside), [24, 32, 96]), `EFB fuera del triángulo = color de borrado: ${rgb(r.outside)}`);
   check(near(rgb(r.centre), [240, 176, 16]), `EFB centro del triángulo = color de vértice (240, 176, 16): ${rgb(r.centre)}`);
+  check(near(rgb(r.indexed), [32, 200, 64]),
+        `EFB triángulo de arrays indexados (direcciones físicas, big-endian) = (32, 200, 64): ${rgb(r.indexed)}`);
+  check(near(rgb(r.displayList), [200, 48, 160]),
+        `EFB triángulo de la lista de dibujo (GXCallDisplayList) = (200, 48, 160): ${rgb(r.displayList)}`);
 }
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();

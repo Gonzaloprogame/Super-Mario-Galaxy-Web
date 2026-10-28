@@ -7,12 +7,14 @@
 // Aurora's FIFO (the console's format, as Aurora's own GX API writes it), releases it to the game, and at a draw done
 // ends Aurora's frame (Aurora processes and draws what it holds) and reports the finish to the game.
 //
-// Not yet: resources by physical address (vertex arrays, display list calls, textures, TLUTs, EFB copies), which the
-// game writes as the console's registers and Aurora takes through its own commands (docs/PUENTE_FIFO.md).
+// The stream names memory by the game's physical addresses (vertex array bases, display list calls): Aurora resolves
+// them through the game module's memory regions (resolve_guest, web/aurora/patches/0009). Not yet: textures, TLUTs and
+// EFB copies, which Aurora still takes only through its own commands (docs/PUENTE_FIFO.md).
 #include "aurora_bridge.h"
 
 #include <aurora/aurora.h>
 #include <aurora/event.h>
+#include <aurora/guest_memory.h>
 #include <dolphin/gx/GXAurora.h>
 
 #include "gx/fifo.hpp"
@@ -24,10 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-extern "C" {
-void nebula_game_gx_release(size_t size);
-void nebula_game_gx_event(int finish, uint16_t token);
-}
+#include <nebula_game_api.h>
 
 namespace {
 
@@ -61,6 +60,27 @@ void push(const Item& item) {
   }
   g_queue[tail % QueueSize] = item;
   g_tail.store(tail + 1, std::memory_order_release);
+}
+
+// The game's memory as the GPU sees it: MEM1, MEM2 and the module image's window (sdk/memory.c). Fixed once the game
+// has started, which it has by the time its stream reaches Aurora.
+NebulaGameMemoryRegion g_regions[4];
+int g_regionCount = 0;
+
+const uint8_t* resolve_guest(uint32_t physical, uint32_t* available) {
+  if (g_regionCount == 0) {
+    const int count = nebula_game_memory_regions(g_regions, 4);
+    g_regionCount = count < 4 ? count : 4;
+  }
+  for (int i = 0; i < g_regionCount; ++i) {
+    const NebulaGameMemoryRegion& region = g_regions[i];
+    const uint32_t offset = physical - region.physical;
+    if (physical >= region.physical && offset < region.size) {
+      *available = region.size - offset;
+      return reinterpret_cast<const uint8_t*>(reinterpret_cast<uintptr_t>(region.host) + offset);
+    }
+  }
+  return nullptr;
 }
 
 void log_callback(AuroraLogLevel level, const char* module, const char* message, unsigned int) {
@@ -108,6 +128,7 @@ void* render_main(void*) {
                   .width = g_headless ? 640u : 0u,
                   .height = g_headless ? 480u : 0u},
   };
+  aurora_set_guest_resolver(&resolve_guest);
   aurora_initialize(0, nullptr, &config);
   const AuroraReadbackStream stream = AuroraReadbackCreateStream();
   g_state.store(1, std::memory_order_release);

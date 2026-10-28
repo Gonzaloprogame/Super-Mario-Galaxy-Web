@@ -54,6 +54,7 @@ cual. Dos diferencias aparecieron al dibujar con la GX del juego:
 |---|---|
 | `0007-clamp-viewport-depth` | El SDK escribe el *viewport* XF como escala y desplazamiento en unidades de 24 bits; reconstruido, el rango de profundidad quedaba un redondeo por debajo de 0 y WebGPU rechazaba `SetViewport(…, -0.000000, 1)`. Se acota a [0, 1], como hace el hardware. |
 | `0008-hardware-scissor-viewport-offsets` | El hardware **resta** el desplazamiento de caja del *scissor* (el SDK escribe el *scissor* en +342 y el desplazamiento como (x + 342)/2); Aurora lo sumaba, con su API escribiéndolo negado. Con el flujo del juego el *scissor* quedaba en x = 684, fuera del EFB, y no se dibujaba nada. El centro del *viewport* es +342 en el SDK y Aurora usaba 340 (2 píxeles de desfase). Aurora pasa a la convención del hardware en los dos extremos: su API y su reconstrucción. |
+| `0009-guest-memory-arrays-and-display-lists` | Ver "Fase 2" más abajo: Aurora rechazaba las bases de *array* del hardware (`CP_REG_ARRAYBASE_ID is not supported`, escritas ya por `GXInit`) e ignoraba `CALL_DL`. |
 
 ## Prueba: `web/tests/bridge_smoke.mjs`
 
@@ -68,6 +69,10 @@ devuelve el puente.
 | Esquina (16, 16) | (24, 32, 96) | `0x00182060` |
 | Centro del triángulo (320, 272) | (240, 176, 16) | `0x00F0B010` |
 | Fondo (96, 408) | (24, 32, 96) | `0x00182060` |
+| Triángulo de *arrays* indexados (568, 444) | (32, 200, 64) | `0x0020C840` |
+| Triángulo de la lista de visualización (568, 36) | (200, 48, 160) | `0x00C830A0` |
+
+Las dos últimas filas son de la fase 2 (abajo).
 
 El alfa es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola. La demo de la API de
 Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con el parche 0008.
@@ -78,19 +83,49 @@ hilo con el depurador de Chrome: `exitOnMainThread` → `exitRuntime` → `__fun
 resultado en la página sin terminar el proceso. **Pendiente:** un cierre ordenado del motor (detener el hilo de render
 antes de los destructores).
 
-## Lo que falta: recursos por dirección física (fase 2)
+## Fase 2: recursos por dirección física
 
-El SDK del juego referencia memoria con direcciones físicas de 32 bits, que Aurora recibe por sus propios comandos
-con punteros del host. Aurora rechaza o ignora hoy esas formas de hardware (se ve en el registro de la prueba:
-`CP_REG_ARRAYBASE_ID is not supported`, escritas por `GXInit`):
+El SDK del juego referencia memoria con direcciones físicas de 32 bits (`GX_PHY_ADDR`, que en Nebula es
+`__NebulaToPhysical`: MEM1 desde 0, MEM2 desde 0x10000000 y la imagen del módulo en la ventana 0x08000000). Aurora las
+recibía por sus propios comandos, con punteros del host y tamaños.
+
+### Hecho: *arrays* de vértices y listas de visualización (parche 0009)
+
+- **Resolución.** Aurora gana una interfaz mínima, `aurora/guest_memory.h`: `aurora_set_guest_resolver` registra una
+  función que traduce una dirección física a memoria del host y dice cuántos bytes son legibles desde ahí. El puente
+  (`resolve_guest` en `web/host/aurora_bridge.cpp`) la implementa con `nebula_game_memory_regions`. Sin resolvedor,
+  Aurora se comporta como antes (con un mensaje de error que nombra la dirección).
+- **Bases de *array* (CP 0xA0–0xAF).** La base resuelta pasa a ser el *array* del atributo, big-endian (el shader de
+  Aurora ya lleva el orden de bytes por *array*). Los registros no tienen tamaño: antes de cada dibujo se leen sus
+  índices (8 o 16 bits, tres por vértice con `GX_NRM_NBT3`) y el *array* se sube hasta el índice máximo alcanzado por
+  la `stride` más el tamaño del elemento, acotado a la memoria disponible. Si un dibujo necesita más de lo subido, el
+  *array* se vuelve a subir (y ese dibujo no se fusiona con el anterior). Las cargas indexadas de matrices
+  (`LOAD_INDX`) comprueban sus límites contra la memoria disponible.
+- **`CALL_DL`.** La lista se resuelve y se procesa en línea, con el mismo intérprete. Como en el hardware, una lista
+  no puede llamar a otra (se registra un aviso y se ignora). Una lista que excede la memoria disponible se ignora con
+  un error.
+
+Prueba (`bridge_smoke.mjs`, tabla de arriba): la escena añade un triángulo dibujado con `GXSetArray` + índices de 8
+bits (posiciones como f32 big-endian, como en los archivos del juego, y colores RGBA8; la entrada 0 de cada *array*
+es un señuelo blanco que no se indexa y el triángulo usa las entradas 1, 3 y 2, así que el *array* tiene que leerse
+hasta su última entrada) y otro grabado con `GXBeginDisplayList`/`GXEndDisplayList` (64 bytes) y llamado cada
+fotograma con `GXCallDisplayList`. **Control negativo:** con el resolvedor desactivado, esas dos comprobaciones fallan
+(el EFB conserva el color de borrado) y Aurora registra las direcciones que no pudo resolver; con él, la ejecución
+no registra ni un aviso de Aurora. Siguen pasando los tests del núcleo OS, la página del motor y la demo de Aurora
+(con las dos variantes TEV).
+
+Limitación conocida: en el modo `DRAIN`, Aurora interpreta el flujo al cerrar el fotograma, no cuando el juego lo
+envía, así que lee la memoria de los *arrays* y las listas algo más tarde que la GPU de la consola. Para datos que el
+juego reescribe dentro de un mismo fotograma a la misma dirección, el resultado podría diferir; con el juego real se
+comprobará (la subida de un *array* se invalida en cada fotograma, con `GXInvalidateVtxCache` y al cambiar su base).
+
+### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
-| Base de *array* de vértices (CP 0xA0–0xAB) | `GX_AURORA_LOAD_ARRAYBASE` (puntero, tamaño) | Resolver la dirección con `nebula_game_memory_regions`; el tamaño no está en los registros: acotarlo con el índice máximo de cada dibujo |
-| Llamada a lista de visualización (`CALL_DL`) | Se ignora ("nested") | Resolver la dirección y procesar la lista en línea |
-| Imagen de textura (BP `image3`) y TLUT (BP 0x64/0x65) | `GX_AURORA_LOAD_TEXOBJ` / `LOAD_TLUT` | Construir la textura desde los registros y la memoria de la arena, con caché por dirección e invalidación por `gpu_coherent` |
+| Imagen de textura (BP `image3`) y TLUT (BP 0x64/0x65) | `GX_AURORA_LOAD_TEXOBJ` / `LOAD_TLUT` | Construir la textura desde los registros y la memoria del juego, con caché por dirección e invalidación |
 | Copia del EFB a memoria (BP 0x49–0x4B, 0x52) | `GX_AURORA_LOAD_COPY_*` | Registrar la copia por dirección de destino, para que una textura en esa dirección sea la copia |
 | Lecturas del EFB (`gx_peek_efb`, token) | API de lectura de Aurora (`AuroraReadback*`) | Conectar los *peeks* de Nebula (destello de la lente, puntero) |
 
-Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), y
-el ritmo de fotogramas por el retrace (hoy el fotograma termina en cada fin de dibujo).
+Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), el
+ritmo de fotogramas por el retrace (hoy el fotograma termina en cada fin de dibujo) y el cierre ordenado.
