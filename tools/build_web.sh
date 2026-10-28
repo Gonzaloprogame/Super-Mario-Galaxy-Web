@@ -24,6 +24,8 @@ rm -rf "$SITE"
 mkdir -p "$SITE/gx" "$SITE/bridge"
 # The engine's page (the game module, headless for now).
 cp "$ROOT"/web/shell/index.html "$ROOT"/web/shell/app.js "$ROOT"/web/shell/present.js "$SITE"/
+# COOP/COEP on hosts without custom headers (GitHub Pages), with its licence (web/shell/vendor/README.md)
+cp "$ROOT"/web/shell/vendor/coi-serviceworker.js "$ROOT"/web/shell/vendor/coi-serviceworker.LICENSE "$SITE"/
 cp "$BUILD_DIR"/engine/smg_web.js "$BUILD_DIR"/engine/smg_web.wasm "$SITE"/
 cp "$BUILD_DIR"/game/smg_headless_web.js "$BUILD_DIR"/game/smg_headless_web.wasm "$SITE"/
 # Aurora's GX on WebGPU, with its own API (docs/BACKEND_WEBGPU.md).
