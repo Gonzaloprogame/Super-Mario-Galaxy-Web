@@ -19,7 +19,12 @@
 
    The frame ends as a game's does: GXCopyDisp copies the whole EFB to an XFB (the frame the VI shows) and clears the
    EFB. A marker drawn after it, at the top centre, must be in the EFB and not in the XFB; the rest of the EFB must
-   hold the clear colour. web/tests/bridge_smoke.mjs reads the scene's colours from the XFB. */
+   hold the clear colour. web/tests/bridge_smoke.mjs reads the scene's colours from the XFB.
+
+   EFB peeks, as the game's lens flare reads the EFB: the direct triangle writes depth, a draw-sync token follows the
+   scene, and its callback peeks the triangle's colour and depth (GXPeekARGB, GXPeekZ). After the display copy, which
+   also clears depth, the scene peeks again outside any callback: the triangle's place (now the clear colour and the
+   largest depth) and the marker. The host answers from captures of earlier frames at the same stream positions. */
 #include <revolution/gx.h>
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
@@ -82,6 +87,24 @@ static GXTexObj sTexObjCopy;
 /* The XFB: the console's 2 bytes per pixel (YUV 4:2:2), allocated as a game does; Aurora keeps the copy on the GPU. */
 enum { kXfbWidth = 640, kXfbHeight = 480 };
 static u8 sXfb[kXfbWidth * kXfbHeight * 2] __attribute__((aligned(32)));
+
+/* The scene's EFB peeks: in the token's callback, the triangle's colour and depth; after the display copy, the
+   triangle's place (colour, depth) and the marker's colour. */
+enum { kPeekToken = 0x5A5A };
+static u32 sPeeks[5];
+
+static void draw_sync_callback(u16 token) {
+    if (token == kPeekToken) {
+        GXPeekARGB(320, 272, &sPeeks[0]);
+        GXPeekZ(320, 272, &sPeeks[1]);
+    }
+}
+
+void smg_bridge_scene_peeks(u32* out) {
+    for (int i = 0; i < 5; i++) {
+        out[i] = sPeeks[i];
+    }
+}
 
 /* For the host's probe (web/bridge/bridge_main.c). */
 const void* smg_bridge_scene_xfb(void) {
@@ -195,7 +218,9 @@ static void draw(void) {
     GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
     GXSetCullMode(GX_CULL_NONE);
 
-    /* (-0.5, -0.5), (0.5, -0.5), (0, 0.6) at z -0.5 (GX clips camera-space z outside [-1, 0] after this projection). */
+    /* (-0.5, -0.5), (0.5, -0.5), (0, 0.6) at z -0.5 (GX clips camera-space z outside [-1, 0] after this projection),
+       writing its depth for the peeks; the other draws leave depth alone. */
+    GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
     GXBegin(GX_TRIANGLES, GX_VTXFMT0, 3);
     GXPosition3f32(-0.5f, -0.5f, -0.5f);
     GXColor4u8(TRI_R, TRI_G, TRI_B, 255);
@@ -204,6 +229,7 @@ static void draw(void) {
     GXPosition3f32(0.f, 0.6f, -0.5f);
     GXColor4u8(TRI_R, TRI_G, TRI_B, 255);
     GXEnd();
+    GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
 
     /* The display list's triangle, in the same vertex format. */
     GXCallDisplayList(sDisplayList, sDisplayListSize);
@@ -275,11 +301,17 @@ static void draw(void) {
     GXTexCoord2f32(0.f, 1.f);
     GXEnd();
 
-    /* The frame to the XFB, clearing the EFB (colour and depth: the SDK enables the depth update for it). */
+    /* The token whose callback peeks the scene, before the display copy clears it. */
+    GXSetDrawSync(kPeekToken);
+
+    /* The frame to the XFB, clearing the EFB: colour, and depth with the depth update on (the clear uses the update
+       masks, as on the console). */
+    GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
     GXSetDispCopySrc(0, 0, kXfbWidth, kXfbHeight);
     GXSetDispCopyDst(kXfbWidth, kXfbHeight);
     GXSetDispCopyYScale(1.f);
     GXCopyDisp(sXfb, GX_TRUE);
+    GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
 
     /* The marker after the copy: x -0.1..0.1, y 0.7..0.9 (screen 288..352, 24..72), vertex colour. */
     set_direct_format();
@@ -297,11 +329,17 @@ static void draw(void) {
     GXPosition3f32(-0.1f, 0.7f, -0.5f);
     GXColor4u8(MARK_R, MARK_G, MARK_B, 255);
     GXEnd();
+
+    /* Peeks outside a callback: the cleared EFB where the triangle was, and the marker. */
+    GXPeekARGB(320, 272, &sPeeks[2]);
+    GXPeekZ(320, 272, &sPeeks[3]);
+    GXPeekARGB(320, 48, &sPeeks[4]);
 }
 
 /* The "game main" the native OS core boots (nebula_os_boot), on the game's boot thread. */
 void smg_bridge_scene_main(void) {
     GXInit(sFifo, sizeof(sFifo));
+    GXSetDrawSyncCallback(draw_sync_callback);
     prepare_memory();
     for (;;) {
         draw();

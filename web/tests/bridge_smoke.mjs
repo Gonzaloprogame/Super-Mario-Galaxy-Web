@@ -75,6 +75,18 @@ if (r && !r.error) {
         `EFB tras la copia: donde estaba el triángulo = color de borrado (la copia borró el EFB): ${rgb(e.centre)}`);
   check(near(rgb(e.marker), [250, 120, 0]),
         `EFB tras la copia: marcador dibujado después = (250, 120, 0): ${rgb(e.marker)}`);
+  // The scene's own EFB peeks (GXPeekARGB, GXPeekZ), answered from captures at their stream positions
+  const g = r.game;
+  check(near(rgb(g.tokenColour), [240, 176, 16]),
+        `GXPeekARGB en la callback del token = triángulo (240, 176, 16): ${rgb(g.tokenColour)}`);
+  check(Math.abs(g.tokenDepth - 0x800000) <= 0x100,
+        `GXPeekZ en la callback del token = profundidad del triángulo (~0x800000): 0x${g.tokenDepth.toString(16)}`);
+  check(near(rgb(g.afterCopyColour), [24, 32, 96]),
+        `GXPeekARGB tras la copia a pantalla = color de borrado: ${rgb(g.afterCopyColour)}`);
+  check(g.afterCopyDepth === 0xFFFFFF,
+        `GXPeekZ tras la copia a pantalla = profundidad borrada (0xffffff): 0x${g.afterCopyDepth.toString(16)}`);
+  check(near(rgb(g.afterCopyMarker), [250, 120, 0]),
+        `GXPeekARGB del marcador = (250, 120, 0): ${rgb(g.afterCopyMarker)}`);
   check(near(rgb(x.marker), [24, 32, 96]),
         `XFB donde está el marcador = color de borrado (se dibujó después de la copia): ${rgb(x.marker)}`);
 }

@@ -36,6 +36,7 @@ struct Item {
   uint32_t size;
   uint16_t token;
   uint8_t finish;
+  uint8_t peekChannel = 0xFF; // a marker that is a game peek's position (token 0): the channel to capture
 };
 
 constexpr uint32_t QueueSize = 4096;
@@ -52,6 +53,26 @@ AuroraReadbackPeekRequest g_peekRequests[MaxPeeks];
 std::atomic<uint32_t> g_peekCount{0};
 uint32_t g_peekResults[MaxPeeks];
 std::atomic<int> g_peeksReady{0};
+
+// The game's EFB peeks (gx_peek_efb: GXPeekARGB, GXPeekZ). The answer cannot wait: the stream it reads is still in
+// Aurora's queue, and Aurora reads the EFB back only after a frame is submitted. As Nebula's published peek fields,
+// each peek is a point of a channel, its draw-sync token (0 when the game peeks outside a token's callback), and is
+// answered from the latest capture of that point; the bridge captures a channel's points at its token in later
+// frames, or for token 0 where the game peeked. A point not captured yet reads 0.
+struct PeekChannel {
+  static constexpr uint32_t MaxPoints = 16;
+  std::atomic<uint32_t> token{UINT32_MAX}; // UINT32_MAX: unbound
+  std::atomic<uint32_t> count{0};          // points published to the render thread
+  AuroraReadbackPeekRequest points[MaxPoints];
+  std::atomic<uint32_t> values[MaxPoints];
+  std::atomic<uint32_t> captured[MaxPoints]; // 1 once a capture answered the point
+  std::atomic<uint32_t> queuedFrame{UINT32_MAX}; // token 0: the frame whose position marker is queued
+  AuroraReadbackStream stream = 0;               // render thread
+};
+constexpr uint32_t MaxPeekChannels = 8;
+PeekChannel g_peekChannels[MaxPeekChannels];
+std::atomic<uint32_t> g_gamePeeks{0};         // peeks the game made (tests)
+std::atomic<uint32_t> g_gamePeeksCaptured{0}; // of them, answered from a capture
 
 // The XFB probe (tests): a display copy's destination, read back at each frame's end as the hardware would have
 // written it to memory (RGBA8 here: 4x4-texel tiles of 64 bytes, alpha and red then green and blue).
@@ -153,6 +174,41 @@ void collect_xfb(AuroraReadbackStream stream) {
   }
 }
 
+// Render thread, at the channel's position in the stream: takes the latest completed capture's values, then captures
+// the channel's points here (in the stream's order: Aurora's readback commands follow the game's).
+void capture_channel(PeekChannel& channel) {
+  const uint32_t count = channel.count.load(std::memory_order_acquire);
+  if (count == 0) {
+    return;
+  }
+  if (channel.stream == 0) {
+    channel.stream = AuroraReadbackCreateStream();
+  }
+  uint32_t results[PeekChannel::MaxPoints]{};
+  AuroraReadbackDest dests[PeekChannel::MaxPoints];
+  for (uint32_t i = 0; i < count; ++i) {
+    dests[i] = {i, &results[i], sizeof(uint32_t), GX_FALSE};
+  }
+  if (AuroraReadbackGet(channel.stream, dests, count)) {
+    for (uint32_t i = 0; i < count; ++i) {
+      if (dests[i].found) {
+        channel.values[i].store(results[i], std::memory_order_relaxed);
+        channel.captured[i].store(1, std::memory_order_release);
+      }
+    }
+  }
+  AuroraReadbackCapturePeeks(channel.stream, channel.points, count);
+}
+
+PeekChannel* find_channel(uint32_t token) {
+  for (auto& channel : g_peekChannels) {
+    if (channel.token.load(std::memory_order_acquire) == token) {
+      return &channel;
+    }
+  }
+  return nullptr;
+}
+
 void* render_main(void*) {
   const AuroraConfig config = {
       .appName = "smg_web",
@@ -197,6 +253,16 @@ void* render_main(void*) {
       nebula_game_gx_release(item.size);
       continue;
     }
+    if (item.peekChannel != 0xFF) {
+      capture_channel(g_peekChannels[item.peekChannel]);
+      continue;
+    }
+    if (!item.finish) {
+      // A draw-sync token: its channel's points are captured here, where the console's GPU stopped for it
+      if (PeekChannel* channel = find_channel(item.token)) {
+        capture_channel(*channel);
+      }
+    }
     if (item.finish) {
       collect_peeks(stream);
       collect_xfb(xfbStream);
@@ -233,6 +299,54 @@ extern "C" void smg_bridge_submit(const uint8_t* bytes, size_t size) {
 
 extern "C" void smg_bridge_pe_marker(int finish, uint16_t token) {
   push(Item{nullptr, 0, token, static_cast<uint8_t>(finish != 0)});
+}
+
+extern "C" uint32_t smg_bridge_peek_efb(uint16_t x, uint16_t y, uint32_t type, uint16_t token) {
+  g_gamePeeks.fetch_add(1, std::memory_order_relaxed);
+  PeekChannel* channel = find_channel(token);
+  if (channel == nullptr) {
+    for (auto& candidate : g_peekChannels) {
+      uint32_t unbound = UINT32_MAX;
+      if (candidate.token.compare_exchange_strong(unbound, token, std::memory_order_acq_rel)) {
+        channel = &candidate;
+        break;
+      }
+    }
+    if (channel == nullptr) {
+      return 0; // more tokens than channels
+    }
+  }
+  const auto kind = type == 0 ? AURORA_READBACK_PEEK_ARGB : AURORA_READBACK_PEEK_Z;
+  const uint32_t count = channel->count.load(std::memory_order_relaxed); // only this thread adds points
+  uint32_t index = 0;
+  while (index < count && (channel->points[index].x != x || channel->points[index].y != y ||
+                           channel->points[index].kind != kind)) {
+    ++index;
+  }
+  if (index == count) {
+    if (count == PeekChannel::MaxPoints) {
+      return 0;
+    }
+    channel->points[index] = {index, kind, x, y};
+    channel->count.store(count + 1, std::memory_order_release);
+  }
+  if (token == 0) {
+    // Captured where the game peeks: once per frame, at its first peek of the channel
+    const uint32_t frame = g_frames.load(std::memory_order_acquire);
+    if (channel->queuedFrame.exchange(frame, std::memory_order_acq_rel) != frame) {
+      push(Item{nullptr, 0, 0, 0, static_cast<uint8_t>(channel - g_peekChannels)});
+    }
+  }
+  if (channel->captured[index].load(std::memory_order_acquire) == 0) {
+    return 0;
+  }
+  g_gamePeeksCaptured.fetch_add(1, std::memory_order_relaxed);
+  return channel->values[index].load(std::memory_order_relaxed);
+}
+
+extern "C" int smg_bridge_game_peeks(uint32_t* captured) {
+  *captured = g_gamePeeksCaptured.exchange(0, std::memory_order_relaxed);
+  return static_cast<int>(g_gamePeeks.exchange(0, std::memory_order_relaxed));
 }
 
 extern "C" uint32_t smg_bridge_frames(void) { return g_frames.load(std::memory_order_acquire); }

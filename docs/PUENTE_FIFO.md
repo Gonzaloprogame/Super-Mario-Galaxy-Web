@@ -89,6 +89,11 @@ EFB se lee al final del fotograma, después del borrado:
 | EFB tras la copia, esquina (16, 16) | (24, 32, 96) | `0x00182060` |
 | EFB tras la copia, donde estaba el triángulo (320, 272) | (24, 32, 96): la copia borró el EFB | `0x00182060` |
 | EFB tras la copia, marcador (320, 48) | (250, 120, 0) | `0x00FA7800` |
+| `GXPeekARGB` de la escena en la *callback* del token, (320, 272) | triángulo (240, 176, 16) | `0x00F0B010` |
+| `GXPeekZ` de la escena en la *callback* del token, (320, 272) | profundidad del triángulo: z = −0,5 llevado a [0, 1] | `0x800000` |
+| `GXPeekARGB` de la escena tras la copia a pantalla, (320, 272) | color de borrado | `0x00182060` |
+| `GXPeekZ` de la escena tras la copia a pantalla, (320, 272) | profundidad borrada | `0xFFFFFF` |
+| `GXPeekARGB` de la escena, marcador (320, 48) | (250, 120, 0) | `0x00FA7800` |
 
 El alfa del EFB es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola; la copia RGBA8
 al XFB lo escribe opaco. Las filas de *arrays*, lista, texturas, copias y XFB son de la fase 2 (abajo).
@@ -227,12 +232,34 @@ Sin hacer todavía:
   WebGPU de Chromium sin GPU pierde el dispositivo (`BACKEND_WEBGPU.md`).
 - El entrelazado por campos (bits 12–13), la gamma (bits 7–8) y el recorte (`GXSetCopyClamp`) de la copia se ignoran.
 
+### Hecho: lecturas del EFB del juego (`gx_peek_efb`)
+
+El juego lee píxeles del EFB con `GXPeekARGB`/`GXPeekZ`: el destello de la lente mira la profundidad donde está el
+sol, en la *callback* de un token de sincronización. La respuesta no puede esperar: el flujo que debe leer aún está
+en la cola de Aurora, y Aurora solo lee el EFB cuando el fotograma ya se ha enviado a la GPU. El puente
+(`smg_bridge_peek_efb`) responde como los «campos publicados» de Nebula:
+
+- Cada lectura es un punto de un **canal**: su token, o 0 si el juego lee fuera de una *callback*. El juego recibe el
+  valor de la última captura de ese punto (con un fotograma de retraso). Un punto que aún no se ha capturado da 0;
+  Nebula, en ese caso, dibuja y lee en el momento, cosa que aquí no cabe.
+- El puente captura los puntos de un canal **en la misma posición del flujo** en los fotogramas siguientes. Para un
+  token, al llegar a ese token, donde la GPU de la consola se detuvo para la *callback*. Para el canal 0, donde el
+  juego hizo su primera lectura del fotograma. Las órdenes de lectura de Aurora siguen el orden de las del juego.
+
+Prueba (tabla de arriba): la escena coloca un token tras dibujar y en su *callback* lee el color y la profundidad del
+triángulo. Tras la copia a pantalla, que también borra la profundidad, vuelve a leer sin token. Los dos pares de
+valores difieren, así que cada captura se ha tomado en su sitio. **Control negativo:** capturando el canal del token
+al final del fotograma, las lecturas del token devuelven el EFB ya borrado y fallan esas dos comprobaciones. Con la
+posición correcta pasan las 24, en tres ejecuciones seguidas.
+
+Límites: ocho canales con 16 puntos cada uno; un punto nuevo da 0 durante su primer fotograma; en el canal 0, las
+lecturas de un fotograma hechas en posiciones distintas se capturan todas en la primera.
+
 ### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
 | Presentación del XFB | Aurora presenta el EFB | Presentar la copia del XFB que selecciona el VI (`vi_frame`), con el `OffscreenCanvas` |
-| Lecturas del EFB (`gx_peek_efb`, token) | API de lectura de Aurora (`AuroraReadback*`) | Conectar los *peeks* de Nebula (destello de la lente, puntero) |
 
 Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), el
 ritmo de fotogramas por el retrace (hoy el fotograma termina en cada fin de dibujo) y el cierre ordenado.

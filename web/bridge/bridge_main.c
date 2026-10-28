@@ -16,6 +16,7 @@
 void nebula_os_boot(void (*gameMain)(void)); /* native/sdk/os/os_native.c */
 void smg_bridge_scene_main(void);           /* web/bridge/gx_bridge_scene.c */
 const void* smg_bridge_scene_xfb(void);     /* web/bridge/gx_bridge_scene.c */
+void smg_bridge_scene_peeks(uint32_t* out); /* web/bridge/gx_bridge_scene.c */
 
 /* XFB points (640x480, the display copy of the frame): a corner, the direct triangle's centroid, background, the
    indexed triangle's centroid (bottom right), the display list triangle's (top right), the RGB565 square's left and
@@ -45,6 +46,16 @@ static void svc_gx_pe_marker(void* user, int finish, uint16_t token) {
     smg_bridge_pe_marker(finish, token);
 }
 
+static uint32_t svc_gx_peek_efb(void* user, uint16_t x, uint16_t y, uint32_t type, uint16_t token) {
+    (void)user;
+    return smg_bridge_peek_efb(x, y, type, token);
+}
+
+/* The scene's own peeks (GXPeekARGB/GXPeekZ): in the token's callback, then after the display copy. */
+enum { kGamePeekCount = 5 };
+static const char* const kGamePeekNames[kGamePeekCount] = {"tokenColour", "tokenDepth", "afterCopyColour",
+                                                           "afterCopyDepth", "afterCopyMarker"};
+
 static char sReport[2048];
 
 static int append_points(int at, const char* label, const char* const* names, const uint32_t* argb, int count) {
@@ -59,11 +70,19 @@ static int append_points(int at, const char* label, const char* const* names, co
 int smg_bridge_scene_frame_done(void) {
     uint32_t xfb[kXfbPointCount];
     uint32_t efb[kEfbPointCount];
+    uint32_t game[kGamePeekCount];
+    uint32_t captured = 0;
     const uint32_t frames = smg_bridge_frames();
-    if (smg_bridge_get_xfb(kXfbPoints, kXfbPointCount, xfb) && smg_bridge_get_peeks(efb, kEfbPointCount)) {
+    /* The game's peeks of this frame, all answered from captures (not the 0 of a point never captured) */
+    const int gamePeeks = smg_bridge_game_peeks(&captured);
+    const int gameAnswered = gamePeeks == kGamePeekCount && captured == (uint32_t)gamePeeks;
+    if (gameAnswered && smg_bridge_get_xfb(kXfbPoints, kXfbPointCount, xfb) &&
+        smg_bridge_get_peeks(efb, kEfbPointCount)) {
+        smg_bridge_scene_peeks(game);
         int at = snprintf(sReport, sizeof(sReport), "{\"frames\":%u", frames);
         at = append_points(at, "xfb", kXfbNames, xfb, kXfbPointCount);
         at = append_points(at, "efb", kEfbNames, efb, kEfbPointCount);
+        at = append_points(at, "game", kGamePeekNames, game, kGamePeekCount);
         snprintf(sReport + at, sizeof(sReport) - at, "}");
         printf("[bridge] %s\n", sReport);
         /* sReport is not written again: the scene stops here. */
@@ -71,9 +90,11 @@ int smg_bridge_scene_frame_done(void) {
         return 1;
     }
     if (frames >= kFrameLimit) {
-        printf("[bridge] frames %u, no EFB or XFB readback\n", frames);
-        MAIN_THREAD_ASYNC_EM_ASM({ globalThis.bridge.result = ({frames : $0, error : 'no EFB or XFB readback'}); },
-                                 frames);
+        printf("[bridge] frames %u, no EFB or XFB readback, or the game's peeks not captured (%d, %u captured)\n",
+               frames, gamePeeks, captured);
+        MAIN_THREAD_ASYNC_EM_ASM(
+            { globalThis.bridge.result = ({frames : $0, error : 'no EFB or XFB readback, or game peeks not captured'}); },
+            frames);
         return 1;
     }
     return 0;
@@ -84,6 +105,7 @@ int main(void) {
     smg_host_default_services(&services);
     services.gx_submit = svc_gx_submit;
     services.gx_pe_marker = svc_gx_pe_marker;
+    services.gx_peek_efb = svc_gx_peek_efb;
     if (nebula_game_attach(&services) == 0) {
         fprintf(stderr, "[bridge] the game module refused the host's services\n");
         return 2;
