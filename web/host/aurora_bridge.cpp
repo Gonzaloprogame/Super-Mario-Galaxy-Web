@@ -46,7 +46,7 @@ std::atomic<int> g_state{0}; // 0 starting, 1 ready, -1 failed
 std::atomic<uint32_t> g_frames{0};
 int g_headless = 0;
 
-constexpr uint32_t MaxPeeks = 8;
+constexpr uint32_t MaxPeeks = 16;
 AuroraReadbackPeekRequest g_peekRequests[MaxPeeks];
 std::atomic<uint32_t> g_peekCount{0};
 uint32_t g_peekResults[MaxPeeks];
@@ -115,7 +115,11 @@ void collect_peeks(AuroraReadbackStream stream) {
       g_peeksReady.store(1, std::memory_order_release);
     }
   }
-  AuroraReadbackCapturePeeks(stream, g_peekRequests, count);
+  // Not in the first frame: Aurora begins a frame by clearing the EFB with the copy clear colour it already holds,
+  // which in the first frame is its default, not the game's (a reading of that frame showed a black background).
+  if (g_frames.load(std::memory_order_relaxed) >= 1) {
+    AuroraReadbackCapturePeeks(stream, g_peekRequests, count);
+  }
 }
 
 void* render_main(void*) {

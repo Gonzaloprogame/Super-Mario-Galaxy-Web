@@ -11,7 +11,11 @@
    Two textured squares on the left and right edges, sampled with point filtering: an 8x8 RGB565 texture whose left
    half is one colour and right half another (the format, its byte order and its 4x4-pixel tiles), and an 8x8 C8
    texture whose every texel is index 5 of an RGB565 TLUT loaded into TMEM (every other entry is black). The textures
-   are generated here: no game data. */
+   are generated here: no game data.
+
+   Last, an EFB copy (GXCopyTex): the 64x64 pixels at (40, 136), whose top half is background and whose bottom half is
+   the top of the RGB565 square (magenta on the left, cyan on the right), copied as RGBA8 to a buffer, then drawn as a
+   texture on a rectangle at the bottom centre. The copy must keep its place, orientation and colours. */
 #include <revolution/gx.h>
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
@@ -61,6 +65,11 @@ static u8 sTlut[16 * 2] __attribute__((aligned(32)));
 static GXTexObj sTexObj565;
 static GXTexObj sTexObjC8;
 static GXTlutObj sTlutObj;
+
+/* The EFB copy's destination (64x64 RGBA8): the game's memory, never written by the CPU. */
+enum { kCopyLeft = 40, kCopyTop = 136, kCopySize = 64 };
+static u8 sCopyBuffer[kCopySize * kCopySize * 4] __attribute__((aligned(32)));
+static GXTexObj sTexObjCopy;
 
 static void store_be16(u8* p, u16 value) {
     p[0] = (u8)(value >> 8);
@@ -121,6 +130,8 @@ static void prepare_memory(void) {
     GXInitTlutObj(&sTlutObj, sTlut, GX_TL_RGB565, 16);
     GXInitTexObjCI(&sTexObjC8, sTextureC8, 8, 8, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
     GXInitTexObjLOD(&sTexObjC8, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+    GXInitTexObj(&sTexObjCopy, sCopyBuffer, kCopySize, kCopySize, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
+    GXInitTexObjLOD(&sTexObjCopy, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_FALSE, GX_FALSE, GX_ANISO_1);
     OSReport("[bridge] textures at physical 0x%08x (RGB565), 0x%08x (C8), TLUT 0x%08x\n",
              OSCachedToPhysical(sTexture565), OSCachedToPhysical(sTextureC8), OSCachedToPhysical(sTlut));
 
@@ -226,6 +237,26 @@ static void draw(void) {
         GXTexCoord2f32(0.f, 1.f);
         GXEnd();
     }
+
+    /* The EFB copy, then its texture on the rectangle x -0.3..0.3, y -0.6..-0.95 (screen 224..416, 384..468). */
+    GXSetTexCopySrc(kCopyLeft, kCopyTop, kCopySize, kCopySize);
+    GXSetTexCopyDst(kCopySize, kCopySize, GX_TF_RGBA8, GX_FALSE);
+    GXCopyTex(sCopyBuffer, GX_FALSE);
+    GXPixModeSync();
+    GXInvalidateTexAll();
+    GXLoadTexObj(&sTexObjCopy, GX_TEXMAP2);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP2, GX_COLOR_NULL);
+    GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+    GXBegin(GX_QUADS, GX_VTXFMT1, 4);
+    GXPosition3f32(-0.3f, -0.6f, -0.5f);
+    GXTexCoord2f32(0.f, 0.f);
+    GXPosition3f32(0.3f, -0.6f, -0.5f);
+    GXTexCoord2f32(1.f, 0.f);
+    GXPosition3f32(0.3f, -0.95f, -0.5f);
+    GXTexCoord2f32(1.f, 1.f);
+    GXPosition3f32(-0.3f, -0.95f, -0.5f);
+    GXTexCoord2f32(0.f, 1.f);
+    GXEnd();
 }
 
 /* The "game main" the native OS core boots (nebula_os_boot), on the game's boot thread. */

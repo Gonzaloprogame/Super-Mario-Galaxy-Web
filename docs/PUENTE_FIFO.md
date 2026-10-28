@@ -55,6 +55,7 @@ cual. Dos diferencias aparecieron al dibujar con la GX del juego:
 | `0007-clamp-viewport-depth` | El SDK escribe el *viewport* XF como escala y desplazamiento en unidades de 24 bits; reconstruido, el rango de profundidad quedaba un redondeo por debajo de 0 y WebGPU rechazaba `SetViewport(…, -0.000000, 1)`. Se acota a [0, 1], como hace el hardware. |
 | `0008-hardware-scissor-viewport-offsets` | El hardware **resta** el desplazamiento de caja del *scissor* (el SDK escribe el *scissor* en +342 y el desplazamiento como (x + 342)/2); Aurora lo sumaba, con su API escribiéndolo negado. Con el flujo del juego el *scissor* quedaba en x = 684, fuera del EFB, y no se dibujaba nada. El centro del *viewport* es +342 en el SDK y Aurora usaba 340 (2 píxeles de desfase). Aurora pasa a la convención del hardware en los dos extremos: su API y su reconstrucción. |
 | `0009-guest-memory-arrays-and-display-lists` | Ver "Fase 2" más abajo: Aurora rechazaba las bases de *array* del hardware (`CP_REG_ARRAYBASE_ID is not supported`, escritas ya por `GXInit`) e ignoraba `CALL_DL`. |
+| `0011-guest-memory-texture-copies` | Ver "Fase 2": Aurora solo hacía copias del EFB a textura con sus propios comandos (origen, tamaño, formato y puntero de destino); los registros del hardware que escribe `GXCopyTex` (BP 0x49, 0x4A, 0x4B y la orden 0x52) no tenían efecto y la textura copiada salía negra. |
 | `0010-guest-memory-textures` | Ver "Fase 2": Aurora leía el tamaño y el formato de las texturas de los registros, pero no su imagen (BP `image3`), ni las TLUT cargadas en TMEM (BP 0x64/0x65) ni la TLUT que elige cada textura (BP 0x98–0x9B, 0xB8–0xBB). Las texturas del juego salían negras. |
 
 ## Prueba: `web/tests/bridge_smoke.mjs`
@@ -75,8 +76,17 @@ devuelve el puente.
 | Cuadrado con textura RGB565, mitad izquierda (44, 240) | (255, 0, 255) | `0x00FF00FF` |
 | Cuadrado con textura RGB565, mitad derecha (100, 240) | (0, 255, 255) | `0x0000FFFF` |
 | Cuadrado con textura C8 y TLUT RGB565 (568, 240) | (255, 255, 0) | `0x00FFFF00` |
+| Rectángulo con la copia del EFB, arriba a la izquierda (272, 405) | fondo copiado (24, 32, 96) | `0x00182060` |
+| Rectángulo con la copia del EFB, abajo a la izquierda (272, 447) | magenta copiado (255, 0, 255) | `0x00FF00FF` |
+| Rectángulo con la copia del EFB, abajo a la derecha (368, 447) | cian copiado (0, 255, 255) | `0x0000FFFF` |
 
-Las cinco últimas filas son de la fase 2 (abajo).
+Las ocho últimas filas son de la fase 2 (abajo).
+
+Las lecturas no se toman del primer fotograma. Aurora empieza cada fotograma borrando el EFB con el color de borrado
+que ya tiene, y en el primero aún es el suyo por defecto (negro), no el de la escena. Al añadir la copia del EFB, la
+primera lectura en llegar resultó ser la del primer fotograma y la prueba vio el fondo negro. Lo comprobé esperando a
+que pasaran diez fotogramas: el fondo salía con su color. Antes, la primera lectura llegaba por casualidad de un
+fotograma posterior. Era un fallo de la prueba, no de Aurora ni de la copia.
 
 El alfa es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola. La demo de la API de
 Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con el parche 0008.
@@ -151,11 +161,40 @@ pasan. Con él pasan todas y Aurora no registra avisos.
 No cubierto todavía: las texturas precargadas en TMEM (`GXPreLoadEntireTexture`, `Image1`/`Image2`); los demás formatos
 pasan por los decodificadores de Aurora, que esta prueba no comprueba uno a uno.
 
+### Hecho: copias del EFB a textura (parche 0011)
+
+- **Registros.** En la orden de copia (BP 0x52, sin el bit de copia a pantalla), el origen se lee de BP 0x49 (x, y) y
+  0x4A (ancho − 1, alto − 1), y el destino de 0x4B (dirección física / 32), resuelto con el mismo resolvedor. El tamaño
+  del destino no está en los registros: es el del origen, a la mitad si está activo el filtro de caja (bit 9).
+- **Formato.** Se reconstruye el `GXTexFmt` desde el formato de 4 bits del PE (bits 4–6 y 3), la conversión de color
+  (CCV 3: intensidad) y si la copia es de profundidad (`GXCopyTex` pone el EFB en formato Z24 para ella). Es la inversa
+  exacta de `GXSetTexCopyDst` del SDK. Un formato que no corresponde a ninguno se rechaza con un error.
+- **Cómo la usa una textura.** Aurora ya guardaba cada copia en la GPU, indexada por su puntero de destino, y una
+  textura cuya imagen está en ese puntero toma la copia. Con el resolvedor, el destino de la copia y la imagen de la
+  textura (parche 0010) son el mismo puntero del host, así que encajan sin más cambios. Tras la copia se fuerza a
+  enlazar de nuevo las texturas, por si una ya enlazada estaba en esa dirección.
+
+Prueba (tabla de arriba): se copian como RGBA8 los 64×64 píxeles que hay en (40, 136): arriba es fondo y abajo el
+borde superior del cuadrado RGB565, magenta a la izquierda y cian a la derecha. La copia se dibuja como textura en un
+rectángulo. Comprueba la posición del origen, la orientación (arriba y abajo) y los colores. **Control negativo:** sin
+el parche 0011 fallan esas tres comprobaciones (el rectángulo sale negro). Con él pasan las quince, en tres ejecuciones
+seguidas y sin avisos de Aurora.
+
+Límites de este enfoque, que habrá que comprobar con el juego real:
+
+- La copia vive solo en la GPU: no se escribe en la memoria del juego. Si la CPU lee el destino (algo que la consola
+  permite), verá lo que hubiera antes. Si la CPU reutiliza ese búfer para otra textura, Aurora seguirá dando la copia,
+  porque no hay ninguna señal del juego que lo indique.
+- Solo se ha probado RGBA8 desde un EFB de color. Las copias de profundidad, de intensidad, con filtro de caja y con
+  borrado (`clear`) pasan por el código de Aurora, pero esta prueba no las comprueba.
+- **La copia a pantalla (`GXCopyDisp`, bit 14) sigue sin hacer nada,** ni siquiera el borrado que la acompaña. Con el
+  juego real, el borrado del EFB entre fotogramas y la imagen final dependen de ella: es el siguiente paso.
+
 ### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
-| Copia del EFB a memoria (BP 0x49–0x4B, 0x52) | `GX_AURORA_LOAD_COPY_*` | Registrar la copia por dirección de destino, para que una textura en esa dirección sea la copia |
+| Copia a pantalla (`GXCopyDisp`: BP 0x52 con el bit 14, 0x4E, 0x53–0x54) | No hace nada (*stub*) | Presentar el EFB como fotograma del juego y aplicar el borrado del EFB que acompaña a la copia |
 | Lecturas del EFB (`gx_peek_efb`, token) | API de lectura de Aurora (`AuroraReadback*`) | Conectar los *peeks* de Nebula (destello de la lente, puntero) |
 
 Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), el

@@ -62,6 +62,12 @@ if (r && !r.error) {
         `EFB textura RGB565, mitad derecha = (0, 255, 255): ${rgb(r.texRight)}`);
   check(near(rgb(r.texC8), [255, 255, 0]),
         `EFB textura C8 con TLUT RGB565 en TMEM = entrada 5 (255, 255, 0): ${rgb(r.texC8)}`);
+  check(near(rgb(r.copyTop), [24, 32, 96]),
+        `EFB copia del EFB, mitad superior = fondo copiado (24, 32, 96): ${rgb(r.copyTop)}`);
+  check(near(rgb(r.copyLeft), [255, 0, 255]),
+        `EFB copia del EFB, abajo a la izquierda = magenta copiado (255, 0, 255): ${rgb(r.copyLeft)}`);
+  check(near(rgb(r.copyRight), [0, 255, 255]),
+        `EFB copia del EFB, abajo a la derecha = cian copiado (0, 255, 255): ${rgb(r.copyRight)}`);
 }
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();
