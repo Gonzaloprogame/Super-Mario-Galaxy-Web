@@ -19,8 +19,7 @@ en `COMPILACION_WASM.md`.
 1. **Ejecutar el arranque con un `game.pak` real** (necesita que el usuario lo aporte en su equipo): `smg_headless`
    en Node debe llegar a la escena del logotipo, con el retrace a 60 Hz y el flujo GX contado. Es la verificación que
    desbloquea todo lo demás y mide el coste real de Asyncify.
-2. **División con semántica de PowerPC**: pase post-enlace sobre el `.wasm` que sustituya `i32.div_s/div_u/rem_s/rem_u`
-   por funciones auxiliares (Nebula documenta al menos un caso real: `FlipPanel::endClipped`).
+2. ~~División con semántica de PowerPC~~: hecho (`tools/wasm_ppc_divide.py`, integrado en la compilación).
 3. **Backend WebGPU**: compilar Aurora con Emscripten + `emdawnwebgpu`, conectarlo a `gx_submit` y a las regiones de
    memoria del módulo; primer objetivo: la pantalla del logotipo.
 4. **Audio**: mezclador DSP de JAudio de Nebula a wasm + AudioWorklet.

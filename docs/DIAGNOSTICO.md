@@ -161,7 +161,7 @@ Petari (que no acepta cambios generados por IA).
 |---|---|---|
 | Rendimiento de Asyncify (instrumenta casi todo el juego por las llamadas indirectas) | Alta | Medir con el juego real; alternativas: listas `ASYNCIFY_ONLY/ADD`, un pthread por hilo del juego con relevo (ver arquitectura) o el *stack switching* nativo de wasm cuando esté disponible |
 | Backend gráfico: GX completo (TEV, texturas indirectas, copias EFB, lecturas de EFB) sobre WebGPU | Muy alta | Reutilizar Aurora (MIT) en lugar de reescribir; WebGL 2 solo si WebGPU no está disponible |
-| División por cero con semántica de PowerPC | Media | Pase post-enlace que sustituya `i32.div_s/div_u/rem_s/rem_u` por funciones con el resultado de PowerPC (Binaryen ya no tiene `trap-mode-clamp`) |
+| División por cero con semántica de PowerPC | Media | Resuelto con un pase post-enlace (`tools/wasm_ppc_divide.py`) para toda división que llegue al binario; donde LLVM ya aprovechó el comportamiento indefinido al compilar, solo sirve corregir la fuente (como hace Nebula con `__nebula_divw`) |
 | Memoria: arena de 512 MB alineada a su tamaño → memoria wasm ≥ 1 GB | Media | Con punteros de 4 bytes los márgenes para 64 bits de Nebula sobran: reducir MEM1/MEM2 o mapear la arena en la dirección 0 |
 | Sin páginas de guarda: un desbordamiento de pila de un hilo sobrescribe memoria | Media | Canarios (`0xDEADBABE` del SDK) y comprobaciones de profundidad en el cambio de hilo |
 | SharedArrayBuffer exige COOP/COEP | Baja | Servidor propio con cabeceras, o `coi-serviceworker` en GitHub Pages |

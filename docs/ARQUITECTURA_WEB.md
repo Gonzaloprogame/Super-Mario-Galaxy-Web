@@ -33,7 +33,7 @@ cual; lo que cambia es la plataforma debajo (`web/platform`) y el host que le of
   | `os/context_switch.c` (ensamblador) | `context_switch_wasm.c`: fibers de Emscripten (Asyncify) con la misma interfaz | Hecho, tests pasan |
   | `memory.c` (`mmap` alineado, `mprotect`, `dladdr`) | `memory_shim_wasm.c`: arena alineada en la memoria lineal; ventana de imagen en la dirección 0 | Hecho, tests pasan |
   | `gx/gx_fifo.c` (anillo mapeado dos veces) | `gx_fifo_shim_wasm.c`: un búfer de 2× tamaño sin alias | Hecho, enlaza; sin probar con el juego real |
-  | `os/divide_native.c` (captura `SIGFPE`) | Pase post-enlace que reescriba las divisiones con la semántica de PowerPC | Pendiente |
+  | `os/divide_native.c` (captura `SIGFPE`) | `tools/wasm_ppc_divide.py`: pase post-enlace que convierte cada `div`/`rem` en una llamada con la semántica de PowerPC | Hecho, test pasa (704 divisiones en el módulo) |
   | `pthread_setname_np` | `posix_shim_wasm.c` (sin efecto) | Hecho |
 
 - **Hilos.** Los hilos del juego (OSThread) se ejecutan uno a uno en un solo hilo del host, como en la consola; el

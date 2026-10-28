@@ -128,3 +128,13 @@ target_link_options(smg_headless_web PRIVATE ${SMG_WEB_LINK_OPTIONS}
     -lworkerfs.js "-sEXPORTED_RUNTIME_METHODS=['callMain','FS','WORKERFS']"
     "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
 set_property(TARGET smg_headless_web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
+
+# División entera con la semántica de PowerPC (tools/wasm_ppc_divide.py): cada div/rem del módulo enlazado pasa a una
+# función que da el resultado de la consola donde wasm haría trap. Sustituye a native/sdk/os/divide_native.c.
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+foreach(target smg_headless smg_headless_web)
+    add_custom_command(TARGET ${target} POST_BUILD
+        COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_SOURCE_DIR}/../../tools/wasm_ppc_divide.py"
+            "$<TARGET_FILE_DIR:${target}>/${target}.wasm" "$<TARGET_FILE_DIR:${target}>/${target}.wasm"
+        VERBATIM)
+endforeach()

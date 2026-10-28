@@ -59,6 +59,21 @@ Primera compilación con `em++`/`emcc` (Release, `ninja -k 0`, 2 min 5 s):
    la libc en el módulo. Este fallo latente afectaría también a Nebula en Linux/Android (glibc y bionic usan
    `wchar_t` de 4 bytes) con un LLVM que aplique esa transformación.
 
+6. **División entera con la semántica de PowerPC** (`tools/wasm_ppc_divide.py`, sustituye a
+   `os/divide_native.c`, que captura `SIGFPE`). En la consola `divw`/`divwu` no hacen *trap*; en wasm, dividir por
+   cero (o `INT_MIN / -1`) aborta el programa sin posibilidad de continuar, y Binaryen ya no tiene pases
+   `trap-mode-*`. El pase desensambla el módulo con `wasm-dis`, convierte cada `i32/i64 div_s, div_u, rem_s, rem_u` en
+   una llamada a una función auxiliar con los resultados de Nebula (cociente `a < 0 ? -1 : 0` con signo, `0` sin
+   signo; resto `a - q·b`) y lo vuelve a ensamblar con `wasm-as`. Se ejecuta tras cada enlace (CMake `POST_BUILD`).
+   - Medido: 704 divisiones reescritas en el módulo (i32: 223 `div_s`, 152 `div_u`, 175 `rem_s`, 123 `rem_u`; i64:
+     31), 75 s, +68 KB (9.123.568 → 9.192.187 bytes). El módulo reescrito se comporta igual con los *fixtures*.
+   - Test `web/tests/ppc_divide_test.c`: sin el pase, `RuntimeError: divide by zero`; con él, todos los casos dan el
+     resultado de PowerPC y las divisiones normales no cambian.
+   - *Limitación encontrada al escribir el test:* a `-O2`, LLVM transforma `x / y == 0` (sin signo) en `x < y`, lo que
+     es válido para él porque dividir por cero es indefinido en C. En esos casos la división ni siquiera llega al
+     binario, así que ningún pase posterior (ni el manejador de *traps* nativo de Nebula) puede corregirla; solo un
+     cambio en la fuente, como los `__nebula_divw` de Nebula en los casos conocidos.
+
 ### Enlace
 
 - `smg_headless` (Node) y `smg_headless_web` (navegador) enlazan el módulo completo **sin ningún símbolo sin
@@ -78,6 +93,7 @@ Primera compilación con `em++`/`emcc` (Release, `ninja -k 0`, 2 min 5 s):
 | `os_scheduler_tests` (prioridades, mensajes, alarmas, decrementador) | pasa | **pasa** |
 | `mtx_tests` | pasa | **pasa** |
 | `msl_runtime_tests` (formateadores de MSL) | pasa | **pasa** (tras `-fno-builtin-wcslen`) |
+| `ppc_divide_tests` (división de PowerPC; propio) | — | **pasa** (tras `tools/wasm_ppc_divide.py`) |
 
 Medidas de rendimiento (orientativas, una ejecución):
 
