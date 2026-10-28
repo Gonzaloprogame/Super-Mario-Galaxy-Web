@@ -55,6 +55,7 @@ cual. Dos diferencias aparecieron al dibujar con la GX del juego:
 | `0007-clamp-viewport-depth` | El SDK escribe el *viewport* XF como escala y desplazamiento en unidades de 24 bits; reconstruido, el rango de profundidad quedaba un redondeo por debajo de 0 y WebGPU rechazaba `SetViewport(…, -0.000000, 1)`. Se acota a [0, 1], como hace el hardware. |
 | `0008-hardware-scissor-viewport-offsets` | El hardware **resta** el desplazamiento de caja del *scissor* (el SDK escribe el *scissor* en +342 y el desplazamiento como (x + 342)/2); Aurora lo sumaba, con su API escribiéndolo negado. Con el flujo del juego el *scissor* quedaba en x = 684, fuera del EFB, y no se dibujaba nada. El centro del *viewport* es +342 en el SDK y Aurora usaba 340 (2 píxeles de desfase). Aurora pasa a la convención del hardware en los dos extremos: su API y su reconstrucción. |
 | `0009-guest-memory-arrays-and-display-lists` | Ver "Fase 2" más abajo: Aurora rechazaba las bases de *array* del hardware (`CP_REG_ARRAYBASE_ID is not supported`, escritas ya por `GXInit`) e ignoraba `CALL_DL`. |
+| `0010-guest-memory-textures` | Ver "Fase 2": Aurora leía el tamaño y el formato de las texturas de los registros, pero no su imagen (BP `image3`), ni las TLUT cargadas en TMEM (BP 0x64/0x65) ni la TLUT que elige cada textura (BP 0x98–0x9B, 0xB8–0xBB). Las texturas del juego salían negras. |
 
 ## Prueba: `web/tests/bridge_smoke.mjs`
 
@@ -71,8 +72,11 @@ devuelve el puente.
 | Fondo (96, 408) | (24, 32, 96) | `0x00182060` |
 | Triángulo de *arrays* indexados (568, 444) | (32, 200, 64) | `0x0020C840` |
 | Triángulo de la lista de visualización (568, 36) | (200, 48, 160) | `0x00C830A0` |
+| Cuadrado con textura RGB565, mitad izquierda (44, 240) | (255, 0, 255) | `0x00FF00FF` |
+| Cuadrado con textura RGB565, mitad derecha (100, 240) | (0, 255, 255) | `0x0000FFFF` |
+| Cuadrado con textura C8 y TLUT RGB565 (568, 240) | (255, 255, 0) | `0x00FFFF00` |
 
-Las dos últimas filas son de la fase 2 (abajo).
+Las cinco últimas filas son de la fase 2 (abajo).
 
 El alfa es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola. La demo de la API de
 Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con el parche 0008.
@@ -119,11 +123,38 @@ envía, así que lee la memoria de los *arrays* y las listas algo más tarde que
 juego reescribe dentro de un mismo fotograma a la misma dirección, el resultado podría diferir; con el juego real se
 comprobará (la subida de un *array* se invalida en cada fotograma, con `GXInvalidateVtxCache` y al cambiar su base).
 
+### Hecho: texturas y TLUT (parche 0010)
+
+- **Texturas.** Aurora ya leía de los registros de cada mapa de textura el tamaño y el formato (`Image0`), y el filtrado
+  y el LOD (`Mode0`/`Mode1`). El parche añade la imagen: la dirección física / 32 de `Image3`, resuelta con el mismo
+  resolvedor. Las *mipmaps* se deciden como en el hardware, por el filtro de reducción (los filtros `*_MIP_*`), con el
+  número de niveles del LOD máximo. Si la imagen no cabe en la memoria disponible, la textura se descarta con un error
+  que da su tamaño, formato y dirección.
+- **TLUT.** Una carga (BP 0x64: dirección física / 32; BP 0x65: desplazamiento en TMEM y número de entradas en
+  unidades de 16) se registra por su desplazamiento en TMEM, como en el hardware; cada textura elige su TLUT por
+  desplazamiento y formato (BP 0x98–0x9B y 0xB8–0xBB) y recibe su propia ranura de TLUT en Aurora.
+- **Cuándo.** Los registros se escriben en cualquier orden (`GXLoadTexObj` escribe seis); los mapas que cambiaron se
+  reconstruyen una sola vez, justo antes del siguiente dibujo (`sync_guest_textures`).
+- **Caché.** Sin identidad de objeto: la caché de Aurora por contenido calcula el hash de los datos (XXH3) cada vez que
+  la textura se enlaza (al cambiar los registros de textura, con `GXInvalidateTexAll` (BP 0x66) y en cada fotograma).
+  Así, si el juego reescribe la textura en la misma dirección, se detecta. El precio es calcular el hash una vez por
+  enlace; con el juego real se medirá si hace falta una identidad por dirección invalidada con BP 0x66, que es lo
+  que hace la caché de texturas del hardware.
+
+Prueba (`bridge_smoke.mjs`, tabla de arriba): dos cuadrados con texturas generadas por la escena (sin datos del juego)
+y filtrado puntual. El primero es una textura RGB565 de 8×8 cuyas mitades izquierda y derecha tienen colores distintos:
+comprueba el formato, el orden de bytes y el mosaico de bloques de 4×4 píxeles. El segundo es una textura C8 de 8×8
+que usa en todos sus téxeles el índice 5 de una TLUT RGB565 cargada con `GXLoadTlut`; las demás entradas son negras.
+**Control negativo:** compilado sin el parche 0010, esas tres comprobaciones fallan (el EFB lee negro) y las demás
+pasan. Con él pasan todas y Aurora no registra avisos.
+
+No cubierto todavía: las texturas precargadas en TMEM (`GXPreLoadEntireTexture`, `Image1`/`Image2`); los demás formatos
+pasan por los decodificadores de Aurora, que esta prueba no comprueba uno a uno.
+
 ### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
-| Imagen de textura (BP `image3`) y TLUT (BP 0x64/0x65) | `GX_AURORA_LOAD_TEXOBJ` / `LOAD_TLUT` | Construir la textura desde los registros y la memoria del juego, con caché por dirección e invalidación |
 | Copia del EFB a memoria (BP 0x49–0x4B, 0x52) | `GX_AURORA_LOAD_COPY_*` | Registrar la copia por dirección de destino, para que una textura en esa dirección sea la copia |
 | Lecturas del EFB (`gx_peek_efb`, token) | API de lectura de Aurora (`AuroraReadback*`) | Conectar los *peeks* de Nebula (destello de la lente, puntero) |
 

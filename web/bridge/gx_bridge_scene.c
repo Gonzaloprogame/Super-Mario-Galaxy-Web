@@ -6,7 +6,12 @@
 
    Two more triangles, each in its own corner and colour, are drawn from memory the stream names by physical address,
    as the game's models are: one from indexed vertex arrays (GXSetArray; big-endian, as the game's data files hold
-   them), one from a display list (GXCallDisplayList). */
+   them), one from a display list (GXCallDisplayList).
+
+   Two textured squares on the left and right edges, sampled with point filtering: an 8x8 RGB565 texture whose left
+   half is one colour and right half another (the format, its byte order and its 4x4-pixel tiles), and an 8x8 C8
+   texture whose every texel is index 5 of an RGB565 TLUT loaded into TMEM (every other entry is black). The textures
+   are generated here: no game data. */
 #include <revolution/gx.h>
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
@@ -28,6 +33,11 @@
 #define DL_R 200
 #define DL_G 48
 #define DL_B 160
+/* RGB565 colours that expand exactly to 8 bits: (31, 0, 31), (0, 63, 31), (31, 63, 0). */
+#define TEX_LEFT_565 0xF81F  /* (255, 0, 255) */
+#define TEX_RIGHT_565 0x07FF /* (0, 255, 255) */
+#define TLUT_565 0xFFE0      /* (255, 255, 0) */
+#define TLUT_INDEX 5
 
 /* The host's test hook, between frames: returns nonzero to stop (web/bridge/bridge_main.c). */
 int smg_bridge_scene_frame_done(void);
@@ -43,6 +53,19 @@ static u8 sColours[2 * 4] __attribute__((aligned(32))) = {255, 255, 255, 255, ID
 /* A display list: a triangle in the top-right corner (recorded once, called every frame). */
 static u8 sDisplayList[128] __attribute__((aligned(32)));
 static u32 sDisplayListSize;
+
+/* Textures and TLUT, in the console's formats (big-endian, tiled), 32-byte aligned as GX requires. */
+static u8 sTexture565[8 * 8 * 2] __attribute__((aligned(32)));
+static u8 sTextureC8[8 * 8] __attribute__((aligned(32)));
+static u8 sTlut[16 * 2] __attribute__((aligned(32)));
+static GXTexObj sTexObj565;
+static GXTexObj sTexObjC8;
+static GXTlutObj sTlutObj;
+
+static void store_be16(u8* p, u16 value) {
+    p[0] = (u8)(value >> 8);
+    p[1] = (u8)value;
+}
 
 static u32 big_endian_f32(f32 value) {
     union {
@@ -76,6 +99,30 @@ static void prepare_memory(void) {
     }
     DCFlushRange(sPositions, sizeof(sPositions));
     DCFlushRange(sColours, sizeof(sColours));
+
+    /* RGB565: 4x4-pixel tiles of 32 bytes, row by row (tile x 0 is the left half of the 8x8 texture). */
+    for (int tile = 0; tile < 4; tile++) {
+        const u16 colour = (tile & 1) == 0 ? TEX_LEFT_565 : TEX_RIGHT_565;
+        for (int texel = 0; texel < 16; texel++) {
+            store_be16(sTexture565 + tile * 32 + texel * 2, colour);
+        }
+    }
+    for (int i = 0; i < (int)sizeof(sTextureC8); i++) {
+        sTextureC8[i] = TLUT_INDEX;
+    }
+    for (int i = 0; i < 16; i++) {
+        store_be16(sTlut + i * 2, i == TLUT_INDEX ? TLUT_565 : 0x0000);
+    }
+    DCFlushRange(sTexture565, sizeof(sTexture565));
+    DCFlushRange(sTextureC8, sizeof(sTextureC8));
+    DCFlushRange(sTlut, sizeof(sTlut));
+    GXInitTexObj(&sTexObj565, sTexture565, 8, 8, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);
+    GXInitTexObjLOD(&sTexObj565, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+    GXInitTlutObj(&sTlutObj, sTlut, GX_TL_RGB565, 16);
+    GXInitTexObjCI(&sTexObjC8, sTextureC8, 8, 8, GX_TF_C8, GX_CLAMP, GX_CLAMP, GX_FALSE, GX_TLUT0);
+    GXInitTexObjLOD(&sTexObjC8, GX_NEAR, GX_NEAR, 0.f, 0.f, 0.f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+    OSReport("[bridge] textures at physical 0x%08x (RGB565), 0x%08x (C8), TLUT 0x%08x\n",
+             OSCachedToPhysical(sTexture565), OSCachedToPhysical(sTextureC8), OSCachedToPhysical(sTlut));
 
     set_direct_format();
     GXBeginDisplayList(sDisplayList, sizeof(sDisplayList));
@@ -148,6 +195,37 @@ static void draw(void) {
     GXPosition1x8(2);
     colour_index8(1);
     GXEnd();
+
+    /* The textured squares: position and texture coordinate, the texel as is (GX_REPLACE). */
+    GXLoadTlut(&sTlutObj, GX_TLUT0);
+    GXLoadTexObj(&sTexObj565, GX_TEXMAP0);
+    GXLoadTexObj(&sTexObjC8, GX_TEXMAP1);
+    GXInvalidateTexAll();
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT1, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+    GXSetNumChans(0);
+    GXSetNumTexGens(1);
+    GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+    for (int map = 0; map < 2; map++) {
+        /* x from -0.95 to -0.6 (RGB565, left edge) or from 0.6 to 0.95 (C8, right edge); y from -0.3 to 0.3. */
+        const f32 x0 = map == 0 ? -0.95f : 0.6f;
+        const f32 x1 = x0 + 0.35f;
+        GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, map == 0 ? GX_TEXMAP0 : GX_TEXMAP1, GX_COLOR_NULL);
+        GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+        GXBegin(GX_QUADS, GX_VTXFMT1, 4);
+        GXPosition3f32(x0, 0.3f, -0.5f);
+        GXTexCoord2f32(0.f, 0.f);
+        GXPosition3f32(x1, 0.3f, -0.5f);
+        GXTexCoord2f32(1.f, 0.f);
+        GXPosition3f32(x1, -0.3f, -0.5f);
+        GXTexCoord2f32(1.f, 1.f);
+        GXPosition3f32(x0, -0.3f, -0.5f);
+        GXTexCoord2f32(0.f, 1.f);
+        GXEnd();
+    }
 }
 
 /* The "game main" the native OS core boots (nebula_os_boot), on the game's boot thread. */

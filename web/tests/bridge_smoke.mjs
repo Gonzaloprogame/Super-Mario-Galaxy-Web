@@ -56,6 +56,12 @@ if (r && !r.error) {
         `EFB triángulo de arrays indexados (direcciones físicas, big-endian) = (32, 200, 64): ${rgb(r.indexed)}`);
   check(near(rgb(r.displayList), [200, 48, 160]),
         `EFB triángulo de la lista de dibujo (GXCallDisplayList) = (200, 48, 160): ${rgb(r.displayList)}`);
+  check(near(rgb(r.texLeft), [255, 0, 255]),
+        `EFB textura RGB565, mitad izquierda = (255, 0, 255): ${rgb(r.texLeft)}`);
+  check(near(rgb(r.texRight), [0, 255, 255]),
+        `EFB textura RGB565, mitad derecha = (0, 255, 255): ${rgb(r.texRight)}`);
+  check(near(rgb(r.texC8), [255, 255, 0]),
+        `EFB textura C8 con TLUT RGB565 en TMEM = entrada 5 (255, 255, 0): ${rgb(r.texC8)}`);
 }
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();

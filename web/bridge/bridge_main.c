@@ -17,9 +17,11 @@ void nebula_os_boot(void (*gameMain)(void)); /* native/sdk/os/os_native.c */
 void smg_bridge_scene_main(void);           /* web/bridge/gx_bridge_scene.c */
 
 /* EFB points (640x480): a corner, the direct triangle's centroid, background, the indexed triangle's centroid (bottom
-   right) and the display list triangle's (top right). */
-enum { kPeekCount = 5 };
-static const uint16_t kPeeks[kPeekCount][2] = {{16, 16}, {320, 272}, {96, 408}, {568, 444}, {568, 36}};
+   right), the display list triangle's (top right), the RGB565 square's left and right halves (left edge) and the C8
+   square's centre (right edge). */
+enum { kPeekCount = 8 };
+static const uint16_t kPeeks[kPeekCount][2] = {{16, 16},  {320, 272}, {96, 408}, {568, 444},
+                                               {568, 36}, {44, 240},  {100, 240}, {568, 240}};
 enum { kFrameLimit = 600 };
 
 static void svc_gx_submit(void* user, const uint8_t* bytes, size_t size) {
@@ -37,8 +39,9 @@ int smg_bridge_scene_frame_done(void) {
     uint32_t argb[kPeekCount];
     const uint32_t frames = smg_bridge_frames();
     if (smg_bridge_get_peeks(argb, kPeekCount)) {
-        printf("[bridge] frames %u peeks corner=0x%08x centre=0x%08x outside=0x%08x indexed=0x%08x displayList=0x%08x\n",
-               frames, argb[0], argb[1], argb[2], argb[3], argb[4]);
+        printf("[bridge] frames %u peeks corner=0x%08x centre=0x%08x outside=0x%08x indexed=0x%08x displayList=0x%08x "
+               "texLeft=0x%08x texRight=0x%08x texC8=0x%08x\n",
+               frames, argb[0], argb[1], argb[2], argb[3], argb[4], argb[5], argb[6], argb[7]);
         MAIN_THREAD_ASYNC_EM_ASM(
             {
                 globalThis.bridge.result = ({
@@ -47,10 +50,13 @@ int smg_bridge_scene_frame_done(void) {
                     centre : $2 >>> 0,
                     outside : $3 >>> 0,
                     indexed : $4 >>> 0,
-                    displayList : $5 >>> 0
+                    displayList : $5 >>> 0,
+                    texLeft : $6 >>> 0,
+                    texRight : $7 >>> 0,
+                    texC8 : $8 >>> 0
                 });
             },
-            frames, argb[0], argb[1], argb[2], argb[3], argb[4]);
+            frames, argb[0], argb[1], argb[2], argb[3], argb[4], argb[5], argb[6], argb[7]);
         return 1;
     }
     if (frames >= kFrameLimit) {
