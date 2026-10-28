@@ -55,6 +55,7 @@ cual. Dos diferencias aparecieron al dibujar con la GX del juego:
 | `0007-clamp-viewport-depth` | El SDK escribe el *viewport* XF como escala y desplazamiento en unidades de 24 bits; reconstruido, el rango de profundidad quedaba un redondeo por debajo de 0 y WebGPU rechazaba `SetViewport(…, -0.000000, 1)`. Se acota a [0, 1], como hace el hardware. |
 | `0008-hardware-scissor-viewport-offsets` | El hardware **resta** el desplazamiento de caja del *scissor* (el SDK escribe el *scissor* en +342 y el desplazamiento como (x + 342)/2); Aurora lo sumaba, con su API escribiéndolo negado. Con el flujo del juego el *scissor* quedaba en x = 684, fuera del EFB, y no se dibujaba nada. El centro del *viewport* es +342 en el SDK y Aurora usaba 340 (2 píxeles de desfase). Aurora pasa a la convención del hardware en los dos extremos: su API y su reconstrucción. |
 | `0009-guest-memory-arrays-and-display-lists` | Ver "Fase 2" más abajo: Aurora rechazaba las bases de *array* del hardware (`CP_REG_ARRAYBASE_ID is not supported`, escritas ya por `GXInit`) e ignoraba `CALL_DL`. |
+| `0012-guest-memory-display-copies` | Ver "Fase 2": la copia a pantalla (`GXCopyDisp`) era un *stub* de Aurora: ni guardaba el fotograma ni borraba el EFB. |
 | `0011-guest-memory-texture-copies` | Ver "Fase 2": Aurora solo hacía copias del EFB a textura con sus propios comandos (origen, tamaño, formato y puntero de destino); los registros del hardware que escribe `GXCopyTex` (BP 0x49, 0x4A, 0x4B y la orden 0x52) no tenían efecto y la textura copiada salía negra. |
 | `0010-guest-memory-textures` | Ver "Fase 2": Aurora leía el tamaño y el formato de las texturas de los registros, pero no su imagen (BP `image3`), ni las TLUT cargadas en TMEM (BP 0x64/0x65) ni la TLUT que elige cada textura (BP 0x98–0x9B, 0xB8–0xBB). Las texturas del juego salían negras. |
 
@@ -66,21 +67,31 @@ datos del juego: `web/bridge/bridge_main.c` arranca el núcleo OS del módulo (`
 "main" del juego. `GXInit`, la configuración y el dibujo son los del SDK; `GXDrawDone` espera al fin de dibujo que
 devuelve el puente.
 
-| Punto del EFB | Esperado | Leído |
-|---|---|---|
-| Esquina (16, 16) | (24, 32, 96) | `0x00182060` |
-| Centro del triángulo (320, 272) | (240, 176, 16) | `0x00F0B010` |
-| Fondo (96, 408) | (24, 32, 96) | `0x00182060` |
-| Triángulo de *arrays* indexados (568, 444) | (32, 200, 64) | `0x0020C840` |
-| Triángulo de la lista de visualización (568, 36) | (200, 48, 160) | `0x00C830A0` |
-| Cuadrado con textura RGB565, mitad izquierda (44, 240) | (255, 0, 255) | `0x00FF00FF` |
-| Cuadrado con textura RGB565, mitad derecha (100, 240) | (0, 255, 255) | `0x0000FFFF` |
-| Cuadrado con textura C8 y TLUT RGB565 (568, 240) | (255, 255, 0) | `0x00FFFF00` |
-| Rectángulo con la copia del EFB, arriba a la izquierda (272, 405) | fondo copiado (24, 32, 96) | `0x00182060` |
-| Rectángulo con la copia del EFB, abajo a la izquierda (272, 447) | magenta copiado (255, 0, 255) | `0x00FF00FF` |
-| Rectángulo con la copia del EFB, abajo a la derecha (368, 447) | cian copiado (0, 255, 255) | `0x0000FFFF` |
+El fotograma termina como el de un juego: `GXCopyDisp` copia el EFB entero a un XFB y borra el EFB, y la escena dibuja
+después un marcador. Los colores de la escena se leen **del XFB**, con la API de lectura de copias de Aurora, en el
+formato en que el hardware lo habría dejado en memoria (aquí RGBA8 en bloques de 4×4, decodificado por el puente). El
+EFB se lee al final del fotograma, después del borrado:
 
-Las ocho últimas filas son de la fase 2 (abajo).
+| Punto | Esperado | Leído |
+|---|---|---|
+| XFB, esquina (16, 16) | (24, 32, 96) | `0xFF182060` |
+| XFB, centro del triángulo (320, 272) | (240, 176, 16) | `0xFFF0B010` |
+| XFB, fondo (96, 408) | (24, 32, 96) | `0xFF182060` |
+| XFB, triángulo de *arrays* indexados (568, 444) | (32, 200, 64) | `0xFF20C840` |
+| XFB, triángulo de la lista de visualización (568, 36) | (200, 48, 160) | `0xFFC830A0` |
+| XFB, textura RGB565, mitad izquierda (44, 240) | (255, 0, 255) | `0xFFFF00FF` |
+| XFB, textura RGB565, mitad derecha (100, 240) | (0, 255, 255) | `0xFF00FFFF` |
+| XFB, textura C8 con TLUT RGB565 (568, 240) | (255, 255, 0) | `0xFFFFFF00` |
+| XFB, copia del EFB, arriba a la izquierda (272, 405) | fondo copiado (24, 32, 96) | `0xFF182060` |
+| XFB, copia del EFB, abajo a la izquierda (272, 447) | magenta copiado (255, 0, 255) | `0xFFFF00FF` |
+| XFB, copia del EFB, abajo a la derecha (368, 447) | cian copiado (0, 255, 255) | `0xFF00FFFF` |
+| XFB, donde está el marcador (320, 48) | fondo: el marcador se dibujó después de la copia | `0xFF182060` |
+| EFB tras la copia, esquina (16, 16) | (24, 32, 96) | `0x00182060` |
+| EFB tras la copia, donde estaba el triángulo (320, 272) | (24, 32, 96): la copia borró el EFB | `0x00182060` |
+| EFB tras la copia, marcador (320, 48) | (250, 120, 0) | `0x00FA7800` |
+
+El alfa del EFB es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola; la copia RGBA8
+al XFB lo escribe opaco. Las filas de *arrays*, lista, texturas, copias y XFB son de la fase 2 (abajo).
 
 Las lecturas no se toman del primer fotograma. Aurora empieza cada fotograma borrando el EFB con el color de borrado
 que ya tiene, y en el primero aún es el suyo por defecto (negro), no el de la escena. Al añadir la copia del EFB, la
@@ -88,8 +99,7 @@ primera lectura en llegar resultó ser la del primer fotograma y la prueba vio e
 que pasaran diez fotogramas: el fondo salía con su color. Antes, la primera lectura llegaba por casualidad de un
 fotograma posterior. Era un fallo de la prueba, no de Aurora ni de la copia.
 
-El alfa es 0 porque el `GXInit` del SDK deja el EFB en un formato sin alfa, como en la consola. La demo de la API de
-Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con el parche 0008.
+La demo de la API de Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con todos los parches.
 
 Error encontrado al escribir la prueba: `exit()` desde el juego ejecuta los destructores estáticos de C++ en el hilo
 de la página mientras el hilo de render sigue activo, y uno de ellos espera indefinidamente (pila obtenida pausando el
@@ -187,14 +197,41 @@ Límites de este enfoque, que habrá que comprobar con el juego real:
   porque no hay ninguna señal del juego que lo indique.
 - Solo se ha probado RGBA8 desde un EFB de color. Las copias de profundidad, de intensidad, con filtro de caja y con
   borrado (`clear`) pasan por el código de Aurora, pero esta prueba no las comprueba.
-- **La copia a pantalla (`GXCopyDisp`, bit 14) sigue sin hacer nada,** ni siquiera el borrado que la acompaña. Con el
-  juego real, el borrado del EFB entre fotogramas y la imagen final dependen de ella: es el siguiente paso.
+
+### Hecho: copia a pantalla (parche 0012)
+
+- **Qué hace.** `GXCopyDisp` es la misma orden de copia con el bit 14: el fotograma pasa al XFB, la memoria de la
+  que el VI lee la imagen. Usa los mismos registros de origen y destino. El ancho del destino es el del origen y el
+  alto se escala con BP 0x4E cuando el bit 10 está activo (`__GXGetNumXfbLines` del SDK). El borrado (bit 11) es como
+  el juego borra el EFB entre fotogramas: se aplica tras la copia con las máscaras de escritura del momento (el SDK
+  activa la de profundidad para ello).
+- **Formato.** La consola escribe el XFB en YUV 4:2:2 para el VI. Aquí se guarda en RGBA8, en la GPU y bajo la
+  dirección del XFB, como cualquier copia: nadie lee un XFB desde la CPU, y el host lo presentará.
+- **Dibujos que esperan su *pipeline*.** El puente activa `AuroraSetDrawsBlocking`. Sin hilo de *pipelines*
+  (parche 0004), Aurora compila unos pocos por fotograma y descarta los dibujos cuyo *pipeline* aún no existe. La
+  prueba lo destapó: en los primeros fotogramas se perdía el borrado de la copia a pantalla. El EFB conservaba el
+  triángulo del fotograma anterior; en el fotograma 60, en cambio, ya se borraba. Con la espera no se pierde ningún
+  dibujo; a cambio, el fotograma se detiene la primera vez que aparece un *pipeline*. Con el juego real habrá que
+  medir esa pausa y decidir si compensa (por ejemplo, con una caché persistente de *pipelines*).
+
+Prueba: la tabla de arriba. **Controles negativos:** sin el parche 0012 no existe el XFB (Aurora registra «STUB:
+display copy is not implemented» y la lectura del XFB falla), y la prueba falla. Sin la espera de *pipelines* falla
+la comprobación del borrado (el EFB conserva el triángulo). Con ambos pasan las 19 comprobaciones, en tres ejecuciones
+seguidas y sin avisos de Aurora.
+
+Sin hacer todavía:
+
+- **Presentación.** Aurora sigue presentando el EFB al cerrar el fotograma. Con el juego real eso sería el EFB ya
+  borrado más lo dibujado después: la pantalla debe mostrar el XFB que el VI tiene seleccionado (`vi_frame` de
+  Nebula da su dirección). Va junto al `OffscreenCanvas` del hilo de render, y aquí no puede verificarse: el canvas
+  WebGPU de Chromium sin GPU pierde el dispositivo (`BACKEND_WEBGPU.md`).
+- El entrelazado por campos (bits 12–13), la gamma (bits 7–8) y el recorte (`GXSetCopyClamp`) de la copia se ignoran.
 
 ### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
-| Copia a pantalla (`GXCopyDisp`: BP 0x52 con el bit 14, 0x4E, 0x53–0x54) | No hace nada (*stub*) | Presentar el EFB como fotograma del juego y aplicar el borrado del EFB que acompaña a la copia |
+| Presentación del XFB | Aurora presenta el EFB | Presentar la copia del XFB que selecciona el VI (`vi_frame`), con el `OffscreenCanvas` |
 | Lecturas del EFB (`gx_peek_efb`, token) | API de lectura de Aurora (`AuroraReadback*`) | Conectar los *peeks* de Nebula (destello de la lente, puntero) |
 
 Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), el

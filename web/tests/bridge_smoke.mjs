@@ -46,28 +46,37 @@ const r = state && state !== 'stuck' ? state.result : null;
 console.log('resultado:', JSON.stringify(r));
 const rgb = (v) => [(v >>> 16) & 255, (v >>> 8) & 255, v & 255];
 const near = (got, want, tol = 6) => want.every((v, i) => Math.abs(got[i] - v) <= tol);
-check(!!r && !r.error, `Aurora devolvió la lectura del EFB (${r && r.error ? r.error : 'sí'})`);
+check(!!r && !r.error, `Aurora devolvió la lectura del XFB y del EFB (${r && r.error ? r.error : 'sí'})`);
 if (r && !r.error) {
+  const x = r.xfb;
+  const e = r.efb;
   check(r.frames > 0, `fotogramas GX dibujados por Aurora: ${r.frames}`);
-  check(near(rgb(r.corner), [24, 32, 96]), `EFB esquina = color de borrado (24, 32, 96): ${rgb(r.corner)}`);
-  check(near(rgb(r.outside), [24, 32, 96]), `EFB fuera del triángulo = color de borrado: ${rgb(r.outside)}`);
-  check(near(rgb(r.centre), [240, 176, 16]), `EFB centro del triángulo = color de vértice (240, 176, 16): ${rgb(r.centre)}`);
-  check(near(rgb(r.indexed), [32, 200, 64]),
-        `EFB triángulo de arrays indexados (direcciones físicas, big-endian) = (32, 200, 64): ${rgb(r.indexed)}`);
-  check(near(rgb(r.displayList), [200, 48, 160]),
-        `EFB triángulo de la lista de dibujo (GXCallDisplayList) = (200, 48, 160): ${rgb(r.displayList)}`);
-  check(near(rgb(r.texLeft), [255, 0, 255]),
-        `EFB textura RGB565, mitad izquierda = (255, 0, 255): ${rgb(r.texLeft)}`);
-  check(near(rgb(r.texRight), [0, 255, 255]),
-        `EFB textura RGB565, mitad derecha = (0, 255, 255): ${rgb(r.texRight)}`);
-  check(near(rgb(r.texC8), [255, 255, 0]),
-        `EFB textura C8 con TLUT RGB565 en TMEM = entrada 5 (255, 255, 0): ${rgb(r.texC8)}`);
-  check(near(rgb(r.copyTop), [24, 32, 96]),
-        `EFB copia del EFB, mitad superior = fondo copiado (24, 32, 96): ${rgb(r.copyTop)}`);
-  check(near(rgb(r.copyLeft), [255, 0, 255]),
-        `EFB copia del EFB, abajo a la izquierda = magenta copiado (255, 0, 255): ${rgb(r.copyLeft)}`);
-  check(near(rgb(r.copyRight), [0, 255, 255]),
-        `EFB copia del EFB, abajo a la derecha = cian copiado (0, 255, 255): ${rgb(r.copyRight)}`);
+  // The frame, as the display copy (GXCopyDisp) left it in the XFB
+  check(near(rgb(x.corner), [24, 32, 96]), `XFB esquina = color de borrado (24, 32, 96): ${rgb(x.corner)}`);
+  check(near(rgb(x.outside), [24, 32, 96]), `XFB fuera del triángulo = color de borrado: ${rgb(x.outside)}`);
+  check(near(rgb(x.centre), [240, 176, 16]), `XFB centro del triángulo = color de vértice (240, 176, 16): ${rgb(x.centre)}`);
+  check(near(rgb(x.indexed), [32, 200, 64]),
+        `XFB triángulo de arrays indexados (direcciones físicas, big-endian) = (32, 200, 64): ${rgb(x.indexed)}`);
+  check(near(rgb(x.displayList), [200, 48, 160]),
+        `XFB triángulo de la lista de dibujo (GXCallDisplayList) = (200, 48, 160): ${rgb(x.displayList)}`);
+  check(near(rgb(x.texLeft), [255, 0, 255]), `XFB textura RGB565, mitad izquierda = (255, 0, 255): ${rgb(x.texLeft)}`);
+  check(near(rgb(x.texRight), [0, 255, 255]), `XFB textura RGB565, mitad derecha = (0, 255, 255): ${rgb(x.texRight)}`);
+  check(near(rgb(x.texC8), [255, 255, 0]),
+        `XFB textura C8 con TLUT RGB565 en TMEM = entrada 5 (255, 255, 0): ${rgb(x.texC8)}`);
+  check(near(rgb(x.copyTop), [24, 32, 96]),
+        `XFB copia del EFB, mitad superior = fondo copiado (24, 32, 96): ${rgb(x.copyTop)}`);
+  check(near(rgb(x.copyLeft), [255, 0, 255]),
+        `XFB copia del EFB, abajo a la izquierda = magenta copiado (255, 0, 255): ${rgb(x.copyLeft)}`);
+  check(near(rgb(x.copyRight), [0, 255, 255]),
+        `XFB copia del EFB, abajo a la derecha = cian copiado (0, 255, 255): ${rgb(x.copyRight)}`);
+  // The EFB after the display copy's clear, with the marker drawn after it
+  check(near(rgb(e.corner), [24, 32, 96]), `EFB tras la copia: esquina = color de borrado: ${rgb(e.corner)}`);
+  check(near(rgb(e.centre), [24, 32, 96]),
+        `EFB tras la copia: donde estaba el triángulo = color de borrado (la copia borró el EFB): ${rgb(e.centre)}`);
+  check(near(rgb(e.marker), [250, 120, 0]),
+        `EFB tras la copia: marcador dibujado después = (250, 120, 0): ${rgb(e.marker)}`);
+  check(near(rgb(x.marker), [24, 32, 96]),
+        `XFB donde está el marcador = color de borrado (se dibujó después de la copia): ${rgb(x.marker)}`);
 }
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();

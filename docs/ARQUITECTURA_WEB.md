@@ -53,8 +53,8 @@ cual; lo que cambia es la plataforma debajo (`web/platform`) y el host que le of
   WGSL (`lib/gx/shader.cpp`) y gestiona texturas, copias EFB y lecturas. *Hecho:* compilado con Emscripten y
   `emdawnwebgpu` (`web/aurora`, 6 parches pequeños, Aurora en un solo hilo), con una escena GX de prueba verificada en
   Chromium (`BACKEND_WEBGPU.md`). *Hecho:* el FIFO del juego llega a Aurora, y las bases de arrays de vértices, las
-  llamadas a listas de visualización, las texturas, las TLUT y las copias del EFB a textura se resuelven con las regiones del módulo (`nebula_game_memory_regions`;
-  `PUENTE_FIFO.md`). *Pendiente:* la copia a pantalla (`GXCopyDisp`) y las lecturas del EFB del juego.
+  llamadas a listas de visualización, las texturas, las TLUT, las copias del EFB a textura y la copia a pantalla se resuelven con las regiones del módulo (`nebula_game_memory_regions`;
+  `PUENTE_FIFO.md`). *Pendiente:* presentar el XFB que elige el VI y las lecturas del EFB del juego.
 - **WebGL 2 como respaldo** solo si WebGPU no está disponible: exigiría un generador GLSL ES 3.0 propio (noclip.website,
   MIT, tiene uno para GX que sirve de referencia).
 - Preservación: modelos, texturas, materiales TEV, iluminación, animaciones y efectos salen del propio juego; el

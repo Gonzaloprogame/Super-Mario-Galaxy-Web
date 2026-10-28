@@ -15,7 +15,11 @@
 
    Last, an EFB copy (GXCopyTex): the 64x64 pixels at (40, 136), whose top half is background and whose bottom half is
    the top of the RGB565 square (magenta on the left, cyan on the right), copied as RGBA8 to a buffer, then drawn as a
-   texture on a rectangle at the bottom centre. The copy must keep its place, orientation and colours. */
+   texture on a rectangle at the bottom centre. The copy must keep its place, orientation and colours.
+
+   The frame ends as a game's does: GXCopyDisp copies the whole EFB to an XFB (the frame the VI shows) and clears the
+   EFB. A marker drawn after it, at the top centre, must be in the EFB and not in the XFB; the rest of the EFB must
+   hold the clear colour. web/tests/bridge_smoke.mjs reads the scene's colours from the XFB. */
 #include <revolution/gx.h>
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
@@ -42,6 +46,10 @@
 #define TEX_RIGHT_565 0x07FF /* (0, 255, 255) */
 #define TLUT_565 0xFFE0      /* (255, 255, 0) */
 #define TLUT_INDEX 5
+/* The marker drawn after the display copy. */
+#define MARK_R 250
+#define MARK_G 120
+#define MARK_B 0
 
 /* The host's test hook, between frames: returns nonzero to stop (web/bridge/bridge_main.c). */
 int smg_bridge_scene_frame_done(void);
@@ -70,6 +78,15 @@ static GXTlutObj sTlutObj;
 enum { kCopyLeft = 40, kCopyTop = 136, kCopySize = 64 };
 static u8 sCopyBuffer[kCopySize * kCopySize * 4] __attribute__((aligned(32)));
 static GXTexObj sTexObjCopy;
+
+/* The XFB: the console's 2 bytes per pixel (YUV 4:2:2), allocated as a game does; Aurora keeps the copy on the GPU. */
+enum { kXfbWidth = 640, kXfbHeight = 480 };
+static u8 sXfb[kXfbWidth * kXfbHeight * 2] __attribute__((aligned(32)));
+
+/* For the host's probe (web/bridge/bridge_main.c). */
+const void* smg_bridge_scene_xfb(void) {
+    return sXfb;
+}
 
 static void store_be16(u8* p, u16 value) {
     p[0] = (u8)(value >> 8);
@@ -256,6 +273,29 @@ static void draw(void) {
     GXTexCoord2f32(1.f, 1.f);
     GXPosition3f32(-0.3f, -0.95f, -0.5f);
     GXTexCoord2f32(0.f, 1.f);
+    GXEnd();
+
+    /* The frame to the XFB, clearing the EFB (colour and depth: the SDK enables the depth update for it). */
+    GXSetDispCopySrc(0, 0, kXfbWidth, kXfbHeight);
+    GXSetDispCopyDst(kXfbWidth, kXfbHeight);
+    GXSetDispCopyYScale(1.f);
+    GXCopyDisp(sXfb, GX_TRUE);
+
+    /* The marker after the copy: x -0.1..0.1, y 0.7..0.9 (screen 288..352, 24..72), vertex colour. */
+    set_direct_format();
+    GXSetNumChans(1);
+    GXSetNumTexGens(0);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+    GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+    GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+    GXPosition3f32(-0.1f, 0.9f, -0.5f);
+    GXColor4u8(MARK_R, MARK_G, MARK_B, 255);
+    GXPosition3f32(0.1f, 0.9f, -0.5f);
+    GXColor4u8(MARK_R, MARK_G, MARK_B, 255);
+    GXPosition3f32(0.1f, 0.7f, -0.5f);
+    GXColor4u8(MARK_R, MARK_G, MARK_B, 255);
+    GXPosition3f32(-0.1f, 0.7f, -0.5f);
+    GXColor4u8(MARK_R, MARK_G, MARK_B, 255);
     GXEnd();
 }
 
