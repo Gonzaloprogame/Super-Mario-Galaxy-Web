@@ -19,8 +19,15 @@ fi
 emcmake cmake -S "$ROOT/web/game" -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 ninja -C "$BUILD_DIR" smg_headless smg_headless_web
 
+# The renderer: Aurora's GX on the browser's WebGPU, with its test scene (web/aurora, docs/BACKEND_WEBGPU.md).
+AURORA_BUILD_DIR=${AURORA_BUILD_DIR:-$ROOT/build/aurora}
+emcmake cmake -S "$ROOT/web/aurora" -B "$AURORA_BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+ninja -C "$AURORA_BUILD_DIR" gx_demo
+
 rm -rf "$SITE"
 mkdir -p "$SITE"
 cp "$ROOT"/web/shell/index.html "$ROOT"/web/shell/app.js "$SITE"/
 cp "$BUILD_DIR"/smg_headless_web.js "$BUILD_DIR"/smg_headless_web.wasm "$SITE"/
+mkdir -p "$SITE/gx"
+cp "$ROOT"/web/aurora/demo/gx_demo.html "$AURORA_BUILD_DIR"/gx_demo.js "$AURORA_BUILD_DIR"/gx_demo.wasm "$SITE/gx"/
 echo "Sitio en $SITE (sírvelo con tools/serve.py: necesita las cabeceras COOP/COEP)"

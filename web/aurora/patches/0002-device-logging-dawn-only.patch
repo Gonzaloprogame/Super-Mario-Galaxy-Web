@@ -1,0 +1,30 @@
+diff --git a/lib/webgpu/gpu.cpp b/lib/webgpu/gpu.cpp
+index 97f886f..7b7893e 100644
+--- a/lib/webgpu/gpu.cpp
++++ b/lib/webgpu/gpu.cpp
+@@ -66,6 +66,7 @@ static std::atomic_bool g_vsyncEnabled = true;
+ 
+ namespace {
+ 
++#ifdef WEBGPU_DAWN // Dawn's device logging; the browser reports through its console and the error callbacks.
+ AuroraLogLevel wgpu_log_level(wgpu::LoggingType type) {
+   switch (type) {
+   case wgpu::LoggingType::Verbose:
+@@ -84,6 +85,7 @@ AuroraLogLevel wgpu_log_level(wgpu::LoggingType type) {
+ void wgpu_log(wgpu::LoggingType type, wgpu::StringView message) {
+   Log.report(wgpu_log_level(type), "WebGPU message: {}", message);
+ }
++#endif
+ 
+ constexpr std::string_view resampleShaderSource = R"(
+ struct Uniforms {
+@@ -993,7 +995,9 @@ bool initialize(AuroraBackend auroraBackend, bool allowCpu) {
+     if (!g_device) {
+       return false;
+     }
++#ifdef WEBGPU_DAWN
+     g_device.SetLoggingCallback(wgpu_log);
++#endif
+   }
+   g_queue = g_device.GetQueue();
+ 

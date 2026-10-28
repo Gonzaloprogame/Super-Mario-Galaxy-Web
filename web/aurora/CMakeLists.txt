@@ -122,3 +122,77 @@ target_compile_features(aurora_gx_web PUBLIC cxx_std_20)
 # The browser's WebGPU through Dawn's webgpu.h and webgpu_cpp.h (Emscripten's emdawnwebgpu port, a Dawn release asset).
 target_compile_options(aurora_gx_web PUBLIC --use-port=emdawnwebgpu)
 target_link_options(aurora_gx_web PUBLIC --use-port=emdawnwebgpu)
+
+# ---- Aurora's core (cmake/aurora_core.cmake): window, events, logging, input and the WebGPU device ----
+file(STRINGS "${aurora}/cmake/aurora_core.cmake" core_lines REGEX "^[ \t]+lib/[^ ]+\\.cpp$")
+set(core_sources "")
+foreach(line ${core_lines})
+    string(STRIP "${line}" path)
+    list(APPEND core_sources "${aurora}/${path}")
+endforeach()
+# RmlUi and Apple/Dawn backend bindings are not built (RmlUi is off; the browser is the only backend).
+list(FILTER core_sources EXCLUDE REGEX "/lib/rmlui|/lib/dawn/")
+foreach(replacement ${web_sources})
+    file(STRINGS "${replacement}" replaces REGEX "^/\\* REPLACES: ")
+    if(replaces)
+        string(REGEX REPLACE "^/\\* REPLACES: ([^ ]+) .*" "\\1" replaced "${replaces}")
+        list(REMOVE_ITEM core_sources "${aurora}/${replaced}")
+    endif()
+endforeach()
+list(LENGTH core_sources core_count)
+message(STATUS "Aurora core: ${core_count} sources")
+add_library(aurora_core_web STATIC ${core_sources})
+target_link_libraries(aurora_core_web PUBLIC aurora_gx_web)
+target_include_directories(aurora_core_web PRIVATE "${aurora}/lib")
+# The browser backend: no WEBGPU_DAWN (native Dawn's toggles, cache and DawnNative.h in lib/webgpu/gpu.cpp).
+target_compile_definitions(aurora_core_web PUBLIC ENABLE_BACKEND_WEBGPU)
+# The web replacements of lib/dawn/BackendBinding.cpp and lib/imgui.cpp include from lib/dawn and lib/.
+target_include_directories(aurora_gx_web PRIVATE "${aurora}/lib/dawn")
+
+# ---- Libraries Aurora links, built from the pinned sources (tools/fetch_sources.sh) ----
+# SDL3 (window on the page's canvas, events, input). Emscripten's own sdl3 port downloads a GitHub archive.
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory("${deps}/sdl3" sdl3 EXCLUDE_FROM_ALL)
+
+set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+add_subdirectory("${deps}/abseil" abseil EXCLUDE_FROM_ALL)
+
+add_library(xxhash_web STATIC "${deps}/xxhash/xxhash.c")
+target_include_directories(xxhash_web PUBLIC "${deps}/xxhash")
+
+# Dear ImGui as Aurora builds it (cmake/AuroraDearImguiProvider.cmake). Its WebGPU backend picks the Emscripten
+# flavour by itself and refuses IMGUI_IMPL_WEBGPU_BACKEND_DAWN there, which Aurora sets for native Dawn.
+set(imgui_dir "${deps}/imgui")
+add_library(imgui_web STATIC
+    ${imgui_dir}/imgui.cpp ${imgui_dir}/imgui_demo.cpp ${imgui_dir}/imgui_draw.cpp ${imgui_dir}/imgui_tables.cpp
+    ${imgui_dir}/imgui_widgets.cpp ${imgui_dir}/misc/cpp/imgui_stdlib.cpp
+    ${imgui_dir}/backends/imgui_impl_sdl3.cpp ${imgui_dir}/backends/imgui_impl_sdlrenderer3.cpp
+    "${aurora}/lib/imgui_config.cpp")
+target_include_directories(imgui_web PUBLIC "${imgui_dir}" "${aurora}/include")
+target_compile_definitions(imgui_web PUBLIC IMGUI_USER_CONFIG="aurora/imgui_config.h")
+target_compile_options(imgui_web PUBLIC --use-port=emdawnwebgpu)
+target_link_libraries(imgui_web PUBLIC SDL3::SDL3-static)
+
+add_library(aurora_main_web STATIC "${aurora}/lib/main.cpp" "${aurora}/lib/dolphin/vi/vi.cpp")
+target_include_directories(aurora_main_web PRIVATE "${aurora}/lib")
+target_link_libraries(aurora_main_web PUBLIC aurora_core_web)
+
+target_link_libraries(aurora_core_web PUBLIC SDL3::SDL3-static absl::flat_hash_map absl::btree xxhash_web imgui_web)
+target_link_libraries(aurora_gx_web PUBLIC SDL3::SDL3-static absl::flat_hash_map absl::btree xxhash_web)
+
+# ---- GX demo in the browser (web/aurora/demo): a triangle drawn through Aurora's GX on the page's WebGPU ----
+# Asyncify: Aurora waits on the adapter and device requests (wgpu::Instance::WaitAny with a timeout), which
+# emdawnwebgpu supports in Asyncify builds.
+add_executable(gx_demo "${CMAKE_CURRENT_SOURCE_DIR}/demo/gx_demo.c")
+target_link_libraries(gx_demo PRIVATE aurora_main_web aurora_core_web aurora_gx_web)
+target_link_options(gx_demo PRIVATE -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576 -sALLOW_MEMORY_GROWTH
+    -sSTACK_SIZE=2MB -sENVIRONMENT=web)
+set_target_properties(gx_demo PROPERTIES SUFFIX ".js")
+option(SMG_WEB_ASSERTIONS "Emscripten runtime assertions and function names (debugging)" OFF)
+if(SMG_WEB_ASSERTIONS)
+    target_link_options(gx_demo PRIVATE -sASSERTIONS=2 --profiling-funcs)
+endif()

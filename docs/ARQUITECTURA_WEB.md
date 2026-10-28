@@ -50,9 +50,10 @@ cual; lo que cambia es la plataforma debajo (`web/platform`) y el host que le of
   navegador). Motivos: shaders WGSL generados en tiempo de ejecución (uno por configuración TEV), *compute* para
   conversiones de texturas y copias EFB, y es la API que ya usa Aurora.
 - **Aurora (MIT) como base del backend:** `aurora::gx::fifo::process(data, size)` interpreta bytes FIFO GX, genera
-  WGSL (`lib/gx/shader.cpp`) y gestiona texturas, copias EFB y lecturas. Trabajo necesario: compilarlo con
-  Emscripten (no tiene soporte hoy), resolver direcciones físicas con las regiones del módulo
-  (`nebula_game_memory_regions`), y conectar los marcadores de Nebula (tokens de sincronización, lecturas de EFB).
+  WGSL (`lib/gx/shader.cpp`) y gestiona texturas, copias EFB y lecturas. *Hecho:* compilado con Emscripten y
+  `emdawnwebgpu` (`web/aurora`, 6 parches pequeños, Aurora en un solo hilo), con una escena GX de prueba verificada en
+  Chromium (`BACKEND_WEBGPU.md`). *Pendiente:* resolver direcciones físicas con las regiones del módulo
+  (`nebula_game_memory_regions`) y conectar los marcadores de Nebula (tokens de sincronización, lecturas de EFB).
 - **WebGL 2 como respaldo** solo si WebGPU no está disponible: exigiría un generador GLSL ES 3.0 propio (noclip.website,
   MIT, tiene uno para GX que sirve de referencia).
 - Preservación: modelos, texturas, materiales TEV, iluminación, animaciones y efectos salen del propio juego; el

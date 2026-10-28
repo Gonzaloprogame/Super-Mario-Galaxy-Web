@@ -19,7 +19,10 @@ No está afiliado a Nintendo ni respaldado por Nintendo.
 - El motor se carga en Chromium dentro de un worker con hilos, lee el `game.pak` del usuario por trozos y se ejecuta
   hasta la carga de datos de `main.dol`, el primer punto que requiere los archivos reales del juego.
 
-Aún no hay renderizado, audio ni controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md`.
+- El renderizador elegido, la capa GX de Aurora, compila entera para el navegador y dibuja una escena GX de prueba
+  en el WebGPU de Chromium, verificada leyendo el EFB (`docs/BACKEND_WEBGPU.md`). Todavía no está conectado al juego.
+
+Aún no se ve el juego, ni hay audio o controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md`.
 
 ## Documentación
 
@@ -28,6 +31,7 @@ Aún no hay renderizado, audio ni controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md
 | `docs/DIAGNOSTICO.md` | Análisis de Petari y Nebula, comparación, estrategia, riesgos |
 | `docs/ARQUITECTURA_WEB.md` | Arquitectura del port: motor, gráficos, audio, controles, recursos, interfaz |
 | `docs/COMPILACION_WASM.md` | Resultados reales de compilación y ejecución, errores encontrados |
+| `docs/BACKEND_WEBGPU.md` | Aurora GX sobre el WebGPU del navegador: parches, pruebas y limitaciones |
 | `docs/ENTORNO.md` | Versiones de las herramientas e instalación |
 | `docs/ARCHIVOS_DEL_JUEGO.md` | Cómo aportar legalmente los archivos del juego |
 | `docs/HOJA_DE_RUTA.md` | Hitos, criterios de aceptación y próximos pasos |
@@ -40,7 +44,8 @@ tools/fetch_sources.sh                 # fuentes de referencia en third_party/ (
 web/tests/run_os_tests.sh              # tests de la capa nativa en wasm (Node)
 tools/build_web.sh                     # compila y monta el sitio en build/site
 python3 tools/serve.py 8080            # http://127.0.0.1:8080 (con COOP/COEP)
-node web/tests/browser_smoke.mjs       # prueba en Chromium
+node web/tests/browser_smoke.mjs       # prueba del motor en Chromium
+node web/tests/aurora_smoke.mjs build/site/gx   # prueba del renderizador (WebGPU) en Chromium
 ```
 
 Diagnóstico en Node con tu partición: `node build/web/smg_headless.js /ruta/a/game.pak 10`.
@@ -52,6 +57,7 @@ Diagnóstico en Node con tu partición: `node build/web/smg_headless.js /ruta/a/
 | `web/game/` | CMake de Emscripten para el módulo de juego y los hosts |
 | `web/platform/` | Capa de plataforma web (sustitutos y *shims* de la capa nativa de Nebula) |
 | `web/host/` | Host que implementa `nebula_game_api.h` (por ahora sin gráficos) |
+| `web/aurora/` | Aurora (GX sobre WebGPU) para el navegador: CMake, parches, sustitutos y demo |
 | `web/shell/` | Interfaz web y arranque del worker |
 | `web/tests/` | Tests en wasm, prueba de navegador, particiones sintéticas |
 | `tools/` | Descarga de fuentes, compilación, servidor de desarrollo |
