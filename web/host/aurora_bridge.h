@@ -12,6 +12,10 @@ extern "C" {
    them). Returns 1 once Aurora is ready, 0 if it could not start. headless: render the EFB offscreen (tests). */
 int smg_bridge_start(int headless);
 
+/* Before the process exits (any thread but the render thread): the render thread ends its frame, shuts Aurora down
+   and returns; then exit() can run the C++ static destructors (with Aurora alive one of them waits forever). */
+void smg_bridge_stop(void);
+
 /* From the game's simulation thread, in stream order (the host's gx_submit and gx_pe_marker). They do not allocate:
    the game owns operator new on that thread (web/platform/operator_new_wasm.cpp). */
 void smg_bridge_submit(const uint8_t* bytes, size_t size);

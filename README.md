@@ -21,11 +21,15 @@ No está afiliado a Nintendo ni respaldado por Nintendo.
 
 - El renderizador elegido, la capa GX de Aurora, compila entera para el navegador y dibuja en el WebGPU de Chromium
   (`docs/BACKEND_WEBGPU.md`).
-- El FIFO GX del juego está conectado a Aurora: la GX del propio módulo de juego dibuja una escena de prueba que
-  Aurora renderiza, verificada leyendo el EFB (`docs/PUENTE_FIFO.md`). Faltan los recursos por dirección física
-  (vértices indexados, listas de visualización, texturas), que el juego usa en casi todo.
+- El FIFO GX del juego está conectado a Aurora, con los recursos por dirección física que usa el juego: vértices
+  indexados, listas de visualización, texturas y TLUT, copias del EFB, copia a pantalla y lecturas del EFB. Una
+  escena de prueba dibujada por la GX del propio módulo de juego llega hasta el canvas de la página
+  (`docs/PUENTE_FIFO.md`).
+- La página tiene un modo **con gráficos**: el motor completo con Aurora. Arranca y se cierra de forma verificada
+  con una partición sintética; **no se ha probado con el juego real**, porque requiere tu copia
+  (`docs/MOTOR_WEB.md` explica cómo probarlo).
 
-Aún no se ve el juego, ni hay audio o controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md`.
+No hay audio ni controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md`.
 
 ## Documentación
 
@@ -36,6 +40,7 @@ Aún no se ve el juego, ni hay audio o controles. Hoja de ruta: `docs/HOJA_DE_RU
 | `docs/COMPILACION_WASM.md` | Resultados reales de compilación y ejecución, errores encontrados |
 | `docs/BACKEND_WEBGPU.md` | Aurora GX sobre el WebGPU del navegador: parches, pruebas y limitaciones |
 | `docs/PUENTE_FIFO.md` | El FIFO GX del juego dibujado por Aurora: un binario con ambos, pruebas y fase 2 |
+| `docs/MOTOR_WEB.md` | Cómo probar el motor con gráficos con tu copia del juego, y qué contar |
 | `docs/ENTORNO.md` | Versiones de las herramientas e instalación |
 | `docs/ARCHIVOS_DEL_JUEGO.md` | Cómo aportar legalmente los archivos del juego |
 | `docs/HOJA_DE_RUTA.md` | Hitos, criterios de aceptación y próximos pasos |
@@ -47,13 +52,14 @@ source <emsdk>/emsdk_env.sh            # Emscripten 6.0.13
 tools/fetch_sources.sh                 # fuentes de referencia en third_party/ (revisiones fijas)
 web/tests/run_os_tests.sh              # tests de la capa nativa en wasm (Node)
 tools/build_web.sh                     # compila y monta el sitio en build/site
-python3 tools/serve.py 8080            # http://127.0.0.1:8080 (con COOP/COEP)
+python3 tools/serve.py 8080 build/site # http://127.0.0.1:8080 (con COOP/COEP)
 node web/tests/browser_smoke.mjs       # prueba del motor en Chromium
 node web/tests/aurora_smoke.mjs build/site/gx   # prueba del renderizador (WebGPU) en Chromium
 node web/tests/bridge_smoke.mjs build/site/bridge   # GX del juego -> Aurora, en Chromium
 ```
 
-Diagnóstico en Node con tu partición: `node build/web/smg_headless.js /ruta/a/game.pak 10`.
+Diagnóstico en Node con tu partición: `node build/all/game/smg_headless.js /ruta/a/game.pak 10`.
+Con gráficos en el navegador: `docs/MOTOR_WEB.md`.
 
 ## Estructura
 

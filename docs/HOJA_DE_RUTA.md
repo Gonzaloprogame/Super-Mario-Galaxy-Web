@@ -20,13 +20,15 @@ en `COMPILACION_WASM.md`.
    en Node debe llegar a la escena del logotipo, con el retrace a 60 Hz y el flujo GX contado. Es la verificación que
    desbloquea todo lo demás y mide el coste real de Asyncify.
 2. ~~División con semántica de PowerPC~~: hecho (`tools/wasm_ppc_divide.py`, integrado en la compilación).
-3. **Backend WebGPU**: ~~compilar Aurora~~ y ~~conectar `gx_submit`~~ (hecho: `BACKEND_WEBGPU.md`,
+3. **Probar el motor con gráficos con el juego real** (`MOTOR_WEB.md`): la cadena está montada y verificada con
+   escenas de prueba y una partición sintética; falta el resultado con el `game.pak` del usuario.
+4. **Backend WebGPU**: ~~compilar Aurora~~ y ~~conectar `gx_submit`~~ (hecho: `BACKEND_WEBGPU.md`,
    `PUENTE_FIFO.md`). Fase 2 del puente: ~~arrays de vértices, `CALL_DL`, texturas, TLUT, copias del EFB y copia a pantalla~~
    lecturas del EFB del juego y presentación del XFB en la página (hecho), el `OffscreenCanvas` del hilo de render y el cierre ordenado; primer objetivo con datos
    reales: la pantalla del logotipo.
-4. **Audio**: mezclador DSP de JAudio de Nebula a wasm + AudioWorklet.
-5. **Entrada**: informes de Wii Remote desde teclado, ratón y Gamepad API.
-6. **NAND en OPFS**, `game.pak` persistente en OPFS.
-7. **Memoria**: reducir la arena (con punteros de 4 bytes sobran los márgenes de 64 bits) y medir el consumo real.
-8. **Rendimiento**: reloj de `OSGetTime` sin llamar a JS; evaluar listas de Asyncify o el modelo de un pthread por
+5. **Audio**: mezclador DSP de JAudio de Nebula a wasm + AudioWorklet.
+6. **Entrada**: informes de Wii Remote desde teclado, ratón y Gamepad API.
+7. **NAND en OPFS**, `game.pak` persistente en OPFS.
+8. **Memoria**: reducir la arena (con punteros de 4 bytes sobran los márgenes de 64 bits) y medir el consumo real.
+9. **Rendimiento**: reloj de `OSGetTime` sin llamar a JS; evaluar listas de Asyncify o el modelo de un pthread por
    hilo del juego.

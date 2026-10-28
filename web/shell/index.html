@@ -34,14 +34,18 @@
          font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
          margin: 0; }
   code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .92em; }
+  select { font: inherit; padding: 4px; }
+  #screen { display: block; width: 100%; max-width: 640px; aspect-ratio: 4 / 3; background: #000; border-radius: 6px;
+            image-rendering: pixelated; }
+  #screen-card[hidden] { display: none; }
 </style>
 </head>
 <body data-state="loading">
 <main>
   <h1>Galaxy Web: motor experimental</h1>
   <p class="muted">El código del juego (decompilación Petari, en el fork nativo de Nebula) compilado a WebAssembly.
-    Esta versión <strong>no dibuja ni suena todavía</strong>: ejecuta el motor en modo diagnóstico y muestra lo que
-    hace. No incluye ningún archivo de Nintendo; necesitas tu propia copia del juego.</p>
+    En modo <strong>con gráficos</strong> el motor dibuja con Aurora sobre el WebGPU del navegador; todavía no suena ni
+    acepta mandos. No incluye ningún archivo de Nintendo; necesitas tu propia copia del juego.</p>
 
   <div class="card">
     <label for="pak">Tu <code>game.pak</code></label>
@@ -49,18 +53,31 @@
       consulta <code>docs/ARCHIVOS_DEL_JUEGO.md</code>. El archivo no sale de tu navegador: el motor lo lee por trozos.</p>
     <div class="row">
       <div><input id="pak" type="file"></div>
-      <div><label for="seconds">Segundos</label><input id="seconds" type="number" min="1" max="600" value="10"></div>
+      <div><label for="mode">Modo</label>
+        <select id="mode">
+          <option value="graphics">Con gráficos (Aurora, WebGPU)</option>
+          <option value="diagnostic">Diagnóstico (sin renderizador)</option>
+        </select></div>
+      <div><label for="seconds">Segundos (0: sin límite)</label>
+        <input id="seconds" type="number" min="0" max="3600" value="0"></div>
       <div><button id="run" type="button">Arrancar el motor</button></div>
     </div>
   </div>
 
   <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
 
+  <div class="card" id="screen-card" hidden>
+    <label for="screen">Pantalla</label>
+    <p class="muted" id="screen-info">Ningún fotograma recibido del motor.</p>
+    <canvas id="screen" width="640" height="480"></canvas>
+  </div>
+
   <div class="card">
     <label for="log">Registro del motor</label>
     <pre id="log" tabindex="0"></pre>
   </div>
 </main>
+<script src="present.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

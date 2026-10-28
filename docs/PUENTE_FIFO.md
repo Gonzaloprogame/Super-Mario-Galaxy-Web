@@ -109,8 +109,8 @@ La demo de la API de Aurora (`web/tests/aurora_smoke.mjs`) sigue pasando con tod
 Error encontrado al escribir la prueba: `exit()` desde el juego ejecuta los destructores estáticos de C++ en el hilo
 de la página mientras el hilo de render sigue activo, y uno de ellos espera indefinidamente (pila obtenida pausando el
 hilo con el depurador de Chrome: `exitOnMainThread` → `exitRuntime` → `__funcs_on_exit`). La prueba publica el
-resultado en la página sin terminar el proceso. **Pendiente:** un cierre ordenado del motor (detener el hilo de render
-antes de los destructores).
+resultado en la página sin terminar el proceso. El motor con gráficos (`docs/MOTOR_WEB.md`) sí cierra ordenadamente
+(`smg_bridge_stop`): el hilo de render cierra su fotograma, apaga Aurora y termina antes de `exit()`.
 
 ## Fase 2: recursos por dirección física
 

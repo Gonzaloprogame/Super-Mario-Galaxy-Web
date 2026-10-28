@@ -28,17 +28,45 @@ function requirements() {
   return missing;
 }
 
+// The graphics mode also needs WebGPU (the engine's render thread uses it from a worker).
+const hasWebGPU = typeof navigator === 'object' && 'gpu' in navigator;
+
+const engines = {
+  graphics: { script: 'smg_web.js', label: 'con gráficos: Aurora sobre WebGPU' },
+  diagnostic: { script: 'smg_headless_web.js', label: 'modo diagnóstico, sin renderizador' },
+};
+
+// What the screen shows comes only from frames the engine posted (web/shell/present.js): nothing is drawn here.
+const presenter = smgAttachPresenter($('screen'));
+setInterval(() => {
+  if (presenter.frames > 0) {
+    $('screen-info').textContent = `Fotogramas mostrados: ${presenter.frames} (${presenter.width}×${presenter.height}), ` +
+      'el XFB que el VI del juego tiene seleccionado.';
+  }
+}, 500);
+
 function start() {
   const file = $('pak').files[0];
   if (!file) {
     setStatus('Selecciona primero tu game.pak.', 'error');
     return;
   }
-  const seconds = Math.max(1, Number($('seconds').value) || 10);
+  const mode = $('mode').value;
+  if (mode === 'graphics' && !hasWebGPU) {
+    setStatus('Este navegador no ofrece WebGPU: usa el modo diagnóstico o un navegador con WebGPU.', 'error');
+    return;
+  }
+  const engine = engines[mode];
+  const seconds = Math.max(0, Number($('seconds').value) || 0);
+  if (mode === 'diagnostic' && seconds === 0) {
+    setStatus('El modo diagnóstico necesita una duración en segundos.', 'error');
+    return;
+  }
   $('run').disabled = true;
   logEl.textContent = '';
+  $('screen-card').hidden = mode !== 'graphics';
   setStatus(`Cargando ${file.name} (${(file.size / 2 ** 20).toFixed(1)} MB)…`);
-  const worker = new Worker('smg_headless_web.js');
+  const worker = new Worker(engine.script);
   document.body.dataset.state = 'running';
   worker.onmessage = ({ data }) => {
     switch (data.type) {
@@ -55,7 +83,7 @@ function start() {
         break;
       case 'exit':
         if (data.code === 0) {
-          setStatus('El motor terminó la ejecución de diagnóstico (código 0). Consulta el informe en el registro.', 'ok');
+          setStatus('El motor terminó la ejecución (código 0). Consulta el informe en el registro.', 'ok');
           document.body.dataset.state = 'done';
         } else {
           setStatus(`El motor se detuvo con el código ${data.code}. El motivo aparece en el registro.`, 'error');
@@ -71,7 +99,7 @@ function start() {
     document.body.dataset.state = 'error';
     $('run').disabled = false;
   };
-  worker.postMessage({ file, seconds });
+  worker.postMessage({ file, seconds, label: engine.label });
 }
 
 const missing = requirements();

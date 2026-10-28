@@ -1,7 +1,11 @@
 /* A headless host for the game module on WebAssembly: Nebula's NebulaHostServices (nebula_game_api.h) with no
    renderer, no audio and no input. It loads the user's game.pak, runs the game, consumes the GX command stream
    without drawing it (counting it), drives the 60 Hz retrace and reports what the game did. It is the first runtime
-   check of the web build (docs/COMPILACION_WASM.md), in Node.js today and in a browser worker later.
+   check of the web build (docs/COMPILACION_WASM.md), in Node.js and in a browser worker.
+
+   Built with SMG_HOST_AURORA (smg_web, web/engine) it draws: the GX stream, the PE markers, the EFB peeks and the
+   VI's frame go to Aurora on the browser's WebGPU (web/host/aurora_bridge.cpp), which posts the XFB the VI shows to
+   the page (web/shell/present.js).
 
    Written in C on purpose: the game module brings the game's own C++ library (MSL), whose std:: templates would merge
    with libc++'s in one wasm binary (Nebula keeps them in separate native modules for that reason).
@@ -21,6 +25,9 @@
 #include <nebula_game_api.h>
 
 #include "host_services.h"
+#if defined(SMG_HOST_AURORA)
+#include "aurora_bridge.h"
+#endif
 
 /* ---- game.pak: the decrypted game partition at its own offsets (crates/nebula-import) ---- */
 
@@ -40,6 +47,14 @@ static uint32_t load_be32(const uint8_t* p) {
     return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
 }
 
+/* Every end of the process: with Aurora, its render thread is stopped first (smg_bridge_stop). */
+static void host_exit(int code) {
+#if defined(SMG_HOST_AURORA)
+    smg_bridge_stop();
+#endif
+    exit(code);
+}
+
 static void die(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -47,7 +62,7 @@ static void die(const char* format, ...) {
     vfprintf(stderr, format, args);
     fputc('\n', stderr);
     va_end(args);
-    exit(2);
+    host_exit(2);
 }
 
 static int read_at(uint64_t offset, void* dst, size_t size) {
@@ -125,12 +140,36 @@ static void svc_log(void* user, const char* text) {
     fputs(text, stderr);
 }
 
+static void report(void);
+
 static void svc_fatal(void* user, const char* text) {
     (void)user;
     fprintf(stderr, "[host] the game stopped: %s\n", text);
-    exit(3);
+    report();
+    host_exit(3);
 }
 
+#if defined(SMG_HOST_AURORA)
+/* The GX command stream, its PE markers and the EFB peeks: drawn by Aurora, which releases the spans and answers the
+   markers as its render thread reaches them. */
+static void svc_gx_submit(void* user, const uint8_t* bytes, size_t size) {
+    (void)user;
+    atomic_fetch_add(&sGxBytes, size);
+    atomic_fetch_add(&sGxSpans, 1);
+    smg_bridge_submit(bytes, size);
+}
+
+static void svc_gx_pe_marker(void* user, int finish, uint16_t token) {
+    (void)user;
+    atomic_fetch_add(&sPeMarkers, 1);
+    smg_bridge_pe_marker(finish, token);
+}
+
+static uint32_t svc_gx_peek_efb(void* user, uint16_t x, uint16_t y, uint32_t type, uint16_t token) {
+    (void)user;
+    return smg_bridge_peek_efb(x, y, type, token);
+}
+#else
 /* The GX command stream: counted and released; drawing it is the renderer's work (docs/ARQUITECTURA_WEB.md). */
 static void svc_gx_submit(void* user, const uint8_t* bytes, size_t size) {
     (void)user;
@@ -146,6 +185,7 @@ static void svc_gx_pe_marker(void* user, int finish, uint16_t token) {
     atomic_fetch_add(&sPeMarkers, 1);
     nebula_game_gx_event(finish, token);
 }
+#endif
 
 static const uint8_t* svc_disc_fst(void* user, size_t* size) {
     (void)user;
@@ -177,10 +217,14 @@ static const char* svc_disc_id(void* user) {
 
 static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) {
     (void)user;
-    (void)xfb;
-    (void)black;
     (void)retrace;
     atomic_fetch_add(&sFrames, 1);
+#if defined(SMG_HOST_AURORA)
+    smg_bridge_vi_frame(xfb, black);
+#else
+    (void)xfb;
+    (void)black;
+#endif
 }
 
 /* No NAND yet: every request fails as a missing file system would (persistence is a later step). */
@@ -194,7 +238,7 @@ static void svc_fs_request(void* user, const NebulaFsRequest* request, uint32_t 
 static void svc_power(void* user, uint32_t what) {
     (void)user;
     fprintf(stderr, "[host] power request %u\n", what);
-    exit(0);
+    host_exit(0);
 }
 
 static void svc_game_stage(void* user, const char* name) {
@@ -215,14 +259,19 @@ static void report(void) {
             atomic_load(&sRetraces), atomic_load(&sFrames), atomic_load(&sGxBytes), atomic_load(&sGxSpans),
             atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), atomic_load(&sFsRequests),
             sStage);
+#if defined(SMG_HOST_AURORA)
+    fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page\n", smg_bridge_frames(),
+            smg_bridge_presented());
+#endif
 }
 
-/* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run. */
+/* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run (none when the
+   run's length is 0). */
 static void* clock_main(void* arg) {
     (void)arg;
     struct timespec next;
     clock_gettime(CLOCK_MONOTONIC, &next);
-    const uint64_t total = (uint64_t)(sSeconds * 60.0);
+    const uint64_t total = sSeconds > 0.0 ? (uint64_t)(sSeconds * 60.0) : UINT64_MAX;
     for (uint64_t n = 1; n <= total; n++) {
         next.tv_nsec += 16666667;
         if (next.tv_nsec >= 1000000000) {
@@ -237,13 +286,13 @@ static void* clock_main(void* arg) {
         }
     }
     report();
-    exit(0);
+    host_exit(0);
     return NULL;
 }
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <game.pak> [seconds]\n", argv[0]);
+        fprintf(stderr, "usage: %s <game.pak> [seconds, 0: no end]\n", argv[0]);
         return 1;
     }
     if (argc > 2) {
@@ -262,17 +311,30 @@ int main(int argc, char** argv) {
     services.disc_dol = svc_disc_dol;
     services.disc_id = svc_disc_id;
     services.vi_frame = svc_vi_frame;
+#if defined(SMG_HOST_AURORA)
+    services.gx_peek_efb = svc_gx_peek_efb;
+#endif
     services.fs_request = svc_fs_request;
     services.power = svc_power;
     services.game_stage = svc_game_stage;
     if (nebula_game_attach(&services) == 0) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);
     }
+#if defined(SMG_HOST_AURORA)
+    if (!smg_bridge_start(1)) {
+        die("Aurora did not start on this browser's WebGPU");
+    }
+    fprintf(stderr, "[host] Aurora is drawing on WebGPU\n");
+#endif
     pthread_t clock;
     if (pthread_create(&clock, NULL, clock_main, NULL) != 0) {
         die("the retrace clock cannot start");
     }
-    fprintf(stderr, "[host] running the game for %.1f s\n", sSeconds);
+    if (sSeconds > 0.0) {
+        fprintf(stderr, "[host] running the game for %.1f s\n", sSeconds);
+    } else {
+        fprintf(stderr, "[host] running the game\n");
+    }
     nebula_game_run(); /* never returns */
     return 0;
 }

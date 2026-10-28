@@ -1,6 +1,6 @@
-// Appended to smg_headless_web.js (--extern-post-js): that script is the engine's worker. The page starts it with
-// new Worker('smg_headless_web.js'); the pthreads' workers load the same script under the name "em-pthread" and run
-// Emscripten's own pthread code, not this.
+// Appended to smg_headless_web.js and smg_web.js (--extern-post-js): that script is the engine's worker. The page
+// starts it with new Worker('smg_web.js') (or the diagnostic smg_headless_web.js); the pthreads' workers load the same
+// script under the name "em-pthread" and run Emscripten's own pthread code, not this.
 //
 // Here the Emscripten program runs inside a dedicated worker: it may block (Atomics.wait) and it reads the user's
 // game.pak in slices through WORKERFS, never copying the partition (about 4 GB) into memory.
@@ -9,7 +9,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
   const post = (type, data) => self.postMessage(Object.assign({ type }, data));
 
   self.onmessage = async (event) => {
-    const { file, seconds } = event.data;
+    const { file, seconds, label } = event.data;
     post('status', { text: 'Compilando e instanciando el módulo WebAssembly…' });
     let module;
     try {
@@ -25,7 +25,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
     }
     module.FS.mkdir('/game');
     module.FS.mount(module.WORKERFS, { files: [file] }, '/game');
-    post('status', { text: 'Motor en marcha (modo diagnóstico, sin renderizador).' });
+    post('status', { text: `Motor en marcha (${label}).` });
     try {
       module.callMain([`/game/${file.name}`, String(seconds)]);
     } catch (error) {

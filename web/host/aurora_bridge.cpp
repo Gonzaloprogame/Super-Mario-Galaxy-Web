@@ -45,6 +45,8 @@ std::atomic<uint32_t> g_head{0}; // next item to read (render thread)
 std::atomic<uint32_t> g_tail{0}; // next item to write (simulation thread)
 
 std::atomic<int> g_state{0}; // 0 starting, 1 ready, -1 failed
+std::atomic<int> g_stop{0};  // the host is ending the process: the render thread shuts Aurora down and returns
+pthread_t g_renderThread;
 std::atomic<uint32_t> g_frames{0};
 int g_headless = 0;
 
@@ -291,6 +293,14 @@ void* render_main(void*) {
 
   bool frameOpen = false;
   for (;;) {
+    if (g_stop.load(std::memory_order_acquire)) {
+      // Before exit(): with Aurora alive, exit's C++ static destructors wait forever (docs/PUENTE_FIFO.md)
+      if (frameOpen) {
+        aurora_end_frame();
+      }
+      aurora_shutdown();
+      return nullptr;
+    }
     if (!frameOpen) {
       aurora_update();
       frameOpen = aurora_begin_frame();
@@ -339,11 +349,10 @@ void* render_main(void*) {
 
 extern "C" int smg_bridge_start(int headless) {
   g_headless = headless;
-  pthread_t thread;
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, 1 << 20);
-  if (pthread_create(&thread, &attr, render_main, nullptr) != 0) {
+  if (pthread_create(&g_renderThread, &attr, render_main, nullptr) != 0) {
     return 0;
   }
   pthread_attr_destroy(&attr);
@@ -351,6 +360,13 @@ extern "C" int smg_bridge_start(int headless) {
     sched_yield();
   }
   return g_state.load(std::memory_order_acquire) == 1;
+}
+
+extern "C" void smg_bridge_stop(void) {
+  if (g_state.load(std::memory_order_acquire) != 1 || g_stop.exchange(1, std::memory_order_acq_rel) != 0) {
+    return;
+  }
+  pthread_join(g_renderThread, nullptr);
 }
 
 extern "C" void smg_bridge_submit(const uint8_t* bytes, size_t size) {

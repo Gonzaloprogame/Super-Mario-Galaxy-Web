@@ -1,5 +1,7 @@
 // Prueba de humo en Chromium (Playwright): la página carga el motor en un worker, lee una partición sintética y muestra
-// el resultado real del motor; sin aislamiento de origen cruzado, la página se niega a arrancar y lo explica.
+// el resultado real del motor, en sus dos modos: diagnóstico (sin renderizador) y con gráficos (Aurora sobre WebGPU,
+// que debe arrancar en el worker del motor antes de que el motor llegue al mismo error). Sin aislamiento de origen
+// cruzado, la página se niega a arrancar y lo explica.
 //   node web/tests/browser_smoke.mjs   (tras tools/build_web.sh; usa el Chromium preinstalado de Playwright)
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
@@ -51,8 +53,8 @@ async function withPlainServer(fn) {
   }
 }
 
-async function run(url, pak, timeoutMs) {
-  const browser = await chromium.launch();
+async function run(url, pak, timeoutMs, mode = 'diagnostic') {
+  const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
   const page = await browser.newPage();
   const consoleErrors = [];
   page.on('pageerror', (e) => consoleErrors.push(String(e)));
@@ -62,6 +64,7 @@ async function run(url, pak, timeoutMs) {
   const result = { isolated, state, status: await page.textContent('#status'), log: '', consoleErrors };
   if (pak && state === 'ready') {
     await page.setInputFiles('#pak', pak);
+    await page.selectOption('#mode', mode);
     await page.fill('#seconds', '2');
     await page.click('#run');
     await page.waitForFunction(() => ['done', 'error'].includes(document.body.dataset.state), null, { timeout: timeoutMs });
@@ -87,6 +90,17 @@ await withServer('isolated', async (url) => {
 
   const w = await run(url, join(fixtures, 'fixture_wrongid.pak'), 120000);
   check(w.state === 'error' && /not Super Mario Galaxy/.test(w.log), 'una partición de otro juego se rechaza');
+
+  // With graphics: the same engine and host with Aurora (smg_web.js)
+  const g = await run(url, join(fixtures, 'fixture_emptydol.pak'), 180000, 'graphics');
+  check(/RMGE01, 16384 bytes/.test(g.log), 'con gráficos: el host leyó la partición a través de WORKERFS');
+  check(/\[host\] Aurora is drawing on WebGPU/.test(g.log),
+        'con gráficos: Aurora arrancó sobre WebGPU en el worker del motor');
+  check(/cStoryProgressTable .* is not in the disc's main\.dol/.test(g.log),
+        'con gráficos: el módulo de juego llegó al mismo punto (cargador de datos del DOL)');
+  check(g.state === 'error' && /código 3/.test(g.status), `con gráficos: código de salida real: "${g.status.trim()}"`);
+  check(g.consoleErrors.length === 0, `con gráficos: sin excepciones de página (${g.consoleErrors.join('; ')})`);
+  console.log('--- registro del motor (con gráficos) ---\n' + g.log.trim());
 });
 
 await withPlainServer(async (url) => {
