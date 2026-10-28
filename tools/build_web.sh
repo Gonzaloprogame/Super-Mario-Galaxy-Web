@@ -28,5 +28,6 @@ cp "$BUILD_DIR"/game/smg_headless_web.js "$BUILD_DIR"/game/smg_headless_web.wasm
 # Aurora's GX on WebGPU, with its own API (docs/BACKEND_WEBGPU.md).
 cp "$ROOT"/web/aurora/demo/gx_demo.html "$BUILD_DIR"/aurora/gx_demo.js "$BUILD_DIR"/aurora/gx_demo.wasm "$SITE/gx"/
 # The game's GX stream through Aurora (docs/PUENTE_FIFO.md).
-cp "$ROOT"/web/bridge/gx_bridge.html "$BUILD_DIR"/bridge/gx_bridge.js "$BUILD_DIR"/bridge/gx_bridge.wasm "$SITE/bridge"/
+cp "$ROOT"/web/bridge/gx_bridge.html "$BUILD_DIR"/bridge/gx_bridge.js "$BUILD_DIR"/bridge/gx_bridge.wasm \
+   "$ROOT"/web/shell/present.js "$SITE/bridge"/
 echo "Sitio en $SITE (sírvelo con tools/serve.py: necesita las cabeceras COOP/COEP)"

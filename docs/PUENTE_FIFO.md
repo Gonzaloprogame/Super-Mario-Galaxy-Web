@@ -226,10 +226,6 @@ seguidas y sin avisos de Aurora.
 
 Sin hacer todavía:
 
-- **Presentación.** Aurora sigue presentando el EFB al cerrar el fotograma. Con el juego real eso sería el EFB ya
-  borrado más lo dibujado después: la pantalla debe mostrar el XFB que el VI tiene seleccionado (`vi_frame` de
-  Nebula da su dirección). Va junto al `OffscreenCanvas` del hilo de render, y aquí no puede verificarse: el canvas
-  WebGPU de Chromium sin GPU pierde el dispositivo (`BACKEND_WEBGPU.md`).
 - El entrelazado por campos (bits 12–13), la gamma (bits 7–8) y el recorte (`GXSetCopyClamp`) de la copia se ignoran.
 
 ### Hecho: lecturas del EFB del juego (`gx_peek_efb`)
@@ -255,11 +251,38 @@ posición correcta pasan las 24, en tres ejecuciones seguidas.
 Límites: ocho canales con 16 puntos cada uno; un punto nuevo da 0 durante su primer fotograma; en el canal 0, las
 lecturas de un fotograma hechas en posiciones distintas se capturan todas en la primera.
 
+### Hecho: presentación del XFB en la página
+
+El VI de Nebula llama a `vi_frame` en cada retrace con la dirección física del XFB que muestra. El puente
+(`smg_bridge_vi_frame`, `present`) lee de vuelta, al final de cada fotograma, la copia a pantalla de esa dirección
+(RGBA8 en bloques, con `aurora_guest_copy_size`, parche 0013, para su tamaño). La pasa a filas RGBA y la envía a la
+página por el `BroadcastChannel` «smg-present». `web/shell/present.js` la pinta en un `<canvas>` 2D. Este camino no
+necesita presentar WebGPU en un canvas, así que funciona en cualquier navegador con WebGPU y se puede verificar aquí.
+El precio es una lectura de 1,2 MB por fotograma y uno o dos fotogramas de retraso.
+
+![El canvas de la página del puente](img/puente_canvas.png)
+
+*La escena de prueba (generada por el propio test, sin datos del juego) tal como la pinta la página.*
+
+Prueba: la escena hace lo que un juego al final de cada fotograma (`VISetNextFrameBuffer`, `VISetBlack(FALSE)`,
+`VIFlush`), y el host del puente da un retrace de 60 Hz. La prueba lee **el canvas de la página** en los 12 puntos del
+XFB, con los mismos colores, y comprueba el tamaño (640×480): 38 comprobaciones en total, en tres ejecuciones seguidas.
+**Control negativo:** sin el servicio `vi_frame` la página no pinta ningún fotograma y la prueba falla.
+
+Un error de la prueba encontrado aquí: la escena dejaba de dibujar en cuanto tenía su resultado, y la presentación,
+que va uno o dos fotogramas por detrás, a veces no llegaba a enviar ninguno. Ahora la escena sigue dibujando, como un
+juego.
+
+Pendiente: la presentación directa de WebGPU en un canvas (`OffscreenCanvas` del hilo de render), que evita la lectura.
+No se puede verificar en este entorno: ni Chromium *headless* ni Chromium normal en una pantalla virtual (Xvfb), con
+nueve combinaciones de opciones, mantienen un dispositivo WebGPU que presente en un canvas; lo pierden también con una
+página de JavaScript puro.
+
 ### Lo que falta
 
 | Forma de hardware | En Aurora | Trabajo |
 |---|---|---|
-| Presentación del XFB | Aurora presenta el EFB | Presentar la copia del XFB que selecciona el VI (`vi_frame`), con el `OffscreenCanvas` |
+| Presentación directa en WebGPU | Lectura del XFB y canvas 2D | `OffscreenCanvas` en el hilo de render (verificable solo con GPU) |
 
 Además: el `OffscreenCanvas` del hilo de render para mostrar la imagen en la página (hoy se dibuja fuera de pantalla), el
 ritmo de fotogramas por el retrace (hoy el fotograma termina en cada fin de dibujo) y el cierre ordenado.

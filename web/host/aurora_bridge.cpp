@@ -74,6 +74,16 @@ PeekChannel g_peekChannels[MaxPeekChannels];
 std::atomic<uint32_t> g_gamePeeks{0};         // peeks the game made (tests)
 std::atomic<uint32_t> g_gamePeeksCaptured{0}; // of them, answered from a capture
 
+// Presentation: the XFB the VI shows (vi_frame), read back at each frame's end and posted to the page as RGBA rows on
+// the BroadcastChannel "smg-present" (web/shell/present.js paints it on a 2D canvas). The readback is asynchronous:
+// the page gets the frame a frame or two late. It does not depend on presenting WebGPU to a canvas, which Chromium
+// without a GPU cannot do (docs/BACKEND_WEBGPU.md).
+std::atomic<uint32_t> g_viXfb{0};  // physical address, 0: none
+std::atomic<int> g_viBlack{1};
+std::vector<uint8_t> g_presentTiles;  // render thread
+std::vector<uint8_t> g_presentPixels; // render thread
+std::atomic<uint32_t> g_presented{0};
+
 // The XFB probe (tests): a display copy's destination, read back at each frame's end as the hardware would have
 // written it to memory (RGBA8 here: 4x4-texel tiles of 64 bytes, alpha and red then green and blue).
 std::atomic<const void*> g_xfbProbe{nullptr};
@@ -153,6 +163,54 @@ void collect_peeks(AuroraReadbackStream stream) {
   }
 }
 
+// RGBA8 as the hardware writes it (4x4-texel tiles of 64 bytes: alpha and red, then green and blue) to RGBA rows,
+// opaque (the XFB has no alpha for the display).
+void detile_rgba8(const uint8_t* tiles, uint32_t width, uint32_t height, uint8_t* rows) {
+  const uint32_t tilesX = width / 4;
+  for (uint32_t y = 0; y < height; ++y) {
+    for (uint32_t x = 0; x < width; ++x) {
+      const uint8_t* tile = tiles + ((y / 4) * tilesX + x / 4) * 64;
+      const uint32_t texel = (y % 4) * 4 + x % 4;
+      uint8_t* out = rows + (y * width + x) * 4;
+      out[0] = tile[texel * 2 + 1];
+      out[1] = tile[32 + texel * 2];
+      out[2] = tile[32 + texel * 2 + 1];
+      out[3] = 255;
+    }
+  }
+}
+
+void present(AuroraReadbackStream stream) {
+  const uint32_t physical = g_viXfb.load(std::memory_order_acquire);
+  uint32_t width = 0;
+  uint32_t height = 0;
+  uint32_t available = 0;
+  const uint8_t* xfb = physical != 0 ? resolve_guest(physical, &available) : nullptr;
+  if (xfb == nullptr || !aurora_guest_copy_size(physical, &width, &height) || width % 4 != 0 || height % 4 != 0) {
+    return; // no display copy at that address yet
+  }
+  const uint32_t size = width * height * 4;
+  g_presentTiles.resize(size);
+  AuroraReadbackDest dest = {0, g_presentTiles.data(), size, GX_FALSE};
+  if (AuroraReadbackGet(stream, &dest, 1) && dest.found) {
+    g_presentPixels.resize(size);
+    detile_rgba8(g_presentTiles.data(), width, height, g_presentPixels.data());
+    // The page's thread is not this one: a BroadcastChannel reaches it from any worker (a copy of the rows).
+    EM_ASM(
+        {
+          if (!globalThis.smgPresentChannel) {
+            globalThis.smgPresentChannel = new BroadcastChannel('smg-present');
+          }
+          const pixels = new Uint8Array(wasmMemory.buffer, $0, $1 * $2 * 4).slice();
+          globalThis.smgPresentChannel.postMessage({width : $1, height : $2, black : $3, pixels : pixels.buffer});
+        },
+        g_presentPixels.data(), width, height, g_viBlack.load(std::memory_order_relaxed));
+    g_presented.fetch_add(1, std::memory_order_relaxed);
+  }
+  const AuroraReadbackCopySrc source = {0, xfb};
+  AuroraReadbackCaptureCopies(stream, &source, 1);
+}
+
 void collect_xfb(AuroraReadbackStream stream) {
   const void* const xfb = g_xfbProbe.load(std::memory_order_acquire);
   if (xfb == nullptr) {
@@ -228,6 +286,7 @@ void* render_main(void*) {
   AuroraSetDrawsBlocking(true);
   const AuroraReadbackStream stream = AuroraReadbackCreateStream();
   const AuroraReadbackStream xfbStream = AuroraReadbackCreateStream();
+  const AuroraReadbackStream presentStream = AuroraReadbackCreateStream();
   g_state.store(1, std::memory_order_release);
 
   bool frameOpen = false;
@@ -266,6 +325,7 @@ void* render_main(void*) {
     if (item.finish) {
       collect_peeks(stream);
       collect_xfb(xfbStream);
+      present(presentStream);
       aurora_end_frame();
       frameOpen = false;
       g_frames.fetch_add(1, std::memory_order_release);
@@ -348,6 +408,15 @@ extern "C" int smg_bridge_game_peeks(uint32_t* captured) {
   *captured = g_gamePeeksCaptured.exchange(0, std::memory_order_relaxed);
   return static_cast<int>(g_gamePeeks.exchange(0, std::memory_order_relaxed));
 }
+
+extern "C" void smg_bridge_vi_frame(uint32_t xfb, int black) {
+  g_viBlack.store(black, std::memory_order_relaxed);
+  g_viXfb.store(xfb, std::memory_order_release);
+}
+
+extern "C" uint32_t smg_bridge_presented(void) { return g_presented.load(std::memory_order_relaxed); }
+
+extern "C" uint32_t smg_bridge_vi_xfb(void) { return g_viXfb.load(std::memory_order_relaxed); }
 
 extern "C" uint32_t smg_bridge_frames(void) { return g_frames.load(std::memory_order_acquire); }
 

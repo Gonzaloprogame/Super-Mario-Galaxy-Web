@@ -90,6 +90,36 @@ if (r && !r.error) {
   check(near(rgb(x.marker), [24, 32, 96]),
         `XFB donde está el marcador = color de borrado (se dibujó después de la copia): ${rgb(x.marker)}`);
 }
+// What the page shows: the canvas web/shell/present.js paints with the XFB the scene's VI selects (vi_frame)
+let shown = null;
+const presentDeadline = Date.now() + 60000;
+while (Date.now() < presentDeadline) {
+  shown = await page.evaluate(() => globalThis.smgPresenter && { ...globalThis.smgPresenter });
+  if (shown && shown.frames >= 3) break;
+  await new Promise((resolve) => setTimeout(resolve, 250));
+}
+check(!!shown && shown.frames >= 3, `la página pinta el XFB que muestra el VI: ${shown ? shown.frames : 0} fotogramas`);
+check(!!shown && shown.width === 640 && shown.height === 480, `tamaño del fotograma pintado: ${shown?.width}x${shown?.height}`);
+if (shown && shown.frames >= 3) {
+  const expected = [
+    ['esquina', [16, 16], [24, 32, 96]], ['triángulo', [320, 272], [240, 176, 16]], ['fondo', [96, 408], [24, 32, 96]],
+    ['arrays indexados', [568, 444], [32, 200, 64]], ['lista de dibujo', [568, 36], [200, 48, 160]],
+    ['textura RGB565 izquierda', [44, 240], [255, 0, 255]], ['textura RGB565 derecha', [100, 240], [0, 255, 255]],
+    ['textura C8', [568, 240], [255, 255, 0]], ['copia del EFB arriba', [272, 405], [24, 32, 96]],
+    ['copia del EFB abajo izquierda', [272, 447], [255, 0, 255]], ['copia del EFB abajo derecha', [368, 447], [0, 255, 255]],
+    ['marcador (fuera del XFB)', [320, 48], [24, 32, 96]],
+  ];
+  const pixels = await page.evaluate((points) => {
+    const context = document.getElementById('screen').getContext('2d');
+    return points.map(([x, y]) => Array.from(context.getImageData(x, y, 1, 1).data.slice(0, 3)));
+  }, expected.map((e) => e[1]));
+  expected.forEach(([name, , want], i) => check(near(pixels[i], want), `canvas de la página, ${name} = (${want}): ${pixels[i]}`));
+}
+// SMG_SCREENSHOT=<file.png>: the page's canvas as the presenter painted it
+if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
+  await page.locator('#screen').screenshot({ path: process.env.SMG_SCREENSHOT });
+  console.log(`captura del canvas: ${process.env.SMG_SCREENSHOT}`);
+}
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();
 server.kill();

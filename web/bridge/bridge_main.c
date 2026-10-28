@@ -5,8 +5,10 @@
    runs, and one of them waits on it forever (the page's thread, paused in Chrome's debugger: exitOnMainThread ->
    exitRuntime -> __funcs_on_exit). Runs in the browser with PROXY_TO_PTHREAD, on a page served with COOP/COEP. */
 #include <emscripten.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <nebula_game_api.h>
 
@@ -51,6 +53,29 @@ static uint32_t svc_gx_peek_efb(void* user, uint16_t x, uint16_t y, uint32_t typ
     return smg_bridge_peek_efb(x, y, type, token);
 }
 
+static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) {
+    (void)user;
+    (void)retrace;
+    smg_bridge_vi_frame(xfb, black);
+}
+
+/* The display clock: a 60 Hz retrace, as the engine's host drives it (web/host/headless_host.c). */
+static void* retrace_main(void* arg) {
+    (void)arg;
+    struct timespec next;
+    clock_gettime(CLOCK_MONOTONIC, &next);
+    for (;;) {
+        next.tv_nsec += 16666667;
+        if (next.tv_nsec >= 1000000000) {
+            next.tv_nsec -= 1000000000;
+            next.tv_sec++;
+        }
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
+        nebula_game_vi_retrace();
+    }
+    return NULL;
+}
+
 /* The scene's own peeks (GXPeekARGB/GXPeekZ): in the token's callback, then after the display copy. */
 enum { kGamePeekCount = 5 };
 static const char* const kGamePeekNames[kGamePeekCount] = {"tokenColour", "tokenDepth", "afterCopyColour",
@@ -68,6 +93,10 @@ static int append_points(int at, const char* label, const char* const* names, co
 
 /* Called by the scene after each GXDrawDone, on the game's thread. */
 int smg_bridge_scene_frame_done(void) {
+    static int reported;
+    if (reported) {
+        return 0; /* keeps drawing, as a game does: the page goes on painting the XFB the VI shows */
+    }
     uint32_t xfb[kXfbPointCount];
     uint32_t efb[kEfbPointCount];
     uint32_t game[kGamePeekCount];
@@ -83,11 +112,14 @@ int smg_bridge_scene_frame_done(void) {
         at = append_points(at, "xfb", kXfbNames, xfb, kXfbPointCount);
         at = append_points(at, "efb", kEfbNames, efb, kEfbPointCount);
         at = append_points(at, "game", kGamePeekNames, game, kGamePeekCount);
+        at += snprintf(sReport + at, sizeof(sReport) - at, ",\"presented\":%u,\"viXfb\":%u", smg_bridge_presented(),
+                       smg_bridge_vi_xfb());
         snprintf(sReport + at, sizeof(sReport) - at, "}");
         printf("[bridge] %s\n", sReport);
-        /* sReport is not written again: the scene stops here. */
+        /* sReport is not written again (reported) */
         MAIN_THREAD_ASYNC_EM_ASM({ globalThis.bridge.result = JSON.parse(UTF8ToString($0)); }, sReport);
-        return 1;
+        reported = 1;
+        return 0;
     }
     if (frames >= kFrameLimit) {
         printf("[bridge] frames %u, no EFB or XFB readback, or the game's peeks not captured (%d, %u captured)\n",
@@ -106,6 +138,7 @@ int main(void) {
     services.gx_submit = svc_gx_submit;
     services.gx_pe_marker = svc_gx_pe_marker;
     services.gx_peek_efb = svc_gx_peek_efb;
+    services.vi_frame = svc_vi_frame;
     if (nebula_game_attach(&services) == 0) {
         fprintf(stderr, "[bridge] the game module refused the host's services\n");
         return 2;
@@ -116,6 +149,11 @@ int main(void) {
     }
     smg_bridge_set_peeks(kEfbPoints, kEfbPointCount);
     smg_bridge_set_xfb_probe(smg_bridge_scene_xfb(), 640, 480);
+    pthread_t retrace;
+    if (pthread_create(&retrace, NULL, retrace_main, NULL) != 0) {
+        fprintf(stderr, "[bridge] the retrace clock cannot start\n");
+        return 2;
+    }
     printf("[bridge] Aurora ready; booting the game module's OS core with the test scene\n");
     nebula_os_boot(smg_bridge_scene_main); /* never returns */
     return 0;

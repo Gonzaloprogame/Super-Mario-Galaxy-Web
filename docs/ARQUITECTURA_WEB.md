@@ -54,7 +54,7 @@ cual; lo que cambia es la plataforma debajo (`web/platform`) y el host que le of
   `emdawnwebgpu` (`web/aurora`, 6 parches pequeños, Aurora en un solo hilo), con una escena GX de prueba verificada en
   Chromium (`BACKEND_WEBGPU.md`). *Hecho:* el FIFO del juego llega a Aurora, y las bases de arrays de vértices, las
   llamadas a listas de visualización, las texturas, las TLUT, las copias del EFB a textura y la copia a pantalla se resuelven con las regiones del módulo (`nebula_game_memory_regions`;
-  `PUENTE_FIFO.md`). Las lecturas del EFB del juego se responden desde capturas en la misma posición del flujo. *Pendiente:* presentar el XFB que elige el VI.
+  `PUENTE_FIFO.md`). Las lecturas del EFB del juego se responden desde capturas en la misma posición del flujo. El XFB que elige el VI se pinta en la página (lectura y canvas 2D). *Pendiente:* presentación directa de WebGPU en un canvas.
 - **WebGL 2 como respaldo** solo si WebGPU no está disponible: exigiría un generador GLSL ES 3.0 propio (noclip.website,
   MIT, tiene uno para GX que sirve de referencia).
 - Preservación: modelos, texturas, materiales TEV, iluminación, animaciones y efectos salen del propio juego; el

@@ -99,7 +99,7 @@ presentando en el canvas, se llegaron a dibujar 4 fotogramas antes de que el nav
 - La memoria wasm crece hasta unos 90 MB en los primeros fotogramas: los búferes de *staging* de Aurora (24 MiB solo
   de *uniforms*) tienen copia en la memoria de wasm al mapearse.
 
-Parches posteriores para el flujo de hardware del juego (0007 a 0012): ver `PUENTE_FIFO.md`.
+Parches posteriores para el flujo de hardware del juego (0007 a 0013): ver `PUENTE_FIFO.md`.
 
 ## Siguiente paso
 

@@ -29,6 +29,7 @@
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
 #include <revolution/os.h>
+#include <revolution/vi.h>
 
 /* The EFB's largest 24-bit depth (the SDK's GX_MAX_Z24, which Petari's headers do not define). */
 #define MAX_Z24 0x00FFFFFF
@@ -338,12 +339,17 @@ static void draw(void) {
 
 /* The "game main" the native OS core boots (nebula_os_boot), on the game's boot thread. */
 void smg_bridge_scene_main(void) {
+    VIInit();
     GXInit(sFifo, sizeof(sFifo));
     GXSetDrawSyncCallback(draw_sync_callback);
     prepare_memory();
     for (;;) {
         draw();
         GXDrawDone();
+        /* The XFB to show from the next retrace, as a game's frame ends */
+        VISetNextFrameBuffer(sXfb);
+        VISetBlack(FALSE);
+        VIFlush();
         if (smg_bridge_scene_frame_done()) {
             break;
         }
