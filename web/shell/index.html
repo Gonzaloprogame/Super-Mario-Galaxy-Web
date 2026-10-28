@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxy Web: motor experimental</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --fg: #1d2330; --muted: #5b6475; --card: #ffffff; --border: #d9dde5;
+    --ok: #1d7a46; --err: #b42318; --accent: #3b5bdb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11141a; --fg: #e6e9ef; --muted: #9aa3b5; --card: #1a1f28; --border: #2c3340;
+            --ok: #4cc38a; --err: #ff7b72; --accent: #7c9cff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 16px 0; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  input[type=number] { width: 6em; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; font: inherit;
+           cursor: pointer; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #status { padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); }
+  #status[data-kind=error] { border-color: var(--err); color: var(--err); }
+  #status[data-kind=ok] { border-color: var(--ok); color: var(--ok); }
+  #log { background: #0b0d12; color: #d6dbe5; border-radius: 6px; padding: 12px; height: 320px; overflow: auto;
+         font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+         margin: 0; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .92em; }
+</style>
+</head>
+<body data-state="loading">
+<main>
+  <h1>Galaxy Web: motor experimental</h1>
+  <p class="muted">El código del juego (decompilación Petari, en el fork nativo de Nebula) compilado a WebAssembly.
+    Esta versión <strong>no dibuja ni suena todavía</strong>: ejecuta el motor en modo diagnóstico y muestra lo que
+    hace. No incluye ningún archivo de Nintendo; necesitas tu propia copia del juego.</p>
+
+  <div class="card">
+    <label for="pak">Tu <code>game.pak</code></label>
+    <p class="muted">La partición del juego de tu disco (RMGE01), preparada con <code>nebula-import</code> en tu equipo;
+      consulta <code>docs/ARCHIVOS_DEL_JUEGO.md</code>. El archivo no sale de tu navegador: el motor lo lee por trozos.</p>
+    <div class="row">
+      <div><input id="pak" type="file"></div>
+      <div><label for="seconds">Segundos</label><input id="seconds" type="number" min="1" max="600" value="10"></div>
+      <div><button id="run" type="button">Arrancar el motor</button></div>
+    </div>
+  </div>
+
+  <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
+
+  <div class="card">
+    <label for="log">Registro del motor</label>
+    <pre id="log" tabindex="0"></pre>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
