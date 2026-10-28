@@ -1,0 +1,11 @@
+# Only a carrier for SQLite's amalgamation (public domain): libsqlite3-sys bundles sqlite3.c and sqlite3.h, and Cargo
+# checks the crate against Cargo.lock's checksum. This session's proxy refuses sqlite.org and GitHub's source
+# archives. tools/fetch_sources.sh runs `cargo fetch` here and copies the two files to third_party/deps/sqlite.
+[package]
+name = "sqlite-amalgamation-carrier"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+libsqlite3-sys = { version = "=0.39.1", features = ["bundled"] }

@@ -8,3 +8,4 @@ build-*/
 *.dol
 *.arc
 /game/
+tools/sqlite/target/
