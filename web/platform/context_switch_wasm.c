@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include <emscripten/fiber.h>
+#include <pthread.h>
 
 void nebula_thread_start(void (*entry)(void*), void* arg);
 
@@ -34,6 +35,9 @@ enum {
 };
 
 static NebulaFiber sHostFiber;
+/* The thread the game runs on, from its first switch (the host's stack to the boot thread's). */
+static pthread_t sSimulationThread;
+static int sBooted;
 static uint8_t sHostAsyncify[kHostAsyncifySize] __attribute__((aligned(16)));
 static NebulaFiber* sCurrent;
 
@@ -68,6 +72,8 @@ void nebula_switch_stack(void** from_sp, void* to_sp) {
         /* The first switch leaves the host's own stack. */
         emscripten_fiber_init_from_current_context(&sHostFiber.fiber, sHostAsyncify, sizeof(sHostAsyncify));
         from = &sHostFiber;
+        sSimulationThread = pthread_self();
+        __atomic_store_n(&sBooted, 1, __ATOMIC_RELEASE);
     }
     *from_sp = from;
 #if defined(NEBULA_WEB_TRACE_SWITCH)
@@ -76,4 +82,9 @@ void nebula_switch_stack(void** from_sp, void* to_sp) {
     sCurrent = to;
     emscripten_fiber_swap(&from->fiber, &to->fiber);
     /* Running again: whoever switched here set sCurrent to this thread. */
+}
+
+/* Whether the caller is the game: its simulation thread, once booted (web/platform/operator_new_wasm.cpp). */
+int nebula_web_in_game_context(void) {
+    return __atomic_load_n(&sBooted, __ATOMIC_ACQUIRE) && pthread_equal(pthread_self(), sSimulationThread);
 }

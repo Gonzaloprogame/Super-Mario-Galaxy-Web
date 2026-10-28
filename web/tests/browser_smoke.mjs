@@ -13,7 +13,7 @@ import { readFileSync, existsSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const site = join(root, 'build', 'site');
+const site = join(root, "build", "site");
 const fixtures = mkdtempSync(join(tmpdir(), 'smg-fixtures-'));
 execFileSync('python3', ['-I', join(root, 'web/tests/make_fixture.py'), fixtures]);
 
