@@ -177,6 +177,26 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
 - No está comprobado que esto fuera lo que dejaba la pantalla negra. Era la diferencia que quedaba con el host de
   Nebula, que es el que su autor usa para probar el juego sin renderizador.
 
+## Quinta prueba con el juego real (2026-10-29, Android)
+
+- Con el mando, el reloj del audio y la NAND, **el juego llegó a la selección de partida** (`[host] stage:
+  FileSelect`). El mando dio sus informes, el audio avanzó y la NAND respondió: una petición, que falló porque todavía
+  no hay partida guardada.
+- La pantalla mostró, en español y bien dibujado, el aviso del juego de que **se perdió la conexión con el Nunchuk**,
+  que pide pulsar A.
+- **Causa:** el orden de la conexión. El juego arranca WPAD (`KPADInit`) en el constructor de `WPadHolder` y registra
+  sus funciones de conexión y de extensión al final de ese constructor. El host conectaba el mando 10 ms después de
+  arrancar WPAD. En el teléfono, más lento, la conexión se procesó antes de que el juego registrara esas funciones, así
+  que nunca supo que había un Nunchuk.
+- **Corrección:** el host conecta el mando la primera vez que el juego lee sus mandos (`wpad_sample`, en cada
+  fotograma), cuando `WPadHolder` ya está construido. En una consola el mando también se conecta mucho después de
+  arrancar WPAD. `console_services_test.c` comprueba que el mando no se conecta al arrancar WPAD y sí en la primera
+  lectura. Con el módulo anterior esa comprobación falla.
+- **Otros cambios:**
+  - durante una carga larga el mando y el audio se pararon 10 segundos; tras una espera así, el mando ya no envía de
+    golpe los informes atrasados;
+  - el registro solo anota el escenario cuando cambia (el juego lo repite en cada paso).
+
 ## Diagnóstico de fallos del renderizador
 
 - Si Aurora se detiene por un error, la página lo muestra como estado de error y detiene el motor. El registro incluye

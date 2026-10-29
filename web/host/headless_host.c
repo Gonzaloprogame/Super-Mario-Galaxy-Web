@@ -288,10 +288,15 @@ static void svc_power(void* user, uint32_t what) {
     host_exit(0);
 }
 
+/* The game names its stage often (each scene step): logged when it changes */
 static void svc_game_stage(void* user, const char* name) {
     (void)user;
-    snprintf(sStage, sizeof(sStage), "%s", name != NULL ? name : "");
-    fprintf(stderr, "[host] stage: %s\n", sStage);
+    char stage[sizeof(sStage)];
+    snprintf(stage, sizeof(stage), "%s", name != NULL ? name : "");
+    if (strcmp(stage, sStage) != 0) {
+        memcpy(sStage, stage, sizeof(sStage));
+        fprintf(stderr, "[host] stage: %s\n", sStage);
+    }
 }
 
 /* ---- the console's system settings ---- */
@@ -442,6 +447,7 @@ int main(int argc, char** argv) {
     /* The console's devices, as Nebula's host without a renderer has them (web/host/console_services.c) */
     services.fs_request = smg_console_fs_request;
     services.wpad_control = smg_console_wpad_control;
+    services.wpad_sample = smg_console_wpad_sample;
     services.ai_dma = smg_console_ai_dma;
     services.ai_control = smg_console_ai_control;
     services.power = svc_power;

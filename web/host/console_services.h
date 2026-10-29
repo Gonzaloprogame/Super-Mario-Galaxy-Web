@@ -18,6 +18,7 @@ void smg_console_start(const char* game_id);
 /* The host services (nebula_game_api.h) */
 void smg_console_fs_request(void* user, const NebulaFsRequest* request, uint32_t slot);
 void smg_console_wpad_control(void* user, uint32_t chan, uint32_t what, uint32_t value);
+void smg_console_wpad_sample(void* user, uint32_t chan);
 void smg_console_ai_dma(void* user, uint32_t start, uint32_t size);
 void smg_console_ai_control(void* user, uint32_t what, uint32_t value);
 

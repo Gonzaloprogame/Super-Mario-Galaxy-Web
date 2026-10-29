@@ -32,10 +32,16 @@ static int64_t elapsed_ns(const struct timespec* from, const struct timespec* to
     return (int64_t)(to->tv_sec - from->tv_sec) * 1000000000 + (to->tv_nsec - from->tv_nsec);
 }
 
-/* ---- the Wii Remote: connected with a Nunchuk when the game starts WPAD, a report every 10 ms, nothing pressed ---- */
+/* ---- the Wii Remote: connected with a Nunchuk, a report every 10 ms, nothing pressed ----
+   It connects at the game's first read of its remotes (wpad_sample, each frame), not when the game starts WPAD: the
+   game starts WPAD (KPADInit) in WPadHolder's constructor and sets its connect and extension callbacks at that
+   constructor's end, so a connection handled in between is not heard, and the game takes the Nunchuk for missing.
+   On a phone it was (the game said the Nunchuk's connection was lost); a console's remote connects much later. */
 
 static _Atomic uint32_t sWpadReport = 0x30;
-static atomic_int sWpadStarted;
+static atomic_int sWpadStarted, sWpadSampled;
+static pthread_mutex_t sWpadLock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t sWpadWake = PTHREAD_COND_INITIALIZER;
 
 static uint8_t report_id_for_format(uint32_t format) {
     switch (format) {
@@ -93,13 +99,24 @@ static size_t idle_report(uint8_t id, uint8_t* report) {
 
 static void* wpad_main(void* arg) {
     (void)arg;
+    pthread_mutex_lock(&sWpadLock);
+    while (!atomic_load(&sWpadSampled)) {
+        pthread_cond_wait(&sWpadWake, &sWpadLock);
+    }
+    pthread_mutex_unlock(&sWpadLock);
     NebulaWiimoteConnection connection;
     idle_connection(&connection);
     nebula_game_wpad_connect(0, 1, &connection);
+    fprintf(stderr, "[host] Wii Remote 1 connected, with a Nunchuk (at rest: no input yet)\n");
     struct timespec next;
     clock_gettime(CLOCK_MONOTONIC, &next);
     for (;;) {
         advance(&next, 10000000);
+        struct timespec now;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        if (elapsed_ns(&next, &now) > 100000000) {
+            next = now; /* after a stall past 100 ms (the game busy), no burst of the reports missed */
+        }
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
         uint8_t report[22];
         const size_t size = idle_report((uint8_t)atomic_load(&sWpadReport), report);
@@ -121,9 +138,18 @@ void smg_console_wpad_control(void* user, uint32_t chan, uint32_t what, uint32_t
             return;
         }
         pthread_detach(thread);
-        fprintf(stderr, "[host] Wii Remote 1 connected, with a Nunchuk (at rest: no input yet)\n");
     } else if (what == NEBULA_WPAD_FORMAT) {
         atomic_store(&sWpadReport, report_id_for_format(value));
+    }
+}
+
+void smg_console_wpad_sample(void* user, uint32_t chan) {
+    (void)user;
+    if (chan == 0 && atomic_load(&sWpadStarted) && !atomic_load(&sWpadSampled)) {
+        pthread_mutex_lock(&sWpadLock);
+        atomic_store(&sWpadSampled, 1);
+        pthread_cond_signal(&sWpadWake);
+        pthread_mutex_unlock(&sWpadLock);
     }
 }
 

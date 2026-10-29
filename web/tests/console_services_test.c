@@ -124,11 +124,18 @@ int main(void) {
               fs(NEBULA_FS_OPEN, DATA "/stage/banner.bin", NULL, 0, NULL, 0, 0, 0, 1) == -12,
           "NAND: folder deleted with its file");
 
-    /* Wii Remote: connected with its Nunchuk when WPAD starts, then a report every 10 ms */
+    /* Wii Remote: connected with its Nunchuk at the game's first read of its remotes after starting WPAD (not when
+       WPAD starts: its callbacks are not set yet), then a report every 10 ms */
+    sleep_ms(50);
+    smg_console_wpad_sample(NULL, 0);
     sleep_ms(50);
     check(atomic_load(&sConnects) == 0, "Wii Remote: nothing before the game starts WPAD");
     smg_console_wpad_control(NULL, 0, NEBULA_WPAD_INIT, 0);
     smg_console_wpad_control(NULL, 0, NEBULA_WPAD_FORMAT, 5);
+    sleep_ms(100);
+    check(atomic_load(&sConnects) == 0 && atomic_load(&sReports) == 0,
+          "Wii Remote: not connected yet when WPAD starts (the game has not set its callbacks)");
+    smg_console_wpad_sample(NULL, 0);
     sleep_ms(500);
     const int reports = atomic_load(&sReports);
     check(atomic_load(&sConnects) == 1 && atomic_load(&sExtension) == 1, "Wii Remote: connected once, with a Nunchuk");
