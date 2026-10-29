@@ -18,6 +18,7 @@ BP_NAMES = {0x45: "PE_DONE (draw done)", 0x47: "PE_TOKEN", 0x48: "PE_TOKEN_INT",
             0x64: "LOADTLUT0", 0x65: "LOADTLUT1", 0x66: "TX_INVALTAGS", 0xFE: "BP_MASK"}
 PRIMS = {0x80: "QUADS", 0x88: "QUADS2", 0x90: "TRIANGLES", 0x98: "TRIANGLE_STRIP", 0xA0: "TRIANGLE_FAN", 0xA8: "LINES",
          0xB0: "LINE_STRIP", 0xB8: "POINTS"}
+HOST_MARKERS = {15: "(bloom)", 16: "(clear quad)"}
 COMPONENT = {0: 1, 1: 1, 2: 2, 3: 2, 4: 4}  # U8, S8, U16, S16, F32
 COLOUR = {0: 2, 1: 3, 2: 4, 3: 2, 4: 3, 5: 4}  # RGB565, RGB8, RGBX8, RGBA4, RGBA6, RGBA8
 ATTRS = ["PNMTXIDX"] + [f"TEX{i}MTXIDX" for i in range(8)] + ["POS", "NRM", "CLR0", "CLR1"] + [f"TEX{i}" for i in range(8)]
@@ -131,6 +132,12 @@ def walk(stream, show_all):
             text, at = f"CALL_DL 0x{address:08X} {size} bytes", at + 9
         elif op == 0x48:
             text, at = "INVAL_VTX", at + 1
+        elif op == 0xF0:
+            # A Nebula host marker (third_party/nebula/native/msl/include/nebula_gx_fifo.h): 0xF0, kind, aux (u16),
+            # a and b (u32). Not a console command: Nebula's renderer reads it, Aurora skips it (patch 0014).
+            kind, aux, a, b = struct.unpack_from(">BHII", stream, at + 1)
+            name = HOST_MARKERS.get(kind, "")
+            text, at = f"NEBULA HOST MARKER kind {kind} {name} aux={aux:04X} a={a:08X} b={b:08X}", at + 12
         elif 0x80 <= op < 0xC0:
             prim, fmt = op & 0xF8, op & 7
             (count,) = struct.unpack_from(">H", stream, at + 1)
@@ -141,6 +148,9 @@ def walk(stream, show_all):
             log.append((start, f"!! 0x{op:02X} is not a GX command: the stream's reader lost its place before here"))
             context = stream[max(0, start - 24):start + 24]
             log.append((start, "bytes around it: " + " ".join(f"{b:02x}" for b in context)))
+            if show_all:
+                for offset, line in log[-2:]:
+                    print(f"{offset:6d}  {line}")
             return log, False
         log.append((start, text))
         if show_all:

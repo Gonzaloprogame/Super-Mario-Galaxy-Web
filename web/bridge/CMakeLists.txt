@@ -24,3 +24,17 @@ target_link_options(gx_bridge PRIVATE ${SMG_WEB_LINK_OPTIONS} -sASYNCIFY_STACK_S
     -sPTHREAD_POOL_SIZE=6 -sENVIRONMENT=web,worker)
 set_target_properties(gx_bridge PROPERTIES SUFFIX ".js")
 smg_ppc_divide(gx_bridge)
+
+# Replaying a GX trace (a renderer failure's, from the engine's log) through the same bridge, without the game
+# (gx_replay.html, tools/gx_trace.py for the walk by hand).
+add_executable(gx_replay gx_replay_main.c "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp")
+target_include_directories(gx_replay PRIVATE "${SMG_NEBULA_NATIVE}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../host"
+                           "${SMG_AURORA_LIB}")
+target_compile_options(gx_replay PRIVATE -pthread)
+target_link_libraries(gx_replay PRIVATE aurora_core_web aurora_vi_web)
+# Without the game, nothing defines the game's operator new: the link options without their --wrap of it
+set(replay_link_options ${SMG_WEB_LINK_OPTIONS})
+list(FILTER replay_link_options EXCLUDE REGEX "--wrap")
+target_link_options(gx_replay PRIVATE ${replay_link_options} -sASYNCIFY_STACK_SIZE=1048576 -sPROXY_TO_PTHREAD
+    -sPTHREAD_POOL_SIZE=6 -sENVIRONMENT=web,worker "-sEXPORTED_RUNTIME_METHODS=['FS']" -sFORCE_FILESYSTEM)
+set_target_properties(gx_replay PROPERTIES SUFFIX ".js")

@@ -86,11 +86,29 @@ Con la imagen RVZ del usuario, en Chrome para Android:
   había desalineado antes de ese punto.
 - La página siguió diciendo «Motor en marcha»: abortar solo el hilo de render no llegaba a la página. Corregido.
 
+**Causa (encontrada con la traza GX que el usuario copió del registro):** `tools/gx_trace.py`, que lee el flujo con
+los tamaños del hardware, independientemente de Aurora, se detuvo en el mismo byte (posición 1775). El flujo no
+estaba desalineado: ese 0xF0 es un **marcador de host de Nebula** (`native/msl/include/nebula_gx_fifo.h`) de 12 bytes:
+0xF0, el tipo (16, «clear quad»: el siguiente dibujo es el cuadrado que borra el EFB) y sus datos. No es una orden de
+la consola. El renderizador de Nebula lo lee, y el juego escribe los de tipo 15 (bloom) y 16 sean cuales sean las
+opciones del host. Aurora no lo conocía.
+
+**Corrección:** parche 0014 de Aurora, que salta los marcadores de Nebula. Su autor lo permite: «else the quad draws
+as written».
+
+- `gx_replay.html` reproduce la traza del teléfono con el mismo puente y sin el juego. Sin el parche reproduce el
+  mismo error, `unsupported primitive type 240`; con él, Aurora lee el flujo entero y dibuja el fotograma (1 de 1).
+  La traza es del usuario y no se guarda en el repositorio.
+- Prueba de regresión sin datos del juego: la escena de `bridge_smoke.mjs` escribe los mismos marcadores (bloom y
+  clear quad) en cada fotograma. Sin el parche falla, como el teléfono; con él pasan todas las comprobaciones.
+
 ## Diagnóstico de fallos del renderizador
 
 - Si Aurora se detiene por un error, la página lo muestra como estado de error y detiene el motor. El registro incluye
   la **traza GX**: todo lo que el juego dio a Aurora, en base64, entre `[gx-trace] begin` y `[gx-trace] end` (hasta
   256 KB). «Copiar el registro» la copia junto con el resto.
+- `gx_replay.html` (en `bridge/` del sitio, o `node web/tests/replay_trace.mjs build/site/bridge <registro>`) da la
+  traza a Aurora con el mismo puente, sin el juego y con su memoria a ceros. Así se reproduce el fallo aquí.
 - `python3 -I tools/gx_trace.py <registro copiado>` recorre la traza orden a orden con los tamaños del hardware y el
   formato de vértice que el propio flujo establece. Es independiente de Aurora y se detiene en el primer byte que no
   es una orden, mostrando las órdenes anteriores.

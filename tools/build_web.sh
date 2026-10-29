@@ -18,7 +18,7 @@ fi
 
 "$ROOT/tools/fetch_sources.sh"
 emcmake cmake -S "$ROOT/web" -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
-ninja -C "$BUILD_DIR" smg_headless smg_headless_web smg_web gx_demo gx_bridge
+ninja -C "$BUILD_DIR" smg_headless smg_headless_web smg_web gx_demo gx_bridge gx_replay
 
 rm -rf "$SITE"
 mkdir -p "$SITE/gx" "$SITE/bridge"
@@ -33,4 +33,5 @@ cp "$ROOT"/web/aurora/demo/gx_demo.html "$BUILD_DIR"/aurora/gx_demo.js "$BUILD_D
 # The game's GX stream through Aurora (docs/PUENTE_FIFO.md).
 cp "$ROOT"/web/bridge/gx_bridge.html "$BUILD_DIR"/bridge/gx_bridge.js "$BUILD_DIR"/bridge/gx_bridge.wasm \
    "$ROOT"/web/shell/present.js "$SITE/bridge"/
+cp "$ROOT"/web/bridge/gx_replay.html "$BUILD_DIR"/bridge/gx_replay.js "$BUILD_DIR"/bridge/gx_replay.wasm "$SITE/bridge"/
 echo "Sitio en $SITE (sírvelo con tools/serve.py: necesita las cabeceras COOP/COEP)"

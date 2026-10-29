@@ -31,6 +31,8 @@
 #include <revolution/os.h>
 #include <revolution/vi.h>
 
+#include <nebula_gx_fifo.h>
+
 /* The EFB's largest 24-bit depth (the SDK's GX_MAX_Z24, which Petari's headers do not define). */
 #define MAX_Z24 0x00FFFFFF
 
@@ -59,7 +61,7 @@
 
 /* The host's test hook, between frames: returns nonzero to stop (web/bridge/bridge_main.c). */
 int smg_bridge_scene_frame_done(void);
-/* The host asks for a renderer failure (the test of its report): 0xF0, which is not a GX command. */
+/* The host asks for a renderer failure (the test of its report): 0xC8, neither a GX command nor a Nebula marker. */
 int smg_bridge_fault_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
@@ -193,6 +195,11 @@ static void prepare_memory(void) {
 }
 
 static void draw(void) {
+    /* Nebula's host markers, which the game writes whatever the host's options (nebula_gx_fifo.h): a bloom phase and
+       the EFB clear quad's. Not console commands: Aurora skips them (patch 0014); unskipped, the stream is misread
+       ("unsupported primitive type 240", the game's first failure on a phone). */
+    __NebulaGXBloomMarker(NEBULA_GX_BLOOM_NORMAL, 0, 0);
+    __NebulaGXClearQuadMarker(MAX_Z24);
     GXSetCopyClear((GXColor){CLEAR_R, CLEAR_G, CLEAR_B, 255}, MAX_Z24);
     GXSetViewport(0.f, 0.f, 640.f, 480.f, 0.f, 1.f);
     GXSetScissor(0, 0, 640, 480);
@@ -348,7 +355,7 @@ void smg_bridge_scene_main(void) {
     for (int frame = 0;; frame++) {
         draw();
         if (frame == 3 && smg_bridge_fault_requested()) {
-            GX_WRITE_U8(0xF0); /* read as a draw of primitive 0xF0: "unsupported primitive type 240" */
+            GX_WRITE_U8(0xC8); /* Aurora reads it as a draw of primitive 0xC8, which does not exist */
         }
         GXDrawDone();
         /* The XFB to show from the next retrace, as a game's frame ends */

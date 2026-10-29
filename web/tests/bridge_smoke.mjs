@@ -120,15 +120,15 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   await page.locator('#screen').screenshot({ path: process.env.SMG_SCREENSHOT });
   console.log(`captura del canvas: ${process.env.SMG_SCREENSHOT}`);
 }
-// A renderer failure (?fault=1: the scene writes 0xF0, which is not a GX command, at its fourth frame). The page must
-// hear it, and the log must hold the GX trace, which tools/gx_trace.py walks to the faulty byte.
+// A renderer failure (?fault=1: the scene writes 0xC8, neither a GX command nor a Nebula marker, at its fourth frame).
+// The page must hear it, and the log must hold the GX trace, which tools/gx_trace.py walks to the faulty byte.
 {
   const faulty = await browser.newPage();
   await faulty.goto(`http://127.0.0.1:${port}/gx_bridge.html?fault=1`);
   const heard = await faulty.waitForFunction(() => globalThis.bridge && globalThis.bridge.fatal, null, { timeout: 120000 })
     .then(() => true, () => false);
   const fault = heard ? await faulty.evaluate(() => globalThis.bridge.fatal) : '';
-  // Aurora's message depends on the bytes after 0xF0 (read as a draw): "unsupported primitive type 240" or an overrun
+  // Aurora's message depends on the bytes after 0xC8 (read as a draw): an unsupported primitive or an overrun
   check(heard && fault.length > 0, `fallo del renderizador comunicado a la página: "${fault}"`);
   await faulty.waitForFunction(() => globalThis.bridge.lines.some((l) => l.startsWith('[gx-trace] end')), null,
     { timeout: 30000 }).catch(() => {});
@@ -143,11 +143,13 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
     writeFileSync(file, faultLines.join('\n'));
     let walk = '';
     try {
-      walk = execFileSync('python3', ['-I', join(root, 'tools/gx_trace.py'), file], { encoding: 'utf8' });
+      walk = execFileSync('python3', ['-I', join(root, 'tools/gx_trace.py'), file, '--all'], { encoding: 'utf8' });
     } catch (error) {
       walk = String(error.stdout || '');
     }
-    check(/!! 0xF0 is not a GX command/.test(walk), 'tools/gx_trace.py recorre la traza hasta el byte 0xF0 inyectado');
+    check(/!! 0xC8 is not a GX command/.test(walk), 'tools/gx_trace.py recorre la traza hasta el byte 0xC8 inyectado');
+    check(/NEBULA HOST MARKER kind 16 \(clear quad\)/.test(walk) && /NEBULA HOST MARKER kind 15 \(bloom\)/.test(walk),
+          'la traza contiene los marcadores de Nebula de la escena (borrado y bloom), que el recorrido salta');
     if (verbose) console.log(walk);
   }
   await faulty.close();
