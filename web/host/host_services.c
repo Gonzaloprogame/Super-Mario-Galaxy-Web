@@ -1,4 +1,5 @@
-/* Neutral answers for every host service (host_services.h). */
+/* Neutral answers for every host service (host_services.h): those of Nebula's host built without a renderer
+   (native/host/host_main.cpp), unless said otherwise. web/tests/host_services_test.c checks the ones the game acts on. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -145,11 +146,11 @@ static void svc_wpad_speaker_data(void* user, uint32_t chan, const uint8_t* data
     (void)size;
 }
 
+/* No DSP: as Nebula's host without a renderer, the release of a halted subframe (count 0, command 3) completes it, so
+   the game's audio frames go on. */
 static int svc_audio_dsp(void* user, const uint32_t* words, uint32_t count) {
     (void)user;
-    (void)words;
-    (void)count;
-    return 0;
+    return count == 0 && (words[0] >> 16) == 3;
 }
 
 static void svc_ai_dma(void* user, uint32_t start, uint32_t size) {
@@ -164,11 +165,12 @@ static void svc_ai_control(void* user, uint32_t what, uint32_t value) {
     (void)value;
 }
 
+/* No HOME Menu yet: as Nebula's host without a renderer, it closes at once (NEBULA_HBM_POLL 0) and is never shown
+   (NEBULA_HBM_VIEW -1: with 0, the game draws the menu, its first row selected, over every frame). */
 static int svc_hbm(void* user, uint32_t what, uint32_t value) {
     (void)user;
-    (void)what;
     (void)value;
-    return 0;
+    return what == NEBULA_HBM_VIEW ? -1 : 0;
 }
 
 static int32_t svc_thp_video_decode(void* user, const void* frame, uint32_t size, void* y, void* u, void* v) {
@@ -209,10 +211,18 @@ static void svc_scene_surround(void* user, float intensity) {
     (void)intensity;
 }
 
+/* Nebula's options as its host without a renderer answers them: the slowest text speed, the scene at the console's
+   resolution, everything else off. */
 static uint32_t svc_option(void* user, uint32_t what) {
     (void)user;
-    (void)what;
-    return 0;
+    switch (what) {
+    case NEBULA_OPTION_TEXT_SPEED:
+        return 1;
+    case NEBULA_OPTION_LOD_SCALE:
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 static void svc_game_light(void* user, uint32_t kind, uint32_t id, const float* values) {
@@ -231,7 +241,8 @@ static void svc_object_name(void* user, uint32_t id, const char* name) {
 static float svc_light_reach(void* user, const char* model, float radius) {
     (void)user;
     (void)model;
-    return radius;
+    (void)radius;
+    return 0.0f; /* asked only while a ray tracer lights the scene (NEBULA_OPTION_RT_SHADOW_CASTERS) */
 }
 
 static int svc_traced_sun(void* user, float* direction) {

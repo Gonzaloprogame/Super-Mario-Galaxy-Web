@@ -134,6 +134,25 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
 - La tarjeta «Pantalla» mostró 0 fotogramas: el juego todavía no había seleccionado un XFB con imagen para el VI. Hay
   que volver a mirarlo cuando el juego avance.
 
+## Tercera prueba con el juego real (2026-10-29, Android)
+
+- El idioma elegido llegó al juego (`[host] system language: Spanish`, `NebulaText: UsSpanish`). El juego cargó sus
+  datos (893 lecturas del disco, 22,6 MB) y no se detuvo.
+- **Aurora dibujó el juego de forma continua y la página lo mostró:** 4.538 fotogramas dibujados y 4.532 mostrados en
+  unos 3 minutos y 20 segundos (unos 23 por segundo de media; al final, unos 25). En total, 145 MB de flujo GX, sin
+  errores del renderizador.
+- La pantalla mostraba el **menú HOME** de Nebula, con sus tres filas, sobre fondo negro.
+- **Causa:** el host respondía 0 a todas las preguntas del menú HOME (`hbm`). Para `NEBULA_HBM_VIEW`, 0 significa «el
+  menú está abierto, con la primera fila seleccionada», así que el juego lo dibujaba en cada fotograma. El host de
+  Nebula sin renderizador responde -1 (cerrado). Otras respuestas por defecto también diferían de las suyas: la
+  velocidad del texto, la escala de detalle (LOD), el subfotograma del DSP de audio y el alcance de la luz.
+- **Corrección:** las respuestas por defecto (`web/host/host_services.c`) son ahora las del host de Nebula sin
+  renderizador, salvo la relación de aspecto. `web/tests/host_services_test.c` (en `run_os_tests.sh`) comprueba las
+  que cambian lo que hace el juego. Con los valores anteriores falla en 4 comprobaciones, entre ellas la del menú; con
+  los nuevos, pasan todas.
+- Todavía no hay mandos ni menú HOME propio: el juego no recibe entrada, así que se quedará en la primera pantalla que
+  espere un botón.
+
 ## Diagnóstico de fallos del renderizador
 
 - Si Aurora se detiene por un error, la página lo muestra como estado de error y detiene el motor. El registro incluye
