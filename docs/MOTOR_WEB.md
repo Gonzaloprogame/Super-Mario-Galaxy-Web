@@ -244,6 +244,42 @@ comprobar.**
 
 Si estos contadores suben, el juego está trabajando; si no, está bloqueado.
 
+## Pruebas con el disco del usuario en el entorno de desarrollo (2026-10-29)
+
+El usuario dio acceso a su copia (`.rvz`) para depurar. Estuvo solo en el espacio temporal de la sesión: nunca entró en
+el repositorio ni en la página publicada.
+
+La prueba usó la página real en el Chromium sin pantalla del contenedor, con WebGPU por software (sin GPU, unos 6
+fotogramas por segundo), manejada con teclado y ratón como lo haría un jugador. El juego llegó al título, a la
+selección de partida, creó el archivo (con icono), y al pulsar «Jugar con este archivo» cargó su primer nivel. Sin
+gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por segundo.
+
+**Fallo 1, corregido: listas de dibujo leídas tarde.**
+- Al cargar el nivel, Aurora se detuvo con `draw vertex data overrun`. Había leído una lista de dibujo de 512 bytes
+  llena de un patrón (`ff f5 00 00 00 00 00 00`) que no son órdenes GX.
+- `GXCallDisplayList` deja en el flujo solo la dirección de la lista, y Aurora la lee de la memoria del juego cuando
+  llega a ella, en su propio hilo. Con el renderizado por software iba segundos por detrás (cientos de elementos en
+  cola), y el juego ya había reutilizado esa memoria al cargar el nivel.
+- El renderizador de Nebula lee el flujo en cada marcador PE, en el hilo del juego, antes de que este siga.
+- Hacer esperar al juego en cada marcador no sirve aquí: todos los hilos del juego comparten un único hilo de wasm, y
+  la espera los paraba todos. Así se probó: el arranque se quedó en 17 lecturas de disco.
+- **Corrección:** `web/platform/gx_display_list_inline_wasm.c`, enlazado con `--wrap=GXCallDisplayList`, copia las
+  órdenes de la lista en el flujo en el momento de la llamada. Una lista son órdenes GX normales (sin llamadas ni
+  marcadores de Nebula), así que ejecutarla en el flujo equivale a llamarla.
+- **Comprobado:**
+  - con el disco del usuario, el nivel cargó sin ese error;
+  - la escena del puente sobrescribe su lista con ese mismo patrón justo después de llamarla. Sin la copia,
+    `bridge_smoke.mjs` falla (el motor aborta); con ella pasa entera.
+
+**Fallo 2, sin resolver: el hilo de render aborta en el nivel.**
+- Ya en `PeachCastleGardenGalaxy`, el hilo de render abortó sin ningún mensaje de Aurora, mientras terminaba un
+  fotograma: la consola mostró `RuntimeError: Aborted()`, y el informe de bloqueos, «ending a frame» durante minutos.
+- Desde entonces el juego espera al renderizador: no dibuja, pero el reloj, el mando y el audio siguen. Es el mismo
+  cuadro que en el teléfono.
+- La página no se entera y sigue en «Motor en marcha». Tiene que detectarlo.
+- La causa del aborto está por averiguar. Un enlace con `-sASSERTIONS` para verla no llegó a arrancar en este montaje
+  (un módulo en un worker con hilos), así que habrá que buscarla por otro camino.
+
 ## Controles
 
 El juego ve un Wiimote con Nunchuk. La página escribe el estado de los controles directamente en la memoria compartida

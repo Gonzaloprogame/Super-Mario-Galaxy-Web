@@ -25,6 +25,7 @@
    scene, and its callback peeks the triangle's colour and depth (GXPeekARGB, GXPeekZ). After the display copy, which
    also clears depth, the scene peeks again outside any callback: the triangle's place (now the clear colour and the
    largest depth) and the marker. The host answers from captures of earlier frames at the same stream positions. */
+#include <string.h>
 #include <revolution/gx.h>
 #include <revolution/gx/GXRegs.h>
 #include <revolution/mtx.h>
@@ -74,6 +75,7 @@ static u8 sColours[2 * 4] __attribute__((aligned(32))) = {255, 255, 255, 255, ID
 
 /* A display list: a triangle in the top-right corner (recorded once, called every frame). */
 static u8 sDisplayList[128] __attribute__((aligned(32)));
+static u8 sDisplayListRecorded[128]; /* the list as recorded: written back before each call */
 static u32 sDisplayListSize;
 
 /* Textures and TLUT, in the console's formats (big-endian, tiled), 32-byte aligned as GX requires. */
@@ -191,6 +193,7 @@ static void prepare_memory(void) {
     GXColor4u8(DL_R, DL_G, DL_B, 255);
     GXEnd();
     sDisplayListSize = GXEndDisplayList();
+    memcpy(sDisplayListRecorded, sDisplayList, sizeof(sDisplayList));
     OSReport("[bridge] display list: %u bytes\n", sDisplayListSize);
 }
 
@@ -241,8 +244,16 @@ static void draw(void) {
     GXEnd();
     GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
 
-    /* The display list's triangle, in the same vertex format. */
+    /* The display list's triangle, in the same vertex format. Right after the call the list's memory is overwritten
+       with what Aurora read once from a list the game had reused (bytes ff f5 00 00 00 00 00 00 over and over, as the
+       first stage loaded): the list's commands must already be in the stream (web/platform/gx_display_list_inline_wasm.c),
+       not read from that memory later by the render thread. */
+    memcpy(sDisplayList, sDisplayListRecorded, sizeof(sDisplayList));
     GXCallDisplayList(sDisplayList, sDisplayListSize);
+    for (u32 i = 0; i < sizeof(sDisplayList); i += 8) {
+        static const u8 kReused[8] = {0xff, 0xf5, 0, 0, 0, 0, 0, 0};
+        memcpy(sDisplayList + i, kReused, sizeof(kReused));
+    }
 
     /* The indexed triangle: 8-bit indices into the arrays. */
     GXClearVtxDesc();

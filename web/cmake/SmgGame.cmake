@@ -50,14 +50,16 @@ endfunction()
 # Link options of every binary holding the game module.
 # Web: fibers (Asyncify) para el cambio de hilo del juego; pthreads para los relojes del host (decrementador, retrace);
 # memoria creciente hasta 4 GB: la arena de 512 MB alineada a su tamaño ocupa [512 MB, 1 GB). --wrap: el operator new y
-# delete globales del juego (JKRHeap) frente a los del resto del binario (web/platform/operator_new_wasm.cpp).
+# delete globales del juego (JKRHeap) frente a los del resto del binario (web/platform/operator_new_wasm.cpp);
+# GXCallDisplayList, que copia la lista en el flujo GX (web/platform/gx_display_list_inline_wasm.c).
 set(SMG_WEB_LINK_OPTIONS
     -sASYNCIFY -sASYNCIFY_STACK_SIZE=65536
     -pthread -sPTHREAD_POOL_SIZE=4
     -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=64MB -sMAXIMUM_MEMORY=4GB
     -sSTACK_SIZE=1MB
     -sEXIT_RUNTIME
-    -Wl,--wrap=_Znwm -Wl,--wrap=_Znam -Wl,--wrap=_ZdlPv -Wl,--wrap=_ZdaPv)
+    -Wl,--wrap=_Znwm -Wl,--wrap=_Znam -Wl,--wrap=_ZdlPv -Wl,--wrap=_ZdaPv
+    -Wl,--wrap=GXCallDisplayList)
 
 # División entera con la semántica de PowerPC (tools/wasm_ppc_divide.py): cada div/rem del binario enlazado pasa a una
 # función que da el resultado de la consola donde wasm haría trap. Sustituye a native/sdk/os/divide_native.c.
