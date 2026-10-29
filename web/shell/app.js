@@ -46,6 +46,87 @@ setInterval(() => {
   }
 }, 500);
 
+// What the chosen file is, from its first bytes (the extension does not matter): the same checks the engine makes
+// (web/host/headless_host.c, web/host/rvz_reader.c), shown at once, before anything is loaded.
+const be32 = (bytes, at) => ((bytes[at] << 24) | (bytes[at + 1] << 16) | (bytes[at + 2] << 8) | bytes[at + 3]) >>> 0;
+const ascii = (bytes, at, n) => String.fromCharCode(...bytes.slice(at, at + n)).replace(/[^\x20-\x7e]/g, '?');
+
+async function inspect(file) {
+  const bytes = new Uint8Array(await file.slice(0, 0x440).arrayBuffer());
+  const size = `${(file.size / 2 ** 30).toFixed(2)} GB`;
+  const magic = ascii(bytes, 0, 4);
+  // ascii() shows the signatures' last byte, 0x01, as '?'
+  if (bytes.length >= 0x60 && magic === 'RVZ?') {
+    const id = ascii(bytes, 0x58, 6);
+    const compression = be32(bytes, 0x4c);
+    const names = { 0: 'sin compresión', 2: 'bzip2', 3: 'LZMA', 4: 'LZMA2', 5: 'Zstandard' };
+    if (compression !== 0 && compression !== 5) {
+      return { ok: false, text: `Imagen RVZ de ${id} (${size}) comprimida con ${names[compression] || 'un método desconocido'}: ` +
+        'el motor lee Zstandard (la de Dolphin por defecto) o sin compresión. Conviértela de nuevo en Dolphin con Zstandard.' };
+    }
+    if (id !== 'RMGE01') {
+      return { ok: false, text: `Imagen RVZ de ${id} (${size}): esta versión del motor es para Super Mario Galaxy de ` +
+        'Norteamérica (RMGE01).' };
+    }
+    return { ok: true, text: `Imagen RVZ de ${id} (${size}, ${names[compression]}): la página leerá de ella la partición ` +
+      'del juego. Pulsa «Arrancar el motor».' };
+  }
+  if (magic === 'WIA?') {
+    return { ok: false, text: `Imagen WIA (${size}): el motor lee RVZ. Conviértela a RVZ en Dolphin.` };
+  }
+  if (magic === 'WBFS') {
+    return { ok: false, text: `Imagen WBFS (${size}): guarda la partición del juego cifrada. Conviértela a RVZ en Dolphin.` };
+  }
+  if (bytes.length >= 0x424 && be32(bytes, 0x18) === 0x5d1c9ea3 && be32(bytes, 0x420) === 0) {
+    // A disc's own header, which (unlike game.pak's boot.bin) does not point to a main.dol
+    return { ok: false, text: `Imagen de disco ISO de ${ascii(bytes, 0, 6)} (${size}): guarda la partición del juego ` +
+      'cifrada. Conviértela a RVZ en Dolphin.' };
+  }
+  // Anything else is read as game.pak, as the engine does: boot.bin starts with the game ID
+  const id = ascii(bytes, 0, 6);
+  if (/^[A-Z0-9]{6}$/.test(id)) {
+    return { ok: id === 'RMGE01', text: id === 'RMGE01'
+      ? `game.pak de ${id} (${size}). Pulsa «Arrancar el motor».`
+      : `game.pak de ${id} (${size}): esta versión del motor es para Super Mario Galaxy de Norteamérica (RMGE01).` };
+  }
+  const hex = Array.from(bytes.slice(0, 8), (b) => b.toString(16).padStart(2, '0')).join(' ');
+  return { ok: false, text: `«${file.name}» (${size}) no es una imagen RVZ ni un game.pak: empieza por ${hex} ` +
+    `(«${ascii(bytes, 0, 8)}»). Un RVZ de Dolphin empieza por «RVZ».` };
+}
+
+$('pak').addEventListener('change', async () => {
+  const file = $('pak').files[0];
+  $('file-info').textContent = '';
+  if (!file) {
+    return;
+  }
+  $('file-info').textContent = `Analizando ${file.name}…`;
+  try {
+    const result = await inspect(file);
+    $('file-info').textContent = result.text;
+    $('file-info').dataset.ok = String(result.ok);
+  } catch (error) {
+    $('file-info').textContent = `No se pudo leer ${file.name}: ${error}`;
+    $('file-info').dataset.ok = 'false';
+  }
+});
+
+$('copy-log').addEventListener('click', async () => {
+  const text = `${statusEl.textContent}\n${$('file-info').textContent}\n\n${logEl.textContent}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    $('copy-log').textContent = 'Copiado';
+  } catch {
+    // Without clipboard access: select it, for the user to copy
+    const range = document.createRange();
+    range.selectNodeContents(logEl);
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+    $('copy-log').textContent = 'Seleccionado: cópialo';
+  }
+  setTimeout(() => { $('copy-log').textContent = 'Copiar el registro'; }, 2000);
+});
+
 function start() {
   const file = $('pak').files[0];
   if (!file) {
