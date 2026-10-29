@@ -21,7 +21,9 @@ set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.c
 target_link_options(smg_web PRIVATE ${SMG_WEB_LINK_OPTIONS} -sASYNCIFY_STACK_SIZE=1048576 -sPTHREAD_POOL_SIZE=8
     -sENVIRONMENT=worker -sMODULARIZE -sEXPORT_NAME=createSmgModule -sINVOKE_RUN=0
     -lworkerfs.js "-sEXPORTED_RUNTIME_METHODS=['callMain','FS','WORKERFS']"
-    "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
+    "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js"
+    # smg_web.js.symbols (not published): wasm function indices to names, for the stack of an abort the page shows
+    --emit-symbol-map)
 set_property(TARGET smg_web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
 set_target_properties(smg_web PROPERTIES SUFFIX ".js")
 smg_ppc_divide(smg_web)

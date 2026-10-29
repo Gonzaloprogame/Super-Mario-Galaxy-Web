@@ -111,6 +111,15 @@ static int exit_requested(void) {
     return requested;
 }
 
+/* The test of guest arrays drawn many times a frame (bridge_smoke.mjs, ?arrays=1, web/bridge/gx_bridge_scene.c) */
+int smg_bridge_arrays_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('arrays') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* Called by the scene after each GXDrawDone, on the game's thread. */
 int smg_bridge_scene_frame_done(void) {
     static int reported;

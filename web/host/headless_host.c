@@ -25,6 +25,7 @@
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
+#include <emscripten/heap.h>
 #endif
 
 #include <nebula_game_api.h>
@@ -315,6 +316,46 @@ static void svc_game_stage(void* user, const char* name) {
     }
 }
 
+/* ---- the NAND between sessions ----
+   The page keeps the NAND in IndexedDB (web/shell/app.js): it hands the last copy to the engine as a file (argument 4,
+   written by web/shell/boot_worker.post.js), and gets a new one on the presenter's channel after each change. */
+static void restore_nand(const char* path) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        return;
+    }
+    uint8_t* blob = NULL;
+    long size = 0;
+    if (fseek(file, 0, SEEK_END) == 0 && (size = ftell(file)) > 0 && fseek(file, 0, SEEK_SET) == 0 &&
+        (blob = malloc((size_t)size)) != NULL && fread(blob, 1, (size_t)size, file) == (size_t)size) {
+        const int count = smg_console_nand_import(blob, (size_t)size);
+        if (count < 0) {
+            fprintf(stderr, "[host] the NAND kept by the page is unreadable: starting without it\n");
+        } else {
+            fprintf(stderr, "[host] NAND restored from the page: %d folders and files\n", count);
+        }
+    }
+    free(blob);
+    fclose(file);
+}
+
+static void nand_changed(const uint8_t* blob, size_t size) {
+#if defined(__EMSCRIPTEN__)
+    EM_ASM(
+        {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('smg-present');
+                channel.postMessage({type : 'nand', id : UTF8ToString($2), data : HEAPU8.slice($0, $0 + $1)});
+                channel.close();
+            }
+        },
+        blob, size, sPak.id);
+#else
+    (void)blob;
+    (void)size;
+#endif
+}
+
 /* ---- the console's system settings ---- */
 
 /* The system language (SCGetLanguage: 0 Japanese, 1 English, 2 German, 3 French, 4 Spanish, 5 Italian, 6 Dutch), as
@@ -408,6 +449,9 @@ static void report(void) {
     fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page\n", smg_bridge_frames(),
             smg_bridge_presented());
 #endif
+#if defined(__EMSCRIPTEN__)
+    fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);
+#endif
 }
 
 /* The game's own activity, from services it calls while it works: its audio thread's DSP commands, the caches it
@@ -423,7 +467,12 @@ static int svc_audio_dsp(void* user, const uint32_t* words, uint32_t count) {
 
 static void svc_gpu_coherent(void* user, uint32_t physical, uint32_t size) {
     atomic_fetch_add(&sCoherentCalls, 1);
+#if defined(SMG_HOST_AURORA)
+    (void)user;
+    smg_bridge_coherent(physical, size);
+#else
     sDefaults.gpu_coherent(user, physical, size);
+#endif
 }
 
 static void svc_object_name(void* user, uint32_t id, const char* name) {
@@ -505,7 +554,8 @@ static void* clock_main(void* arg) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <game.pak or .rvz> [seconds, 0: no end] [system language, 0-6]\n", argv[0]);
+        fprintf(stderr, "usage: %s <game.pak or .rvz> [seconds, 0: no end] [system language, 0-6] [NAND kept]\n",
+                argv[0]);
         return 1;
     }
     if (argc > 2) {
@@ -544,6 +594,10 @@ int main(int argc, char** argv) {
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
     smg_console_start(sPak.id);
+    if (argc > 4 && argv[4][0] != '\0') {
+        restore_nand(argv[4]);
+    }
+    smg_console_on_nand_change(nand_changed);
 #if defined(__EMSCRIPTEN__)
     /* The page's controls (web/shell/controls.js) write their words straight into the engine's shared memory */
     EM_ASM(

@@ -1,6 +1,6 @@
 /* The console's devices a host gives the game without a renderer, as Nebula's host without a renderer gives them
-   (third_party/nebula/native/host/host_main.cpp): a Wii Remote with a Nunchuk at rest, the audio interface's clock and
-   a NAND. The NAND is kept in memory: what the game saves lasts until the page is closed. */
+   (third_party/nebula/native/host/host_main.cpp): a Wii Remote with a Nunchuk (the page's controls), the audio
+   interface's clock and a NAND, kept in memory and handed to the page after each change (it keeps it in IndexedDB). */
 #pragma once
 
 #include <stddef.h>
@@ -45,6 +45,14 @@ int32_t* smg_console_input(void);
 /* The input report `id` (0x30, 0x31, 0x33 or 0x37) for the controls `input`; its size. The pointer it stands for in
    *pointer, with *exact 1, when the pointer is on the screen and the report carries IR. */
 size_t smg_console_report(uint8_t id, const int32_t* input, uint8_t* report, NebulaWpadPointer* pointer, int* exact);
+
+/* The NAND kept between sessions: its folders and files but /tmp's, as one blob (format in console_services.c).
+   import: before the game runs, after smg_console_start; the number of folders and files, or -1 on a malformed blob.
+   export: a malloc'd blob in *out, its size. on_nand_change: `changed` gets the blob after each change the game has
+   finished, on the NAND's thread. */
+int smg_console_nand_import(const uint8_t* blob, size_t size);
+size_t smg_console_nand_export(uint8_t** out);
+void smg_console_on_nand_change(void (*changed)(const uint8_t* blob, size_t size));
 
 /* What the devices did, for the host's report */
 typedef struct {

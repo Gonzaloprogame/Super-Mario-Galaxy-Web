@@ -26,7 +26,12 @@ void smg_bridge_exit(int code);
 /* From the game's simulation thread, in stream order (the host's gx_submit and gx_pe_marker). They do not allocate:
    the game owns operator new on that thread (web/platform/operator_new_wasm.cpp). */
 void smg_bridge_submit(const uint8_t* bytes, size_t size);
+/* The host's gpu_coherent: the game wrote [physical, physical + size) for the GPU (its cache flushes), in stream order
+   with its spans. */
+void smg_bridge_coherent(uint32_t physical, uint32_t size);
 void smg_bridge_pe_marker(int finish, uint16_t token);
+/* The game's lead: PE markers given and not yet answered (the game's pacing, web/platform/gx_pacing_wasm.c). */
+unsigned smg_host_gx_markers_behind(void);
 /* The host's gx_peek_efb: an EFB pixel (type 0 colour as GXPeekARGB, 1 depth as GXPeekZ) at the stream position of
    draw-sync token `token` (0: where the game peeks), answered from a capture of an earlier frame; 0 until the first. */
 uint32_t smg_bridge_peek_efb(uint16_t x, uint16_t y, uint32_t type, uint16_t token);

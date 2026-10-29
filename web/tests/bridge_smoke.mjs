@@ -120,6 +120,19 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   await page.locator('#screen').screenshot({ path: process.env.SMG_SCREENSHOT });
   console.log(`captura del canvas: ${process.env.SMG_SCREENSHOT}`);
 }
+// Guest arrays drawn many times a frame (?arrays=1: 200 draws of a 96 KB array, the vertex cache invalidated between
+// them, as the game's models): the frame is drawn, without filling Aurora's storage buffer (Aurora patch 0015)
+{
+  const many = await browser.newPage();
+  await many.goto(`http://127.0.0.1:${port}/gx_bridge.html?arrays=1`);
+  const done = await many.waitForFunction(() => globalThis.bridge && (globalThis.bridge.result || globalThis.bridge.exit !== null),
+    null, { timeout: 180000 }).then(() => true, () => false);
+  const r = done ? await many.evaluate(() => ({ result: globalThis.bridge.result, exit: globalThis.bridge.exit, lines: globalThis.bridge.lines })) : {};
+  const full = (r.lines || []).filter((l) => /is full|abort|FATAL/i.test(l));
+  check(r.result && r.result.xfb && r.exit === null && full.length === 0,
+        `arrays grandes dibujados 200 veces por fotograma: sin llenar el buffer ni abortar (${full.join('; ') || 'ok'})`);
+  await many.close();
+}
 // The render thread's description (the host's stall report): its phase, queue and counters
 {
   const status = lines.find((l) => l.startsWith('[bridge] status: '));

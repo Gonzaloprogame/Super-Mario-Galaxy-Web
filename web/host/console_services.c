@@ -620,6 +620,124 @@ void smg_console_fs_request(void* user, const NebulaFsRequest* request, uint32_t
     pthread_mutex_unlock(&sNandLock);
 }
 
+/* ---- the NAND kept by the page between sessions (IndexedDB, web/shell/app.js) ----
+   A copy of every folder and file but /tmp's, in a blob the page stores as it is: "SMGN", the node count (u32), then
+   per node its kind (u8: 1 folder, 0 file), its path's length (u16) and path, its size (u32) and bytes; little-endian.
+   Written after each change the game has finished (a file closed after writes, a create, delete or rename). */
+static void (*sNandChanged)(const uint8_t* blob, size_t size);
+static int sNandDirty; /* NAND thread only */
+
+void smg_console_on_nand_change(void (*changed)(const uint8_t* blob, size_t size)) {
+    sNandChanged = changed;
+}
+
+static int kept(const Node* n) {
+    return n->used && strcmp(n->path, "/tmp") != 0 && strncmp(n->path, "/tmp/", 5) != 0;
+}
+
+static void put_le(uint8_t* p, uint32_t value, int bytes) {
+    for (int i = 0; i < bytes; i++) {
+        p[i] = (uint8_t)(value >> (8 * i));
+    }
+}
+
+static uint32_t get_le(const uint8_t* p, int bytes) {
+    uint32_t value = 0;
+    for (int i = 0; i < bytes; i++) {
+        value |= (uint32_t)p[i] << (8 * i);
+    }
+    return value;
+}
+
+size_t smg_console_nand_export(uint8_t** out) {
+    size_t size = 8;
+    uint32_t count = 0;
+    for (int i = 0; i < MaxNodes; i++) {
+        if (kept(&sNodes[i])) {
+            size += 1 + 2 + strlen(sNodes[i].path) + 4 + sNodes[i].size;
+            count++;
+        }
+    }
+    uint8_t* blob = malloc(size);
+    if (blob == NULL) {
+        *out = NULL;
+        return 0;
+    }
+    memcpy(blob, "SMGN", 4);
+    put_le(blob + 4, count, 4);
+    size_t at = 8;
+    for (int i = 0; i < MaxNodes; i++) {
+        const Node* n = &sNodes[i];
+        if (!kept(n)) {
+            continue;
+        }
+        const size_t length = strlen(n->path);
+        blob[at] = (uint8_t)n->directory;
+        put_le(blob + at + 1, (uint32_t)length, 2);
+        memcpy(blob + at + 3, n->path, length);
+        put_le(blob + at + 3 + length, (uint32_t)n->size, 4);
+        if (n->size != 0) {
+            memcpy(blob + at + 7 + length, n->data, n->size);
+        }
+        at += 7 + length + n->size;
+    }
+    *out = blob;
+    return size;
+}
+
+static void create_folders(const char* path);
+
+int smg_console_nand_import(const uint8_t* blob, size_t size) {
+    if (size < 8 || memcmp(blob, "SMGN", 4) != 0) {
+        return -1;
+    }
+    const uint32_t count = get_le(blob + 4, 4);
+    size_t at = 8;
+    for (uint32_t k = 0; k < count; k++) {
+        if (size - at < 3) {
+            return -1;
+        }
+        const int directory = blob[at] != 0;
+        const size_t length = get_le(blob + at + 1, 2);
+        if (length == 0 || length >= MaxPath || size - at < 7 + length) {
+            return -1;
+        }
+        char path[MaxPath];
+        memcpy(path, blob + at + 3, length);
+        path[length] = '\0';
+        const size_t bytes = get_le(blob + at + 3 + length, 4);
+        if (size - at - 7 - length < bytes || !valid_path(path)) {
+            return -1;
+        }
+        const uint8_t* data = blob + at + 7 + length;
+        at += 7 + length + bytes;
+        if (directory) {
+            create_folders(path);
+            continue;
+        }
+        char parent[MaxPath];
+        memcpy(parent, path, length + 1);
+        *strrchr(parent, '/') = '\0';
+        if (parent[0] != '\0') {
+            create_folders(parent);
+        }
+        int node = find(path);
+        if (node < 0 && (node = add_node(path, 0)) < 0) {
+            return -1;
+        }
+        Node* n = &sNodes[node];
+        n->size = 0;
+        if (!reserve(&n->data, &n->capacity, bytes)) {
+            return -1;
+        }
+        if (bytes != 0) {
+            memcpy(n->data, data, bytes);
+        }
+        n->size = bytes;
+    }
+    return (int)count;
+}
+
 static void* nand_main(void* arg) {
     (void)arg;
     for (;;) {
@@ -635,6 +753,22 @@ static void* nand_main(void* arg) {
         atomic_fetch_add(&sNandRequests, 1);
         if (result < 0) {
             atomic_fetch_add(&sNandFailures, 1);
+        }
+        /* The page's copy follows each change once its file is closed (not every write) */
+        const uint32_t op = job.request.op;
+        if (result >= 0 && op != NEBULA_FS_OPEN && op != NEBULA_FS_SAFE_OPEN && op != NEBULA_FS_READ &&
+            op != NEBULA_FS_SEEK && op != NEBULA_FS_LENGTH) {
+            sNandDirty = 1;
+        }
+        const int settled = op != NEBULA_FS_WRITE;
+        if (sNandDirty && settled && result >= 0 && sNandChanged != NULL) {
+            uint8_t* blob;
+            const size_t size = smg_console_nand_export(&blob);
+            if (blob != NULL) {
+                sNandChanged(blob, size);
+                free(blob);
+            }
+            sNandDirty = 0;
         }
         nebula_game_fs_complete(job.slot, result);
     }
@@ -674,5 +808,5 @@ void smg_console_start(const char* game_id) {
         fprintf(stderr, "[host] the NAND's or the audio interface's thread cannot start\n");
         exit(2);
     }
-    fprintf(stderr, "[host] NAND in memory (saves last until the page closes): %s\n", saves);
+    fprintf(stderr, "[host] NAND in memory, kept by the page between sessions: %s\n", saves);
 }

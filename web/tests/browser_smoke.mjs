@@ -81,6 +81,7 @@ async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}
   let state = await page.evaluate(() => document.body.dataset.state);
   const result = { isolated, state, status: await page.textContent('#status'), log: '', consoleErrors };
   if (pak && state === 'ready') {
+    if (options.before) await options.before(page);
     await page.setInputFiles('#pak', pak);
     await page.selectOption('#mode', mode);
     if (options.language !== undefined) await page.selectOption('#language', String(options.language));
@@ -171,6 +172,33 @@ await withServer('isolated', async (url) => {
   check(k.touchB[0] === 0x0400, `controles: el botón B de la pantalla pulsa B (${k.touchB[0]})`);
   check(k.pointer[3] === 1 && Math.abs(k.pointer[4] - 5000) < 100 && Math.abs(k.pointer[5] + 5000) < 100,
         `controles: el puntero sigue al ratón sobre la pantalla (${k.pointer.slice(3, 6)})`);
+
+  // The NAND kept between sessions (IndexedDB): a copy kept for the disc reaches the engine when it starts, and a copy
+  // the engine hands over (on the presenter's channel) is kept
+  const n = await run(url, join(fixtures, 'fixture_emptydol.pak'), 120000, 'diagnostic', {}, {
+    before: (page) => page.evaluate(async () => {
+      // "SMGN", 1 node: a 4-byte file in the game's save folder (web/host/console_services.c)
+      const path = new TextEncoder().encode('/title/00010000/524d4745/data/GameData.bin');
+      const blob = new Uint8Array(8 + 7 + path.length + 4);
+      const view = new DataView(blob.buffer);
+      blob.set(new TextEncoder().encode('SMGN'), 0);
+      view.setUint32(4, 1, true);
+      view.setUint16(9, path.length, true);
+      blob.set(path, 11);
+      view.setUint32(11 + path.length, 4, true);
+      blob.set([1, 2, 3, 4], 15 + path.length);
+      await nandStore.put('RMGE01', blob);
+    }),
+    after: async (page) => {
+      await page.evaluate(() => new BroadcastChannel('smg-present').postMessage({ type: 'nand', id: 'TEST01', data: new Uint8Array([9, 8, 7]) }));
+      await new Promise((r) => setTimeout(r, 500));
+      return page.evaluate(async () => Array.from((await nandStore.get('TEST01')) || []));
+    },
+  });
+  check(/partida guardada de RMGE01 en este navegador: \d+ bytes/.test(n.log) &&
+        /NAND restored from the page: 1 folders and files/.test(n.log),
+        'NAND: la copia guardada en el navegador llega al motor al arrancar');
+  check(n.after.join(',') === '9,8,7', `NAND: la copia que da el motor se guarda en el navegador (${n.after})`);
 
   // The engine's end heard from the host itself (its announcement on the presenter's channel), without Emscripten's
   check(/\[host\] exit 3/.test(g.log), 'el host anuncia su salida (código 3)');

@@ -9,7 +9,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
   const post = (type, data) => self.postMessage(Object.assign({ type }, data));
 
   self.onmessage = async (event) => {
-    const { file, seconds, language, label } = event.data;
+    const { file, seconds, language, label, nand } = event.data;
     post('status', { text: 'Compilando e instanciando el módulo WebAssembly…' });
     let module;
     try {
@@ -27,7 +27,13 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
     module.FS.mount(module.WORKERFS, { files: [file] }, '/game');
     post('status', { text: `Motor en marcha (${label}).` });
     try {
-      module.callMain([`/game/${file.name}`, String(seconds), String(language)]);
+      // The NAND the page kept (IndexedDB), as a file for the host: web/host/headless_host.c, restore_nand
+      let nandPath = '';
+      if (nand) {
+        module.FS.writeFile('/nand.bin', nand);
+        nandPath = '/nand.bin';
+      }
+      module.callMain([`/game/${file.name}`, String(seconds), String(language), nandPath]);
     } catch (error) {
       // exit() unwinds with an ExitStatus; onExit has reported it.
       if (!(error && error.name === 'ExitStatus')) {

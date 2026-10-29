@@ -4,12 +4,19 @@
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 #include "console_services.h"
 
 static int failures;
+static atomic_int sNandChanges;
+static void nand_changed(const uint8_t* blob, size_t size) {
+    (void)blob;
+    (void)size;
+    atomic_fetch_add(&sNandChanges, 1);
+}
 
 static void check(int ok, const char* what) {
     printf("%s %s\n", ok ? "PASS" : "FAIL", what);
@@ -83,6 +90,7 @@ static int32_t fs(uint32_t op, const char* path, const char* path2, int32_t fd, 
 
 int main(void) {
     smg_console_start("RMGE01");
+    smg_console_on_nand_change(nand_changed);
 
     /* NAND */
     char buffer[64] = {0};
@@ -128,6 +136,37 @@ int main(void) {
     check(fs(NEBULA_FS_DELETE, DATA "/stage", NULL, 0, NULL, 0, 0, 0, 0) == 0 &&
               fs(NEBULA_FS_OPEN, DATA "/stage/banner.bin", NULL, 0, NULL, 0, 0, 0, 1) == -12,
           "NAND: folder deleted with its file");
+
+    /* The NAND kept between sessions: a change reaches the page once its file is closed; the blob holds every folder
+       and file but /tmp's and brings them back */
+    {
+        const int before = atomic_load(&sNandChanges);
+        const int32_t f = fs(NEBULA_FS_OPEN, DATA "/GameData.bin", NULL, 0, NULL, 0, 0, 0, 3);
+        fs(NEBULA_FS_WRITE, NULL, NULL, f, "Luigi!", 6, 0, 0, 0);
+        const int afterWrite = atomic_load(&sNandChanges);
+        fs(NEBULA_FS_CLOSE, NULL, NULL, f, NULL, 0, 0, 0, 0);
+        check(afterWrite == before && atomic_load(&sNandChanges) == before + 1,
+              "NAND kept: the page gets it when the written file is closed, not at each write");
+        fs(NEBULA_FS_CREATE, "/tmp/staging.bin", NULL, 0, NULL, 0, 0, 0, 0);
+        uint8_t* blob;
+        const size_t size = smg_console_nand_export(&blob);
+        int hasTmp = 0;
+        for (size_t i = 0; i + 4 < size; i++) {
+            hasTmp |= memcmp(blob + i, "/tmp", 4) == 0;
+        }
+        check(blob != NULL && memcmp(blob, "SMGN", 4) == 0 && !hasTmp, "NAND kept: a blob without /tmp");
+        fs(NEBULA_FS_DELETE, DATA "/GameData.bin", NULL, 0, NULL, 0, 0, 0, 0);
+        const int restored = smg_console_nand_import(blob, size);
+        const int32_t g = fs(NEBULA_FS_OPEN, DATA "/GameData.bin", NULL, 0, NULL, 0, 0, 0, 1);
+        memset(buffer, 0, sizeof(buffer));
+        fs(NEBULA_FS_READ, NULL, NULL, g, buffer, 6, 0, 0, 0);
+        fs(NEBULA_FS_CLOSE, NULL, NULL, g, NULL, 0, 0, 0, 0);
+        printf("     %d folders and files in the blob (%zu bytes)\n", restored, size);
+        check(restored >= 5 && memcmp(buffer, "Luigi!", 6) == 0, "NAND kept: the blob brings back a deleted save");
+        check(smg_console_nand_import((const uint8_t*)"SMGX", 4) == -1 && smg_console_nand_import(blob, size - 3) == -1,
+              "NAND kept: a malformed or cut blob is refused");
+        free(blob);
+    }
 
     /* Wii Remote: connected with its Nunchuk at the game's first read of its remotes after starting WPAD (not when
        WPAD starts: its callbacks are not set yet), then a report every 10 ms */

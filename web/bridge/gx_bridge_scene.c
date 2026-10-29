@@ -64,6 +64,7 @@
 int smg_bridge_scene_frame_done(void);
 /* The host asks for a renderer failure (the test of its report): 0xC8, neither a GX command nor a Nebula marker. */
 int smg_bridge_fault_requested(void);
+int smg_bridge_arrays_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
 
@@ -71,6 +72,9 @@ static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
    the draw does not index (a misread index would put it over the centre triangle, in white); the triangle is entries
    1, 3, 2 in the bottom-right corner, so the array must be read up to its last entry. */
 static u32 sPositions[4 * 3] __attribute__((aligned(32)));
+/* ?arrays=1: a 96 KB position array (zeros: a degenerate triangle), drawn many times a frame (kArrayDraws) */
+enum { kBigPositions = 8192, kArrayDraws = 200 };
+static u32 sBigPositions[kBigPositions * 3] __attribute__((aligned(32)));
 static u8 sColours[2 * 4] __attribute__((aligned(32))) = {255, 255, 255, 255, IDX_R, IDX_G, IDX_B, 255};
 
 /* A display list: a triangle in the top-right corner (recorded once, called every frame). */
@@ -133,6 +137,11 @@ static u32 big_endian_f32(f32 value) {
 }
 
 /* An 8-bit colour index: Petari's GXVert.h has no GXColor1x8 (the game does not call it); the SDK's FIFO write. */
+/* A 16-bit position index (this SDK's GXVert.h has only GXPosition1x8): two big-endian bytes in the stream */
+static void position_index16(u16 index) {
+    __NebulaGXStore16(__NebulaGXReserve(2), index);
+}
+
 static void colour_index8(u8 index) {
     GX_WRITE_U8(index);
 }
@@ -270,6 +279,25 @@ static void draw(void) {
     GXPosition1x8(2);
     colour_index8(1);
     GXEnd();
+
+    /* ?arrays=1: as the game's models do, the vertex cache invalidated between draws of one big array (its last element
+       reached): 200 uploads of 96 KB went past Aurora's 8 MiB storage buffer, and it aborted, as a stage did. Each
+       upload is reused within the frame (Aurora patch 0015). */
+    if (smg_bridge_arrays_requested()) {
+        GXSetVtxDesc(GX_VA_POS, GX_INDEX16);
+        GXSetArray(GX_VA_POS, sBigPositions, 3 * sizeof(u32));
+        for (int i = 0; i < kArrayDraws; ++i) {
+            GXInvalidateVtxCache();
+            GXBegin(GX_TRIANGLES, GX_VTXFMT0, 3);
+            position_index16(0);
+            colour_index8(1);
+            position_index16(1);
+            colour_index8(1);
+            position_index16(kBigPositions - 1);
+            colour_index8(1);
+            GXEnd();
+        }
+    }
 
     /* The textured squares: position and texture coordinate, the texel as is (GX_REPLACE). */
     GXLoadTlut(&sTlutObj, GX_TLUT0);

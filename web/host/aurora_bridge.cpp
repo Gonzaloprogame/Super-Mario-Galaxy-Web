@@ -22,6 +22,7 @@
 #include <emscripten.h>
 #include <pthread.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
@@ -38,6 +39,8 @@ struct Item {
   uint16_t token;
   uint8_t finish;
   uint8_t peekChannel = 0xFF; // a marker that is a game peek's position (token 0): the channel to capture
+  uint8_t coherent = 0;       // the game wrote [physical, physical + size) for the GPU (a cache flush)
+  uint32_t physical = 0;
 };
 
 constexpr uint32_t QueueSize = 4096;
@@ -379,6 +382,7 @@ void* render_main(void*) {
   g_state.store(1, std::memory_order_release);
 
   bool frameOpen = false;
+  uint64_t frameBytes = 0; // the game's stream in the frame being drawn
   for (;;) {
     if (g_stop.load(std::memory_order_acquire)) {
       // Before exit(): with Aurora alive, exit's C++ static destructors wait forever (docs/PUENTE_FIFO.md)
@@ -409,11 +413,20 @@ void* render_main(void*) {
     const Item item = g_queue[head % QueueSize];
     g_head.store(head + 1, std::memory_order_release);
     if (item.bytes != nullptr) {
+      frameBytes += item.size;
       set_phase(PhaseSpan);
       trace_record('S', item.bytes, item.size, 0, 0);
       aurora::gx::fifo::write_data(item.bytes, item.size); // copied: the span goes back to the game now
       nebula_game_gx_release(item.size);
       g_spansDone.fetch_add(1, std::memory_order_relaxed);
+      continue;
+    }
+    if (item.coherent) {
+      // In stream order: what Aurora reuses of that memory within the frame is dropped (patch 0015)
+      uint32_t available = 0;
+      if (const uint8_t* host = resolve_guest(item.physical, &available)) {
+        aurora_guest_written(host, std::min<uint32_t>(item.size, available));
+      }
       continue;
     }
     if (item.peekChannel != 0xFF) {
@@ -430,6 +443,12 @@ void* render_main(void*) {
       }
     }
     if (item.finish) {
+      // A frame far larger than the game's usual (tens to hundreds of KB): said, with its size, before Aurora ends it
+      if (frameBytes > (32u << 20)) {
+        std::fprintf(stderr, "[bridge] frame %u: %u MB of GX\n", g_frames.load(std::memory_order_relaxed),
+                     static_cast<unsigned>(frameBytes >> 20));
+      }
+      frameBytes = 0;
       collect_peeks(stream);
       collect_xfb(xfbStream);
       present(presentStream);
@@ -485,12 +504,28 @@ extern "C" void smg_bridge_exit(int code) {
   exit(code);
 }
 
+extern "C" void smg_bridge_coherent(uint32_t physical, uint32_t size) {
+  Item item{nullptr, size, 0, 0};
+  item.coherent = 1;
+  item.physical = physical;
+  push(item);
+}
+
 extern "C" void smg_bridge_submit(const uint8_t* bytes, size_t size) {
   push(Item{bytes, static_cast<uint32_t>(size), 0, 0});
 }
 
+std::atomic<uint64_t> g_markersQueued{0};
+
 extern "C" void smg_bridge_pe_marker(int finish, uint16_t token) {
+  g_markersQueued.fetch_add(1, std::memory_order_relaxed);
   push(Item{nullptr, 0, token, static_cast<uint8_t>(finish != 0)});
+}
+
+// The game's lead over the renderer, in PE markers still to answer (web/platform/gx_pacing_wasm.c waits on it)
+extern "C" unsigned smg_host_gx_markers_behind(void) {
+  return static_cast<unsigned>(g_markersQueued.load(std::memory_order_relaxed) -
+                               g_markersDone.load(std::memory_order_acquire));
 }
 
 extern "C" uint32_t smg_bridge_peek_efb(uint16_t x, uint16_t y, uint32_t type, uint16_t token) {
