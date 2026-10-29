@@ -126,12 +126,77 @@ const uint8_t* resolve_guest(uint32_t physical, uint32_t* available) {
   return nullptr;
 }
 
+// The GX trace (render thread): everything given to Aurora, in order, to replay a renderer failure elsewhere
+// (web/bridge/gx_replay). Records: 'S', u32 length, the span's bytes; 'M', u8 finish, u16 token (a PE marker). Kept
+// up to TraceLimit bytes; printed to the log, in base64, when Aurora stops on an error.
+constexpr size_t TraceLimit = 4u << 20;
+constexpr size_t TraceDumpLimit = 256u << 10;
+std::vector<uint8_t> g_trace;
+bool g_traceTruncated = false;
+
+void trace_record(char type, const uint8_t* bytes, uint32_t size, uint8_t finish, uint16_t token) {
+  const size_t need = type == 'S' ? 5 + size : 4;
+  if (g_trace.size() + need > TraceLimit) {
+    g_traceTruncated = true;
+    return;
+  }
+  g_trace.push_back(static_cast<uint8_t>(type));
+  if (type == 'S') {
+    for (int shift = 24; shift >= 0; shift -= 8) {
+      g_trace.push_back(static_cast<uint8_t>(size >> shift));
+    }
+    g_trace.insert(g_trace.end(), bytes, bytes + size);
+  } else {
+    g_trace.push_back(finish);
+    g_trace.push_back(static_cast<uint8_t>(token >> 8));
+    g_trace.push_back(static_cast<uint8_t>(token));
+  }
+}
+
+void dump_trace() {
+  static const char kAlphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  const size_t size = g_trace.size();
+  if (size > TraceDumpLimit) {
+    fprintf(stderr, "[gx-trace] %zu bytes recorded: too large to print (limit %zu)\n", size, TraceDumpLimit);
+    return;
+  }
+  fprintf(stderr, "[gx-trace] begin %zu bytes%s\n", size, g_traceTruncated ? " (truncated)" : "");
+  char line[80];
+  size_t used = 0;
+  for (size_t i = 0; i < size; i += 3) {
+    const uint32_t a = g_trace[i];
+    const uint32_t b = i + 1 < size ? g_trace[i + 1] : 0;
+    const uint32_t c = i + 2 < size ? g_trace[i + 2] : 0;
+    const uint32_t triple = a << 16 | b << 8 | c;
+    line[used++] = kAlphabet[triple >> 18 & 63];
+    line[used++] = kAlphabet[triple >> 12 & 63];
+    line[used++] = i + 1 < size ? kAlphabet[triple >> 6 & 63] : '=';
+    line[used++] = i + 2 < size ? kAlphabet[triple & 63] : '=';
+    if (used == 76 || i + 3 >= size) {
+      line[used] = 0;
+      fprintf(stderr, "[gx-trace] %s\n", line);
+      used = 0;
+    }
+  }
+  fprintf(stderr, "[gx-trace] end\n");
+}
+
 void log_callback(AuroraLogLevel level, const char* module, const char* message, unsigned int) {
   static const char* const names[] = {"DEBUG", "INFO", "WARNING", "ERROR", "FATAL"};
   if (level >= LOG_INFO) {
     fprintf(stderr, "[aurora %s: %s] %s\n", names[level], module, message);
   }
   if (level == LOG_FATAL) {
+    // The renderer cannot go on: the trace for a replay, then the page is told (aborting this thread alone left the
+    // page showing the engine as running)
+    dump_trace();
+    EM_ASM(
+        {
+          const channel = new BroadcastChannel('smg-present');
+          channel.postMessage({type : 'fatal', text : UTF8ToString($0)});
+          channel.close();
+        },
+        message);
     abort();
   }
 }
@@ -318,6 +383,7 @@ void* render_main(void*) {
     const Item item = g_queue[head % QueueSize];
     g_head.store(head + 1, std::memory_order_release);
     if (item.bytes != nullptr) {
+      trace_record('S', item.bytes, item.size, 0, 0);
       aurora::gx::fifo::write_data(item.bytes, item.size); // copied: the span goes back to the game now
       nebula_game_gx_release(item.size);
       continue;
@@ -326,6 +392,7 @@ void* render_main(void*) {
       capture_channel(g_peekChannels[item.peekChannel]);
       continue;
     }
+    trace_record('M', nullptr, 0, item.finish, item.token);
     if (!item.finish) {
       // A draw-sync token: its channel's points are captured here, where the console's GPU stopped for it
       if (PeekChannel* channel = find_channel(item.token)) {

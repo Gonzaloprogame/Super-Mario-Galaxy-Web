@@ -73,6 +73,30 @@ motivo.
 - **Rendimiento:** sin medir con el juego. Los dibujos esperan a su *pipeline*, así que la primera aparición de cada
   material detiene el fotograma un momento (`PUENTE_FIFO.md`, copia a pantalla).
 
+## Primera prueba con el juego real (2026-10-29, Android)
+
+Con la imagen RVZ del usuario, en Chrome para Android:
+
+- El motor leyó la partición del `.rvz` (4.286.328.832 bytes, `main.dol` de 6.283.264 bytes) y Aurora arrancó sobre
+  la GPU del teléfono.
+- **El código del juego se ejecutó:** sus propios mensajes (`original arenaLo …`, `setupAramHeap …`, `D-Wait end`,
+  `Table SetupFinish 0`) muestran que cargó sus datos y empezó a arrancar.
+- Tras 3.579 bytes de flujo GX, Aurora se detuvo con `unsupported primitive type 240`: leyó 0xF0 como si empezara un
+  dibujo, y 0xF0 no es una orden GX. Aurora trata como dibujo cualquier byte ≥ 0x80, así que su lectura del flujo se
+  había desalineado antes de ese punto.
+- La página siguió diciendo «Motor en marcha»: abortar solo el hilo de render no llegaba a la página. Corregido.
+
+## Diagnóstico de fallos del renderizador
+
+- Si Aurora se detiene por un error, la página lo muestra como estado de error y detiene el motor. El registro incluye
+  la **traza GX**: todo lo que el juego dio a Aurora, en base64, entre `[gx-trace] begin` y `[gx-trace] end` (hasta
+  256 KB). «Copiar el registro» la copia junto con el resto.
+- `python3 -I tools/gx_trace.py <registro copiado>` recorre la traza orden a orden con los tamaños del hardware y el
+  formato de vértice que el propio flujo establece. Es independiente de Aurora y se detiene en el primer byte que no
+  es una orden, mostrando las órdenes anteriores.
+- Verificado con un fallo inyectado (`gx_bridge.html?fault=1`, en `bridge_smoke.mjs`): la página recibe el fallo, el
+  registro contiene la traza y `gx_trace.py` llega al byte inyectado.
+
 ## Qué puede pasar y qué contar
 
 Es la primera vez que el juego real pasará por esta cadena. Lo esperable es encontrar fallos nuevos. Para cada

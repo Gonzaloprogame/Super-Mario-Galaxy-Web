@@ -150,13 +150,29 @@ function start() {
   setStatus(`Cargando ${file.name} (${(file.size / 2 ** 20).toFixed(1)} MB)…`);
   const worker = new Worker(engine.script);
   document.body.dataset.state = 'running';
+  // The renderer stopping on an error is the engine stopping: shown as such, then the worker ends (after the trace
+  // the renderer prints has reached the log)
+  let rendererFailed = false;
+  presenter.onFatal = (text) => {
+    rendererFailed = true;
+    setStatus(`El renderizador (Aurora) se detuvo por un error: ${text}. El registro incluye los datos para ` +
+              'diagnosticarlo: cópialo con «Copiar el registro».', 'error');
+    document.body.dataset.state = 'error';
+    presenter.onFatal = null;
+    setTimeout(() => {
+      worker.terminate();
+      $('run').disabled = false;
+    }, 3000);
+  };
   worker.onmessage = ({ data }) => {
     switch (data.type) {
       case 'log':
         log(data.text);
         break;
       case 'status':
-        setStatus(data.text);
+        if (!rendererFailed) {
+          setStatus(data.text); // after a renderer failure, its error stays the status
+        }
         break;
       case 'error':
         setStatus(data.text, 'error');
@@ -164,6 +180,9 @@ function start() {
         $('run').disabled = false;
         break;
       case 'exit':
+        if (rendererFailed) {
+          break; // the renderer's error stays the status: it is why the engine stopped
+        }
         if (data.code === 0) {
           setStatus('El motor terminó la ejecución (código 0). Consulta el informe en el registro.', 'ok');
           document.body.dataset.state = 'done';

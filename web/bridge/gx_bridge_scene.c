@@ -59,6 +59,8 @@
 
 /* The host's test hook, between frames: returns nonzero to stop (web/bridge/bridge_main.c). */
 int smg_bridge_scene_frame_done(void);
+/* The host asks for a renderer failure (the test of its report): 0xF0, which is not a GX command. */
+int smg_bridge_fault_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
 
@@ -343,8 +345,11 @@ void smg_bridge_scene_main(void) {
     GXInit(sFifo, sizeof(sFifo));
     GXSetDrawSyncCallback(draw_sync_callback);
     prepare_memory();
-    for (;;) {
+    for (int frame = 0;; frame++) {
         draw();
+        if (frame == 3 && smg_bridge_fault_requested()) {
+            GX_WRITE_U8(0xF0); /* read as a draw of primitive 0xF0: "unsupported primitive type 240" */
+        }
         GXDrawDone();
         /* The XFB to show from the next retrace, as a game's frame ends */
         VISetNextFrameBuffer(sXfb);

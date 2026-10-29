@@ -120,6 +120,38 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   await page.locator('#screen').screenshot({ path: process.env.SMG_SCREENSHOT });
   console.log(`captura del canvas: ${process.env.SMG_SCREENSHOT}`);
 }
+// A renderer failure (?fault=1: the scene writes 0xF0, which is not a GX command, at its fourth frame). The page must
+// hear it, and the log must hold the GX trace, which tools/gx_trace.py walks to the faulty byte.
+{
+  const faulty = await browser.newPage();
+  await faulty.goto(`http://127.0.0.1:${port}/gx_bridge.html?fault=1`);
+  const heard = await faulty.waitForFunction(() => globalThis.bridge && globalThis.bridge.fatal, null, { timeout: 120000 })
+    .then(() => true, () => false);
+  const fault = heard ? await faulty.evaluate(() => globalThis.bridge.fatal) : '';
+  // Aurora's message depends on the bytes after 0xF0 (read as a draw): "unsupported primitive type 240" or an overrun
+  check(heard && fault.length > 0, `fallo del renderizador comunicado a la página: "${fault}"`);
+  await faulty.waitForFunction(() => globalThis.bridge.lines.some((l) => l.startsWith('[gx-trace] end')), null,
+    { timeout: 30000 }).catch(() => {});
+  const faultLines = await faulty.evaluate(() => globalThis.bridge.lines);
+  const traced = faultLines.some((l) => l.startsWith('[gx-trace] begin')) && faultLines.some((l) => l.startsWith('[gx-trace] end'));
+  check(traced, 'el registro contiene la traza GX para reproducir el fallo');
+  if (traced) {
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { execFileSync } = await import('node:child_process');
+    const file = join(mkdtempSync(join(tmpdir(), 'smg-trace-')), 'log.txt');
+    writeFileSync(file, faultLines.join('\n'));
+    let walk = '';
+    try {
+      walk = execFileSync('python3', ['-I', join(root, 'tools/gx_trace.py'), file], { encoding: 'utf8' });
+    } catch (error) {
+      walk = String(error.stdout || '');
+    }
+    check(/!! 0xF0 is not a GX command/.test(walk), 'tools/gx_trace.py recorre la traza hasta el byte 0xF0 inyectado');
+    if (verbose) console.log(walk);
+  }
+  await faulty.close();
+}
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();
 server.kill();

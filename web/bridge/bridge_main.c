@@ -91,6 +91,15 @@ static int append_points(int at, const char* label, const char* const* names, co
     return at + snprintf(sReport + at, sizeof(sReport) - at, "}");
 }
 
+/* The test of a renderer failure (bridge_smoke.mjs, ?fault=1): the scene writes a byte that is not a GX command. */
+int smg_bridge_fault_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('fault') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* Called by the scene after each GXDrawDone, on the game's thread. */
 int smg_bridge_scene_frame_done(void) {
     static int reported;
