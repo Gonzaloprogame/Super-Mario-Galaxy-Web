@@ -120,6 +120,12 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   await page.locator('#screen').screenshot({ path: process.env.SMG_SCREENSHOT });
   console.log(`captura del canvas: ${process.env.SMG_SCREENSHOT}`);
 }
+// The render thread's description (the host's stall report): its phase, queue and counters
+{
+  const status = lines.find((l) => l.startsWith('[bridge] status: '));
+  check(status && /render thread [a-z' ]+ for \d+ ms; \d+ items queued \(of 4096\); [1-9]\d* spans read, [1-9]\d* PE markers answered, [1-9]\d* frames drawn, \d+ frames refused by Aurora/.test(status),
+        `descripción del hilo de render para el informe de bloqueos: "${(status || '').slice(17, 140)}…"`);
+}
 // A renderer failure (?fault=1: the scene writes 0xC8, neither a GX command nor a Nebula marker, at its fourth frame).
 // The page must hear it, and the log must hold the GX trace, which tools/gx_trace.py walks to the faulty byte.
 {

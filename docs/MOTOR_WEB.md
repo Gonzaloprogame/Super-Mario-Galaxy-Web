@@ -196,6 +196,29 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
     golpe los informes atrasados;
   - el registro solo anota el escenario cuando cambia (el juego lo repite en cada paso).
 
+## Sexta prueba con el juego real (2026-10-29, Android)
+
+- Con los controles, el usuario pasó la pantalla de título (A y B) y la selección de partida con el puntero, y creó
+  su archivo. La NAND en memoria funcionó: 20 operaciones, 3 fallidas porque los archivos aún no existían.
+- El juego cargó su primer nivel (`[host] stage: PeachCastleGardenGalaxy`) y la pantalla se quedó **negra**.
+- Desde ese momento **todo lo del dibujo se paró a la vez**: ni flujo GX (813.307.906 bytes), ni marcadores PE, ni
+  fotogramas de Aurora (4.604), ni lecturas del disco. El VI, el mando y el audio seguían. Los marcadores PE, que el
+  juego manda en cada fotograma, también pararon: el bucle principal del juego estaba bloqueado, no solo sin dibujar.
+- **Causa: sin determinar.** No hay datos para elegir entre las hipótesis:
+  - el hilo de render se quedó en un paso (por ejemplo, Aurora rechaza empezar fotogramas si la GPU del teléfono
+    pierde el dispositivo), y el juego espera a que le devuelva espacio del FIFO;
+  - el juego espera otra cosa. El nivel empieza con una película THP, y el host todavía no las decodifica.
+- **Diagnóstico añadido:** si el flujo GX se para 5 segundos mientras el reloj sigue, el host escribe en el registro
+  una línea `[host] stall: …` (y la repite cada 30 s). Incluye:
+  - si el juego sigue leyendo los mandos (es decir, si su bucle principal corre);
+  - cuántos fotogramas de película pidió decodificar;
+  - las lecturas de disco y de NAND, y los bloques de audio;
+  - qué hace el hilo de render y desde cuándo, su cola y sus contadores.
+
+  Además, la primera vez que el juego pide una película, el registro lo dice.
+- **Comprobado:** `bridge_smoke.mjs` comprueba la descripción del hilo de render. **Sin comprobar:** el aviso de bloqueo
+  completo. Necesita un bloqueo de verdad, y con las particiones de prueba el juego no llega tan lejos.
+
 ## Controles
 
 El juego ve un Wiimote con Nunchuk. La página escribe el estado de los controles directamente en la memoria compartida

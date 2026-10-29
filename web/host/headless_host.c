@@ -282,6 +282,22 @@ static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) 
 #endif
 }
 
+/* Movies (THP): no decoder yet. The frame is refused as a failed decode (the game's player then does not show it);
+   counted, and said once in the log. */
+static _Atomic uint64_t sThpDecodes;
+
+static int32_t svc_thp_video_decode(void* user, const void* frame, uint32_t size, void* y, void* u, void* v) {
+    (void)user;
+    (void)frame;
+    (void)y;
+    (void)u;
+    (void)v;
+    if (atomic_fetch_add(&sThpDecodes, 1) == 0) {
+        fprintf(stderr, "[host] the game plays a movie (THP, frame of %u bytes): there is no movie decoder yet\n", size);
+    }
+    return -1;
+}
+
 static void svc_power(void* user, uint32_t what) {
     (void)user;
     fprintf(stderr, "[host] power request %u\n", what);
@@ -394,6 +410,41 @@ static void report(void) {
 #endif
 }
 
+/* When the game's stream stops while the retrace goes on (5 s without GX): what each side is doing, in the log, and
+   again every 30 s while it lasts. The game's reads of its remotes say whether its main loop still runs. */
+static void check_stall(uint64_t retrace) {
+    static uint64_t lastGx, sinceRetrace, lastSamples, reported;
+    const uint64_t gx = atomic_load(&sGxBytes);
+    SmgConsoleCounters console;
+    smg_console_counters(&console);
+    if (gx != lastGx || gx == 0) {
+        if (reported != 0) {
+            fprintf(stderr, "[host] the game's stream resumed after %.0f s\n", (retrace - sinceRetrace) / 60.0);
+        }
+        lastGx = gx;
+        sinceRetrace = retrace;
+        lastSamples = console.wpad_samples;
+        reported = 0;
+        return;
+    }
+    const uint64_t stalled = retrace - sinceRetrace;
+    if (stalled < 300 || (reported != 0 && stalled - reported < 1800)) {
+        return;
+    }
+    reported = stalled;
+    char bridge[320] = "no renderer";
+#if defined(SMG_HOST_AURORA)
+    smg_bridge_describe(bridge, sizeof(bridge));
+#endif
+    fprintf(stderr,
+            "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); the game read its "
+            "remotes %" PRIu64 " times meanwhile (its main loop %s); movie frames asked to decode %" PRIu64
+            "; disc reads %" PRIu64 "; NAND requests %" PRIu64 "; audio blocks %" PRIu64 "; %s\n",
+            stalled / 60.0, atomic_load(&sFrames), sStage, console.wpad_samples - lastSamples,
+            console.wpad_samples != lastSamples ? "runs" : "is stopped", atomic_load(&sThpDecodes),
+            atomic_load(&sDiscReads), console.nand_requests, console.ai_blocks, bridge);
+}
+
 /* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run (none when the
    run's length is 0). */
 static void* clock_main(void* arg) {
@@ -412,6 +463,9 @@ static void* clock_main(void* arg) {
         nebula_game_vi_retrace();
         if (n % 600 == 0) {
             report();
+        }
+        if (n % 60 == 0) {
+            check_stall(n);
         }
     }
     report();
@@ -452,6 +506,7 @@ int main(int argc, char** argv) {
     services.ai_control = smg_console_ai_control;
     services.power = svc_power;
     services.game_stage = svc_game_stage;
+    services.thp_video_decode = svc_thp_video_decode;
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
     smg_console_start(sPak.id);

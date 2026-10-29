@@ -11,10 +11,11 @@
 #include <string.h>
 #include <time.h>
 
-static _Atomic uint64_t sWpadReports, sAiBlocks, sNandRequests, sNandFailures;
+static _Atomic uint64_t sWpadReports, sWpadSamples, sAiBlocks, sNandRequests, sNandFailures;
 
 void smg_console_counters(SmgConsoleCounters* out) {
     out->wpad_reports = atomic_load(&sWpadReports);
+    out->wpad_samples = atomic_load(&sWpadSamples);
     out->ai_blocks = atomic_load(&sAiBlocks);
     out->nand_requests = atomic_load(&sNandRequests);
     out->nand_failures = atomic_load(&sNandFailures);
@@ -222,6 +223,7 @@ void smg_console_wpad_control(void* user, uint32_t chan, uint32_t what, uint32_t
 
 void smg_console_wpad_sample(void* user, uint32_t chan) {
     (void)user;
+    atomic_fetch_add(&sWpadSamples, 1);
     if (chan == 0 && atomic_load(&sWpadStarted) && !atomic_load(&sWpadSampled)) {
         pthread_mutex_lock(&sWpadLock);
         atomic_store(&sWpadSampled, 1);

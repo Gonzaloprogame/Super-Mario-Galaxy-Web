@@ -140,6 +140,9 @@ int smg_bridge_scene_frame_done(void) {
                        smg_bridge_vi_xfb());
         snprintf(sReport + at, sizeof(sReport) - at, "}");
         printf("[bridge] %s\n", sReport);
+        char status[320];
+        smg_bridge_describe(status, sizeof(status));
+        printf("[bridge] status: %s\n", status);
         /* sReport is not written again (reported) */
         MAIN_THREAD_ASYNC_EM_ASM({ globalThis.bridge.result = JSON.parse(UTF8ToString($0)); }, sReport);
         reported = 1;

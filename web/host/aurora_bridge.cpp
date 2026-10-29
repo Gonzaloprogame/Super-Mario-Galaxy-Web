@@ -23,10 +23,10 @@
 #include <pthread.h>
 
 #include <atomic>
-#include <cstdlib>
-#include <vector>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
+#include <vector>
 
 #include <nebula_game_api.h>
 
@@ -49,6 +49,27 @@ std::atomic<int> g_state{0}; // 0 starting, 1 ready, -1 failed
 std::atomic<int> g_stop{0};  // the host is ending the process: the render thread shuts Aurora down and returns
 pthread_t g_renderThread;
 std::atomic<uint32_t> g_frames{0};
+
+// What the render thread is doing, for the host's stall report (smg_bridge_describe)
+enum Phase { PhaseWaiting, PhaseBeginFrame, PhaseBeginRefused, PhaseSpan, PhasePeeks, PhaseEndFrame, PhaseMarker };
+const char* const kPhaseNames[] = {"waiting for the game's stream", "starting a frame", "frame refused by Aurora (retrying)",
+                                   "reading a span of the stream", "capturing EFB peeks", "ending a frame",
+                                   "answering a PE marker"};
+std::atomic<int> g_phase{PhaseWaiting};
+std::atomic<int64_t> g_phaseSinceMs{0};
+std::atomic<uint64_t> g_spansDone{0}, g_markersDone{0}, g_beginRefused{0};
+
+int64_t now_ms() {
+  timespec t{};
+  clock_gettime(CLOCK_MONOTONIC, &t);
+  return static_cast<int64_t>(t.tv_sec) * 1000 + t.tv_nsec / 1000000;
+}
+
+void set_phase(Phase phase) {
+  if (g_phase.exchange(phase, std::memory_order_relaxed) != phase) {
+    g_phaseSinceMs.store(now_ms(), std::memory_order_relaxed);
+  }
+}
 int g_headless = 0;
 
 constexpr uint32_t MaxPeeks = 16;
@@ -368,9 +389,12 @@ void* render_main(void*) {
       return nullptr;
     }
     if (!frameOpen) {
+      set_phase(PhaseBeginFrame);
       aurora_update();
       frameOpen = aurora_begin_frame();
       if (!frameOpen) {
+        set_phase(PhaseBeginRefused);
+        g_beginRefused.fetch_add(1, std::memory_order_relaxed);
         emscripten_sleep(1);
         continue;
       }
@@ -378,21 +402,26 @@ void* render_main(void*) {
     const uint32_t head = g_head.load(std::memory_order_relaxed);
     if (head == g_tail.load(std::memory_order_acquire)) {
       // Nothing queued: back to this worker's event loop, where WebGPU delivers its callbacks.
+      set_phase(PhaseWaiting);
       emscripten_sleep(1);
       continue;
     }
     const Item item = g_queue[head % QueueSize];
     g_head.store(head + 1, std::memory_order_release);
     if (item.bytes != nullptr) {
+      set_phase(PhaseSpan);
       trace_record('S', item.bytes, item.size, 0, 0);
       aurora::gx::fifo::write_data(item.bytes, item.size); // copied: the span goes back to the game now
       nebula_game_gx_release(item.size);
+      g_spansDone.fetch_add(1, std::memory_order_relaxed);
       continue;
     }
     if (item.peekChannel != 0xFF) {
+      set_phase(PhasePeeks);
       capture_channel(g_peekChannels[item.peekChannel]);
       continue;
     }
+    set_phase(item.finish ? PhaseEndFrame : PhaseMarker);
     trace_record('M', nullptr, 0, item.finish, item.token);
     if (!item.finish) {
       // A draw-sync token: its channel's points are captured here, where the console's GPU stopped for it
@@ -409,6 +438,7 @@ void* render_main(void*) {
       g_frames.fetch_add(1, std::memory_order_release);
     }
     nebula_game_gx_event(item.finish, item.token);
+    g_markersDone.fetch_add(1, std::memory_order_relaxed);
   }
   return nullptr;
 }
@@ -428,6 +458,19 @@ extern "C" int smg_bridge_start(int headless) {
     sched_yield();
   }
   return g_state.load(std::memory_order_acquire) == 1;
+}
+
+extern "C" void smg_bridge_describe(char* out, size_t size) {
+  const uint32_t queued = g_tail.load(std::memory_order_acquire) - g_head.load(std::memory_order_acquire);
+  snprintf(out, size,
+           "render thread %s for %lld ms; %u items queued (of %u); %llu spans read, %llu PE markers answered, "
+           "%u frames drawn, %llu frames refused by Aurora",
+           kPhaseNames[g_phase.load(std::memory_order_relaxed)],
+           static_cast<long long>(now_ms() - g_phaseSinceMs.load(std::memory_order_relaxed)), queued, QueueSize,
+           static_cast<unsigned long long>(g_spansDone.load(std::memory_order_relaxed)),
+           static_cast<unsigned long long>(g_markersDone.load(std::memory_order_relaxed)),
+           g_frames.load(std::memory_order_relaxed),
+           static_cast<unsigned long long>(g_beginRefused.load(std::memory_order_relaxed)));
 }
 
 extern "C" void smg_bridge_stop(void) {

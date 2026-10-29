@@ -49,6 +49,7 @@ size_t smg_console_report(uint8_t id, const int32_t* input, uint8_t* report, Neb
 /* What the devices did, for the host's report */
 typedef struct {
     uint64_t wpad_reports;
+    uint64_t wpad_samples; /* the game's reads of its remotes: one a frame of its main loop */
     uint64_t ai_blocks;
     uint64_t nand_requests;
     uint64_t nand_failures; /* results other than NAND_RESULT_OK or a count (a missing file is one) */

@@ -16,6 +16,10 @@ int smg_bridge_start(int headless);
    and returns; then exit() can run the C++ static destructors (with Aurora alive one of them waits forever). */
 void smg_bridge_stop(void);
 
+/* What the render thread is doing (its phase and for how long), its queue and counters: one line, for the host's
+   report when the game's stream stops. */
+void smg_bridge_describe(char* out, size_t size);
+
 /* The end of the process with Aurora: smg_bridge_stop, then the exit with `code` that the page hears (onExit). */
 void smg_bridge_exit(int code);
 
