@@ -75,8 +75,9 @@ motivo.
 
 ## Qué no hay todavía
 
-- **Sonido y mandos.** El juego no recibe entrada, así que no pasará de las pantallas que no la piden.
-- **NAND:** las partidas guardadas fallan como si no hubiera sistema de archivos.
+- **Sonido y mandos.** Hay un Wiimote con Nunchuk conectado, pero en reposo: el juego no recibe ninguna pulsación, así
+  que no pasará de la primera pantalla que pida un botón. El audio avanza a su ritmo, pero no suena.
+- **NAND persistente:** la NAND está en memoria. Lo que el juego guarda se pierde al cerrar o recargar la página.
 - **Presentación directa de WebGPU en un canvas.** La imagen llega por una lectura del XFB y un canvas 2D (1,2 MB por
   fotograma, uno o dos fotogramas de retraso).
 - **Rendimiento:** sin medir con el juego. Los dibujos esperan a su *pipeline*, así que la primera aparición de cada
@@ -152,6 +153,29 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
   los nuevos, pasan todas.
 - Todavía no hay mandos ni menú HOME propio: el juego no recibe entrada, así que se quedará en la primera pantalla que
   espere un botón.
+
+## Cuarta prueba con el juego real (2026-10-29, Android)
+
+- Sin el menú HOME, la pantalla quedó **negra**, aunque Aurora seguía dibujando y la página mostrando: 3.165
+  fotogramas dibujados y 3.160 mostrados.
+- Cada fotograma traía unos 5,5 KB de flujo GX, frente a unos 32 KB con el menú. El juego dibujaba poco.
+- **Lo que faltaba frente al host de Nebula sin renderizador:**
+  - **Mando:** Nebula conecta un Wiimote con Nunchuk en reposo cuando el juego arranca WPAD, y le da un informe
+    cada 10 ms. El host web no conectaba ninguno.
+  - **Audio:** Nebula tiene un reloj de la interfaz de audio (AI) que toma cada bloque al final de su duración y
+    avisa al juego (`nebula_game_ai_interrupt`). El host web nunca avisaba.
+  - **NAND:** Nebula responde con un sistema de archivos real. El host web fallaba en todo.
+- **Corrección:** `web/host/console_services.c` hace las tres cosas como el host de Nebula: el Wiimote en reposo, el
+  reloj del audio y una NAND en memoria, con `/tmp` y la carpeta de partidas del juego creadas. Lo comprueba
+  `web/tests/console_services_test.c` (en `run_os_tests.sh`):
+  - las operaciones de la NAND y sus códigos de resultado, incluidas la apertura segura, el renombrado y el borrado
+    de carpetas;
+  - unos 100 informes del mando por segundo, en el formato que pide el juego;
+  - un aviso de audio cada 5 ms con bloques de 640 bytes a 32 kHz.
+- El informe del host cuenta ahora las operaciones de NAND (y las fallidas), los informes del mando y los bloques de
+  audio.
+- No está comprobado que esto fuera lo que dejaba la pantalla negra. Era la diferencia que quedaba con el host de
+  Nebula, que es el que su autor usa para probar el juego sin renderizador.
 
 ## Diagnóstico de fallos del renderizador
 

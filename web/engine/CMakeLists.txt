@@ -8,6 +8,7 @@ add_executable(smg_web
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/headless_host.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/rvz_reader.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/console_services.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp")
 target_include_directories(smg_web PRIVATE "${SMG_NEBULA_NATIVE}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../host"
                            "${SMG_AURORA_LIB}")

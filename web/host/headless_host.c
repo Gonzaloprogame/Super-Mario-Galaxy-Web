@@ -1,5 +1,6 @@
 /* A headless host for the game module on WebAssembly: Nebula's NebulaHostServices (nebula_game_api.h) with no
-   renderer, no audio and no input. It loads the user's game.pak, runs the game, consumes the GX command stream
+   renderer, no sound and no input yet (a Wii Remote at rest, the audio interface's clock and a NAND in memory, as
+   Nebula's host without a renderer: web/host/console_services.c). It loads the user's game.pak, runs the game, consumes the GX command stream
    without drawing it (counting it), drives the 60 Hz retrace and reports what the game did. It is the first runtime
    check of the web build (docs/COMPILACION_WASM.md), in Node.js and in a browser worker.
 
@@ -28,6 +29,7 @@
 
 #include <nebula_game_api.h>
 
+#include "console_services.h"
 #include "host_services.h"
 #include "rvz_reader.h"
 #if defined(SMG_HOST_AURORA)
@@ -182,7 +184,7 @@ static void open_pak(const char* path) {
 
 /* ---- what the game did ---- */
 
-static _Atomic uint64_t sGxBytes, sGxSpans, sDiscReads, sDiscBytes, sRetraces, sFrames, sFsRequests;
+static _Atomic uint64_t sGxBytes, sGxSpans, sDiscReads, sDiscBytes, sRetraces, sFrames;
 static _Atomic uint32_t sPeMarkers;
 static char sStage[64];
 
@@ -280,14 +282,6 @@ static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) 
 #endif
 }
 
-/* No NAND yet: every request fails as a missing file system would (persistence is a later step). */
-static void svc_fs_request(void* user, const NebulaFsRequest* request, uint32_t slot) {
-    (void)user;
-    (void)request;
-    atomic_fetch_add(&sFsRequests, 1);
-    nebula_game_fs_complete(slot, -1);
-}
-
 static void svc_power(void* user, uint32_t what) {
     (void)user;
     fprintf(stderr, "[host] power request %u\n", what);
@@ -380,13 +374,15 @@ static uint32_t svc_sc_get(void* user, uint32_t item) {
 static double sSeconds = 10.0;
 
 static void report(void) {
+    SmgConsoleCounters console;
+    smg_console_counters(&console);
     fprintf(stderr,
             "[host] report: retraces %" PRIu64 ", frames %" PRIu64 ", GX %" PRIu64 " bytes in %" PRIu64
-            " spans, PE markers %u, disc reads %" PRIu64 " (%" PRIu64 " bytes), NAND requests %" PRIu64
-            ", stage '%s'\n",
+            " spans, PE markers %u, disc reads %" PRIu64 " (%" PRIu64 " bytes), NAND requests %" PRIu64 " (%" PRIu64
+            " failed), Wii Remote reports %" PRIu64 ", audio blocks %" PRIu64 ", stage '%s'\n",
             atomic_load(&sRetraces), atomic_load(&sFrames), atomic_load(&sGxBytes), atomic_load(&sGxSpans),
-            atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), atomic_load(&sFsRequests),
-            sStage);
+            atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), console.nand_requests,
+            console.nand_failures, console.wpad_reports, console.ai_blocks, sStage);
 #if defined(SMG_HOST_AURORA)
     fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page\n", smg_bridge_frames(),
             smg_bridge_presented());
@@ -443,11 +439,16 @@ int main(int argc, char** argv) {
 #if defined(SMG_HOST_AURORA)
     services.gx_peek_efb = svc_gx_peek_efb;
 #endif
-    services.fs_request = svc_fs_request;
+    /* The console's devices, as Nebula's host without a renderer has them (web/host/console_services.c) */
+    services.fs_request = smg_console_fs_request;
+    services.wpad_control = smg_console_wpad_control;
+    services.ai_dma = smg_console_ai_dma;
+    services.ai_control = smg_console_ai_control;
     services.power = svc_power;
     services.game_stage = svc_game_stage;
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
+    smg_console_start(sPak.id);
     if (nebula_game_attach(&services) == 0) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);
     }
