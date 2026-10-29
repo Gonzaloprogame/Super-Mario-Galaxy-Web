@@ -1,7 +1,7 @@
 # Sitio publicado (generado)
 
 Esta rama solo contiene el sitio compilado de Galaxy Web, servido por GitHub Pages. No la edites a mano: se genera con
-`tools/build_web.sh` desde la rama `ccr-8700b376-tetafz`, commit `496767a143f80b8ceb3c0b34863d8105d38afff7`. El código fuente y las instrucciones están en
+`tools/build_web.sh` desde la rama `ccr-8700b376-tetafz`, commit `c7dc0319a96f3b469b0c354d9f407299ddab5fdb`. El código fuente y las instrucciones están en
 esa rama.
 
 No contiene ningún archivo de Nintendo: el motor necesita el `game.pak` de tu propia copia del juego
