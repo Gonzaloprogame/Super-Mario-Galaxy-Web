@@ -50,11 +50,14 @@
     acepta mandos. No incluye ningún archivo de Nintendo; necesitas tu propia copia del juego.</p>
 
   <div class="card">
-    <label for="pak">Tu <code>game.pak</code></label>
-    <p class="muted">La partición del juego de tu disco (RMGE01), preparada con <code>nebula-import</code> en tu equipo;
-      consulta <code>docs/ARCHIVOS_DEL_JUEGO.md</code>. El archivo no sale de tu navegador: el motor lo lee por trozos.</p>
+    <label for="pak">Tu copia del juego: <code>.rvz</code> o <code>game.pak</code></label>
+    <p class="muted">Tu copia de seguridad de tu disco de Super Mario Galaxy (Norteamérica, RMGE01) en formato
+      <strong>RVZ</strong> de Dolphin, con compresión Zstandard (la de Dolphin por defecto) o sin compresión: la página
+      lee de ella la partición del juego, sin convertirla ni copiarla. También vale el <code>game.pak</code> de
+      <code>nebula-import</code>. Las imágenes ISO y WBFS guardan la partición cifrada: conviértelas a RVZ en Dolphin.
+      Consulta <code>docs/ARCHIVOS_DEL_JUEGO.md</code>. El archivo no sale de tu navegador: el motor lo lee por trozos.</p>
     <div class="row">
-      <div><input id="pak" type="file"></div>
+      <div><input id="pak" type="file" accept=".rvz,.pak,application/octet-stream"></div>
       <div><label for="mode">Modo</label>
         <select id="mode">
           <option value="graphics">Con gráficos (Aurora, WebGPU)</option>

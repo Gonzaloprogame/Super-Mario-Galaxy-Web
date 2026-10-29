@@ -1,4 +1,5 @@
-// The page: checks what the engine needs from the browser, takes the user's game.pak and runs the engine in a worker.
+// The page: checks what the engine needs from the browser, takes the user's copy of the game (an RVZ disc image or
+// game.pak) and runs the engine in a worker.
 // It shows exactly what the engine reports; it never shows the game as running when the engine has not started.
 'use strict';
 
@@ -48,7 +49,7 @@ setInterval(() => {
 function start() {
   const file = $('pak').files[0];
   if (!file) {
-    setStatus('Selecciona primero tu game.pak.', 'error');
+    setStatus('Selecciona primero tu copia del juego (.rvz o game.pak).', 'error');
     return;
   }
   const mode = $('mode').value;
@@ -108,7 +109,7 @@ if (missing.length) {
   document.body.dataset.state = 'unsupported';
   $('run').disabled = true;
 } else {
-  setStatus('Listo. Selecciona tu game.pak para arrancar el motor.');
+  setStatus('Listo. Selecciona tu copia del juego (.rvz o game.pak) para arrancar el motor.');
   document.body.dataset.state = 'ready';
 }
 $('run').addEventListener('click', start);
