@@ -43,7 +43,8 @@ marcha hasta que lo detengas con Ctrl+C.
 Abre `http://127.0.0.1:8080` y:
 
 1. Selecciona tu `.rvz` o tu `game.pak`. No sale del navegador: el motor lo lee por trozos dentro de un *worker*.
-2. Elige el modo **Con gráficos (Aurora, WebGPU)**. «Segundos» en 0 ejecuta sin límite.
+2. Elige el modo **Con gráficos (Aurora, WebGPU)** y el **idioma de la consola** (de partida, el del navegador).
+   «Segundos» en 0 ejecuta sin límite.
 3. Pulsa **Arrancar el motor**.
 
 La tarjeta «Pantalla» solo muestra fotogramas que el motor ha enviado: el XFB que el VI del juego tiene seleccionado.
@@ -53,7 +54,7 @@ motivo.
 ## Qué está verificado (sin el juego)
 
 - **El puente gráfico, con una escena de prueba dibujada por la librería GX del propio módulo de juego**
-  (`web/tests/bridge_smoke.mjs`, 38 comprobaciones). Cubre vértices directos e indexados, listas de visualización,
+  (`web/tests/bridge_smoke.mjs`, 43 comprobaciones). Cubre vértices directos e indexados, listas de visualización,
   texturas RGB565 y C8 con TLUT, copias del EFB a textura, la copia a pantalla con su borrado, y las lecturas del EFB
   dentro y fuera de una *callback* de token. La comprobación final lee el canvas de la página. Detalle en
   [`PUENTE_FIFO.md`](PUENTE_FIFO.md).
@@ -63,6 +64,14 @@ motivo.
   de salida real (3).
 - **El cierre ordenado:** antes de terminar el proceso se detiene el hilo de render y se apaga Aurora. Sin esto,
   `exit()` se quedaba esperando para siempre y la página nunca se enteraba de que el motor había parado.
+- **El fin del motor llega a la página aunque Emscripten no lo comunique:** el host lo anuncia en el canal del
+  presentador (`[host] exit N`) y la página cierra el *worker*. `browser_smoke.mjs` lo comprueba descartando el
+  mensaje de salida de Emscripten: con el anuncio la página termina con el código 3; sin él (comprobado quitándolo) se
+  queda en «Motor en marcha», como en el teléfono. `bridge_smoke.mjs` (`?exit=1`) comprueba además que la salida
+  tras dibujar llega con su código.
+- **El idioma de la consola** (`browser_smoke.mjs`, con una partición sintética que solo tiene carpetas vacías
+  `UsEnglish` y `UsSpanish`): el elegido en la página llega al juego si el disco tiene su carpeta; si no, se usa el
+  inglés y el registro lo dice.
 
 ## Qué no hay todavía
 
@@ -101,6 +110,29 @@ as written».
   La traza es del usuario y no se guarda en el repositorio.
 - Prueba de regresión sin datos del juego: la escena de `bridge_smoke.mjs` escribe los mismos marcadores (bloom y
   clear quad) en cada fotograma. Sin el parche falla, como el teléfono; con él pasan todas las comprobaciones.
+
+## Segunda prueba con el juego real (2026-10-29, Android)
+
+Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
+
+- El juego se detuvo con `OSPanic` en `FileRipper.cpp:112`, «File isn't exist.»: pidió un archivo que el disco no
+  tiene.
+- **Causa:** el host respondía 0 a todos los ajustes de la consola (`sc_get`). Para el idioma, 0 es japonés, y la
+  tabla del juego (`Language.cpp`) lleva a la carpeta `JpJapanese`, que el disco norteamericano no trae (tiene
+  `UsEnglish`, `UsFrench` y `UsSpanish`).
+- **Corrección:** el host responde los ajustes de la consola como el host de Nebula (`native/host/host_main.cpp`):
+  inglés, estéreo, barra de sensores arriba, etc. Hay una diferencia: la relación de aspecto es 4:3 y no 16:9, porque
+  la página muestra el XFB de 640×480 tal cual, sin el estiramiento horizontal de un televisor panorámico. El idioma se
+  elige en la página. El host solo lo acepta si la tabla de archivos del disco tiene la carpeta que el juego leerá; si
+  no, usa el inglés (o el japonés) y lo dice en el registro (`[host] system language: …`).
+- La página volvió a quedarse en «Motor en marcha» con el reloj del host informando, aunque el host había llamado a
+  `exit(3)`. El `exit` de Emscripten no terminó el *runtime*, y sin él no llega `onExit`. La causa exacta (algo que
+  mantiene vivo el *runtime*, o un destructor que espera) no se pudo reproducir sin el juego: con las particiones
+  sintéticas y con la escena del puente, `exit` sí llega. **Corrección:** el host anuncia su salida en el canal del
+  presentador y después usa `emscripten_force_exit`. La página termina con ese anuncio aunque falte el de Emscripten,
+  y cierra el *worker*.
+- La tarjeta «Pantalla» mostró 0 fotogramas: el juego todavía no había seleccionado un XFB con imagen para el VI. Hay
+  que volver a mirarlo cuando el juego avance.
 
 ## Diagnóstico de fallos del renderizador
 

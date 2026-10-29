@@ -23,6 +23,7 @@
 #include <pthread.h>
 
 #include <atomic>
+#include <cstdlib>
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
@@ -434,6 +435,11 @@ extern "C" void smg_bridge_stop(void) {
     return;
   }
   pthread_join(g_renderThread, nullptr);
+}
+
+extern "C" void smg_bridge_exit(int code) {
+  smg_bridge_stop();
+  exit(code);
 }
 
 extern "C" void smg_bridge_submit(const uint8_t* bytes, size_t size) {

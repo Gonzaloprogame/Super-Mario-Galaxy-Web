@@ -54,9 +54,21 @@ async function withPlainServer(fn) {
   }
 }
 
-async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}) {
+// options: language (the page's select), dropWorkerExit (the worker's 'exit' message, Emscripten's onExit, never
+// reaches the page: as in the real game's first stop, where Emscripten's exit did not end the runtime)
+async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}, options = {}) {
   const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
   const page = await (await browser.newContext(contextOptions)).newPage();
+  if (options.dropWorkerExit) {
+    await page.addInitScript(() => {
+      const NativeWorker = globalThis.Worker;
+      globalThis.Worker = class extends NativeWorker {
+        set onmessage(handler) {
+          super.onmessage = (event) => { if (event.data?.type !== 'exit') handler(event); };
+        }
+      };
+    });
+  }
   if (!pak && contextOptions.serviceWorkers !== 'block') {
     // Without COOP/COEP from the server, coi-serviceworker registers and reloads the page once
     await page.goto(url);
@@ -71,9 +83,12 @@ async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}
   if (pak && state === 'ready') {
     await page.setInputFiles('#pak', pak);
     await page.selectOption('#mode', mode);
+    if (options.language !== undefined) await page.selectOption('#language', String(options.language));
     await page.fill('#seconds', '2');
     await page.click('#run');
-    await page.waitForFunction(() => ['done', 'error'].includes(document.body.dataset.state), null, { timeout: timeoutMs });
+    // A run that never ends is a result too: its state stays 'running'
+    await page.waitForFunction(() => ['done', 'error'].includes(document.body.dataset.state), null, { timeout: timeoutMs })
+      .catch(() => {});
     result.state = await page.evaluate(() => document.body.dataset.state);
     result.status = await page.textContent('#status');
     result.log = await page.textContent('#log');
@@ -107,6 +122,21 @@ await withServer('isolated', async (url) => {
   check(g.state === 'error' && /código 3/.test(g.status), `con gráficos: código de salida real: "${g.status.trim()}"`);
   check(g.consoleErrors.length === 0, `con gráficos: sin excepciones de página (${g.consoleErrors.join('; ')})`);
   console.log('--- registro del motor (con gráficos) ---\n' + g.log.trim());
+
+  // The console's language: kept if the disc's file table has its folder (UsSpanish), else English (no UsFrench)
+  const es = await run(url, join(fixtures, 'fixture_languages.pak'), 120000, 'diagnostic', {}, { language: 4 });
+  check(/system language: Spanish \(the disc's UsSpanish folder\)/.test(es.log),
+        'idioma: el español elegido en la página llega al juego (la carpeta UsSpanish está en el disco)');
+  const fr = await run(url, join(fixtures, 'fixture_languages.pak'), 120000, 'diagnostic', {}, { language: 3 });
+  check(/language 3 is not on this disc \(no UsFrench folder\)/.test(fr.log) &&
+        /system language: English \(the disc's UsEnglish folder\)/.test(fr.log),
+        'idioma: uno que el disco no tiene se cambia por el inglés, y el registro lo dice');
+
+  // The engine's end heard from the host itself (its announcement on the presenter's channel), without Emscripten's
+  check(/\[host\] exit 3/.test(g.log), 'el host anuncia su salida (código 3)');
+  const d = await run(url, join(fixtures, 'fixture_emptydol.pak'), 60000, 'graphics', {}, { dropWorkerExit: true });
+  check(d.state === 'error' && /código 3/.test(d.status),
+        `sin el onExit de Emscripten, la página termina por el anuncio del host: "${d.status.trim()}"`);
 
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak

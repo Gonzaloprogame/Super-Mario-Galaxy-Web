@@ -1,9 +1,10 @@
 /* A host for the bridge test (web/tests/bridge_smoke.mjs): the game module's native OS core runs the test scene
    (web/bridge/gx_bridge_scene.c) instead of the game, and its GX stream goes to Aurora (web/host/aurora_bridge.cpp).
    Reports the colours read back from the XFB and the EFB to the page once they are in (or after a frame limit), then stops the scene.
-   It does not exit: exit() runs the C++ static destructors on the page's thread while Aurora's render thread still
-   runs, and one of them waits on it forever (the page's thread, paused in Chrome's debugger: exitOnMainThread ->
-   exitRuntime -> __funcs_on_exit). Runs in the browser with PROXY_TO_PTHREAD, on a page served with COOP/COEP. */
+   It does not exit unless asked to (?exit=1): an exit stops Aurora's render thread first (smg_bridge_exit), since with
+   it running one of the C++ static destructors that exit() runs waits on it forever (the page's thread, paused in
+   Chrome's debugger: exitOnMainThread -> exitRuntime -> __funcs_on_exit). Runs in the browser with PROXY_TO_PTHREAD,
+   on a page served with COOP/COEP. */
 #include <emscripten.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -100,10 +101,24 @@ int smg_bridge_fault_requested(void) {
     return requested;
 }
 
+/* The test of the process's end after Aurora has drawn (bridge_smoke.mjs, ?exit=1): once reported, the scene exits
+   with code 4 as a host does (smg_bridge_exit), and the page must hear it. */
+static int exit_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('exit') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* Called by the scene after each GXDrawDone, on the game's thread. */
 int smg_bridge_scene_frame_done(void) {
     static int reported;
     if (reported) {
+        if (exit_requested()) {
+            printf("[bridge] exiting with code 4\n");
+            smg_bridge_exit(4);
+        }
         return 0; /* keeps drawing, as a game does: the page goes on painting the XFB the VI shows */
     }
     uint32_t xfb[kXfbPointCount];

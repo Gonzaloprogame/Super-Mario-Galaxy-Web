@@ -154,6 +154,21 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   }
   await faulty.close();
 }
+// The end of the process after Aurora has drawn (?exit=1: once reported, the scene exits with code 4 as the host does
+// when the game stops). The page must hear the code: the real game's first stop (an OSPanic after 6 frames drawn) never
+// reached it, the engine went on running.
+{
+  const ending = await browser.newPage();
+  await ending.goto(`http://127.0.0.1:${port}/gx_bridge.html?exit=1`);
+  const ended = await ending.waitForFunction(() => globalThis.bridge && globalThis.bridge.exit !== null, null,
+    { timeout: 60000 }).then(() => true, () => false);
+  const code = ended ? await ending.evaluate(() => globalThis.bridge.exit) : null;
+  const endLines = await ending.evaluate(() => globalThis.bridge.lines);
+  check(endLines.some((l) => l.includes('[bridge] exiting with code 4')) && code === 4,
+        `tras dibujar, la salida del proceso llega a la página con su código (${code})`);
+  if (verbose || code !== 4) console.log(endLines.slice(-12).join('\n'));
+  await ending.close();
+}
 if (failures) console.log('--- últimas líneas ---\n' + [...lines.slice(-25), ...consoleLines.slice(-15)].join('\n'));
 await browser.close();
 server.kill();

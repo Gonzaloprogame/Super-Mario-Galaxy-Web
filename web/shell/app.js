@@ -37,6 +37,14 @@ const engines = {
   diagnostic: { script: 'smg_headless_web.js', label: 'modo diagnóstico, sin renderizador' },
 };
 
+// The console's language, as the browser's (the host keeps it only if the disc has it: web/host/headless_host.c)
+{
+  const wanted = { es: '4', en: '1', fr: '3', de: '2', it: '5', nl: '6', ja: '0' }[(navigator.language || '').slice(0, 2)];
+  if (wanted) {
+    $('language').value = wanted;
+  }
+}
+
 // What the screen shows comes only from frames the engine posted (web/shell/present.js): nothing is drawn here.
 const presenter = smgAttachPresenter($('screen'));
 setInterval(() => {
@@ -164,6 +172,31 @@ function start() {
       $('run').disabled = false;
     }, 3000);
   };
+  // The engine's end, as Emscripten reports it (the worker's 'exit') or as the host announces it on the presenter's
+  // channel, whichever comes first: the host's announcement reaches the page even when Emscripten's exit does not end
+  // the runtime. The worker ends here, after the log's last lines have come in.
+  let ended = false;
+  const finish = (code) => {
+    if (ended) {
+      return;
+    }
+    ended = true;
+    presenter.onExit = null;
+    if (!rendererFailed) { // otherwise the renderer's error stays the status: it is why the engine stopped
+      if (code === 0) {
+        setStatus('El motor terminó la ejecución (código 0). Consulta el informe en el registro.', 'ok');
+        document.body.dataset.state = 'done';
+      } else {
+        setStatus(`El motor se detuvo con el código ${code}. El motivo aparece en el registro.`, 'error');
+        document.body.dataset.state = 'error';
+      }
+    }
+    setTimeout(() => {
+      worker.terminate();
+      $('run').disabled = false;
+    }, 1500);
+  };
+  presenter.onExit = finish;
   worker.onmessage = ({ data }) => {
     switch (data.type) {
       case 'log':
@@ -180,18 +213,7 @@ function start() {
         $('run').disabled = false;
         break;
       case 'exit':
-        if (rendererFailed) {
-          break; // the renderer's error stays the status: it is why the engine stopped
-        }
-        if (data.code === 0) {
-          setStatus('El motor terminó la ejecución (código 0). Consulta el informe en el registro.', 'ok');
-          document.body.dataset.state = 'done';
-        } else {
-          setStatus(`El motor se detuvo con el código ${data.code}. El motivo aparece en el registro.`, 'error');
-          document.body.dataset.state = 'error';
-        }
-        $('run').disabled = false;
-        worker.terminate();
+        finish(data.code);
         break;
     }
   };
@@ -200,7 +222,7 @@ function start() {
     document.body.dataset.state = 'error';
     $('run').disabled = false;
   };
-  worker.postMessage({ file, seconds, label: engine.label });
+  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label });
 }
 
 const missing = requirements();

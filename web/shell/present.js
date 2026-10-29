@@ -2,7 +2,7 @@
 // interface shows, as RGBA rows (web/host/aurora_bridge.cpp, present). A 2D canvas: it works without presenting
 // WebGPU to a canvas, which Chromium without a GPU cannot do (docs/BACKEND_WEBGPU.md).
 // globalThis.smgPresenter.frames counts the frames painted; presenter.onFatal(text), if set, hears the renderer stop
-// on an error.
+// on an error, and presenter.onExit(code) the engine's host announce its end (web/host/headless_host.c, host_exit).
 (() => {
   globalThis.smgAttachPresenter = (canvas) => {
     const context = canvas.getContext('2d');
@@ -13,6 +13,12 @@
         // The renderer stopped on an error (web/host/aurora_bridge.cpp)
         if (presenter.onFatal) {
           presenter.onFatal(event.data.text);
+        }
+        return;
+      }
+      if (event.data.type === 'exit') {
+        if (presenter.onExit) {
+          presenter.onExit(event.data.code);
         }
         return;
       }

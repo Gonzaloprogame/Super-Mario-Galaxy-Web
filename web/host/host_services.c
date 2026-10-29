@@ -100,10 +100,35 @@ static void svc_gx_stripe_particle(void* user, size_t span_offset, uint32_t part
     (void)strip;
 }
 
+/* The console's system settings: Nebula's host's answers (native/host/host_main.cpp), but for the aspect ratio, 4:3
+   here: the page shows the XFB (640x480) as it is, without the 16:9 television's horizontal stretch. A host sets the
+   language it was asked for (headless_host.c); English here, a language every release's table has. */
 static uint32_t svc_sc_get(void* user, uint32_t item) {
     (void)user;
-    (void)item;
-    return 0;
+    switch (item) {
+    case NEBULA_SC_LANGUAGE:
+        return 1; /* English */
+    case NEBULA_SC_SOUND_MODE:
+        return 1; /* stereo */
+    case NEBULA_SC_ASPECT_RATIO:
+        return 0; /* 4:3 */
+    case NEBULA_SC_PROGRESSIVE_MODE:
+        return 0;
+    case NEBULA_SC_EURGB60_MODE:
+        return 1;
+    case NEBULA_SC_SENSOR_BAR_POSITION:
+        return 1; /* above the screen */
+    case NEBULA_SC_DPD_SENSITIVITY:
+        return 3;
+    case NEBULA_SC_SPEAKER_VOLUME:
+        return 0x58;
+    case NEBULA_SC_SCREEN_SAVER_MODE:
+        return 1;
+    case NEBULA_SC_MOTOR_MODE:
+        return 1;
+    default:
+        return 0;
+    }
 }
 
 static void svc_wpad_control(void* user, uint32_t chan, uint32_t what, uint32_t value) {

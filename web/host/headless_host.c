@@ -22,6 +22,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif
+
 #include <nebula_game_api.h>
 
 #include "host_services.h"
@@ -51,10 +55,27 @@ static uint32_t load_be32(const uint8_t* p) {
     return (uint32_t)p[0] << 24 | (uint32_t)p[1] << 16 | (uint32_t)p[2] << 8 | p[3];
 }
 
-/* Every end of the process: with Aurora, its render thread is stopped first (smg_bridge_stop). */
+/* Every end of the process: with Aurora, its render thread is stopped first (smg_bridge_stop). The page is told the
+   code on the presenter's channel (web/shell/present.js) before the exit, and ends the worker itself: Emscripten's
+   exit does not always reach the page (onExit). In the real game's first stop, after Aurora had drawn, it did not: the
+   worker went on running (the retrace clock reporting), as when exit halts without ending the runtime because something
+   keeps it alive. emscripten_force_exit clears that. */
 static void host_exit(int code) {
 #if defined(SMG_HOST_AURORA)
     smg_bridge_stop();
+#endif
+#if defined(__EMSCRIPTEN__)
+    fprintf(stderr, "[host] exit %d\n", code);
+    EM_ASM(
+        {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('smg-present');
+                channel.postMessage({type : 'exit', code : $0});
+                channel.close();
+            }
+        },
+        code);
+    emscripten_force_exit(code);
 #endif
     exit(code);
 }
@@ -279,6 +300,81 @@ static void svc_game_stage(void* user, const char* name) {
     fprintf(stderr, "[host] stage: %s\n", sStage);
 }
 
+/* ---- the console's system settings ---- */
+
+/* The system language (SCGetLanguage: 0 Japanese, 1 English, 2 German, 3 French, 4 Spanish, 5 Italian, 6 Dutch), as
+   the page asks for it. The game reads its text from the folder its release's table (Language.cpp) gives that
+   language; a folder the disc does not hold stops it (FileRipper: "File isn't exist."). So the host keeps the language
+   asked for only if the disc's file table has its folder; otherwise English, then Japanese, said in the log. */
+static uint32_t sLanguage = 1;
+static uint32_t (*sDefaultScGet)(void* user, uint32_t item);
+
+/* The folder of each system language, per release (the rows of Language.cpp's table for RMGJ01, RMGE01, RMGP01) */
+static const char* language_folder(char region, int language) {
+    static const char* const japan[] = {"JpJapanese", "UsEnglish", "EuGerman", "EuFrench",
+                                        "EuSpanish",  "EuItalian", "EuDutch"};
+    static const char* const america[] = {"JpJapanese", "UsEnglish", "EuGerman", "UsFrench",
+                                          "UsSpanish",  "EuItalian", "EuDutch"};
+    static const char* const europe[] = {"JpJapanese", "EuEnglish", "EuGerman", "EuFrench",
+                                         "EuSpanish",  "EuItalian", "EuDutch"};
+    if (language < 0 || language > 6) {
+        return NULL;
+    }
+    return (region == 'J' ? japan : region == 'E' ? america : europe)[language];
+}
+
+/* Whether the disc's file table has a directory named `name` */
+static int disc_has_directory(const char* name) {
+    if (sPak.fst_size < 12) {
+        return 0;
+    }
+    const uint32_t entries = load_be32(sPak.fst + 8);
+    if (entries == 0 || (uint64_t)entries * 12 > sPak.fst_size) {
+        return 0;
+    }
+    const char* strings = (const char*)sPak.fst + (size_t)entries * 12;
+    const size_t stringsSize = sPak.fst_size - (size_t)entries * 12;
+    const size_t length = strlen(name);
+    for (uint32_t i = 1; i < entries; i++) {
+        const uint8_t* entry = sPak.fst + (size_t)i * 12;
+        const uint32_t nameOffset = load_be32(entry) & 0xFFFFFF;
+        if (entry[0] == 1 && nameOffset < stringsSize && stringsSize - nameOffset > length &&
+            memcmp(strings + nameOffset, name, length + 1) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void choose_language(int asked) {
+    static const char* const names[] = {"Japanese", "English", "German", "French", "Spanish", "Italian", "Dutch"};
+    const char region = sPak.id[3];
+    const int candidates[] = {asked, 1, 0};
+    for (int i = 0; i < 3; i++) {
+        const char* folder = language_folder(region, candidates[i]);
+        if (folder != NULL && disc_has_directory(folder)) {
+            if (i > 0 && asked >= 0) {
+                fprintf(stderr, "[host] language %d is not on this disc (no %s folder)\n", asked,
+                        language_folder(region, asked) != NULL ? language_folder(region, asked) : "such");
+            }
+            sLanguage = (uint32_t)candidates[i];
+            fprintf(stderr, "[host] system language: %s (the disc's %s folder)\n", names[sLanguage], folder);
+            return;
+        }
+    }
+    /* No known folder (a synthetic test partition): English, and the game says what it misses */
+    sLanguage = asked >= 0 && asked <= 6 ? (uint32_t)asked : 1;
+    fprintf(stderr, "[host] system language: %s (no language folder found in the disc's file table)\n",
+            names[sLanguage]);
+}
+
+static uint32_t svc_sc_get(void* user, uint32_t item) {
+    if (item == NEBULA_SC_LANGUAGE) {
+        return sLanguage;
+    }
+    return sDefaultScGet(user, item);
+}
+
 /* ---- clocks ---- */
 
 static double sSeconds = 10.0;
@@ -324,13 +420,14 @@ static void* clock_main(void* arg) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <game.pak> [seconds, 0: no end]\n", argv[0]);
+        fprintf(stderr, "usage: %s <game.pak or .rvz> [seconds, 0: no end] [system language, 0-6]\n", argv[0]);
         return 1;
     }
     if (argc > 2) {
         sSeconds = atof(argv[2]);
     }
     open_pak(argv[1]);
+    choose_language(argc > 3 ? atoi(argv[3]) : -1);
 
     static NebulaHostServices services;
     smg_host_default_services(&services);
@@ -349,6 +446,8 @@ int main(int argc, char** argv) {
     services.fs_request = svc_fs_request;
     services.power = svc_power;
     services.game_stage = svc_game_stage;
+    sDefaultScGet = services.sc_get;
+    services.sc_get = svc_sc_get;
     if (nebula_game_attach(&services) == 0) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);
     }
