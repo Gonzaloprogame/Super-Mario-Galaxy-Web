@@ -455,6 +455,16 @@ int main(int argc, char** argv) {
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
     smg_console_start(sPak.id);
+#if defined(__EMSCRIPTEN__)
+    /* The page's controls (web/shell/controls.js) write their words straight into the engine's shared memory */
+    EM_ASM(
+        {
+            if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                postMessage({type : 'input', buffer : HEAPU8.buffer, address : $0, words : $1});
+            }
+        },
+        smg_console_input(), SMG_INPUT_WORDS);
+#endif
     if (nebula_game_attach(&services) == 0) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);
     }

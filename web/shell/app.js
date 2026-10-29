@@ -45,6 +45,9 @@ const engines = {
   }
 }
 
+// The controls (controls.js): written into the engine's memory once the engine gives it
+const controls = smgAttachControls($('pad'), $('screen'));
+
 // What the screen shows comes only from frames the engine posted (web/shell/present.js): nothing is drawn here.
 const presenter = smgAttachPresenter($('screen'));
 setInterval(() => {
@@ -182,6 +185,7 @@ function start() {
     }
     ended = true;
     presenter.onExit = null;
+    controls.detach();
     if (!rendererFailed) { // otherwise the renderer's error stays the status: it is why the engine stopped
       if (code === 0) {
         setStatus('El motor terminó la ejecución (código 0). Consulta el informe en el registro.', 'ok');
@@ -201,6 +205,10 @@ function start() {
     switch (data.type) {
       case 'log':
         log(data.text);
+        break;
+      case 'input':
+        // The engine's shared memory and where its control words are (web/host/console_services.h)
+        controls.attach(new Int32Array(data.buffer, data.address, data.words));
         break;
       case 'status':
         if (!rendererFailed) {

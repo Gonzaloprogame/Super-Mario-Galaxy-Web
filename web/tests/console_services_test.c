@@ -53,6 +53,11 @@ void nebula_game_wpad_report(uint32_t chan, const uint8_t* report, size_t size, 
     atomic_store(&sLastSize, (int)size);
 }
 
+void nebula_game_wpad_shake(uint32_t chan, uint32_t held) {
+    (void)chan;
+    (void)held;
+}
+
 void nebula_game_ai_interrupt(void) {
     atomic_fetch_add(&sInterrupts, 1);
 }
@@ -143,6 +148,44 @@ int main(void) {
     check(reports >= 35 && reports <= 55, "Wii Remote: about 100 reports a second");
     check(atomic_load(&sLastId) == 0x37 && atomic_load(&sLastSize) == 22,
           "Wii Remote: the report the format asks for (0x37, 22 bytes)");
+
+    /* The reports from the page's controls */
+    {
+        int32_t in[SMG_INPUT_WORDS] = {0};
+        uint8_t r[22];
+        NebulaWpadPointer p;
+        int exact;
+        /* At rest: the remote's report as before, no pointer */
+        size_t n = smg_console_report(0x37, in, r, &p, &exact);
+        static const uint8_t rest[22] = {0x37, 0, 0, 0x80, 0x80, 0x99, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7b, 0x81, 0x7d, 0x7e, 0xae, 0x03};
+        check(n == 22 && memcmp(r, rest, 22) == 0 && !exact, "report 0x37 at rest: no buttons, no IR, Nunchuk centred");
+        /* A and B, Plus and Up; C held; the stick full right and full down */
+        in[SMG_INPUT_BUTTONS] = 0x0800 | 0x0400 | 0x0010 | 0x0008 | 0x4000;
+        in[SMG_INPUT_STICK_X] = 100;
+        in[SMG_INPUT_STICK_Y] = -100;
+        smg_console_report(0x37, in, r, &p, &exact);
+        check(r[1] == 0x18 && r[2] == 0x0C, "buttons: Plus and Up in byte 1, A and B in byte 2");
+        check(r[16] == 0xe0 && r[17] == 0x1d, "stick: its calibrated maximum on X and minimum on Y");
+        check(r[21] == 0x01, "C held (bit 1 low), Z up (bit 0 high)");
+        /* The pointer in the middle: dots at x 430 and 590, y 487 (KPAD's neutral) */
+        in[SMG_INPUT_POINTER] = 1;
+        smg_console_report(0x37, in, r, &p, &exact);
+        check(exact && p.x == 0.0f && p.y == 0.0f, "pointer in the middle: passed to the game as exact (0, 0)");
+        check(r[6] == (430 & 0xFF) && r[7] == (487 & 0xFF) && r[9] == (590 & 0xFF) && r[10] == (487 & 0xFF) &&
+                  r[8] == ((1 << 6) | (1 << 4) | (1 << 2) | 2),
+              "pointer in the middle: IR dots (430, 487) and (590, 487)");
+        /* Top left corner: x 510 + 226 = 736, y 487 - 226 = 261 */
+        in[SMG_INPUT_POINTER_X] = -10000;
+        in[SMG_INPUT_POINTER_Y] = -10000;
+        smg_console_report(0x33, in, r, &p, &exact);
+        check(exact && p.x == -1.0f && p.y == -1.0f && r[6] == ((736 - 80) & 0xFF) && r[7] == (261 & 0xFF) &&
+                  r[8] == ((1 << 6) | (2 << 4) | 8) && r[9] == ((736 + 80) & 0xFF) && r[12] == 0xFF,
+              "report 0x33, pointer at the top left: extended IR dots (656, 261) and (816, 261)");
+        in[SMG_INPUT_POINTER] = 0;
+        n = smg_console_report(0x31, in, r, &p, &exact);
+        check(n == 6 && !exact && r[2] == 0x0C, "report 0x31: buttons and accelerometer only");
+    }
 
     /* Audio interface: 640-byte blocks at 32 kHz (5 ms each) */
     smg_console_ai_control(NULL, NEBULA_AI_RATE, 32000);

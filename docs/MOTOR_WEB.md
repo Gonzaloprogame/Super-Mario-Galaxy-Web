@@ -75,8 +75,7 @@ motivo.
 
 ## Qué no hay todavía
 
-- **Sonido y mandos.** Hay un Wiimote con Nunchuk conectado, pero en reposo: el juego no recibe ninguna pulsación, así
-  que no pasará de la primera pantalla que pida un botón. El audio avanza a su ritmo, pero no suena.
+- **Sonido.** El audio avanza a su ritmo, pero no suena.
 - **NAND persistente:** la NAND está en memoria. Lo que el juego guarda se pierde al cerrar o recargar la página.
 - **Presentación directa de WebGPU en un canvas.** La imagen llega por una lectura del XFB y un canvas 2D (1,2 MB por
   fotograma, uno o dos fotogramas de retraso).
@@ -196,6 +195,32 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
   - durante una carga larga el mando y el audio se pararon 10 segundos; tras una espera así, el mando ya no envía de
     golpe los informes atrasados;
   - el registro solo anota el escenario cuando cambia (el juego lo repite en cada paso).
+
+## Controles
+
+El juego ve un Wiimote con Nunchuk. La página escribe el estado de los controles directamente en la memoria compartida
+del motor (`web/shell/controls.js`, palabras `SMG_INPUT_*` de `web/host/console_services.h`). El hilo del Wiimote del
+host construye con ese estado cada informe, cada 10 ms y en el formato que pide el juego.
+
+- **Pantalla táctil:**
+  - tocar la pantalla del juego apunta con el puntero, que se queda donde se tocó;
+  - debajo están la palanca del Nunchuk, la cruceta, A, B, Z, C, «Agitar» (el giro), −, HOME, +, 1 y 2. Se pueden
+    pulsar varios a la vez.
+- **Teclado** (los valores por defecto de Nebula): espacio o Intro A, Mayús B, Z o Ctrl Z, C, Q o E agitar, WASD
+  palanca, flechas cruceta, P o = más, M o − menos, H HOME, 1 y 2.
+- **Ratón:** sobre la pantalla mueve el puntero; el botón izquierdo es A y el derecho B.
+- **Puntero:** el informe lleva dos puntos IR colocados como en Nebula (`runtime/src/native_input.cpp`), para que el
+  KPAD del propio juego los resuelva en esa posición. También pasa al juego la posición exacta.
+
+**Comprobado:**
+- `console_services_test.c` comprueba los bytes de los informes: botones, palanca, C y Z, y los puntos IR del puntero
+  en el centro y en una esquina, en los formatos 0x31, 0x33 y 0x37.
+- `browser_smoke.mjs` comprueba con el motor real que:
+  - la página recibe las palabras del host (marcadas por él con «SMGI»);
+  - el teclado, el botón B táctil y el ratón escriben lo que deben.
+
+**Sin comprobar todavía:** que el juego coloque el puntero exactamente donde se toca. Depende del KPAD del juego, y
+hay que verlo con el disco.
 
 ## Diagnóstico de fallos del renderizador
 

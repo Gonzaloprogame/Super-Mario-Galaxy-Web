@@ -92,6 +92,7 @@ async function run(url, pak, timeoutMs, mode = 'diagnostic', contextOptions = {}
     result.state = await page.evaluate(() => document.body.dataset.state);
     result.status = await page.textContent('#status');
     result.log = await page.textContent('#log');
+    if (options.after) result.after = await options.after(page);
   }
   await browser.close();
   return result;
@@ -131,6 +132,45 @@ await withServer('isolated', async (url) => {
   check(/language 3 is not on this disc \(no UsFrench folder\)/.test(fr.log) &&
         /system language: English \(the disc's UsEnglish folder\)/.test(fr.log),
         'idioma: uno que el disco no tiene se cambia por el inglés, y el registro lo dice');
+
+  // The controls: the engine gives the page its control words (in its shared memory, marked "SMGI" by the host);
+  // the keyboard and the touch controls write them as web/host/console_services.h says
+  const c = await run(url, join(fixtures, 'fixture_emptydol.pak'), 120000, 'graphics', {}, {
+    after: async (page) => {
+      const marked = await page.evaluate(() => smgControls.words !== null && smgControls.words[7] === 0x534D4749);
+      await page.evaluate(() => smgControls.attach(smgControls.words));
+      const words = () => page.evaluate(() => Array.from(smgControls.words.slice(0, 7)));
+      const results = { marked };
+      await page.keyboard.down('Space');
+      await page.keyboard.down('KeyD');
+      await page.keyboard.down('KeyC');
+      results.keys = await words();
+      await page.keyboard.up('Space');
+      await page.keyboard.up('KeyD');
+      await page.keyboard.up('KeyC');
+      results.released = await words();
+      await page.locator('.pad-b').scrollIntoViewIfNeeded();
+      const box = await page.locator('.pad-b').boundingBox();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      results.touchB = await words();
+      await page.mouse.up();
+      await page.locator('#screen').scrollIntoViewIfNeeded();
+      const screen = await page.locator('#screen').boundingBox();
+      await page.mouse.move(screen.x + screen.width * 0.75, screen.y + screen.height * 0.25);
+      results.pointer = await words();
+      await page.evaluate(() => smgControls.detach());
+      return results;
+    },
+  });
+  const k = c.after;
+  check(k.marked, 'controles: la página recibe las palabras de control del motor (marca "SMGI" del host)');
+  check(k.keys[0] === (0x0800 | 0x4000) && k.keys[1] === 100 && k.keys[2] === 0,
+        `controles: espacio = A, C = C, D = palanca a la derecha (${k.keys.slice(0, 3)})`);
+  check(k.released.slice(0, 3).every((v) => v === 0), 'controles: al soltar, nada pulsado y la palanca al centro');
+  check(k.touchB[0] === 0x0400, `controles: el botón B de la pantalla pulsa B (${k.touchB[0]})`);
+  check(k.pointer[3] === 1 && Math.abs(k.pointer[4] - 5000) < 100 && Math.abs(k.pointer[5] + 5000) < 100,
+        `controles: el puntero sigue al ratón sobre la pantalla (${k.pointer.slice(3, 6)})`);
 
   // The engine's end heard from the host itself (its announcement on the presenter's channel), without Emscripten's
   check(/\[host\] exit 3/.test(g.log), 'el host anuncia su salida (código 3)');

@@ -3,6 +3,7 @@
    operations (here on folders and files kept in memory instead of the host's disk). */
 #include "console_services.h"
 
+#include <math.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdio.h>
@@ -32,7 +33,7 @@ static int64_t elapsed_ns(const struct timespec* from, const struct timespec* to
     return (int64_t)(to->tv_sec - from->tv_sec) * 1000000000 + (to->tv_nsec - from->tv_nsec);
 }
 
-/* ---- the Wii Remote: connected with a Nunchuk, a report every 10 ms, nothing pressed ----
+/* ---- the Wii Remote: connected with a Nunchuk, a report every 10 ms with the page's controls ----
    It connects at the game's first read of its remotes (wpad_sample, each frame), not when the game starts WPAD: the
    game starts WPAD (KPADInit) in WPadHolder's constructor and sets its connect and extension callbacks at that
    constructor's end, so a connection handled in between is not heard, and the game takes the Nunchuk for missing.
@@ -73,11 +74,48 @@ static void idle_connection(NebulaWiimoteConnection* c) {
     c->battery = 4;   /* full */
 }
 
-/* A report of the remote at rest, from its id: no buttons, 1 g on Z, no IR points, the Nunchuk level with its stick at
-   the centre and C and Z up. Returns its size. */
-static size_t idle_report(uint8_t id, uint8_t* report) {
+/* The controls the page writes (web/shell/controls.js), SMG_INPUT_* words: read for each report */
+static _Atomic int32_t sInput[SMG_INPUT_WORDS];
+
+int32_t* smg_console_input(void) {
+    return (int32_t*)sInput;
+}
+
+/* Two IR dots, side by side as the sensor bar's, where the game's own KPAD decoding puts the pointer at (x, y)
+   (-1..1, x right, y down): Nebula's placement (runtime/src/native_input.cpp, publish_wiimote_ir_dots), 226 camera
+   units a pointer unit around (510, 487), the dots 160 apart. */
+static void pointer_dots(int32_t x10000, int32_t y10000, uint16_t dots[2][2]) {
+    const double x = x10000 < -10000 ? -1.0 : x10000 > 10000 ? 1.0 : x10000 / 10000.0;
+    const double y = y10000 < -10000 ? -1.0 : y10000 > 10000 ? 1.0 : y10000 / 10000.0;
+    long cx = lround(510.0 - x * 226.0);
+    long cy = lround(487.0 + y * 226.0);
+    cx = cx < 26 + 80 ? 26 + 80 : cx > 997 - 80 ? 997 - 80 : cx;
+    cy = cy < 26 ? 26 : cy > 725 ? 725 : cy;
+    dots[0][0] = (uint16_t)(cx - 80);
+    dots[0][1] = (uint16_t)cy;
+    dots[1][0] = (uint16_t)(cx + 80);
+    dots[1][1] = (uint16_t)cy;
+}
+
+/* The Nunchuk's stick byte for -100..100, from its calibration's minimum, centre and maximum */
+static uint8_t stick_byte(int32_t value, int minimum, int centre, int maximum) {
+    value = value < -100 ? -100 : value > 100 ? 100 : value;
+    return (uint8_t)(centre + (value >= 0 ? value * (maximum - centre) : value * (centre - minimum)) / 100);
+}
+
+/* The report `id` for the controls now (the format the game asked for): the core buttons, the accelerometer at rest
+   (1 g on Z), the IR dots of the pointer when it is on the screen, the Nunchuk (stick, C and Z, level). Returns its
+   size; *pointer is set, and 1 returned in *exact, when the report carries the pointer. */
+size_t smg_console_report(uint8_t id, const int32_t* input, uint8_t* report, NebulaWpadPointer* pointer, int* exact) {
+    const uint32_t buttons = (uint32_t)input[SMG_INPUT_BUTTONS];
+    const int onScreen = input[SMG_INPUT_POINTER] != 0;
+    uint16_t dots[2][2];
+    pointer_dots(input[SMG_INPUT_POINTER_X], input[SMG_INPUT_POINTER_Y], dots);
+    *exact = 0;
     memset(report, 0, 22);
     report[0] = id;
+    report[1] = (uint8_t)(buttons & 0x1F);        /* the D-pad and Plus */
+    report[2] = (uint8_t)((buttons >> 8) & 0x9F); /* 2, 1, B, A, Minus, Home */
     if (id == 0x30) {
         return 3;
     }
@@ -88,13 +126,40 @@ static size_t idle_report(uint8_t id, uint8_t* report) {
         return 6;
     }
     if (id == 0x33) {
+        /* Extended IR: 3 bytes a dot, 4 dots */
         memset(report + 6, 0xFF, 12);
-        return 18;
+        if (onScreen) {
+            for (int i = 0; i < 2; i++) {
+                const uint16_t x = dots[i][0], y = dots[i][1];
+                report[6 + i * 3] = (uint8_t)x;
+                report[7 + i * 3] = (uint8_t)y;
+                report[8 + i * 3] = (uint8_t)(((y >> 8) & 3) << 6 | ((x >> 8) & 3) << 4 | 8);
+            }
+        }
+    } else {
+        /* Basic IR: 5 bytes a pair of dots, 2 pairs; then the Nunchuk's 6 bytes */
+        memset(report + 6, 0xFF, 10);
+        if (onScreen) {
+            const uint16_t x1 = dots[0][0], y1 = dots[0][1], x2 = dots[1][0], y2 = dots[1][1];
+            report[6] = (uint8_t)x1;
+            report[7] = (uint8_t)y1;
+            report[8] = (uint8_t)(((y1 >> 8) & 3) << 6 | ((x1 >> 8) & 3) << 4 | ((y2 >> 8) & 3) << 2 | ((x2 >> 8) & 3));
+            report[9] = (uint8_t)x2;
+            report[10] = (uint8_t)y2;
+        }
+        report[16] = stick_byte(input[SMG_INPUT_STICK_X], 0x15, 0x7b, 0xe0);
+        report[17] = stick_byte(input[SMG_INPUT_STICK_Y], 0x1d, 0x81, 0xe6);
+        report[18] = 0x7d; /* the Nunchuk level: its calibration's 0 g on X and Y, 1 g on Z */
+        report[19] = 0x7e;
+        report[20] = 0xae;
+        report[21] = (uint8_t)(0x03 & ~((buttons & 0x2000 ? 1 : 0) | (buttons & 0x4000 ? 2 : 0))); /* Z, C: 0 held */
     }
-    memset(report + 6, 0xFF, 10);
-    static const uint8_t nunchuk[6] = {0x7b, 0x81, 0x7d, 0x7e, 0xae, 0x03};
-    memcpy(report + 16, nunchuk, sizeof(nunchuk));
-    return 22;
+    if (onScreen) {
+        pointer->x = (float)(input[SMG_INPUT_POINTER_X] / 10000.0);
+        pointer->y = (float)(input[SMG_INPUT_POINTER_Y] / 10000.0);
+        *exact = 1;
+    }
+    return id == 0x33 ? 18 : 22;
 }
 
 static void* wpad_main(void* arg) {
@@ -107,7 +172,8 @@ static void* wpad_main(void* arg) {
     NebulaWiimoteConnection connection;
     idle_connection(&connection);
     nebula_game_wpad_connect(0, 1, &connection);
-    fprintf(stderr, "[host] Wii Remote 1 connected, with a Nunchuk (at rest: no input yet)\n");
+    fprintf(stderr, "[host] Wii Remote 1 connected, with a Nunchuk (the page's controls)\n");
+    uint32_t shake = 0;
     struct timespec next;
     clock_gettime(CLOCK_MONOTONIC, &next);
     for (;;) {
@@ -118,9 +184,20 @@ static void* wpad_main(void* arg) {
             next = now; /* after a stall past 100 ms (the game busy), no burst of the reports missed */
         }
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, NULL);
+        int32_t input[SMG_INPUT_WORDS];
+        for (int i = 0; i < SMG_INPUT_WORDS; i++) {
+            input[i] = atomic_load(&sInput[i]);
+        }
+        const uint32_t held = (uint32_t)input[SMG_INPUT_SHAKE] & 3;
+        if (held != shake) {
+            shake = held;
+            nebula_game_wpad_shake(0, held); /* each press is one swing */
+        }
         uint8_t report[22];
-        const size_t size = idle_report((uint8_t)atomic_load(&sWpadReport), report);
-        nebula_game_wpad_report(0, report, size, NULL);
+        NebulaWpadPointer pointer;
+        int exact;
+        const size_t size = smg_console_report((uint8_t)atomic_load(&sWpadReport), input, report, &pointer, &exact);
+        nebula_game_wpad_report(0, report, size, exact ? &pointer : NULL);
         atomic_fetch_add(&sWpadReports, 1);
     }
     return NULL;
@@ -579,6 +656,7 @@ static void create_folders(const char* path) {
 }
 
 void smg_console_start(const char* game_id) {
+    atomic_store(&sInput[SMG_INPUT_MAGIC_WORD], SMG_INPUT_MAGIC);
     for (int fd = 0; fd < MaxFds; fd++) {
         sFds[fd].node = -1;
     }
