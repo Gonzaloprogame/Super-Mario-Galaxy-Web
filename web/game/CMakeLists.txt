@@ -63,21 +63,23 @@ add_library(smg_game STATIC
 smg_game_options(smg_game)
 
 # ---- Host headless (web/host/headless_host.c): primera prueba de ejecución del módulo completo ----
+# Lee game.pak o la imagen RVZ del usuario (web/host/rvz_reader.c, con el descompresor de zstd).
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Zstd.cmake")
 add_executable(smg_headless "${CMAKE_CURRENT_SOURCE_DIR}/../host/headless_host.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c" "${CMAKE_CURRENT_SOURCE_DIR}/../host/rvz_reader.c")
 target_include_directories(smg_headless PRIVATE "${nebula}/include")
 target_compile_options(smg_headless PRIVATE -pthread)
-target_link_libraries(smg_headless PRIVATE smg_game)
+target_link_libraries(smg_headless PRIVATE smg_game smg_zstd)
 target_link_options(smg_headless PRIVATE ${SMG_WEB_LINK_OPTIONS} -sNODERAWFS -sENVIRONMENT=node)
 
 # Variante para navegador del mismo host: el programa se ejecuta dentro de un Worker dedicado (web/shell/boot_worker.post.js),
 # que puede bloquear (Atomics.wait) y lee el game.pak del usuario por trozos (WORKERFS), sin copiarlo a memoria.
 # Requiere aislamiento de origen cruzado (COOP/COEP) para SharedArrayBuffer.
 add_executable(smg_headless_web "${CMAKE_CURRENT_SOURCE_DIR}/../host/headless_host.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c" "${CMAKE_CURRENT_SOURCE_DIR}/../host/rvz_reader.c")
 target_include_directories(smg_headless_web PRIVATE "${nebula}/include")
 target_compile_options(smg_headless_web PRIVATE -pthread)
-target_link_libraries(smg_headless_web PRIVATE smg_game)
+target_link_libraries(smg_headless_web PRIVATE smg_game smg_zstd)
 target_link_options(smg_headless_web PRIVATE ${SMG_WEB_LINK_OPTIONS}
     -sENVIRONMENT=worker -sMODULARIZE -sEXPORT_NAME=createSmgModule -sINVOKE_RUN=0
     -lworkerfs.js "-sEXPORTED_RUNTIME_METHODS=['callMain','FS','WORKERFS']"

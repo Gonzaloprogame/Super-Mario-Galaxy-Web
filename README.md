@@ -25,6 +25,9 @@ No está afiliado a Nintendo ni respaldado por Nintendo.
   indexados, listas de visualización, texturas y TLUT, copias del EFB, copia a pantalla y lecturas del EFB. Una
   escena de prueba dibujada por la GX del propio módulo de juego llega hasta el canvas de la página
   (`docs/PUENTE_FIFO.md`).
+- La página acepta directamente la copia del juego en formato **RVZ** de Dolphin: lee la partición del juego dentro
+  del navegador, sin claves de la consola ni conversión (`docs/RVZ.md`), verificado con imágenes sintéticas y con
+  `nod` como lector independiente.
 - La página tiene un modo **con gráficos**: el motor completo con Aurora. Arranca y se cierra de forma verificada
   con una partición sintética; **no se ha probado con el juego real**, porque requiere tu copia
   (`docs/MOTOR_WEB.md` explica cómo probarlo).
@@ -40,6 +43,7 @@ No hay audio ni controles. Hoja de ruta: `docs/HOJA_DE_RUTA.md`.
 | `docs/COMPILACION_WASM.md` | Resultados reales de compilación y ejecución, errores encontrados |
 | `docs/BACKEND_WEBGPU.md` | Aurora GX sobre el WebGPU del navegador: parches, pruebas y limitaciones |
 | `docs/PUENTE_FIFO.md` | El FIFO GX del juego dibujado por Aurora: un binario con ambos, pruebas y fase 2 |
+| `docs/RVZ.md` | Leer el juego desde la imagen RVZ del usuario: formato, lector y verificación |
 | `docs/MOTOR_WEB.md` | Cómo probar el motor con gráficos con tu copia del juego, y qué contar |
 | `docs/ENTORNO.md` | Versiones de las herramientas e instalación |
 | `docs/ARCHIVOS_DEL_JUEGO.md` | Cómo aportar legalmente los archivos del juego |
@@ -56,6 +60,7 @@ python3 tools/serve.py 8080 build/site # http://127.0.0.1:8080 (con COOP/COEP)
 node web/tests/browser_smoke.mjs       # prueba del motor en Chromium
 node web/tests/aurora_smoke.mjs build/site/gx   # prueba del renderizador (WebGPU) en Chromium
 node web/tests/bridge_smoke.mjs build/site/bridge   # GX del juego -> Aurora, en Chromium
+web/tests/run_rvz_tests.sh             # lector RVZ: imágenes sintéticas, nod y el lector en wasm (necesita cargo)
 ```
 
 Diagnóstico en Node con tu partición: `node build/all/game/smg_headless.js /ruta/a/game.pak 10`.

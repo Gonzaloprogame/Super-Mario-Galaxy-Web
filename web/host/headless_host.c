@@ -25,14 +25,18 @@
 #include <nebula_game_api.h>
 
 #include "host_services.h"
+#include "rvz_reader.h"
 #if defined(SMG_HOST_AURORA)
 #include "aurora_bridge.h"
 #endif
 
-/* ---- game.pak: the decrypted game partition at its own offsets (crates/nebula-import) ---- */
+/* ---- game.pak: the decrypted game partition at its own offsets (crates/nebula-import) ----
+   Or the user's RVZ disc image (Dolphin), whose game partition is read in place (web/host/rvz_reader.c): the same
+   bytes, without writing game.pak. */
 
 typedef struct {
     FILE* file;
+    RvzReader* rvz; /* NULL: the file is game.pak */
     uint64_t size;
     char id[7];
     uint8_t* fst;
@@ -69,6 +73,13 @@ static int read_at(uint64_t offset, void* dst, size_t size) {
     if (offset > sPak.size || sPak.size - offset < size) {
         return 0;
     }
+    if (sPak.rvz != NULL) {
+        if (!rvz_read(sPak.rvz, offset, dst, size)) {
+            fprintf(stderr, "[host] the RVZ image cannot be read: %s\n", rvz_last_error(sPak.rvz));
+            return 0;
+        }
+        return 1;
+    }
     if (fseeko(sPak.file, (off_t)offset, SEEK_SET) != 0) {
         return 0;
     }
@@ -93,6 +104,27 @@ static void open_pak(const char* path) {
     }
     fseeko(sPak.file, 0, SEEK_END);
     sPak.size = (uint64_t)ftello(sPak.file);
+    /* What the file is, from its first bytes */
+    uint8_t magic[0x424] = {0};
+    fseeko(sPak.file, 0, SEEK_SET);
+    const size_t got = fread(magic, 1, sizeof(magic), sPak.file);
+    if (got >= 4 && (memcmp(magic, "RVZ\x01", 4) == 0 || memcmp(magic, "WIA\x01", 4) == 0)) {
+        char error[256];
+        sPak.rvz = rvz_open(sPak.file, error, sizeof(error));
+        if (sPak.rvz == NULL) {
+            die("%s: %s", path, error);
+        }
+        sPak.size = rvz_partition_size(sPak.rvz);
+        fprintf(stderr, "[host] %s: an RVZ image of %s; its game partition is read in place (%" PRIu64 " bytes)\n",
+                path, rvz_disc_id(sPak.rvz), sPak.size);
+    } else if (got >= 4 && memcmp(magic, "WBFS", 4) == 0) {
+        die("%s is a WBFS image, whose game partition is encrypted: convert it to RVZ in Dolphin (or make game.pak "
+            "with Nebula's importer, docs/ARCHIVOS_DEL_JUEGO.md)", path);
+    } else if (got == sizeof(magic) && load_be32(magic + 0x18) == 0x5D1C9EA3u && load_be32(magic + 0x420) == 0) {
+        /* A disc's own header, which (unlike game.pak's boot.bin) does not point to a main.dol: a disc image */
+        die("%s is a disc image (ISO), whose game partition is encrypted: convert it to RVZ in Dolphin (or make "
+            "game.pak with Nebula's importer, docs/ARCHIVOS_DEL_JUEGO.md)", path);
+    }
     if (!read_at(0, boot, sizeof(boot))) {
         die("%s is too short for a game partition", path);
     }

@@ -107,6 +107,22 @@ await withServer('isolated', async (url) => {
   check(g.state === 'error' && /código 3/.test(g.status), `con gráficos: código de salida real: "${g.status.trim()}"`);
   check(g.consoleErrors.length === 0, `con gráficos: sin excepciones de página (${g.consoleErrors.join('; ')})`);
   console.log('--- registro del motor (con gráficos) ---\n' + g.log.trim());
+
+  // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
+  // the page, without game.pak
+  const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');
+  if (existsSync(rvz)) {
+    const v = await run(url, rvz, 180000, 'graphics');
+    check(/an RVZ image of RMGE01; its game partition is read in place/.test(v.log),
+          'RVZ: el motor reconoce la imagen y lee su partición en la página');
+    check(/RMGE01, 5079040 bytes, main\.dol 256 bytes, file table 16 bytes/.test(v.log),
+          'RVZ: boot.bin, main.dol y la tabla de archivos leídos de la imagen comprimida');
+    check(/cStoryProgressTable .* is not in the disc's main\.dol/.test(v.log),
+          'RVZ: el módulo de juego llegó al mismo punto que con game.pak');
+    check(v.state === 'error' && /código 3/.test(v.status), `RVZ: código de salida real: "${v.status.trim()}"`);
+  } else {
+    console.log('SKIP RVZ: falta build/rvz-tests (ejecuta web/tests/run_rvz_tests.sh)');
+  }
 });
 
 await withPlainServer(async (url) => {

@@ -7,12 +7,13 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/SmgGame.cmake")
 add_executable(smg_web
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/headless_host.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/rvz_reader.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp")
 target_include_directories(smg_web PRIVATE "${SMG_NEBULA_NATIVE}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../host"
                            "${SMG_AURORA_LIB}")
 target_compile_definitions(smg_web PRIVATE SMG_HOST_AURORA=1)
 target_compile_options(smg_web PRIVATE -pthread)
-target_link_libraries(smg_web PRIVATE smg_game aurora_core_web aurora_vi_web)
+target_link_libraries(smg_web PRIVATE smg_game smg_zstd aurora_core_web aurora_vi_web)
 # Aurora's API symbols that collide with the game's SDK are renamed in Aurora (web/aurora, SMG_AURORA_RENAMES).
 set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp" PROPERTIES
     COMPILE_OPTIONS "-include;${SMG_AURORA_RENAMES_HEADER}")

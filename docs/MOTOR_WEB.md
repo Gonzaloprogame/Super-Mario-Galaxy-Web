@@ -7,8 +7,9 @@ precisamente lo que tu prueba puede responder.
 
 ## Qué necesitas
 
-- Tu `game.pak` de Super Mario Galaxy (RMGE01), obtenido de tu propio disco como explica
-  [`ARCHIVOS_DEL_JUEGO.md`](ARCHIVOS_DEL_JUEGO.md). El repositorio no contiene ni descarga ningún archivo del juego.
+- Tu copia de Super Mario Galaxy (RMGE01), de tu propio disco, en formato **RVZ** de Dolphin, o como `game.pak`
+  ([`ARCHIVOS_DEL_JUEGO.md`](ARCHIVOS_DEL_JUEGO.md), [`RVZ.md`](RVZ.md)). El repositorio no contiene ni descarga
+  ningún archivo del juego.
 - Un navegador de escritorio con WebGPU: Chrome o Edge recientes en un equipo con GPU. Firefox y Safari ofrecen WebGPU
   según versión y sistema; no están probados.
 - El sitio servido con aislamiento de origen cruzado (COOP/COEP), que ya da `tools/serve.py`.
@@ -41,7 +42,7 @@ marcha hasta que lo detengas con Ctrl+C.
 
 Abre `http://127.0.0.1:8080` y:
 
-1. Selecciona tu `game.pak`. No sale del navegador: el motor lo lee por trozos dentro de un *worker*.
+1. Selecciona tu `.rvz` o tu `game.pak`. No sale del navegador: el motor lo lee por trozos dentro de un *worker*.
 2. Elige el modo **Con gráficos (Aurora, WebGPU)**. «Segundos» en 0 ejecuta sin límite.
 3. Pulsa **Arrancar el motor**.
 

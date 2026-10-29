@@ -9,7 +9,8 @@ mkdir -p "$DEST"
 
 # nombre  url  commit. Las dependencias de Aurora (deps/) son las versiones que fija su extern/CMakeLists.txt
 # (abseil 20240722.0, xxHash 0.8.3, fmt 12.1.0, Tracy 0.14.1, imgui 1.91.9b-docking); magic_enum 0.9.7 no lo
-# descarga Aurora (llega con su Dawn precompilado). Se clonan con git: el proxy de esta sesión no permite descargar
+# descarga Aurora (llega con su Dawn precompilado). zstd 1.5.7 descomprime los .rvz del usuario en la página
+# (web/host/rvz_reader.c). Se clonan con git: el proxy de esta sesión no permite descargar
 # los archivos comprimidos de GitHub.
 SOURCES="
 nebula https://github.com/keepvaibin/nebula.git a32d9456de82b76cbc25c01108a1afef72bde509
@@ -24,6 +25,7 @@ deps/magic_enum https://github.com/Neargye/magic_enum.git e046b69a3736d314fad813
 deps/zlib https://github.com/madler/zlib.git da607da739fa6047df13e66a2af6b8bec7c2a498
 deps/libpng https://github.com/pnggroup/libpng.git 3061454d980de7d53608f594194cfac722721d2a
 deps/sdl3 https://github.com/libsdl-org/SDL.git 8e37db5e797b6167f3a00d697d816a684bd259c7
+deps/zstd https://github.com/facebook/zstd.git f8745da6ff1ad1e7bab384bd1f9d742439278e99
 "
 
 echo "$SOURCES" | while read -r name url commit; do
