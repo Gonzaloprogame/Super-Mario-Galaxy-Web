@@ -219,6 +219,31 @@ Con el parche 0014, Aurora dibujó 6 fotogramas del juego sin errores. Después:
 - **Comprobado:** `bridge_smoke.mjs` comprueba la descripción del hilo de render. **Sin comprobar:** el aviso de bloqueo
   completo. Necesita un bloqueo de verdad, y con las particiones de prueba el juego no llega tan lejos.
 
+## Séptima prueba con el juego real (2026-10-29, Android): el informe de bloqueos
+
+El informe de bloqueos apareció varias veces. Durante el arranque hubo paradas de 6, 6, 20 y 26 segundos, sin
+dibujo y sin lecturas del mando, y el juego se recuperó cada vez. La última apareció justo al cargar el nivel:
+
+- el hilo de render **no estaba atascado**: estaba esperando el flujo del juego, con la cola vacía y todos los
+  marcadores PE respondidos;
+- el bucle principal del juego estaba parado: ninguna lectura del mando;
+- **no era la película**: el juego no pidió decodificar ningún fotograma.
+
+**Hipótesis:** el juego no está bloqueado, sino cargando muy despacio. En este puerto los hilos del juego se turnan
+sobre un único hilo de wasm, y las lecturas del disco se completan al instante, así que el hilo que carga puede
+retener la CPU y el bucle principal no avanza mientras tanto. Si construir el nivel cuesta en el teléfono decenas de
+veces más que en un PC, la parada puede durar minutos. El usuario esperó unos 40 s en la sexta prueba. **Sin
+comprobar.**
+
+**Diagnóstico añadido:** el informe de bloqueos incluye ahora la actividad del juego mientras dura la parada:
+
+- lecturas del disco;
+- órdenes al DSP de audio (el hilo de audio del juego);
+- vaciados de caché para la GPU (al cargar recursos);
+- objetos nombrados (al construir el nivel).
+
+Si estos contadores suben, el juego está trabajando; si no, está bloqueado.
+
 ## Controles
 
 El juego ve un Wiimote con Nunchuk. La página escribe el estado de los controles directamente en la memoria compartida

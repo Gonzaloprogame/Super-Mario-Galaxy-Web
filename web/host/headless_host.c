@@ -410,10 +410,31 @@ static void report(void) {
 #endif
 }
 
+/* The game's own activity, from services it calls while it works: its audio thread's DSP commands, the caches it
+   flushes for the GPU as it loads resources, the objects it names as it builds a scene. Counted around the default
+   answers (host_services.c), for the stall report: a game loading slowly calls them, a game stuck does not. */
+static NebulaHostServices sDefaults;
+static _Atomic uint64_t sDspCalls, sCoherentCalls, sObjectNames;
+
+static int svc_audio_dsp(void* user, const uint32_t* words, uint32_t count) {
+    atomic_fetch_add(&sDspCalls, 1);
+    return sDefaults.audio_dsp(user, words, count);
+}
+
+static void svc_gpu_coherent(void* user, uint32_t physical, uint32_t size) {
+    atomic_fetch_add(&sCoherentCalls, 1);
+    sDefaults.gpu_coherent(user, physical, size);
+}
+
+static void svc_object_name(void* user, uint32_t id, const char* name) {
+    atomic_fetch_add(&sObjectNames, 1);
+    sDefaults.object_name(user, id, name);
+}
+
 /* When the game's stream stops while the retrace goes on (5 s without GX): what each side is doing, in the log, and
    again every 30 s while it lasts. The game's reads of its remotes say whether its main loop still runs. */
 static void check_stall(uint64_t retrace) {
-    static uint64_t lastGx, sinceRetrace, lastSamples, reported;
+    static uint64_t lastGx, sinceRetrace, lastSamples, reported, lastDisc, lastDsp, lastCoherent, lastNames;
     const uint64_t gx = atomic_load(&sGxBytes);
     SmgConsoleCounters console;
     smg_console_counters(&console);
@@ -424,6 +445,10 @@ static void check_stall(uint64_t retrace) {
         lastGx = gx;
         sinceRetrace = retrace;
         lastSamples = console.wpad_samples;
+        lastDisc = atomic_load(&sDiscReads);
+        lastDsp = atomic_load(&sDspCalls);
+        lastCoherent = atomic_load(&sCoherentCalls);
+        lastNames = atomic_load(&sObjectNames);
         reported = 0;
         return;
     }
@@ -436,13 +461,18 @@ static void check_stall(uint64_t retrace) {
 #if defined(SMG_HOST_AURORA)
     smg_bridge_describe(bridge, sizeof(bridge));
 #endif
+    const uint64_t disc = atomic_load(&sDiscReads) - lastDisc, dsp = atomic_load(&sDspCalls) - lastDsp;
+    const uint64_t coherent = atomic_load(&sCoherentCalls) - lastCoherent, names = atomic_load(&sObjectNames) - lastNames;
     fprintf(stderr,
-            "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); the game read its "
-            "remotes %" PRIu64 " times meanwhile (its main loop %s); movie frames asked to decode %" PRIu64
-            "; disc reads %" PRIu64 "; NAND requests %" PRIu64 "; audio blocks %" PRIu64 "; %s\n",
+            "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); meanwhile the game "
+            "read its remotes %" PRIu64 " times (its main loop %s), read the disc %" PRIu64 " times, sent its audio "
+            "DSP %" PRIu64 " commands, flushed %" PRIu64 " ranges for the GPU and named %" PRIu64
+            " objects (the game %s); movie frames asked to decode %" PRIu64 "; NAND requests %" PRIu64
+            "; audio blocks %" PRIu64 "; %s\n",
             stalled / 60.0, atomic_load(&sFrames), sStage, console.wpad_samples - lastSamples,
-            console.wpad_samples != lastSamples ? "runs" : "is stopped", atomic_load(&sThpDecodes),
-            atomic_load(&sDiscReads), console.nand_requests, console.ai_blocks, bridge);
+            console.wpad_samples != lastSamples ? "runs" : "is stopped", disc, dsp, coherent, names,
+            disc + dsp + coherent + names != 0 ? "works: loading, or slow" : "does nothing the host sees: stuck?",
+            atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, bridge);
 }
 
 /* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run (none when the
@@ -507,6 +537,10 @@ int main(int argc, char** argv) {
     services.power = svc_power;
     services.game_stage = svc_game_stage;
     services.thp_video_decode = svc_thp_video_decode;
+    sDefaults = services;
+    services.audio_dsp = svc_audio_dsp;
+    services.gpu_coherent = svc_gpu_coherent;
+    services.object_name = svc_object_name;
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
     smg_console_start(sPak.id);
