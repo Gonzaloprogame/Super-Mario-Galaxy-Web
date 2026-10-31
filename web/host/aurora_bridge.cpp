@@ -318,6 +318,26 @@ void present(AuroraReadbackStream stream) {
   AuroraReadbackCaptureCopies(stream, &source, 1);
 }
 
+// The frame the page asked Aurora to record (AURORA_DEBUG_LOG_FRAME, patch 0017), once it has ended: posted to the
+// page in one message ({type: 'framelog'}); line by line, the page's log could not keep up
+void post_frame_log() {
+  static std::vector<char> text;
+  const size_t size = aurora_take_debug_frame_log(nullptr, 0);
+  if (size == 0) {
+    return;
+  }
+  text.resize(size);
+  aurora_take_debug_frame_log(text.data(), text.size());
+  EM_ASM(
+      {
+        if (!globalThis.smgPresentChannel) {
+          globalThis.smgPresentChannel = new BroadcastChannel('smg-present');
+        }
+        globalThis.smgPresentChannel.postMessage({type : 'framelog', text : UTF8ToString($0, $1)});
+      },
+      text.data(), text.size());
+}
+
 // The diagnostic view (?debug=1 on the page): the largest RGBA8 copy the game made lately, read back each frame and
 // posted to the page as {type: 'debug'} (web/platform/gx_copy_note_wasm.c notes the copies on the game's thread).
 std::atomic<int> g_debugCopies{0};
@@ -446,6 +466,7 @@ void* render_main(void*) {
     if (!frameOpen) {
       set_phase(PhaseBeginFrame);
       aurora_set_debug_mask(static_cast<uint32_t>(__atomic_load_n(&g_renderDebug, __ATOMIC_RELAXED)));
+      post_frame_log();
       aurora_update();
       frameOpen = aurora_begin_frame();
       if (!frameOpen) {
