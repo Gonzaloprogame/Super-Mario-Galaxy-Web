@@ -76,7 +76,7 @@ motivo.
 ## Qué no hay todavía
 
 - **Sonido.** El audio avanza a su ritmo, pero no suena.
-- **NAND persistente:** la NAND está en memoria. Lo que el juego guarda se pierde al cerrar o recargar la página.
+- **Partidas en otro dispositivo:** se guardan en el navegador (IndexedDB), no se exportan todavía.
 - **Presentación directa de WebGPU en un canvas.** La imagen llega por una lectura del XFB y un canvas 2D (1,2 MB por
   fotograma, uno o dos fotogramas de retraso).
 - **Rendimiento:** sin medir con el juego. Los dibujos esperan a su *pipeline*, así que la primera aparición de cada
@@ -271,15 +271,32 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
   - la escena del puente sobrescribe su lista con ese mismo patrón justo después de llamarla. Sin la copia,
     `bridge_smoke.mjs` falla (el motor aborta); con ella pasa entera.
 
-**Fallo 2, sin resolver: el hilo de render aborta en el nivel.**
-- Ya en `PeachCastleGardenGalaxy`, el hilo de render abortó sin ningún mensaje de Aurora, mientras terminaba un
-  fotograma: la consola mostró `RuntimeError: Aborted()`, y el informe de bloqueos, «ending a frame» durante minutos.
-- Desde entonces el juego espera al renderizador: no dibuja, pero el reloj, el mando y el audio siguen. Es el mismo
-  cuadro que en el teléfono.
-- La página no se entera y sigue en «Motor en marcha». Tiene que detectarlo.
-- La causa del aborto está por averiguar. Un enlace con `-sASSERTIONS` para verla no llegó a arrancar en este montaje
-  (un módulo en un worker con hilos), así que habrá que buscarla por otro camino.
+**Fallo 2, corregido: el hilo de render abortaba en el nivel.**
+- La pila del aborto se pudo leer con el mapa de símbolos que cada compilación genera ahora (`--emit-symbol-map`; se
+  traduce con `tools/wasm_symbols.py`). Terminaba en `push_storage` de Aurora: su buffer de *storage* por fotograma
+  está mapeado con un tamaño fijo, y al crecer aborta.
+- La causa estaba en el parche 0009. Cada `GXInvalidateVtxCache`, que el juego llama entre la mayoría de las formas,
+  borraba la subida de cada array. Además, cada dibujo que llegaba más lejos en un array volvía a subirlo entero, y
+  las formas de un modelo comparten sus arrays.
+- **Corrección, parche 0015 de Aurora:**
+  - una subida se reutiliza dentro de su fotograma, hasta que el juego escribe esa memoria para la GPU (sus
+    vaciados de caché, que el puente pasa en el orden del flujo: `aurora_guest_written`);
+  - si un array tiene que crecer, la nueva subida es al menos el doble de la anterior;
+  - un buffer mapeado lleno descarta los datos con un error, en vez de abortar;
+  - la lectura del EFB tolera ese caso;
+  - el buffer de *storage* pasa de 8 a 16 MiB.
+- **Comprobado:**
+  - `bridge_smoke.mjs` (`?arrays=1`: 200 dibujos de un array de 96 KB por fotograma) aborta sin el parche y pasa
+    con él;
+  - con el disco, el pico de *storage* en el nivel bajó a unos 2,4 MB por fotograma (el informe del host lista los
+    picos de cada buffer), sin ningún buffer lleno. El juego llegó al nivel y mostró la historia del prólogo, que
+    espera a que se pulse A.
+- Además, el juego ya no puede adelantarse al renderizador más de 6 marcadores PE (`web/platform/gx_pacing_wasm.c`).
+  Espera dentro de su propio sistema operativo, así que sus otros hilos siguen.
+- **Pendiente:** la página todavía no detecta el aborto de un hilo del motor por sí sola. El error se queda en el
+  *worker* del motor y no llega a `onerror`.
 
+**Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
 
 El juego ve un Wiimote con Nunchuk. La página escribe el estado de los controles directamente en la memoria compartida

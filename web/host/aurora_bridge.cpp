@@ -14,6 +14,7 @@
 
 #include <aurora/aurora.h>
 #include <aurora/event.h>
+#include <aurora/gfx.h>
 #include <aurora/guest_memory.h>
 #include <dolphin/gx/GXAurora.h>
 
@@ -61,6 +62,15 @@ const char* const kPhaseNames[] = {"waiting for the game's stream", "starting a 
 std::atomic<int> g_phase{PhaseWaiting};
 std::atomic<int64_t> g_phaseSinceMs{0};
 std::atomic<uint64_t> g_spansDone{0}, g_markersDone{0}, g_beginRefused{0};
+
+// The largest frame each of Aurora's frame buffers has held (its fixed sizes: lib/gfx/resources.hpp), for the report
+std::atomic<uint32_t> g_peakStorage{0}, g_peakUniform{0}, g_peakVerts{0}, g_peakIndices{0}, g_peakTextures{0};
+
+void raise_peak(std::atomic<uint32_t>& peak, uint32_t value) {
+  if (value > peak.load(std::memory_order_relaxed)) {
+    peak.store(value, std::memory_order_relaxed);
+  }
+}
 
 int64_t now_ms() {
   timespec t{};
@@ -454,6 +464,13 @@ void* render_main(void*) {
       present(presentStream);
       aurora_end_frame();
       frameOpen = false;
+      if (const AuroraStats* stats = aurora_get_stats()) {
+        raise_peak(g_peakStorage, stats->lastStorageSize);
+        raise_peak(g_peakUniform, stats->lastUniformSize);
+        raise_peak(g_peakVerts, stats->lastVertSize);
+        raise_peak(g_peakIndices, stats->lastIndexSize);
+        raise_peak(g_peakTextures, stats->lastTextureUploadSize);
+      }
       g_frames.fetch_add(1, std::memory_order_release);
     }
     nebula_game_gx_event(item.finish, item.token);
@@ -490,6 +507,13 @@ extern "C" void smg_bridge_describe(char* out, size_t size) {
            static_cast<unsigned long long>(g_markersDone.load(std::memory_order_relaxed)),
            g_frames.load(std::memory_order_relaxed),
            static_cast<unsigned long long>(g_beginRefused.load(std::memory_order_relaxed)));
+}
+
+extern "C" void smg_bridge_buffer_peaks(char* out, size_t size) {
+  const auto kb = [](const std::atomic<uint32_t>& v) { return v.load(std::memory_order_relaxed) >> 10; };
+  snprintf(out, size, "storage %u KB of 16384, uniform %u KB of 24576, vertices %u KB of 5120, indices %u KB of 2048, "
+           "texture uploads %u KB of 24576", kb(g_peakStorage), kb(g_peakUniform), kb(g_peakVerts), kb(g_peakIndices),
+           kb(g_peakTextures));
 }
 
 extern "C" void smg_bridge_stop(void) {

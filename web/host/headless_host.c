@@ -446,8 +446,10 @@ static void report(void) {
             atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), console.nand_requests,
             console.nand_failures, console.wpad_reports, console.ai_blocks, sStage);
 #if defined(SMG_HOST_AURORA)
-    fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page\n", smg_bridge_frames(),
-            smg_bridge_presented());
+    char peaks[256];
+    smg_bridge_buffer_peaks(peaks, sizeof(peaks));
+    fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page; frame buffers' peaks: %s\n",
+            smg_bridge_frames(), smg_bridge_presented(), peaks);
 #endif
 #if defined(__EMSCRIPTEN__)
     fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);

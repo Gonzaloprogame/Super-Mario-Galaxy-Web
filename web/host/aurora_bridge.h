@@ -20,6 +20,9 @@ void smg_bridge_stop(void);
    report when the game's stream stops. */
 void smg_bridge_describe(char* out, size_t size);
 
+/* The largest frame each of Aurora's fixed frame buffers has held so far, in KB, with their sizes: one line. */
+void smg_bridge_buffer_peaks(char* out, size_t size);
+
 /* The end of the process with Aurora: smg_bridge_stop, then the exit with `code` that the page hears (onExit). */
 void smg_bridge_exit(int code);
 
