@@ -450,6 +450,9 @@ static void report(void) {
     smg_bridge_buffer_peaks(peaks, sizeof(peaks));
     fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page; frame buffers' peaks: %s\n",
             smg_bridge_frames(), smg_bridge_presented(), peaks);
+    char stats[256];
+    smg_bridge_debug_stats(stats, sizeof(stats));
+    fprintf(stderr, "[host] Aurora pipelines: %s\n", stats);
 #endif
 #if defined(__EMSCRIPTEN__)
     fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);
@@ -615,6 +618,16 @@ int main(int argc, char** argv) {
             }
         },
         smg_console_input(), SMG_INPUT_WORDS);
+#if defined(SMG_HOST_AURORA)
+    /* The renderer's diagnostic mask (Aurora patch 0017), which the page sets: smgRenderDebug in web/shell/app.js */
+    EM_ASM(
+        {
+            if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                postMessage({type : 'renderdebug', buffer : HEAPU8.buffer, address : $0});
+            }
+        },
+        smg_bridge_render_debug());
+#endif
 #endif
     if (nebula_game_attach(&services) == 0) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);

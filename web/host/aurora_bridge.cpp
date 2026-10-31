@@ -143,6 +143,10 @@ void push(const Item& item) {
 
 // The game's memory as the GPU sees it: MEM1, MEM2 and the module image's window (sdk/memory.c). Fixed once the game
 // has started, which it has by the time its stream reaches Aurora.
+// The diagnostic mask (AURORA_DEBUG_*, include/aurora/guest_memory.h) the page writes in shared memory
+// (smg_bridge_render_debug); read at each frame's start
+int32_t g_renderDebug = 0;
+
 NebulaGameMemoryRegion g_regions[4];
 int g_regionCount = 0;
 
@@ -441,6 +445,7 @@ void* render_main(void*) {
     }
     if (!frameOpen) {
       set_phase(PhaseBeginFrame);
+      aurora_set_debug_mask(static_cast<uint32_t>(__atomic_load_n(&g_renderDebug, __ATOMIC_RELAXED)));
       aurora_update();
       frameOpen = aurora_begin_frame();
       if (!frameOpen) {
@@ -560,6 +565,19 @@ extern "C" void smg_bridge_buffer_peaks(char* out, size_t size) {
            kb(g_peakStorage), kb(g_peakUniform), kb(g_peakVerts), kb(g_peakIndices), kb(g_peakTextures),
            g_lastDraws.load(std::memory_order_relaxed), g_peakDraws.load(std::memory_order_relaxed),
            g_pipelinesCreated.load(std::memory_order_relaxed), g_pipelinesQueued.load(std::memory_order_relaxed));
+}
+
+extern "C" int32_t* smg_bridge_render_debug(void) { return &g_renderDebug; }
+
+extern "C" void smg_bridge_debug_stats(char* out, size_t size) {
+  uint32_t stats[AURORA_DEBUG_STAT_COUNT];
+  aurora_get_debug_stats(stats);
+  snprintf(out, size, "%u states built: fog %u, lighting %u, textured %u, indirect %u, alpha test %u, depth test %u, "
+           "texture coordinates from position or normal %u; mask %d",
+           stats[AURORA_DEBUG_STAT_STATES], stats[AURORA_DEBUG_STAT_FOG], stats[AURORA_DEBUG_STAT_LIGHTING],
+           stats[AURORA_DEBUG_STAT_TEXTURED], stats[AURORA_DEBUG_STAT_INDIRECT], stats[AURORA_DEBUG_STAT_ALPHA_TEST],
+           stats[AURORA_DEBUG_STAT_DEPTH_TEST], stats[AURORA_DEBUG_STAT_TEXGEN_POS_NRM],
+           __atomic_load_n(&g_renderDebug, __ATOMIC_RELAXED));
 }
 
 extern "C" void smg_bridge_set_debug_copies(int on) {

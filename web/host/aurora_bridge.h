@@ -25,6 +25,10 @@ void smg_bridge_buffer_peaks(char* out, size_t size);
 
 /* The diagnostic view: each frame, the largest RGBA8 copy the game made, posted to the page ({type: 'debug'}). */
 void smg_bridge_set_debug_copies(int on);
+/* Diagnostics: the word the page writes the renderer's mask to (AURORA_DEBUG_*, Aurora patch 0017), and the counts of
+   the pipeline states built */
+int32_t* smg_bridge_render_debug(void);
+void smg_bridge_debug_stats(char* out, size_t size);
 
 /* The end of the process with Aurora: smg_bridge_stop, then the exit with `code` that the page hears (onExit). */
 void smg_bridge_exit(int code);
