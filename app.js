@@ -305,7 +305,23 @@ async function start() {
     log(`[página] partida guardada de ${disc.id} en este navegador: ${nand.length} bytes`);
   }
   presenter.onNand = (id, data) => nandStore.put(id, data);
-  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand });
+  // ?debug=1: a second canvas with the game's largest copy of each frame, as Aurora made it (web/host/aurora_bridge.cpp)
+  const debug = new URLSearchParams(location.search).get('debug') === '1';
+  if (debug) {
+    let debugCanvas = $('debug-screen');
+    if (!debugCanvas) {
+      debugCanvas = document.createElement('canvas');
+      debugCanvas.id = 'debug-screen';
+      debugCanvas.style.cssText = 'display:block;width:100%;max-width:640px;margin-top:8px;background:#000';
+      $('screen').after(debugCanvas);
+    }
+    presenter.onDebug = ({ width, height, pixels }) => {
+      debugCanvas.width = width;
+      debugCanvas.height = height;
+      debugCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(pixels), width, height), 0, 0);
+    };
+  }
+  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug });
 }
 
 const missing = requirements();
