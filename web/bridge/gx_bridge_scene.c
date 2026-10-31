@@ -59,12 +59,20 @@
 #define MARK_R 250
 #define MARK_G 120
 #define MARK_B 0
+/* ?clearquad=1's squares */
+#define QUAD_A_R 90
+#define QUAD_A_G 220
+#define QUAD_A_B 230
+#define QUAD_B_R 230
+#define QUAD_B_G 60
+#define QUAD_B_B 90
 
 /* The host's test hook, between frames: returns nonzero to stop (web/bridge/bridge_main.c). */
 int smg_bridge_scene_frame_done(void);
 /* The host asks for a renderer failure (the test of its report): 0xC8, neither a GX command nor a Nebula marker. */
 int smg_bridge_fault_requested(void);
 int smg_bridge_arrays_requested(void);
+int smg_bridge_clear_quad_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
 
@@ -349,6 +357,66 @@ static void draw(void) {
     GXPosition3f32(-0.3f, -0.95f, -0.5f);
     GXTexCoord2f32(0.f, 1.f);
     GXEnd();
+
+    /* ?clearquad=1: the game's EFB clear quad (MR::clearZBuffer, MainLoopFramework::clearEfb), after Nebula's marker:
+       a quad filling a viewport, colour off, writing its Z texture's depth (the largest) with the compare always.
+       Before it, a square in QUAD_A writes depth nearer than the triangle in QUAD_B drawn after it with LEQUAL. Where the
+       viewport was (screen 96..224, 52..148) the depth is the largest again and QUAD_B shows; around it QUAD_A stays.
+       Aurora has no Z textures: drawn as written, the quad wrote its own near depth and hid QUAD_B (Aurora patch
+       0016), as the game's whole 3D world was hidden behind its clear quads. */
+    if (smg_bridge_clear_quad_requested()) {
+        set_direct_format();
+        GXSetNumChans(1);
+        GXSetNumTexGens(0);
+        GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+        GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+        /* QUAD_A: screen 64..256, 20..180, at z -0.3 */
+        GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
+        GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+        GXPosition3f32(-0.8f, 0.9167f, -0.3f);
+        GXColor4u8(QUAD_A_R, QUAD_A_G, QUAD_A_B, 255);
+        GXPosition3f32(-0.2f, 0.9167f, -0.3f);
+        GXColor4u8(QUAD_A_R, QUAD_A_G, QUAD_A_B, 255);
+        GXPosition3f32(-0.2f, 0.25f, -0.3f);
+        GXColor4u8(QUAD_A_R, QUAD_A_G, QUAD_A_B, 255);
+        GXPosition3f32(-0.8f, 0.25f, -0.3f);
+        GXColor4u8(QUAD_A_R, QUAD_A_G, QUAD_A_B, 255);
+        GXEnd();
+        /* The clear quad, as the game draws it: its viewport, colour off, the Z texture's depth, at z -0.01 (near) */
+        GXSetViewport(96.f, 52.f, 128.f, 96.f, 0.f, 1.f);
+        GXSetColorUpdate(GX_FALSE);
+        GXSetAlphaUpdate(GX_FALSE);
+        GXSetZTexture(GX_ZT_REPLACE, GX_TF_Z24X8, 0);
+        GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
+        __NebulaGXClearQuadMarker(MAX_Z24);
+        GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+        GXPosition3f32(-1.f, 1.f, -0.01f);
+        GXColor4u8(0, 0, 0, 255);
+        GXPosition3f32(1.f, 1.f, -0.01f);
+        GXColor4u8(0, 0, 0, 255);
+        GXPosition3f32(1.f, -1.f, -0.01f);
+        GXColor4u8(0, 0, 0, 255);
+        GXPosition3f32(-1.f, -1.f, -0.01f);
+        GXColor4u8(0, 0, 0, 255);
+        GXEnd();
+        GXSetZTexture(GX_ZT_DISABLE, GX_TF_Z8, 0);
+        GXSetColorUpdate(GX_TRUE);
+        GXSetAlphaUpdate(GX_TRUE);
+        GXSetViewport(0.f, 0.f, 640.f, 480.f, 0.f, 1.f);
+        /* QUAD_B: screen 80..240, 36..164, at z -0.5, depth compare LEQUAL */
+        GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+        GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+        GXPosition3f32(-0.75f, 0.85f, -0.5f);
+        GXColor4u8(QUAD_B_R, QUAD_B_G, QUAD_B_B, 255);
+        GXPosition3f32(-0.25f, 0.85f, -0.5f);
+        GXColor4u8(QUAD_B_R, QUAD_B_G, QUAD_B_B, 255);
+        GXPosition3f32(-0.25f, 0.3167f, -0.5f);
+        GXColor4u8(QUAD_B_R, QUAD_B_G, QUAD_B_B, 255);
+        GXPosition3f32(-0.75f, 0.3167f, -0.5f);
+        GXColor4u8(QUAD_B_R, QUAD_B_G, QUAD_B_B, 255);
+        GXEnd();
+        GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+    }
 
     /* The token whose callback peeks the scene, before the display copy clears it. */
     GXSetDrawSync(kPeekToken);

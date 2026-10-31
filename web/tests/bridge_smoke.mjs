@@ -133,6 +133,25 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
         `arrays grandes dibujados 200 veces por fotograma: sin llenar el buffer ni abortar (${full.join('; ') || 'ok'})`);
   await many.close();
 }
+// The game's EFB clear quad (?clearquad=1, web/bridge/gx_bridge_scene.c): after Nebula's marker, the quad's viewport
+// holds the largest depth again and what is drawn after it with LEQUAL shows; around the viewport the depth stays
+// (Aurora patch 0016)
+{
+  const quad = await browser.newPage();
+  await quad.goto(`http://127.0.0.1:${port}/gx_bridge.html?clearquad=1`);
+  const painted = await quad.waitForFunction(() => globalThis.smgPresenter && globalThis.smgPresenter.frames >= 3,
+    null, { timeout: 120000 }).then(() => true, () => false);
+  const points = [['dentro del viewport del quad', [160, 100], [230, 60, 90]],
+                  ['fuera del viewport, tapado', [232, 100], [90, 220, 230]],
+                  ['fuera del segundo cuadrado', [70, 100], [90, 220, 230]]];
+  const pixels = painted ? await quad.evaluate((p) => {
+    const context = document.getElementById('screen').getContext('2d');
+    return p.map(([x, y]) => Array.from(context.getImageData(x, y, 1, 1).data.slice(0, 3)));
+  }, points.map((e) => e[1])) : [];
+  check(painted, 'el clear quad del EFB: la página pinta fotogramas');
+  points.forEach(([name, , want], i) => check(painted && near(pixels[i], want), `clear quad del EFB, ${name} = (${want}): ${pixels[i]}`));
+  await quad.close();
+}
 // An abort() in a thread of the engine (?abort=1, after the report): the page hears it, with its C stack
 {
   const aborting = await browser.newPage();

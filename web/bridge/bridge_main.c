@@ -120,6 +120,15 @@ int smg_bridge_arrays_requested(void) {
     return requested;
 }
 
+/* The test of the game's EFB clear quad (bridge_smoke.mjs, ?clearquad=1, web/bridge/gx_bridge_scene.c) */
+int smg_bridge_clear_quad_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('clearquad') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* The test of an abort in a thread of the engine (bridge_smoke.mjs, ?abort=1): once reported, the scene's thread
    calls abort(), which the page must hear (web/platform/abort_report_wasm.c) */
 static int abort_requested(void) {

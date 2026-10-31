@@ -54,7 +54,7 @@ motivo.
 ## Qué está verificado (sin el juego)
 
 - **El puente gráfico, con una escena de prueba dibujada por la librería GX del propio módulo de juego**
-  (`web/tests/bridge_smoke.mjs`, 43 comprobaciones). Cubre vértices directos e indexados, listas de visualización,
+  (`web/tests/bridge_smoke.mjs`, 50 comprobaciones). Cubre vértices directos e indexados, listas de visualización,
   texturas RGB565 y C8 con TLUT, copias del EFB a textura, la copia a pantalla con su borrado, y las lecturas del EFB
   dentro y fuera de una *callback* de token. La comprobación final lee el canvas de la página. Detalle en
   [`PUENTE_FIFO.md`](PUENTE_FIFO.md).
@@ -301,8 +301,15 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
 **Siguiente prueba con el disco:**
 - Con la NAND restaurada, el juego entró directamente al nivel con el archivo ya creado.
 - La historia del prólogo avanzó con A.
-- La escena 3D posterior (con bandas de cine) se ve de un azul plano, sin errores de Aurora. Es lo siguiente que hay
-  que investigar.
+- La escena 3D posterior (con bandas de cine) se ve de un azul plano, sin errores de Aurora.
+  - Causa: el «clear quad» del EFB (`MainLoopFramework::clearEfb`, `MR::clearZBuffer`). En la consola escribe la
+    profundidad máxima desde una textura Z, con la comparación «siempre». Aurora no tiene texturas Z: el quad
+    escribía su propia profundidad, cercana, y todo el 3D dibujado después fallaba la prueba de profundidad.
+  - **Corrección, parche 0016 de Aurora:** con el marcador de tipo 16 de Nebula, el dibujo siguiente, si es el quad
+    esperado (4 vértices, `GX_QUADS`), borra la profundidad de su *viewport* al valor del marcador y pinta solo su
+    color. Es lo que el autor del marcador pide al renderizador.
+  - **Comprobado:** `bridge_smoke.mjs` (`?clearquad=1`) reproduce el quad del juego. Sin el parche, el cuadrado
+    dibujado después queda oculto; con él, se ve, y fuera del *viewport* del quad la profundidad se conserva.
 - Con WebGPU por software, cada fotograma 3D tarda unos 5 s en el contenedor.
 
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
