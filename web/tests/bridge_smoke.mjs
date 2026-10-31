@@ -133,6 +133,18 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
         `arrays grandes dibujados 200 veces por fotograma: sin llenar el buffer ni abortar (${full.join('; ') || 'ok'})`);
   await many.close();
 }
+// An abort() in a thread of the engine (?abort=1, after the report): the page hears it, with its C stack
+{
+  const aborting = await browser.newPage();
+  await aborting.goto(`http://127.0.0.1:${port}/gx_bridge.html?abort=1`);
+  const heard = await aborting.waitForFunction(() => globalThis.bridge && globalThis.bridge.fatal, null, { timeout: 120000 })
+    .then(() => true, () => false);
+  const fatal = heard ? await aborting.evaluate(() => globalThis.bridge.fatal) : '';
+  const stack = heard ? await aborting.evaluate(() => globalThis.bridge.fatalStack || '') : '';
+  check(heard && /abort\(\)/.test(fatal) && /wasm-function\[\d+\]|__wrap_abort|abort/.test(stack),
+        `un abort() en un hilo del motor llega a la página con su pila ("${fatal}", ${stack.split('\n').length} líneas)`);
+  await aborting.close();
+}
 // The render thread's description (the host's stall report): its phase, queue and counters
 {
   const status = lines.find((l) => l.startsWith('[bridge] status: '));

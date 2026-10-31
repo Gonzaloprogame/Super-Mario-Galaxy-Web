@@ -120,10 +120,23 @@ int smg_bridge_arrays_requested(void) {
     return requested;
 }
 
+/* The test of an abort in a thread of the engine (bridge_smoke.mjs, ?abort=1): once reported, the scene's thread
+   calls abort(), which the page must hear (web/platform/abort_report_wasm.c) */
+static int abort_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('abort') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* Called by the scene after each GXDrawDone, on the game's thread. */
 int smg_bridge_scene_frame_done(void) {
     static int reported;
     if (reported) {
+        if (abort_requested()) {
+            abort();
+        }
         if (exit_requested()) {
             printf("[bridge] exiting with code 4\n");
             smg_bridge_exit(4);

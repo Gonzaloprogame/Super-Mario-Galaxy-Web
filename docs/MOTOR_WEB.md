@@ -293,8 +293,17 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
     espera a que se pulse A.
 - Además, el juego ya no puede adelantarse al renderizador más de 6 marcadores PE (`web/platform/gx_pacing_wasm.c`).
   Espera dentro de su propio sistema operativo, así que sus otros hilos siguen.
-- **Pendiente:** la página todavía no detecta el aborto de un hilo del motor por sí sola. El error se queda en el
-  *worker* del motor y no llega a `onerror`.
+- **La página detecta el aborto de un hilo del motor.** `abort()` se enlaza con `--wrap`
+  (`web/platform/abort_report_wasm.c`) y avisa a la página desde el propio hilo, por el canal del presentador, con la
+  pila de C. La página lo muestra como error y la pila queda en el registro. `bridge_smoke.mjs` (`?abort=1`) lo
+  comprueba.
+
+**Siguiente prueba con el disco:**
+- Con la NAND restaurada, el juego entró directamente al nivel con el archivo ya creado.
+- La historia del prólogo avanzó con A.
+- La escena 3D posterior (con bandas de cine) se ve de un azul plano, sin errores de Aurora. Es lo siguiente que hay
+  que investigar.
+- Con WebGPU por software, cada fotograma 3D tarda unos 5 s en el contenedor.
 
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
