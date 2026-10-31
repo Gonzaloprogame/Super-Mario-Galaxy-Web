@@ -9,7 +9,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
   const post = (type, data) => self.postMessage(Object.assign({ type }, data));
 
   self.onmessage = async (event) => {
-    const { file, seconds, language, label, nand } = event.data;
+    const { file, seconds, language, label, nand, debug } = event.data;
     post('status', { text: 'Compilando e instanciando el módulo WebAssembly…' });
     let module;
     try {
@@ -33,7 +33,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
         module.FS.writeFile('/nand.bin', nand);
         nandPath = '/nand.bin';
       }
-      module.callMain([`/game/${file.name}`, String(seconds), String(language), nandPath]);
+      module.callMain([`/game/${file.name}`, String(seconds), String(language), nandPath, debug ? 'debug' : '']);
     } catch (error) {
       // exit() unwinds with an ExitStatus; onExit has reported it.
       if (!(error && error.name === 'ExitStatus')) {

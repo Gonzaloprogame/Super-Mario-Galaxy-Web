@@ -65,6 +65,7 @@ std::atomic<uint64_t> g_spansDone{0}, g_markersDone{0}, g_beginRefused{0};
 
 // The largest frame each of Aurora's frame buffers has held (its fixed sizes: lib/gfx/resources.hpp), for the report
 std::atomic<uint32_t> g_peakStorage{0}, g_peakUniform{0}, g_peakVerts{0}, g_peakIndices{0}, g_peakTextures{0};
+std::atomic<uint32_t> g_lastDraws{0}, g_peakDraws{0}, g_pipelinesCreated{0}, g_pipelinesQueued{0};
 
 void raise_peak(std::atomic<uint32_t>& peak, uint32_t value) {
   if (value > peak.load(std::memory_order_relaxed)) {
@@ -313,6 +314,41 @@ void present(AuroraReadbackStream stream) {
   AuroraReadbackCaptureCopies(stream, &source, 1);
 }
 
+// The diagnostic view (?debug=1 on the page): the largest RGBA8 copy the game made lately, read back each frame and
+// posted to the page as {type: 'debug'} (web/platform/gx_copy_note_wasm.c notes the copies on the game's thread).
+std::atomic<int> g_debugCopies{0};
+std::atomic<uint32_t> g_debugCopy{0};      // its physical address
+std::atomic<uint32_t> g_debugCopyArea{0};
+std::vector<uint8_t> g_debugTiles, g_debugPixels;
+
+void present_debug(AuroraReadbackStream stream) {
+  const uint32_t physical = g_debugCopy.load(std::memory_order_acquire);
+  uint32_t width = 0, height = 0, available = 0;
+  const uint8_t* copy = physical != 0 ? resolve_guest(physical, &available) : nullptr;
+  if (copy == nullptr || !aurora_guest_copy_size(physical, &width, &height) || width % 4 != 0 || height % 4 != 0) {
+    return;
+  }
+  const uint32_t size = width * height * 4;
+  g_debugTiles.resize(size);
+  AuroraReadbackDest dest = {0, g_debugTiles.data(), size, GX_FALSE};
+  if (AuroraReadbackGet(stream, &dest, 1) && dest.found) {
+    g_debugPixels.resize(size);
+    detile_rgba8(g_debugTiles.data(), width, height, g_debugPixels.data());
+    EM_ASM(
+        {
+          if (!globalThis.smgPresentChannel) {
+            globalThis.smgPresentChannel = new BroadcastChannel('smg-present');
+          }
+          const pixels = new Uint8Array(wasmMemory.buffer, $0, $1 * $2 * 4).slice();
+          globalThis.smgPresentChannel.postMessage({type : 'debug', width : $1, height : $2, address : $3,
+                                                    pixels : pixels.buffer});
+        },
+        g_debugPixels.data(), width, height, physical);
+  }
+  const AuroraReadbackCopySrc source = {0, copy};
+  AuroraReadbackCaptureCopies(stream, &source, 1);
+}
+
 void collect_xfb(AuroraReadbackStream stream) {
   const void* const xfb = g_xfbProbe.load(std::memory_order_acquire);
   if (xfb == nullptr) {
@@ -389,6 +425,7 @@ void* render_main(void*) {
   const AuroraReadbackStream stream = AuroraReadbackCreateStream();
   const AuroraReadbackStream xfbStream = AuroraReadbackCreateStream();
   const AuroraReadbackStream presentStream = AuroraReadbackCreateStream();
+  const AuroraReadbackStream debugStream = AuroraReadbackCreateStream();
   g_state.store(1, std::memory_order_release);
 
   bool frameOpen = false;
@@ -462,6 +499,9 @@ void* render_main(void*) {
       collect_peeks(stream);
       collect_xfb(xfbStream);
       present(presentStream);
+      if (g_debugCopies.load(std::memory_order_relaxed)) {
+        present_debug(debugStream);
+      }
       aurora_end_frame();
       frameOpen = false;
       if (const AuroraStats* stats = aurora_get_stats()) {
@@ -470,6 +510,10 @@ void* render_main(void*) {
         raise_peak(g_peakVerts, stats->lastVertSize);
         raise_peak(g_peakIndices, stats->lastIndexSize);
         raise_peak(g_peakTextures, stats->lastTextureUploadSize);
+        g_lastDraws.store(stats->drawCallCount, std::memory_order_relaxed);
+        raise_peak(g_peakDraws, stats->drawCallCount);
+        g_pipelinesCreated.store(stats->createdPipelines, std::memory_order_relaxed);
+        g_pipelinesQueued.store(stats->queuedPipelines, std::memory_order_relaxed);
       }
       g_frames.fetch_add(1, std::memory_order_release);
     }
@@ -512,8 +556,26 @@ extern "C" void smg_bridge_describe(char* out, size_t size) {
 extern "C" void smg_bridge_buffer_peaks(char* out, size_t size) {
   const auto kb = [](const std::atomic<uint32_t>& v) { return v.load(std::memory_order_relaxed) >> 10; };
   snprintf(out, size, "storage %u KB of 16384, uniform %u KB of 24576, vertices %u KB of 5120, indices %u KB of 2048, "
-           "texture uploads %u KB of 24576", kb(g_peakStorage), kb(g_peakUniform), kb(g_peakVerts), kb(g_peakIndices),
-           kb(g_peakTextures));
+           "texture uploads %u KB of 24576; draws in the last frame %u (peak %u), pipelines created %u (queued %u)",
+           kb(g_peakStorage), kb(g_peakUniform), kb(g_peakVerts), kb(g_peakIndices), kb(g_peakTextures),
+           g_lastDraws.load(std::memory_order_relaxed), g_peakDraws.load(std::memory_order_relaxed),
+           g_pipelinesCreated.load(std::memory_order_relaxed), g_pipelinesQueued.load(std::memory_order_relaxed));
+}
+
+extern "C" void smg_bridge_set_debug_copies(int on) {
+  g_debugCopies.store(on, std::memory_order_relaxed);
+}
+
+// A copy the game made (web/platform/gx_copy_note_wasm.c, on its thread): the largest RGBA8 one is the view's
+extern "C" void smg_host_copy_noted(uint32_t physical, uint16_t width, uint16_t height, uint32_t format) {
+  if (!g_debugCopies.load(std::memory_order_relaxed) || format != GX_TF_RGBA8) {
+    return;
+  }
+  const uint32_t area = static_cast<uint32_t>(width) * height;
+  if (area >= g_debugCopyArea.load(std::memory_order_relaxed)) {
+    g_debugCopyArea.store(area, std::memory_order_relaxed);
+    g_debugCopy.store(physical, std::memory_order_release);
+  }
 }
 
 extern "C" void smg_bridge_stop(void) {

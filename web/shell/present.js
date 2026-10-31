@@ -24,6 +24,13 @@
         }
         return;
       }
+      if (event.data.type === 'debug') {
+        // The diagnostic view (?debug=1): the game's largest copy of the frame
+        if (presenter.onDebug) {
+          presenter.onDebug(event.data);
+        }
+        return;
+      }
       if (event.data.type === 'exit') {
         if (presenter.onExit) {
           presenter.onExit(event.data.code);

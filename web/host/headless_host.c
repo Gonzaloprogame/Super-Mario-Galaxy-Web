@@ -600,6 +600,12 @@ int main(int argc, char** argv) {
         restore_nand(argv[4]);
     }
     smg_console_on_nand_change(nand_changed);
+#if defined(SMG_HOST_AURORA)
+    if (argc > 5 && strcmp(argv[5], "debug") == 0) {
+        smg_bridge_set_debug_copies(1);
+        fprintf(stderr, "[host] diagnostic view: the game's largest RGBA8 copy each frame\n");
+    }
+#endif
 #if defined(__EMSCRIPTEN__)
     /* The page's controls (web/shell/controls.js) write their words straight into the engine's shared memory */
     EM_ASM(

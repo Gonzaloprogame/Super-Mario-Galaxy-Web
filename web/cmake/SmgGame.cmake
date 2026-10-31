@@ -62,7 +62,7 @@ set(SMG_WEB_LINK_OPTIONS
     -sEXIT_RUNTIME
     -Wl,--wrap=_Znwm -Wl,--wrap=_Znam -Wl,--wrap=_ZdlPv -Wl,--wrap=_ZdaPv
     -Wl,--wrap=GXCallDisplayList -Wl,--wrap=GXSetDrawDone -Wl,--wrap=GXSetDrawSync
-    -Wl,--wrap=abort)
+    -Wl,--wrap=abort -Wl,--wrap=GXSetTexCopyDst -Wl,--wrap=GXCopyTex)
 
 # División entera con la semántica de PowerPC (tools/wasm_ppc_divide.py): cada div/rem del binario enlazado pasa a una
 # función que da el resultado de la consola donde wasm haría trap. Sustituye a native/sdk/os/divide_native.c.
