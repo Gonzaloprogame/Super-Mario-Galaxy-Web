@@ -13,7 +13,7 @@
       if (event.data.type === 'fatal') {
         // The renderer stopped on an error (web/host/aurora_bridge.cpp)
         if (presenter.onFatal) {
-          presenter.onFatal(event.data.text);
+          presenter.onFatal(event.data.text, event.data.stack);
         }
         return;
       }

@@ -201,8 +201,12 @@ async function start() {
   // The renderer stopping on an error is the engine stopping: shown as such, then the worker ends (after the trace
   // the renderer prints has reached the log)
   let rendererFailed = false;
-  presenter.onFatal = (text) => {
+  presenter.onFatal = (text, stack) => {
     rendererFailed = true;
+    if (stack) {
+      // An abort's C stack (web/platform/abort_report_wasm.c): tools/wasm_symbols.py names its functions
+      log(`[página] ${text}; pila:\n${stack}`);
+    }
     setStatus(`El renderizador (Aurora) se detuvo por un error: ${text}. El registro incluye los datos para ` +
               'diagnosticarlo: cópialo con «Copiar el registro».', 'error');
     document.body.dataset.state = 'error';

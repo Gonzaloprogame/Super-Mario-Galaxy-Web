@@ -18,7 +18,12 @@
 <script src="present.js"></script>
 <script>
   // The frame the scene's video interface shows (its XFB), as the engine posts it.
-  smgAttachPresenter(document.getElementById('screen')).onFatal = (text) => { globalThis.bridge.fatal = text; };
+  smgAttachPresenter(document.getElementById('screen')).onFatal = (text, stack) => {
+    // The first: Aurora's own message comes before the abort() it ends with (web/platform/abort_report_wasm.c)
+    if (globalThis.bridge.fatal) return;
+    globalThis.bridge.fatal = text;
+    globalThis.bridge.fatalStack = stack || '';
+  };
 </script>
 <script>
   // The bridge test (web/bridge): the game module's GX library draws a test scene, Aurora renders its FIFO stream on
