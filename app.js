@@ -45,6 +45,43 @@ const engines = {
   }
 }
 
+// The NAND (the console's storage: the game's saves) kept between sessions, in IndexedDB by the disc's ID: the engine
+// hands it over after each change (presenter.onNand) and gets the last copy when it starts (web/host/headless_host.c).
+// Without IndexedDB (a private window may refuse it) the game still saves, until the page is closed.
+const nandStore = {
+  open() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('smg-web', 1);
+      request.onupgradeneeded = () => request.result.createObjectStore('nand');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  },
+  async run(mode, action) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const request = action(db.transaction('nand', mode).objectStore('nand'));
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  },
+  async get(id) {
+    try {
+      return (await this.run('readonly', (store) => store.get(id))) || null;
+    } catch (error) {
+      log(`[página] no se pudo leer la partida guardada de este navegador: ${error}`);
+      return null;
+    }
+  },
+  async put(id, data) {
+    try {
+      await this.run('readwrite', (store) => store.put(data, id));
+    } catch (error) {
+      log(`[página] no se pudo guardar la partida en este navegador (se perderá al cerrar la página): ${error}`);
+    }
+  },
+};
+
 // The controls (controls.js): written into the engine's memory once the engine gives it
 const controls = smgAttachControls($('pad'), $('screen'));
 
@@ -79,7 +116,7 @@ async function inspect(file) {
       return { ok: false, text: `Imagen RVZ de ${id} (${size}): esta versión del motor es para Super Mario Galaxy de ` +
         'Norteamérica (RMGE01).' };
     }
-    return { ok: true, text: `Imagen RVZ de ${id} (${size}, ${names[compression]}): la página leerá de ella la partición ` +
+    return { ok: true, id, text: `Imagen RVZ de ${id} (${size}, ${names[compression]}): la página leerá de ella la partición ` +
       'del juego. Pulsa «Arrancar el motor».' };
   }
   if (magic === 'WIA?') {
@@ -96,7 +133,7 @@ async function inspect(file) {
   // Anything else is read as game.pak, as the engine does: boot.bin starts with the game ID
   const id = ascii(bytes, 0, 6);
   if (/^[A-Z0-9]{6}$/.test(id)) {
-    return { ok: id === 'RMGE01', text: id === 'RMGE01'
+    return { ok: id === 'RMGE01', id, text: id === 'RMGE01'
       ? `game.pak de ${id} (${size}). Pulsa «Arrancar el motor».`
       : `game.pak de ${id} (${size}): esta versión del motor es para Super Mario Galaxy de Norteamérica (RMGE01).` };
   }
@@ -138,7 +175,7 @@ $('copy-log').addEventListener('click', async () => {
   setTimeout(() => { $('copy-log').textContent = 'Copiar el registro'; }, 2000);
 });
 
-function start() {
+async function start() {
   const file = $('pak').files[0];
   if (!file) {
     setStatus('Selecciona primero tu copia del juego (.rvz o game.pak).', 'error');
@@ -225,12 +262,46 @@ function start() {
         break;
     }
   };
-  worker.onerror = (event) => {
-    setStatus(`Error en el worker: ${event.message}`, 'error');
+  // An abort in one of the engine's threads (its render thread among them): the error reaches the page as an uncaught
+  // error, not as the engine's exit. It is the engine stopping: shown, with its stack (wasm function indices, which
+  // tools/wasm_symbols.py names with the build's smg_web.js.symbols), and the worker ends.
+  const engineFailed = (text, stack) => {
+    if (ended) {
+      return;
+    }
+    ended = true;
+    log(`[página] el motor se detuvo por un error: ${text}`);
+    if (stack) {
+      log(`[página] pila del error:\n${stack}`);
+    }
+    setStatus(`El motor se detuvo por un error: ${text}. Copia el registro con «Copiar el registro».`, 'error');
     document.body.dataset.state = 'error';
-    $('run').disabled = false;
+    presenter.onExit = null;
+    controls.detach();
+    setTimeout(() => {
+      worker.terminate();
+      $('run').disabled = false;
+    }, 1500);
   };
-  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label });
+  worker.onerror = (event) => {
+    event.preventDefault();
+    engineFailed(event.message || 'error en el worker', event.error && event.error.stack);
+  };
+  window.onerror = (message, source, line, column, error) => {
+    if (document.body.dataset.state === 'running' && /Aborted|RuntimeError|wasm/.test(String(message))) {
+      engineFailed(String(message), error && error.stack);
+      return true;
+    }
+    return false;
+  };
+  // The saves this browser kept for this disc
+  const disc = await inspect(file).catch(() => ({}));
+  const nand = disc.id ? await nandStore.get(disc.id) : null;
+  if (nand) {
+    log(`[página] partida guardada de ${disc.id} en este navegador: ${nand.length} bytes`);
+  }
+  presenter.onNand = (id, data) => nandStore.put(id, data);
+  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand });
 }
 
 const missing = requirements();
