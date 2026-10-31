@@ -1,0 +1,174 @@
+diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+--- a/include/aurora/guest_memory.h	2026-10-31 21:20:39.368786156 +0000
++++ b/include/aurora/guest_memory.h	2026-10-31 21:21:04.964349145 +0000
+@@ -22,6 +22,31 @@
+    that runs Aurora, in stream order. */
+ void aurora_guest_written(const void* data, size_t size);
+ 
++/* Diagnostics: a mask that leaves out a part of the GX pipeline in the shaders and pipelines built from then on, to
++   see which part a wrong picture comes from (AURORA_DEBUG_*); and counts of the pipeline states built, by what they
++   use (AURORA_DEBUG_STAT_*, cumulative). On the thread that runs Aurora. */
++enum {
++  AURORA_DEBUG_NO_FOG = 1 << 0,         /* no fog */
++  AURORA_DEBUG_NO_LIGHTING = 1 << 1,    /* the channels' material colour, unlit */
++  AURORA_DEBUG_TEXTURE_ONLY = 1 << 2,   /* the first stage's texture, as is */
++  AURORA_DEBUG_RASTER_ONLY = 1 << 3,    /* the first stage's colour channel, as is */
++  AURORA_DEBUG_NO_ALPHA_TEST = 1 << 4,  /* no alpha compare */
++  AURORA_DEBUG_NO_DEPTH_TEST = 1 << 5,  /* depth compare always */
++};
++enum {
++  AURORA_DEBUG_STAT_STATES,
++  AURORA_DEBUG_STAT_FOG,
++  AURORA_DEBUG_STAT_LIGHTING,
++  AURORA_DEBUG_STAT_TEXTURED,
++  AURORA_DEBUG_STAT_INDIRECT,
++  AURORA_DEBUG_STAT_ALPHA_TEST,
++  AURORA_DEBUG_STAT_DEPTH_TEST,
++  AURORA_DEBUG_STAT_TEXGEN_POS_NRM, /* texture coordinates from position or normal (projections, reflections) */
++  AURORA_DEBUG_STAT_COUNT
++};
++void aurora_set_debug_mask(uint32_t mask);
++void aurora_get_debug_stats(uint32_t out[AURORA_DEBUG_STAT_COUNT]);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
+--- a/lib/gx/gx.cpp	2026-10-31 21:20:39.358773229 +0000
++++ b/lib/gx/gx.cpp	2026-10-31 21:21:12.252601054 +0000
+@@ -9,6 +9,8 @@
+ #include "../gfx/resources.hpp"
+ #include "../gfx/recording.hpp"
+ #include "../gfx/resource_cache.hpp"
++
++#include <aurora/guest_memory.h>
+ #include "../gfx/texture.hpp"
+ #include "gx_fmt.hpp"
+ 
+@@ -375,6 +377,92 @@
+   return g_device.CreateRenderPipeline(&descriptor);
+ }
+ 
++// Diagnostics (include/aurora/guest_memory.h): parts of the pipeline left out, and counts of the states built
++static u32 sDebugMask = 0;
++static u32 sDebugStats[AURORA_DEBUG_STAT_COUNT] = {};
++
++static void apply_debug_mask(ShaderConfig& sc) noexcept {
++  auto& stats = sDebugStats;
++  ++stats[AURORA_DEBUG_STAT_STATES];
++  if (sc.fogType != GX_FOG_NONE) {
++    ++stats[AURORA_DEBUG_STAT_FOG];
++  }
++  bool lit = false;
++  for (const auto& cc : sc.colorChannels) {
++    lit = lit || cc.lightingEnabled;
++  }
++  if (lit) {
++    ++stats[AURORA_DEBUG_STAT_LIGHTING];
++  }
++  bool textured = false;
++  for (u8 i = 0; i < sc.tevStageCount; ++i) {
++    textured = textured || sc.tevStages[i].texMapId != GX_TEXMAP_NULL;
++  }
++  if (textured) {
++    ++stats[AURORA_DEBUG_STAT_TEXTURED];
++  }
++  if (sc.numIndStages != 0) {
++    ++stats[AURORA_DEBUG_STAT_INDIRECT];
++  }
++  if (sc.alphaCompare) {
++    ++stats[AURORA_DEBUG_STAT_ALPHA_TEST];
++  }
++  if (g_gxState.depthCompare) {
++    ++stats[AURORA_DEBUG_STAT_DEPTH_TEST];
++  }
++  for (const auto& tcg : sc.tcgs) {
++    if (tcg.src == GX_TG_POS || tcg.src == GX_TG_NRM) {
++      ++stats[AURORA_DEBUG_STAT_TEXGEN_POS_NRM];
++      break;
++    }
++  }
++  const u32 mask = sDebugMask;
++  if (mask == 0) {
++    return;
++  }
++  if ((mask & AURORA_DEBUG_NO_FOG) != 0) {
++    sc.fogType = GX_FOG_NONE;
++    sc.fogRangeEnabled = false;
++  }
++  if ((mask & AURORA_DEBUG_NO_LIGHTING) != 0) {
++    for (auto& cc : sc.colorChannels) {
++      cc = {.matSrc = cc.matSrc};
++    }
++  }
++  if ((mask & AURORA_DEBUG_NO_ALPHA_TEST) != 0) {
++    sc.alphaCompare = {};
++  }
++  if ((mask & (AURORA_DEBUG_TEXTURE_ONLY | AURORA_DEBUG_RASTER_ONLY)) != 0 && sc.tevStageCount > 0) {
++    TevStage stage = sc.tevStages[0];
++    if ((mask & AURORA_DEBUG_TEXTURE_ONLY) != 0) {
++      for (u8 i = 0; i < sc.tevStageCount; ++i) {
++        if (sc.tevStages[i].texMapId != GX_TEXMAP_NULL) {
++          stage = sc.tevStages[i];
++          break;
++        }
++      }
++    }
++    const bool texture = (mask & AURORA_DEBUG_TEXTURE_ONLY) != 0 && stage.texMapId != GX_TEXMAP_NULL;
++    const bool raster = !texture && stage.channelId != GX_COLOR_NULL;
++    stage.colorPass = {GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, texture ? GX_CC_TEXC : raster ? GX_CC_RASC : GX_CC_ONE};
++    stage.alphaPass = {GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, texture ? GX_CA_TEXA : raster ? GX_CA_RASA : GX_CA_KONST};
++    stage.colorOp = {};
++    stage.alphaOp = {};
++    stage.kaSel = GX_TEV_KASEL_1;
++    stage.indTexMtxId = GX_ITM_OFF;
++    stage.indTexWrapS = GX_ITW_OFF;
++    stage.indTexWrapT = GX_ITW_OFF;
++    stage.indTexBiasSel = GX_ITB_NONE;
++    stage.indTexAlphaSel = GX_ITBA_OFF;
++    stage.indTexAddPrev = false;
++    sc.tevStages = {};
++    sc.tevStages[0] = stage;
++    sc.tevStageCount = 1;
++    sc.numIndStages = 0;
++    sc.indStages = {};
++  }
++}
++
+ void populate_pipeline_config(PipelineConfig& config, GXPrimitive primitive, GXVtxFmt fmt) noexcept {
+   ZoneScoped;
+ 
+@@ -459,6 +547,7 @@
+   if (g_gxState.alphaCompare) {
+     config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
+   }
++  apply_debug_mask(config.shaderConfig);
+   const auto cullMode = config.shaderConfig.lineMode == 0 ? g_gxState.cullMode : GX_CULL_NONE;
+   const auto [polygonOffset, polygonOffsetScale] = polygon_offset_for_cull_mode(cullMode);
+   const bool hasAlpha = efb_has_alpha(g_gxState.pixelFmt);
+@@ -486,7 +575,7 @@
+       .polygonOffsetBits = std::bit_cast<uint32_t>(polygonOffset),
+       .polygonOffsetScaleBits = std::bit_cast<uint32_t>(polygonOffsetScale),
+       .polygonOffsetClampBits = std::bit_cast<uint32_t>(g_gxState.clamp),
+-      .depthCompare = g_gxState.depthCompare,
++      .depthCompare = g_gxState.depthCompare && (sDebugMask & AURORA_DEBUG_NO_DEPTH_TEST) == 0,
+       .depthUpdate = g_gxState.depthUpdate,
+       .alphaUpdate = alphaUpdate,
+       .colorUpdate = g_gxState.colorUpdate,
+@@ -616,3 +705,16 @@
+   texture::shutdown();
+ }
+ } // namespace aurora::gx
++
++void aurora_set_debug_mask(uint32_t mask) {
++  if (mask != aurora::gx::sDebugMask) {
++    aurora::gx::sDebugMask = mask;
++    aurora::gx::g_gxState.dirty |= aurora::gx::DirtyPipeline;
++  }
++}
++
++void aurora_get_debug_stats(uint32_t out[AURORA_DEBUG_STAT_COUNT]) {
++  for (int i = 0; i < AURORA_DEBUG_STAT_COUNT; ++i) {
++    out[i] = aurora::gx::sDebugStats[i];
++  }
++}

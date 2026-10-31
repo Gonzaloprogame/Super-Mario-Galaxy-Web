@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COOP/COEP where the host cannot send them (GitHub Pages): web/shell/vendor/README.md -->
+<script src="coi-serviceworker.js"></script>
+<title>Galaxy Web: motor experimental</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --fg: #1d2330; --muted: #5b6475; --card: #ffffff; --border: #d9dde5;
+    --ok: #1d7a46; --err: #b42318; --accent: #3b5bdb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #11141a; --fg: #e6e9ef; --muted: #9aa3b5; --card: #1a1f28; --border: #2c3340;
+            --ok: #4cc38a; --err: #ff7b72; --accent: #7c9cff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 16px 0; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  input[type=number] { width: 6em; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; font: inherit;
+           cursor: pointer; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #status { padding: 10px 12px; border-radius: 6px; border: 1px solid var(--border); }
+  #status[data-kind=error] { border-color: var(--err); color: var(--err); }
+  #status[data-kind=ok] { border-color: var(--ok); color: var(--ok); }
+  #log { background: #0b0d12; color: #d6dbe5; border-radius: 6px; padding: 12px; height: 320px; overflow: auto;
+         font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+         margin: 0; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .92em; }
+  select { font: inherit; padding: 4px; }
+  #screen { display: block; width: 100%; max-width: 640px; aspect-ratio: 4 / 3; background: #000; border-radius: 6px;
+            image-rendering: pixelated; }
+  #screen-card[hidden] { display: none; }
+  #screen { touch-action: none; }
+  /* The touch controls (controls.js): the Nunchuk's stick, the D-pad, A/B/Z/C and the shake, the system buttons */
+  #pad { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "stick main" "dpad system";
+         gap: 14px 12px; align-items: center; margin-top: 12px; max-width: 640px; touch-action: none;
+         user-select: none; -webkit-user-select: none; }
+  #pad button { background: #2b3242; color: #fff; border-radius: 50%; padding: 0; width: 52px; height: 52px;
+                font-weight: 700; touch-action: none; }
+  #pad button[data-held=true] { background: var(--accent); }
+  .pad-stick { grid-area: stick; width: 128px; height: 128px; border-radius: 50%; background: #2b3242; position: relative;
+               touch-action: none; }
+  .pad-knob { position: absolute; left: 34px; top: 34px; width: 60px; height: 60px; border-radius: 50%;
+              background: #6b7590; pointer-events: none; }
+  .pad-dpad { grid-area: dpad; display: grid; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(3, 42px); }
+  .pad-dpad button { width: 42px !important; height: 42px !important; border-radius: 8px !important; }
+  .pad-dpad [data-button=UP] { grid-area: 1 / 2; } .pad-dpad [data-button=LEFT] { grid-area: 2 / 1; }
+  .pad-dpad [data-button=RIGHT] { grid-area: 2 / 3; } .pad-dpad [data-button=DOWN] { grid-area: 3 / 2; }
+  .pad-main { grid-area: main; display: grid; grid-template-columns: 64px 64px; gap: 8px; justify-items: center; }
+  .pad-main .pad-a { width: 64px !important; height: 64px !important; font-size: 1.3rem; }
+  .pad-main .pad-shake { border-radius: 22px !important; width: 136px !important; height: 44px !important;
+                         grid-column: 1 / 3; font-size: .9rem; }
+  .pad-system { grid-area: system; display: grid; grid-template-columns: repeat(3, 40px); gap: 8px; }
+  .pad-system button { width: 40px !important; height: 40px !important; }
+  #pad-help { margin: 8px 0 0; font-size: .85rem; }
+  #file-info { margin: 12px 0 0; }
+  #file-info[data-ok=true] { color: var(--ok); }
+  #file-info[data-ok=false] { color: var(--err); }
+</style>
+</head>
+<body data-state="loading">
+<main>
+  <h1>Galaxy Web: motor experimental</h1>
+  <p class="muted">El código del juego (decompilación Petari, en el fork nativo de Nebula) compilado a WebAssembly.
+    En modo <strong>con gráficos</strong> el motor dibuja con Aurora sobre el WebGPU del navegador; todavía no suena ni
+    acepta mandos. No incluye ningún archivo de Nintendo; necesitas tu propia copia del juego.</p>
+
+  <div class="card">
+    <label for="pak">Tu copia del juego: <code>.rvz</code> o <code>game.pak</code></label>
+    <p class="muted">Tu copia de seguridad de tu disco de Super Mario Galaxy (Norteamérica, RMGE01) en formato
+      <strong>RVZ</strong> de Dolphin, con compresión Zstandard (la de Dolphin por defecto) o sin compresión: la página
+      lee de ella la partición del juego, sin convertirla ni copiarla. También vale el <code>game.pak</code> de
+      <code>nebula-import</code>. Las imágenes ISO y WBFS guardan la partición cifrada: conviértelas a RVZ en Dolphin.
+      Consulta <code>docs/ARCHIVOS_DEL_JUEGO.md</code>. El archivo no sale de tu navegador: el motor lo lee por trozos.</p>
+    <div class="row">
+      <div><input id="pak" type="file"></div>
+      <div><label for="mode">Modo</label>
+        <select id="mode">
+          <option value="graphics">Con gráficos (Aurora, WebGPU)</option>
+          <option value="diagnostic">Diagnóstico (sin renderizador)</option>
+        </select></div>
+      <div><label for="language">Idioma de la consola</label>
+        <select id="language">
+          <option value="4">Español</option>
+          <option value="1">English</option>
+          <option value="3">Français</option>
+          <option value="2">Deutsch</option>
+          <option value="5">Italiano</option>
+          <option value="6">Nederlands</option>
+          <option value="0">日本語</option>
+        </select></div>
+      <div><label for="seconds">Segundos (0: sin límite)</label>
+        <input id="seconds" type="number" min="0" max="3600" value="0"></div>
+      <div><button id="run" type="button">Arrancar el motor</button></div>
+    </div>
+    <p id="file-info" class="muted" role="status" aria-live="polite"></p>
+  </div>
+
+  <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
+
+  <div class="card" id="screen-card" hidden>
+    <label for="screen">Pantalla</label>
+    <p class="muted" id="screen-info">Ningún fotograma recibido del motor.</p>
+    <canvas id="screen" width="640" height="480"></canvas>
+    <div id="pad"></div>
+    <p class="muted" id="pad-help">Toca la pantalla para apuntar con el puntero. Teclado: espacio A, Mayús B, Z, C, Q
+      agitar, WASD palanca, flechas cruceta, P más, M menos, H HOME, 1 y 2; ratón: puntero, clic A, clic derecho B.</p>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content: space-between; align-items: center; margin-bottom: 8px">
+      <label for="log" style="margin: 0">Registro del motor</label>
+      <button id="copy-log" type="button">Copiar el registro</button>
+    </div>
+    <pre id="log" tabindex="0"></pre>
+  </div>
+</main>
+<script src="present.js"></script>
+<script src="controls.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

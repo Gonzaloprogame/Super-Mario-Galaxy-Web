@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COOP/COEP where the host cannot send them (GitHub Pages): web/shell/vendor/README.md -->
+<script src="../coi-serviceworker.js"></script>
+<title>GX sobre WebGPU</title>
+<style>
+  body { margin: 0; background: #111; color: #ddd; font: 14px system-ui, sans-serif; }
+  canvas { display: block; width: 640px; height: 480px; max-width: 100%; }
+  #status { padding: 8px 16px; }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="640" height="480"></canvas>
+<div id="status">Cargando…</div>
+<script>
+  // Aurora's GX on the page's WebGPU (web/aurora/demo/gx_demo.c). Not the game: a plain test scene.
+  const statusEl = document.getElementById('status');
+  if (!navigator.gpu) statusEl.textContent = 'Este navegador no ofrece WebGPU.';
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    print: (t) => console.log(t),
+    printErr: (t) => console.error(t),
+    onAbort: (what) => { statusEl.textContent = 'El renderizador abortó: ' + what; },
+  };
+  setInterval(() => {
+    if (globalThis.gxDemo) statusEl.textContent = globalThis.gxDemo.error
+      ? 'Error: ' + globalThis.gxDemo.error : `Fotogramas GX dibujados: ${globalThis.gxDemo.frames}`;
+  }, 250);
+</script>
+<script src="gx_demo.js"></script>
+</body>
+</html>

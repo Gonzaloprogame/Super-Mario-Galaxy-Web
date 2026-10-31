@@ -1,0 +1,46 @@
+diff --git a/lib/gfx/pipeline_cache.cpp b/lib/gfx/pipeline_cache.cpp
+index 46a9903..c6a9066 100644
+--- a/lib/gfx/pipeline_cache.cpp
++++ b/lib/gfx/pipeline_cache.cpp
+@@ -715,6 +715,13 @@ static bool prepare_pipeline_cache_db() {
+   if (g_pipelineCacheBroken) {
+     return false;
+   }
++#ifdef __EMSCRIPTEN__
++  // No persistent pipeline cache in the browser yet: its database needs persistent storage (OPFS), and its writer is
++  // a thread, which may not touch the WebGPU device here. Pipelines are built as needed, each session.
++  Log.info("Persistent pipeline cache not available in the browser build");
++  pipeline_cache_abort();
++  return false;
++#endif
+   if (g_pipelineCacheDb != nullptr) {
+     return true;
+   }
+diff --git a/lib/gfx/render_worker.cpp b/lib/gfx/render_worker.cpp
+index 85783b6..74a3fe3 100644
+--- a/lib/gfx/render_worker.cpp
++++ b/lib/gfx/render_worker.cpp
+@@ -191,6 +191,11 @@ size_t FrameSlotPool::free_count() const {
+ }
+ 
+ void initialize() {
++#ifdef __EMSCRIPTEN__
++  // In a browser, WebGPU objects belong to the thread that made them: no render worker. The page's one thread is the
++  // render worker (is_worker_thread), so every item runs where it is enqueued and synchronize() returns at once.
++  return;
++#endif
+   if (g_running.exchange(true, std::memory_order_acq_rel)) {
+     return;
+   }
+@@ -266,7 +271,11 @@ void synchronize() {
+   sync->cv.wait(lock, [&] { return sync->complete; });
+ }
+ 
++#ifdef __EMSCRIPTEN__
++bool is_worker_thread() noexcept { return true; }
++#else
+ bool is_worker_thread() noexcept { return g_workerThreadId == std::this_thread::get_id(); }
++#endif
+ 
+ bool is_idle() noexcept { return g_pendingItems.load(std::memory_order_acquire) == 0; }
+ 

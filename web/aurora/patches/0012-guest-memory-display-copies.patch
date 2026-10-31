@@ -1,0 +1,77 @@
+diff --git a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+index 65cb2da..2f4c4ca 100644
+--- a/lib/gx/regs.cpp
++++ b/lib/gx/regs.cpp
+@@ -338,23 +338,47 @@ GXTexFmt hardware_copy_format(u32 cmd, bool depth) noexcept {
+   return static_cast<GXTexFmt>(gfx::InvalidTextureFormat);
+ }
+ 
++// The lines a display copy writes for `height` EFB lines at the vertical scale register's value (256 / scale): the
++// SDK's __GXGetNumXfbLines.
++u32 display_copy_lines(u32 height, u32 scale) noexcept {
++  if (scale == 0) {
++    return height;
++  }
++  u32 lines = (height - 1) * 0x100 / scale + 1;
++  if (scale > 0x80 && scale < 0x100) {
++    u32 odd = scale;
++    while (odd % 2 == 0) {
++      odd /= 2;
++    }
++    if (height % odd == 0) {
++      ++lines;
++    }
++  }
++  return std::min<u32>(lines, 0x400);
++}
++
+ void bp_efb_copy(u8, u32 value) noexcept {
+   const bool clear = reg_get(value, 1, 11) != 0;
+-  if (reg_get(value, 1, 14) != 0) {
+-    Log.warn("STUB: display copy is not implemented");
+-  } else if (has_guest_memory() && g_gxState.bpRegValid.test(0x4B)) {
++  const bool display = reg_get(value, 1, 14) != 0;
++  if (has_guest_memory() && g_gxState.bpRegValid.test(0x4B)) {
+     // The hardware's form (the game's SDK): source in BP 0x49 (x, y) and 0x4A (width - 1, height - 1), destination's
+-    // physical address / 32 in 0x4B. The destination's size is the source's, halved by the box filter (bit 9). Aurora
+-    // keeps the copy on the GPU, keyed by the destination's host address: a texture whose image is at that address
+-    // samples the copy (resolve_sampled_textures).
++    // physical address / 32 in 0x4B. A texture copy's destination is the source's size, halved by the box filter
++    // (bit 9). Aurora keeps the copy on the GPU, keyed by the destination's host address: a texture whose image is at
++    // that address samples the copy (resolve_sampled_textures).
++    //
++    // A display copy (bit 14, GXCopyDisp) is the frame for the video interface: the source's width, its height scaled
++    // by BP 0x4E when bit 10 is set. The console writes it as YUV 4:2:2 for the VI; here it is kept as RGBA8, under the
++    // XFB's address like any copy (nothing reads an XFB back from the CPU: the host presents it). Its clear (bit 11)
++    // is how the game clears the EFB between frames.
+     const auto& cache = g_gxState.bpRegCache;
+     const u32 physical = reg_get(cache[0x4B], 24, 0) << 5;
+     u32 available = 0;
+     const u8* dest = guest_memory(physical, &available);
+     const u32 width = reg_get(cache[0x4A], 10, 0) + 1;
+     const u32 height = reg_get(cache[0x4A], 10, 10) + 1;
+-    const bool half = reg_get(value, 1, 9) != 0;
+-    const GXTexFmt format = hardware_copy_format(value, g_gxState.pixelFmt == GX_PF_Z24);
++    const bool half = !display && reg_get(value, 1, 9) != 0;
++    const GXTexFmt format =
++        display ? GX_TF_RGBA8 : hardware_copy_format(value, g_gxState.pixelFmt == GX_PF_Z24);
+     if (dest == nullptr || format == static_cast<GXTexFmt>(gfx::InvalidTextureFormat)) {
+       Log.error("Texture copy to 0x{:08X} (command 0x{:06X}) is not supported: {}", physical, value & 0xFFFFFF,
+                 dest == nullptr ? "not guest memory" : "unknown format");
+@@ -365,11 +389,16 @@ void bp_efb_copy(u8, u32 value) noexcept {
+                             static_cast<s32>(height)};
+     g_gxState.texCopyDstWidth = half ? std::max(width / 2, 1u) : width;
+     g_gxState.texCopyDstHeight = half ? std::max(height / 2, 1u) : height;
++    if (display && reg_get(value, 1, 10) != 0) {
++      g_gxState.texCopyDstHeight = display_copy_lines(height, reg_get(cache[0x4E], 9, 0));
++    }
+     g_gxState.texCopyFmt = format;
+     g_gxState.texCopyDest = dest;
+     copy_tex(dest, clear);
+     // A texture already bound at that address must now sample the copy
+     g_gxState.dirty |= DirtyTextures;
++  } else if (display) {
++    Log.warn("STUB: display copy is not implemented");
+   } else {
+     copy_tex(g_gxState.texCopyDest, clear);
+   }

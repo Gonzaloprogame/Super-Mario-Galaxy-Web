@@ -1,0 +1,11 @@
+third_party/
+build/
+build-*/
+*.iso
+*.rvz
+*.wbfs
+*.pak
+*.dol
+*.arc
+/game/
+tools/sqlite/target/

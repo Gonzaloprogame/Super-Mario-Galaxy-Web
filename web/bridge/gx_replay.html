@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COOP/COEP where the host cannot send them (GitHub Pages): web/shell/vendor/README.md -->
+<script src="../coi-serviceworker.js"></script>
+<title>Reproducir una traza GX</title>
+<style>
+  body { margin: 0; padding: 16px; background: #111; color: #ddd; font: 13px ui-monospace, Menlo, Consolas, monospace; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+  canvas { display: block; background: #000; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<p>Pega el registro del motor (con las líneas <code>[gx-trace]</code>) y pulsa «Reproducir». No ejecuta el juego: da a
+  Aurora el flujo GX copiado, con la memoria del juego a ceros.</p>
+<textarea id="log" rows="6" style="width: 100%"></textarea>
+<p><button id="go" type="button">Reproducir</button></p>
+<canvas id="screen" width="640" height="480"></canvas>
+<pre id="out"></pre>
+<script src="../present.js"></script>
+<script>
+  // Kept out of the global scope: Emscripten's script declares its own globals (out, err…).
+  (() => {
+    // A GX trace from the engine's log (web/host/aurora_bridge.cpp, dump_trace) replayed by gx_replay.js.
+    globalThis.replay = { lines: [], fatal: null, frames: null, expected: null, error: null };
+    const out = document.getElementById('out');
+    const show = (t) => { globalThis.replay.lines.push(t); out.textContent = globalThis.replay.lines.join('\n'); };
+    smgAttachPresenter(document.getElementById('screen')).onFatal = (text) => {
+      globalThis.replay.fatal = text;
+      show(`[página] Aurora se detuvo: ${text}`);
+    };
+    function decode(log) {
+      const body = log.split('[gx-trace] begin')[1];
+      if (!body) throw new Error('el registro no contiene una traza [gx-trace]');
+      const lines = body.split('[gx-trace] end')[0].split('\n').slice(1);
+      const text = lines.map((l) => l.replace('[gx-trace]', '').trim()).join('');
+      return Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+    }
+    document.getElementById('go').addEventListener('click', () => {
+      let trace;
+      try {
+        trace = decode(document.getElementById('log').value);
+      } catch (error) {
+        globalThis.replay.error = String(error);
+        show(`[página] ${error}`);
+        return;
+      }
+      document.getElementById('go').disabled = true;
+      globalThis.Module = {
+        print: show,
+        printErr: show,
+        preRun: [() => Module.FS.writeFile('/trace.bin', trace)],
+        onAbort: (what) => show(`[página] abortado: ${what}`),
+      };
+      const script = document.createElement('script');
+      script.src = 'gx_replay.js';
+      document.body.appendChild(script);
+    });
+  })();
+</script>
+</body>
+</html>

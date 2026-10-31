@@ -1,0 +1,199 @@
+diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+--- a/include/aurora/guest_memory.h	2026-10-29 18:54:02.143834630 +0000
++++ b/include/aurora/guest_memory.h	2026-10-29 18:54:02.177565839 +0000
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <stddef.h>
+ #include <stdint.h>
+ 
+ #ifdef __cplusplus
+@@ -16,6 +17,11 @@
+    it: 1 and *width, *height, or 0 when there is none. On the thread that runs Aurora, between frames. */
+ int aurora_guest_copy_size(uint32_t physical, uint32_t* width, uint32_t* height);
+ 
++/* The guest wrote [data, data + size) (host memory) for the GPU: the console's cache flushes (DCFlushRange,
++   DCStoreRange). What Aurora reuses of that memory within a frame (its guest arrays' uploads) is dropped. On the thread
++   that runs Aurora, in stream order. */
++void aurora_guest_written(const void* data, size_t size);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -ruN a/lib/gfx/recording.cpp b/lib/gfx/recording.cpp
+--- a/lib/gfx/recording.cpp	2026-10-29 18:54:02.123624631 +0000
++++ b/lib/gfx/recording.cpp	2026-10-29 18:54:02.177105030 +0000
+@@ -285,6 +285,19 @@
+ }
+ 
+ Range push(ByteBuffer& target, const uint8_t* data, size_t length, size_t alignment) {
++  // A buffer mapped for the GPU has a fixed size: past it the data is dropped (an empty range) and said once a frame,
++  // instead of the abort growing it would be.
++  if (!target.owned() && target.data() != nullptr &&
++      AURORA_ALIGN(target.size(), alignment != 0 ? alignment : 1) + length > target.capacity())
++    UNLIKELY {
++      static uint64_t sReportedFrame = UINT64_MAX;
++      if (sReportedFrame != current_frame_packet().frameId) {
++        sReportedFrame = current_frame_packet().frameId;
++        Log.error("A frame buffer of {} bytes is full: {} more bytes dropped (and what follows this frame)",
++                  target.capacity(), length);
++      }
++      return {};
++    }
+   if (alignment != 0) {
+     const size_t begin = target.size();
+     const size_t alignedBegin = AURORA_ALIGN(begin, alignment);
+@@ -1436,6 +1449,8 @@
+   return push(current_frame_packet().uniforms, data, length, resources().limits.minUniformBufferOffsetAlignment);
+ }
+ 
++uint64_t frame_generation() noexcept { return current_frame_packet().frameId; }
++
+ Range push_storage(const uint8_t* data, size_t length) {
+   ZoneScoped;
+   if (!check_recording("push_storage")) {
+diff -ruN a/lib/gfx/recording.hpp b/lib/gfx/recording.hpp
+--- a/lib/gfx/recording.hpp	2026-10-29 18:54:02.122964561 +0000
++++ b/lib/gfx/recording.hpp	2026-10-29 18:54:02.177284491 +0000
+@@ -95,6 +95,8 @@
+   return push_uniform(reinterpret_cast<const uint8_t*>(&data), sizeof(T));
+ }
+ Range push_storage(const uint8_t* data, size_t length);
++// The frame being recorded (its packet's id): what was pushed in it is reusable until it changes.
++uint64_t frame_generation() noexcept;
+ template <typename T>
+ Range push_storage(ArrayRef<T> data) {
+   return push_storage(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T));
+diff -ruN a/lib/gfx/resources.hpp b/lib/gfx/resources.hpp
+--- a/lib/gfx/resources.hpp	2026-10-29 18:54:02.124962675 +0000
++++ b/lib/gfx/resources.hpp	2026-10-29 19:32:10.491203301 +0000
+@@ -7,7 +7,7 @@
+ inline constexpr uint64_t UniformBufferSize = 25165824; // 24 MiB
+ inline constexpr uint64_t VertexBufferSize = 5242880;   // 5 MiB
+ inline constexpr uint64_t IndexBufferSize = 2097152;    // 2 MiB
+-inline constexpr uint64_t StorageBufferSize = 8388608;  // 8 MiB
++inline constexpr uint64_t StorageBufferSize = 16777216; // 16 MiB (web: a stage's frames went past 8 MiB)
+ inline constexpr uint64_t TextureUploadSize = 25165824; // 24 MiB
+ 
+ namespace detail {
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-10-29 18:54:02.129025425 +0000
++++ b/lib/gx/command_processor.cpp	2026-10-29 19:51:38.831288406 +0000
+@@ -403,6 +403,55 @@
+   return vtxSize;
+ }
+ 
++// Guest arrays uploaded in this frame, by their memory and size: a GXInvalidateVtxCache (which the game calls between
++// most shapes) drops every array's range, and each draw would upload its arrays again; a model's shapes share them, so
++// a stage's frame went past the storage buffer's 8 MiB. An upload is reused within its frame until the game writes
++// that memory for the GPU (aurora_guest_written: its cache flushes, which the console needs before the GPU reads).
++struct GuestArrayUpload {
++  const u8* data;
++  u32 size;
++  gfx::Range range;
++};
++static std::vector<GuestArrayUpload> sGuestArrayUploads;
++static uint64_t sGuestArrayUploadsFrame = UINT64_MAX;
++
++// An array's upload covers the reach of the draws so far (bound_guest_arrays). A model's shapes reach further and
++// further into the arrays they share, and a new upload for each would add up to the square of the array: a growing
++// upload takes at least twice the previous one (within what guest memory holds), and any upload as large serves.
++static gfx::Range upload_array(const void* data, u32 size, u32 available) noexcept {
++  const uint64_t frame = gfx::frame_generation();
++  if (frame != sGuestArrayUploadsFrame) {
++    sGuestArrayUploads.clear();
++    sGuestArrayUploadsFrame = frame;
++  }
++  u32 previous = 0;
++  for (auto it = sGuestArrayUploads.begin(); it != sGuestArrayUploads.end(); ++it) {
++    if (it->data == data) {
++      if (it->size >= size) {
++        return it->range;
++      }
++      previous = it->size;
++      sGuestArrayUploads.erase(it);
++      break;
++    }
++  }
++  if (previous != 0) {
++    size = std::min(std::max(size, previous * 2), std::max(size, available));
++  }
++  const auto range = gfx::push_storage(static_cast<const uint8_t*>(data), size);
++  if (range.size != 0) {
++    sGuestArrayUploads.push_back({static_cast<const u8*>(data), size, range});
++  }
++  return range;
++}
++
++extern "C" void aurora_guest_written(const void* data, size_t size) {
++  const u8* const begin = static_cast<const u8*>(data);
++  std::erase_if(sGuestArrayUploads, [begin, size](const GuestArrayUpload& upload) {
++    return upload.data < begin + size && begin < upload.data + upload.size;
++  });
++}
++
+ static void push_gx_draw(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, gfx::Range vertRange, gfx::Range idxRange,
+                          u32 numIndices) noexcept {
+   auto& state = g_gxState;
+@@ -417,7 +466,8 @@
+     }
+     auto& array = state.arrays[i];
+     if (array.cachedRange.size == 0) {
+-      array.cachedRange = gfx::push_storage(static_cast<const uint8_t*>(array.data), array.size);
++      array.cachedRange = array.guestAvailable != 0 ? upload_array(array.data, array.size, array.guestAvailable)
++                                                   : gfx::push_storage(static_cast<const uint8_t*>(array.data), array.size);
+     }
+     immediates.arrayStart[i - GX_VA_POS] = array.cachedRange.offset;
+   }
+diff -ruN a/lib/gx/readback.cpp b/lib/gx/readback.cpp
+--- a/lib/gx/readback.cpp	2026-10-29 18:54:02.129138219 +0000
++++ b/lib/gx/readback.cpp	2026-10-29 19:32:10.490829353 +0000
+@@ -242,6 +242,11 @@
+   auto job = create_job(header.stream, header.sequence, JobKind::EfbGather, std::move(outputs), header.count * 4);
+   job->gatherJobs =
+       gfx::push_storage(reinterpret_cast<const uint8_t*>(jobs.data()), jobs.size() * sizeof(EfbGatherJob));
++  if (job->gatherJobs.size == 0) {
++    // The frame's storage buffer is full (gfx::push): no gather this frame, rather than an invalid binding
++    fail_job(*job, "the frame's storage buffer is full");
++    return;
++  }
+   job->gatherParams = gfx::push_uniform(params);
+   job->gatherWords = header.count;
+   if (!gfx::push_readback_op(job, true)) {
+diff -ruN a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+--- a/lib/gx/regs.cpp	2026-10-29 18:54:02.129315323 +0000
++++ b/lib/gx/regs.cpp	2026-10-29 19:32:10.492256860 +0000
+@@ -1,3 +1,4 @@
++#include <algorithm>
+ #include "regs.hpp"
+ 
+ #include <aurora/guest_memory.h>
+@@ -829,8 +830,13 @@
+   u32 available = 0;
+   const u8* data = guest_memory(value, &available);
+   if (data == nullptr) {
+-    Log.error("CP array base 0x{:08X} (attribute {}) is not guest memory; use GX_AURORA_LOAD_ARRAYBASE", value,
+-              attrIdx);
++    // Once per address: a game sets the same one again for every shape (each line costs the page a message)
++    static std::vector<u32> sReported;
++    if (std::find(sReported.begin(), sReported.end(), value) == sReported.end()) {
++      sReported.push_back(value);
++      Log.error("CP array base 0x{:08X} (attribute {}) is not guest memory; use GX_AURORA_LOAD_ARRAYBASE", value,
++                attrIdx);
++    }
+     return;
+   }
+   auto& array = g_gxState.arrays[attrIdx];
+diff -ruN a/lib/internal.hpp b/lib/internal.hpp
+--- a/lib/internal.hpp	2026-10-29 18:54:02.116245971 +0000
++++ b/lib/internal.hpp	2026-10-29 18:54:02.176632130 +0000
+@@ -283,6 +283,9 @@
+   [[nodiscard]] uint8_t* data() noexcept { return m_data; }
+   [[nodiscard]] const uint8_t* data() const noexcept { return m_data; }
+   [[nodiscard]] size_t size() const noexcept { return m_length; }
++  [[nodiscard]] size_t capacity() const noexcept { return m_capacity; }
++  // Not owned: memory mapped for the GPU, of a fixed size (growing past it aborts)
++  [[nodiscard]] bool owned() const noexcept { return m_owned; }
+   [[nodiscard]] bool empty() const noexcept { return m_length == 0; }
+ 
+   void append(const void* data, size_t size) {

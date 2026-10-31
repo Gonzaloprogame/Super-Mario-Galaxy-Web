@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- COOP/COEP where the host cannot send them (GitHub Pages): web/shell/vendor/README.md -->
+<script src="../coi-serviceworker.js"></script>
+<title>Puente GX</title>
+<style>
+  body { margin: 0; padding: 16px; background: #111; color: #ddd; font: 13px ui-monospace, Menlo, Consolas, monospace; }
+  pre { white-space: pre-wrap; word-break: break-word; }
+  canvas { display: block; background: #000; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<canvas id="screen" width="640" height="480"></canvas>
+<pre id="log">Cargando…</pre>
+<script src="present.js"></script>
+<script>
+  // The frame the scene's video interface shows (its XFB), as the engine posts it.
+  smgAttachPresenter(document.getElementById('screen')).onFatal = (text, stack) => {
+    // The first: Aurora's own message comes before the abort() it ends with (web/platform/abort_report_wasm.c)
+    if (globalThis.bridge.fatal) return;
+    globalThis.bridge.fatal = text;
+    globalThis.bridge.fatalStack = stack || '';
+  };
+</script>
+<script>
+  // The bridge test (web/bridge): the game module's GX library draws a test scene, Aurora renders its FIFO stream on
+  // WebGPU, and the EFB colours read back are printed. Not the game: no game code or data run here.
+  // Kept out of the global scope: Emscripten's script declares its own globals (out, err…).
+  var Module = (() => {
+    const logEl = document.getElementById('log');
+    globalThis.bridge = { lines: [], exit: null, result: null };
+    const show = (t) => { globalThis.bridge.lines.push(t); logEl.textContent = globalThis.bridge.lines.join('\n'); };
+    if (!globalThis.crossOriginIsolated) show('Falta aislamiento de origen cruzado (COOP/COEP): sin hilos no hay motor.');
+    return {
+      print: show,
+      printErr: show,
+      onExit: (code) => { globalThis.bridge.exit = code; show(`[página] código de salida ${code}`); },
+      onAbort: (what) => { globalThis.bridge.exit = -1; show(`[página] abortado: ${what}`); },
+    };
+  })();
+</script>
+<script src="gx_bridge.js"></script>
+</body>
+</html>

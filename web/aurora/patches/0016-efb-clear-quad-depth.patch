@@ -1,0 +1,130 @@
+diff -ruN a/lib/gfx/recording.cpp b/lib/gfx/recording.cpp
+--- a/lib/gfx/recording.cpp	2026-10-31 20:04:24.537724932 +0000
++++ b/lib/gfx/recording.cpp	2026-10-31 20:07:00.255977673 +0000
+@@ -20,7 +20,9 @@
+ #endif
+ #include "../window.hpp"
+ 
++#include <algorithm>
+ #include <array>
++#include <cmath>
+ #include <cstring>
+ #include <new>
+ #include <optional>
+@@ -955,6 +957,30 @@
+   return find_pipeline(config, get_render_target_layout(), gx::g_gxState.drawsBlocking);
+ }
+ 
++void push_depth_clear(float depth) noexcept {
++  const auto target = get_render_target_size();
++  const auto& vp = g_recorder.cachedViewport;
++  const auto& sc = g_recorder.cachedScissor;
++  const int32_t left = std::max({static_cast<int32_t>(std::floor(vp.left)), sc.x, 0});
++  const int32_t top = std::max({static_cast<int32_t>(std::floor(vp.top)), sc.y, 0});
++  const int32_t right = std::min({static_cast<int32_t>(std::ceil(vp.left + vp.width)), sc.x + sc.width,
++                                  static_cast<int32_t>(target.x)});
++  const int32_t bottom = std::min({static_cast<int32_t>(std::ceil(vp.top + vp.height)), sc.y + sc.height,
++                                   static_cast<int32_t>(target.y)});
++  if (right <= left || bottom <= top) {
++    return;
++  }
++  push_draw_command(clear::DrawData{
++      .pipeline = pipeline_ref(clear::PipelineConfig{.clearColor = false, .clearAlpha = false, .clearDepth = true}),
++      .color = wgpu::Color{},
++      .depth = depth,
++      .rect = ClipRect{left, top, right - left, bottom - top},
++  });
++  // The clear draw sets its own viewport and scissor
++  push_command(CommandType::SetViewport, Command::Data{.setViewport = g_recorder.cachedViewport});
++  push_command(CommandType::SetScissor, Command::Data{.setScissor = g_recorder.cachedScissor});
++}
++
+ void resolve_pass_into(TextureHandle texture, ClipRect rect, bool clearColor, bool clearAlpha, bool clearDepth,
+                        Vec4<float> clearColorValue, float clearDepthValue, GXTexFmt resolveFormat,
+                        GXPixelFmt sourceFormat) {
+diff -ruN a/lib/gfx/recording.hpp b/lib/gfx/recording.hpp
+--- a/lib/gfx/recording.hpp	2026-10-31 20:04:24.546391059 +0000
++++ b/lib/gfx/recording.hpp	2026-10-31 20:05:04.648796466 +0000
+@@ -121,6 +121,9 @@
+ Vec2<uint32_t> get_render_target_size() noexcept;
+ void set_viewport(const Viewport& viewport) noexcept;
+ void set_scissor(const ClipRect& scissor) noexcept;
++// Depth only, to `depth` (the render pass's convention), over the current viewport within the scissor and the render
++// target: an EFB clear quad's depth (Nebula's clear quad marker). The viewport and scissor stay as they were.
++void push_depth_clear(float depth) noexcept;
+ void push_debug_group(std::string label);
+ void insert_debug_marker(std::string label);
+ 
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-10-31 20:04:24.528886683 +0000
++++ b/lib/gx/command_processor.cpp	2026-10-31 20:05:04.649636120 +0000
+@@ -104,6 +104,17 @@
+ constexpr u8 CP_CMD_CALL_DL = GX_CMD_CALL_DL;
+ constexpr u8 CP_CMD_INVAL_VTX = GX_CMD_INVL_VC;
+ constexpr u8 CP_CMD_NEBULA_HOST_MARKER = 0xF0;
++constexpr u8 NebulaMarkerClearQuad = 16;
++
++// The EFB clear quad Nebula's marker announces (MainLoopFramework::clearEfb, MR::clearZBuffer): the next draw, a quad
++// that writes its Z texture's depth with the compare always. Aurora has no Z textures: the quad would write its own
++// depth (its plane's, near) and hide all that is drawn after it. Instead the depth is cleared to the marker's, and the
++// quad draws its colour only.
++struct ClearQuad {
++  bool pending = false;
++  u32 depth = 0xFFFFFF;
++};
++ClearQuad sClearQuad;
+ constexpr u8 CP_CMD_LOAD_BP_REG = GX_LOAD_BP_REG & GX_OPCODE_MASK;
+ 
+ // Primitive type mask
+@@ -300,9 +311,15 @@
+ 
+     case CP_CMD_NEBULA_HOST_MARKER: {
+       // Nebula's host marker (its native/msl/include/nebula_gx_fifo.h): 0xF0, a kind, aux (u16), a and b (u32), 12
+-      // bytes in all. Not a console command: Nebula's renderer reads it (draw identities, bloom, the EFB clear quad);
+-      // here it is skipped, which its writer allows (an unread clear quad marker leaves the quad drawn as written).
+-      reader.skip(11);
++      // bytes in all. Not a console command: Nebula's renderer reads it (draw identities, bloom, the EFB clear quad).
++      // Read here: the EFB clear quad (kind 16); the others are skipped, which their writer allows.
++      const u8 kind = reader.read<u8>();
++      reader.skip(2);
++      const u32 a = reader.read<u32>();
++      reader.skip(4);
++      if (kind == NebulaMarkerClearQuad) {
++        sClearQuad = {.pending = true, .depth = a & 0xFFFFFF};
++      }
+       break;
+     }
+ 
+@@ -610,7 +627,32 @@
+   }
+ }
+ 
++static void draw_prim_as_written(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept;
++
+ static void draw_prim(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept {
++  if (!sClearQuad.pending)
++    LIKELY {
++      draw_prim_as_written(prim, fmt, vtxCount, reader);
++      return;
++    }
++  const u32 depth = sClearQuad.depth;
++  sClearQuad.pending = false;
++  if (prim != GX_QUADS || vtxCount != 4) {
++    // Not the quad the marker announced: drawn as written
++    draw_prim_as_written(prim, fmt, vtxCount, reader);
++    return;
++  }
++  const float normalized = static_cast<float>(depth) / 16777215.f;
++  gfx::push_depth_clear(UseReversedZ ? 1.f - normalized : normalized);
++  const bool depthUpdate = g_gxState.depthUpdate;
++  g_gxState.depthUpdate = false;
++  g_gxState.dirty |= DirtyPipeline;
++  draw_prim_as_written(prim, fmt, vtxCount, reader);
++  g_gxState.depthUpdate = depthUpdate;
++  g_gxState.dirty |= DirtyPipeline;
++}
++
++static void draw_prim_as_written(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept {
+   ZoneScoped;
+   u32 vtxSize;
+   if (g_gxState.lastVtxFmt == fmt)

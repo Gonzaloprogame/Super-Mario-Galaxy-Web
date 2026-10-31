@@ -1,0 +1,24 @@
+diff --git a/lib/gfx/present_target.cpp b/lib/gfx/present_target.cpp
+index ee33ca3..915d22b 100644
+--- a/lib/gfx/present_target.cpp
++++ b/lib/gfx/present_target.cpp
+@@ -96,8 +96,17 @@ PresentTargetId create_present_target(PresentTargetDesc&& desc) {
+   }
+ 
+   wgpu::SurfaceCapabilities caps;
+-  if (desc.surface.GetCapabilities(webgpu::g_adapter, &caps) != wgpu::Status::Success || !caps.formatCount ||
+-      !caps.presentModeCount || !caps.alphaModeCount || (caps.usages & desc.usage) != desc.usage ||
++  const auto capsStatus = desc.surface.GetCapabilities(webgpu::g_adapter, &caps);
++  auto usages = caps.usages;
++#ifdef __EMSCRIPTEN__
++  // emdawnwebgpu reports no usages for a canvas surface; a canvas always allows RENDER_ATTACHMENT (WebGPU,
++  // GPUCanvasConfiguration).
++  if (usages == wgpu::TextureUsage::None) {
++    usages = wgpu::TextureUsage::RenderAttachment;
++  }
++#endif
++  if (capsStatus != wgpu::Status::Success || !caps.formatCount ||
++      !caps.presentModeCount || !caps.alphaModeCount || (usages & desc.usage) != desc.usage ||
+       (desc.usage & wgpu::TextureUsage::RenderAttachment) == wgpu::TextureUsage::None) {
+     Log.warn("create_present_target: surface is incompatible with the active adapter");
+     return InvalidPresentTarget;
