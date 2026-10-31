@@ -1,7 +1,7 @@
 diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
 --- a/include/aurora/guest_memory.h	2026-10-31 21:20:39.368786156 +0000
-+++ b/include/aurora/guest_memory.h	2026-10-31 21:21:04.964349145 +0000
-@@ -22,6 +22,31 @@
++++ b/include/aurora/guest_memory.h	2026-10-31 22:22:32.293507622 +0000
+@@ -22,6 +22,32 @@
     that runs Aurora, in stream order. */
  void aurora_guest_written(const void* data, size_t size);
  
@@ -15,6 +15,7 @@ diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
 +  AURORA_DEBUG_RASTER_ONLY = 1 << 3,    /* the first stage's colour channel, as is */
 +  AURORA_DEBUG_NO_ALPHA_TEST = 1 << 4,  /* no alpha compare */
 +  AURORA_DEBUG_NO_DEPTH_TEST = 1 << 5,  /* depth compare always */
++  AURORA_DEBUG_LOG_FRAME = 1 << 6,      /* setting it logs the next frame's draws, copies and host markers */
 +};
 +enum {
 +  AURORA_DEBUG_STAT_STATES,
@@ -33,9 +34,97 @@ diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
  #ifdef __cplusplus
  }
  #endif
+diff -ruN a/lib/dolphin/gx/GXFrameBuffer.cpp b/lib/dolphin/gx/GXFrameBuffer.cpp
+--- a/lib/dolphin/gx/GXFrameBuffer.cpp	2026-10-31 22:21:55.556707526 +0000
++++ b/lib/dolphin/gx/GXFrameBuffer.cpp	2026-10-31 22:22:44.434329001 +0000
+@@ -32,6 +32,10 @@
+ } // namespace
+ 
+ namespace aurora::gx {
++// AURORA_DEBUG_LOG_FRAME (gx.cpp)
++extern bool g_debugFrameLog;
++extern u32 g_debugFrameItem;
++
+ void copy_tex(const void* dest, GXBool clear) noexcept {
+   const auto rect = map_logical_scissor(g_gxState.texCopySrc);
+   const auto [dstWidth, dstHeight] = scale_copy_dst(g_gxState.texCopyDstWidth, g_gxState.texCopyDstHeight);
+@@ -42,6 +46,12 @@
+       .height = dstHeight,
+       .format = texCopyFmt,
+   });
++  if (g_debugFrameLog) {
++    static aurora::Module FrameLog("aurora::gx::fifo");
++    FrameLog.info("[frame {}] copy to {} {}x{} fmt {} from {},{} {}x{} clear {}", g_debugFrameItem++, dest,
++                  g_gxState.texCopyDstWidth, g_gxState.texCopyDstHeight, static_cast<int>(texCopyFmt), rect.x, rect.y,
++                  rect.width, rect.height, clear ? 1 : 0);
++  }
+   auto& current = g_gxState.copyTextures[dest];
+   current.width = g_gxState.texCopyDstWidth;
+   current.height = g_gxState.texCopyDstHeight;
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-10-31 22:21:55.541938674 +0000
++++ b/lib/gx/command_processor.cpp	2026-10-31 22:22:44.433731025 +0000
+@@ -19,6 +19,12 @@
+ #include <span>
+ #include <vector>
+ 
++namespace aurora::gx {
++// AURORA_DEBUG_LOG_FRAME (gx.cpp)
++extern bool g_debugFrameLog;
++extern u32 g_debugFrameItem;
++} // namespace aurora::gx
++
+ namespace aurora::gx::fifo {
+ namespace {
+ constexpr Module Log{"aurora::gx::fifo"};
+@@ -317,6 +323,9 @@
+       reader.skip(2);
+       const u32 a = reader.read<u32>();
+       reader.skip(4);
++      if (g_debugFrameLog) {
++        Log.info("[frame {}] marker kind {} a 0x{:08X}", g_debugFrameItem++, kind, a);
++      }
+       if (kind == NebulaMarkerClearQuad) {
+         sClearQuad = {.pending = true, .depth = a & 0xFFFFFF};
+       }
+@@ -629,7 +638,34 @@
+ 
+ static void draw_prim_as_written(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept;
+ 
++// AURORA_DEBUG_LOG_FRAME: one line per draw of the logged frame
++static void log_frame_draw(GXPrimitive prim, u16 vtxCount) noexcept {
++  const auto& st = g_gxState;
++  const auto& vp = st.renderViewport;
++  std::string maps;
++  u32 seen = 0;
++  for (u8 i = 0; i < st.numTevStages; ++i) {
++    const auto id = st.tevStages[i].texMapId;
++    if (id == GX_TEXMAP_NULL || (seen & (1u << (id & 7))) != 0) {
++      continue;
++    }
++    seen |= 1u << (id & 7);
++    const auto& t = st.loadedTextures[id & 7];
++    const bool copy = t.data != nullptr && st.copyTextures.contains(t.data);
++    maps += fmt::format(" map{} {}x{} f{} @{:08X}{}", static_cast<int>(id), t.width(), t.height(), t.format(),
++                        (t.image3 & 0xFFFFFF) << 5, copy ? " COPY" : t.data == nullptr ? " NODATA" : "");
++  }
++  Log.info("[frame {}] draw p{:02X} n{} vp {:.0f},{:.0f} {:.0f}x{:.0f} z{:.3f}-{:.3f} zc{}{}{} bl{}{}{} cu{}{} tev{} ch{} tg{} ind{} ac{}{}",
++           g_debugFrameItem++, static_cast<int>(prim), vtxCount, vp.left, vp.top, vp.width, vp.height, vp.znear,
++           vp.zfar, st.depthCompare ? 1 : 0, static_cast<int>(st.depthFunc), st.depthUpdate ? 1 : 0,
++           static_cast<int>(st.blendMode), static_cast<int>(st.blendFacSrc), static_cast<int>(st.blendFacDst),
++           st.colorUpdate ? 1 : 0, st.alphaUpdate ? 1 : 0, st.numTevStages, st.numChans, st.numTexGens,
++           st.numIndStages, st.alphaCompare ? 1 : 0, maps);
++}
++
+ static void draw_prim(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept {
++  if (g_debugFrameLog)
++    UNLIKELY { log_frame_draw(prim, vtxCount); }
+   if (!sClearQuad.pending)
+     LIKELY {
+       draw_prim_as_written(prim, fmt, vtxCount, reader);
 diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
 --- a/lib/gx/gx.cpp	2026-10-31 21:20:39.358773229 +0000
-+++ b/lib/gx/gx.cpp	2026-10-31 21:21:12.252601054 +0000
++++ b/lib/gx/gx.cpp	2026-10-31 22:22:32.294130472 +0000
 @@ -9,6 +9,8 @@
  #include "../gfx/resources.hpp"
  #include "../gfx/recording.hpp"
@@ -45,12 +134,14 @@ diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
  #include "../gfx/texture.hpp"
  #include "gx_fmt.hpp"
  
-@@ -375,6 +377,92 @@
+@@ -375,6 +377,94 @@
    return g_device.CreateRenderPipeline(&descriptor);
  }
  
 +// Diagnostics (include/aurora/guest_memory.h): parts of the pipeline left out, and counts of the states built
 +static u32 sDebugMask = 0;
++bool g_debugFrameLog = false;
++u32 g_debugFrameItem = 0;
 +static u32 sDebugStats[AURORA_DEBUG_STAT_COUNT] = {};
 +
 +static void apply_debug_mask(ShaderConfig& sc) noexcept {
@@ -138,7 +229,7 @@ diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
  void populate_pipeline_config(PipelineConfig& config, GXPrimitive primitive, GXVtxFmt fmt) noexcept {
    ZoneScoped;
  
-@@ -459,6 +547,7 @@
+@@ -459,6 +549,7 @@
    if (g_gxState.alphaCompare) {
      config.shaderConfig.alphaCompare = g_gxState.alphaCompare;
    }
@@ -146,7 +237,7 @@ diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
    const auto cullMode = config.shaderConfig.lineMode == 0 ? g_gxState.cullMode : GX_CULL_NONE;
    const auto [polygonOffset, polygonOffsetScale] = polygon_offset_for_cull_mode(cullMode);
    const bool hasAlpha = efb_has_alpha(g_gxState.pixelFmt);
-@@ -486,7 +575,7 @@
+@@ -486,7 +577,7 @@
        .polygonOffsetBits = std::bit_cast<uint32_t>(polygonOffset),
        .polygonOffsetScaleBits = std::bit_cast<uint32_t>(polygonOffsetScale),
        .polygonOffsetClampBits = std::bit_cast<uint32_t>(g_gxState.clamp),
@@ -155,12 +246,16 @@ diff -ruN a/lib/gx/gx.cpp b/lib/gx/gx.cpp
        .depthUpdate = g_gxState.depthUpdate,
        .alphaUpdate = alphaUpdate,
        .colorUpdate = g_gxState.colorUpdate,
-@@ -616,3 +705,16 @@
+@@ -616,3 +707,20 @@
    texture::shutdown();
  }
  } // namespace aurora::gx
 +
 +void aurora_set_debug_mask(uint32_t mask) {
++  // AURORA_DEBUG_LOG_FRAME: the frame after the bit is set is logged, once
++  aurora::gx::g_debugFrameLog =
++      (mask & AURORA_DEBUG_LOG_FRAME) != 0 && (aurora::gx::sDebugMask & AURORA_DEBUG_LOG_FRAME) == 0;
++  aurora::gx::g_debugFrameItem = 0;
 +  if (mask != aurora::gx::sDebugMask) {
 +    aurora::gx::sDebugMask = mask;
 +    aurora::gx::g_gxState.dirty |= aurora::gx::DirtyPipeline;
