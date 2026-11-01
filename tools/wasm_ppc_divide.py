@@ -118,12 +118,42 @@ def main() -> int:
                 sys.exit("error: unexpected end of the module's text")
             dst.write(helpers())
             dst.write(last)
-        subprocess.run([tool("wasm-as"), *features, text_out, "-o", args.output], check=True)
+        # A module with function names (linked with --profiling-funcs) keeps them: wasm-as writes the name section only
+        # with -g
+        debug = ["-g"] if has_name_section(args.input) else []
+        subprocess.run([tool("wasm-as"), *features, *debug, text_out, "-o", args.output], check=True)
 
     total = sum(counts.values())
     detail = ", ".join(f"{op} {n}" for op, n in counts.items() if n)
     print(f"{args.output}: {total} divisions rewritten ({detail or 'none'})")
     return 0
+
+
+def has_name_section(path: str) -> bool:
+    """Whether the module has a "name" custom section."""
+    with open(path, "rb") as f:
+        data = f.read()
+
+    def leb(i: int) -> tuple:
+        value = shift = 0
+        while True:
+            byte = data[i]
+            i += 1
+            value |= (byte & 0x7F) << shift
+            shift += 7
+            if byte < 0x80:
+                return value, i
+
+    i = 8
+    while i < len(data):
+        section = data[i]
+        size, i = leb(i + 1)
+        if section == 0:
+            length, j = leb(i)
+            if data[j:j + length] == b"name":
+                return True
+        i += size
+    return False
 
 
 if __name__ == "__main__":

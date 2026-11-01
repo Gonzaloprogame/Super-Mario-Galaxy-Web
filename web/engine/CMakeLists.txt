@@ -24,6 +24,12 @@ target_link_options(smg_web PRIVATE ${SMG_WEB_LINK_OPTIONS} -sASYNCIFY_STACK_SIZ
     "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js"
     # smg_web.js.symbols (not published): wasm function indices to names, for the stack of an abort the page shows
     --emit-symbol-map)
+# -DSMG_PROFILING_FUNCS=ON: the wasm keeps its functions' names, for the browser's profiler (not for the published
+# site: a larger file)
+option(SMG_PROFILING_FUNCS "Keep function names in smg_web.wasm for profiling" OFF)
+if(SMG_PROFILING_FUNCS)
+    target_link_options(smg_web PRIVATE --profiling-funcs)
+endif()
 set_property(TARGET smg_web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
 set_target_properties(smg_web PROPERTIES SUFFIX ".js")
 smg_ppc_divide(smg_web)
