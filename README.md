@@ -10,7 +10,7 @@
 **Sin instalar nada. Sin emulador. Con tu propia copia del juego.**
 
 [![Estado](https://img.shields.io/badge/estado-experimental-ffb36b?style=for-the-badge)](#-estado-del-proyecto)
-[![Versión](https://img.shields.io/badge/versi%C3%B3n-0.1.0--experimental-7b8cff?style=for-the-badge)](#-novedades-de-la-010-experimental)
+[![Versión](https://img.shields.io/badge/versi%C3%B3n-0.1.1--experimental-7b8cff?style=for-the-badge)](#-novedades-de-la-011-experimental)
 [![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-b06bff?style=for-the-badge)](LICENSE)
 
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?logo=webassembly&logoColor=white)](#-cómo-funciona)
@@ -143,7 +143,7 @@ de inmediato.
 
 ## 📊 Estado del proyecto
 
-**Versión 0.1.0-experimental.** Así está cada parte, con lo que de verdad se ha comprobado:
+**Versión 0.1.1-experimental.** Así está cada parte, con lo que de verdad se ha comprobado:
 
 | Parte | Estado | Detalle |
 |---|:---:|---|
@@ -261,6 +261,21 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 </details>
 
 ---
+
+## 🆕 Novedades de la 0.1.1-experimental
+
+Una versión de mantenimiento, a partir de una auditoría del código con
+[Ponytail](https://github.com/DietrichGebert/ponytail):
+
+- 💾 **Partidas más seguras:** la copia de la partida se carga entera o nada (antes, una copia dañada podía
+  sustituirse en el siguiente guardado por una memoria a medias), y cada sesión guarda aparte la partida de la que
+  parte (`RMGE01.anterior` en IndexedDB).
+- ⏸️ **Menos parones al cargar:** la cola entre el juego y el renderizador es cuatro veces más grande; al llenarse
+  paraba el juego entero, sonido incluido.
+- 🧪 **Pruebas nuevas:** la carga de la partida (todo o nada) y el sonido (orden de bytes, vuelta del anillo, anillo
+  lleno), ambas comprobadas contra el fallo que vigilan.
+- 🧹 **Limpieza:** una sola conexión a IndexedDB, el volumen sin temporizador, CSS que sobraba y un error falso
+  (`0x08000000`) que salía en todos los registros.
 
 ## 🆕 Novedades de la 0.1.0-experimental
 
