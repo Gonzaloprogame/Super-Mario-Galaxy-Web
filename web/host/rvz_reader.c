@@ -22,6 +22,8 @@ enum {
     kRawStructSize = 24,      /* wia_raw_data_t */
     kGroupStructSize = 12,    /* rvz_group_t */
     kCacheEntries = 8,
+    kBlockSize = 4 << 20, /* the image is read in blocks this large (file_read) */
+    kBlockEntries = 4,
     kLfgWords = 521,
 };
 
@@ -48,6 +50,15 @@ typedef struct {
     uint32_t packedSize; /* 0: no RVZ packing */
 } Group;
 
+/* A block of the image as read from its file (file_read) */
+typedef struct {
+    int valid;
+    uint64_t start;
+    size_t length; /* less than kBlockSize at the end of the file */
+    uint64_t lastUse;
+    uint8_t* data;
+} Block;
+
 typedef struct {
     int valid;
     int partition;
@@ -71,6 +82,7 @@ struct RvzReader {
     PartData part[2];
     uint64_t partSize;
     CacheEntry cache[kCacheEntries];
+    Block blocks[kBlockEntries];
     uint64_t clock;
     uint8_t* stored; /* a group as stored */
     size_t storedCapacity;
@@ -100,9 +112,70 @@ static int fail(RvzReader* r, const char* format, ...) {
     return 0;
 }
 
-static int file_read(RvzReader* r, uint64_t offset, void* dst, size_t size) {
+static int file_read_direct(RvzReader* r, uint64_t offset, void* dst, size_t size) {
     if (fseeko(r->file, (off_t)offset, SEEK_SET) != 0 || fread(dst, 1, size, r->file) != size) {
         return fail(r, "the image cannot be read at 0x%llx (%zu bytes)", (unsigned long long)offset, size);
+    }
+    return 1;
+}
+
+/* The aligned block of the image at `start`, from the blocks kept or read into the least recently used one. In the
+   browser each read of the user's file costs a fixed delay (some 70 ms a read on an Android phone, for 1.6 s in all on a
+   desktop): read in kBlockSize blocks, the boot's thousand small reads become a few dozen. */
+static const Block* file_block(RvzReader* r, uint64_t start) {
+    Block* slot = &r->blocks[0];
+    for (int i = 0; i < kBlockEntries; i++) {
+        Block* block = &r->blocks[i];
+        if (block->valid && block->start == start) {
+            block->lastUse = ++r->clock;
+            return block;
+        }
+        if (!block->valid || (slot->valid && block->lastUse < slot->lastUse)) {
+            slot = block;
+        }
+    }
+    if (slot->data == NULL && (slot->data = malloc(kBlockSize)) == NULL) {
+        fail(r, "out of memory for a block of the image");
+        return NULL;
+    }
+    slot->valid = 0;
+    if (fseeko(r->file, (off_t)start, SEEK_SET) != 0) {
+        fail(r, "the image cannot be read at 0x%llx", (unsigned long long)start);
+        return NULL;
+    }
+    const size_t length = fread(slot->data, 1, kBlockSize, r->file);
+    if (length == 0) {
+        fail(r, "the image cannot be read at 0x%llx", (unsigned long long)start);
+        return NULL;
+    }
+    slot->start = start;
+    slot->length = length;
+    slot->valid = 1;
+    slot->lastUse = ++r->clock;
+    return slot;
+}
+
+static int file_read(RvzReader* r, uint64_t offset, void* dst, size_t size) {
+    if (size > kBlockSize) {
+        return file_read_direct(r, offset, dst, size);
+    }
+    uint8_t* out = (uint8_t*)dst;
+    while (size != 0) {
+        const uint64_t start = offset - offset % kBlockSize;
+        const Block* block = file_block(r, start);
+        if (block == NULL) {
+            return 0;
+        }
+        const size_t within = (size_t)(offset - start);
+        if (within >= block->length) {
+            return fail(r, "the image cannot be read at 0x%llx (%zu bytes): past its end", (unsigned long long)offset,
+                        size);
+        }
+        const size_t take = size < block->length - within ? size : block->length - within;
+        memcpy(out, block->data + within, take);
+        out += take;
+        offset += take;
+        size -= take;
     }
     return 1;
 }
@@ -434,6 +507,9 @@ static void rvz_free(RvzReader* r) {
     }
     for (int i = 0; i < kCacheEntries; i++) {
         free(r->cache[i].data);
+    }
+    for (int i = 0; i < kBlockEntries; i++) {
+        free(r->blocks[i].data);
     }
     free(r->raw);
     free(r->groups);
