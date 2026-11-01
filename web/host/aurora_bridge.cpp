@@ -55,10 +55,10 @@ pthread_t g_renderThread;
 std::atomic<uint32_t> g_frames{0};
 
 // What the render thread is doing, for the host's stall report (smg_bridge_describe)
-enum Phase { PhaseWaiting, PhaseBeginFrame, PhaseBeginRefused, PhaseSpan, PhasePeeks, PhaseEndFrame, PhaseMarker };
+enum Phase { PhaseWaiting, PhaseBeginFrame, PhaseBeginRefused, PhaseSpan, PhasePeeks, PhaseEndFrame, PhaseMarker, PhaseDrain };
 const char* const kPhaseNames[] = {"waiting for the game's stream", "starting a frame", "frame refused by Aurora (retrying)",
                                    "reading a span of the stream", "capturing EFB peeks", "ending a frame",
-                                   "answering a PE marker"};
+                                   "answering a PE marker", "processing the frame's stream"};
 std::atomic<int> g_phase{PhaseWaiting};
 std::atomic<int64_t> g_phaseSinceMs{0};
 std::atomic<uint64_t> g_spansDone{0}, g_markersDone{0}, g_beginRefused{0};
@@ -80,7 +80,7 @@ int64_t now_ms() {
 }
 
 // The render thread's time in each phase, in microseconds (its own clock; for the host's report: smg_bridge_phase_times)
-constexpr int PhaseCount = 7;
+constexpr int PhaseCount = 8;
 std::atomic<uint64_t> g_phaseUs[PhaseCount];
 double g_phaseStart = 0.0;
 
@@ -533,6 +533,11 @@ void* render_main(void*) {
                      static_cast<unsigned>(frameBytes >> 20));
       }
       frameBytes = 0;
+      // The frame's GX stream, processed here rather than inside aurora_end_frame (which drains it first): its own
+      // phase in the report, apart from submitting and presenting
+      set_phase(PhaseDrain);
+      aurora::gx::fifo::drain();
+      set_phase(PhaseEndFrame);
       collect_peeks(stream);
       collect_xfb(xfbStream);
       present(presentStream);
@@ -615,9 +620,10 @@ extern "C" void smg_bridge_phase_times(char* out, size_t size) {
   const double per = drawn != 0 ? 1.0 / (1000.0 * drawn) : 0.0;
   snprintf(out, size,
            "%u frames; per frame, ms: waiting for the game %.1f, starting %.1f, refused %.1f, reading the stream %.1f, "
-           "peeks %.1f, ending (submit, present) %.1f, PE markers %.1f",
+           "peeks %.1f, processing the stream %.1f, ending (submit, present) %.1f, PE markers %.1f",
            drawn, delta[PhaseWaiting] * per, delta[PhaseBeginFrame] * per, delta[PhaseBeginRefused] * per,
-           delta[PhaseSpan] * per, delta[PhasePeeks] * per, delta[PhaseEndFrame] * per, delta[PhaseMarker] * per);
+           delta[PhaseSpan] * per, delta[PhasePeeks] * per, delta[PhaseDrain] * per, delta[PhaseEndFrame] * per,
+           delta[PhaseMarker] * per);
 }
 
 extern "C" int32_t* smg_bridge_render_debug(void) { return &g_renderDebug; }
