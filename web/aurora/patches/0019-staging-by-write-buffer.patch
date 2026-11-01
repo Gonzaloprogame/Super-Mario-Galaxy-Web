@@ -1,0 +1,107 @@
+diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
+--- a/lib/gfx/frame.cpp	2026-11-01 13:07:48.343885162 +0000
++++ b/lib/gfx/frame.cpp	2026-11-01 13:08:06.829007475 +0000
+@@ -24,6 +24,7 @@
+ #include <chrono>
+ #include <cstdint>
+ #include <deque>
++#include <memory>
+ #include <mutex>
+ #include <optional>
+ #include <string>
+@@ -59,6 +60,11 @@
+ uint64_t g_nextFrameId = 1;
+ render_worker::FrameSlotPool g_frameSlots{FrameSlotCount};
+ render_worker::FrameSlotPool g_stagingSlots{StagingBufferCount};
++// The frame's data (vertices, uniforms, indices, storage, texture uploads) is written to host memory, one block per
++// staging slot, and each region's used bytes go to the staging buffer with Queue::WriteBuffer when the frame ends. The
++// staging buffers are never mapped: in the browser, Unmap copied every mapped byte (some 71 MB a frame, of which a
++// stage uses about 13), and a frame could not start before the GPU had mapped a buffer again.
++std::array<std::unique_ptr<u8[]>, StagingBufferCount> g_stagingHost;
+ 
+ struct RuntimeDrawType {
+   std::string label;
+@@ -439,14 +445,12 @@
+                "Shared Storage Buffer");
+   for (size_t i = 0; i < g_stagingBuffers.size(); ++i) {
+     const auto label = fmt::format("Staging Buffer {}", i);
+-    createBuffer(g_stagingBuffers[i], wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc, StagingBufferSize,
++    createBuffer(g_stagingBuffers[i], wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::CopySrc, StagingBufferSize,
+                  label.c_str());
+   }
++  // Never mapped (g_stagingHost): every slot is ready
+   for (auto& state : g_mappingStates) {
+-    state.store(BufferMapState::Unmapped, std::memory_order_release);
+-  }
+-  for (size_t slot = 0; slot < g_stagingBuffers.size(); ++slot) {
+-    map_staging_buffer(slot);
++    state.store(BufferMapState::Mapped, std::memory_order_release);
+   }
+ 
+   {
+@@ -608,6 +612,9 @@
+ 
+ bool wait_for_staging_buffer(size_t slot) {
+   ZoneScopedN("Wait for buffer map");
++  if (g_mappingStates[slot].load(std::memory_order_acquire) == BufferMapState::Mapped) {
++    return true; // written with WriteBuffer, never mapped (g_stagingHost)
++  }
+   map_staging_buffer(slot);
+   while (true) {
+     const auto mappingState = g_mappingStates[slot].load(std::memory_order_acquire);
+@@ -667,12 +674,15 @@
+   prepare_recording();
+   frame.efb = efb::prepare_frame();
+   size_t bufferOffset = 0;
+-  const auto& stagingBuf = g_stagingBuffers[*stagingSlot];
++  auto& host = g_stagingHost[*stagingSlot];
++  if (!host) {
++    host.reset(new u8[StagingBufferSize]);
++  }
+   const auto mapBuffer = [&](ByteBuffer& buf, uint64_t size) {
+     if (size <= 0) {
+       return;
+     }
+-    buf = ByteBuffer{static_cast<u8*>(stagingBuf.GetMappedRange(bufferOffset, size)), static_cast<size_t>(size)};
++    buf = ByteBuffer{host.get() + bufferOffset, static_cast<size_t>(size)};
+     bufferOffset += size;
+   };
+   mapBuffer(frame.verts, VertexBufferSize);
+@@ -712,8 +722,26 @@
+   const size_t stagingSlot = frame.stagingBuffer;
+   render_worker::enqueue_end_frame(frameId, [frameSlot, stagingSlot, callback = std::move(callback)]() mutable {
+     auto& packet = g_framePackets[frameSlot];
+-    g_stagingBuffers[stagingSlot].Unmap();
+-    g_mappingStates[stagingSlot].store(BufferMapState::Unmapped, std::memory_order_release);
++    {
++      // Each region's used bytes, at its offset in the staging buffer (as begin_frame laid them out), before the
++      // frame's commands are submitted: the queue orders the writes before them
++      const u8* const base = g_stagingHost[stagingSlot].get();
++      uint64_t offset = 0;
++      const auto write = [&](const ByteBuffer& buf, uint64_t regionSize) {
++        const uint64_t used = std::min<uint64_t>((buf.size() + 3) & ~uint64_t{3}, regionSize);
++        if (used != 0) {
++          g_queue.WriteBuffer(g_stagingBuffers[stagingSlot], offset, base + offset, used);
++        }
++        offset += regionSize;
++      };
++      write(packet.verts, VertexBufferSize);
++      write(packet.uniforms, UniformBufferSize);
++      write(packet.indices, IndexBufferSize);
++      write(packet.storage, StorageBufferSize);
++      if constexpr (UseTextureBuffer) {
++        write(packet.textureUpload, TextureUploadSize);
++      }
++    }
+     auto encoder = std::move(packet.encoder);
+     const auto stats = packet.stats;
+     auto afterSubmitCallbacks = std::move(packet.afterSubmitCallbacks);
+@@ -735,7 +763,7 @@
+     packet = {};
+     g_frameSlots.release(frameSlot);
+     expire_cached_bind_groups();
+-    map_staging_buffer(stagingSlot, true);
++    g_stagingSlots.release(stagingSlot); // its data is in the queue already (WriteBuffer)
+     process_events();
+   });
+ }
