@@ -231,6 +231,9 @@ async function start() {
   }
   logEl.textContent = '';
   $('screen-card').hidden = mode !== 'graphics';
+  if (mode === 'graphics') {
+    requestAnimationFrame(() => $('screen-card').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
   setStatus(`Cargando ${file.name} (${(file.size / 2 ** 20).toFixed(1)} MB)…`);
   const worker = new Worker(engine.script);
   document.body.dataset.state = 'running';
@@ -378,3 +381,30 @@ if (missing.length) {
   document.body.dataset.state = 'ready';
 }
 $('run').addEventListener('click', start);
+
+// The page's own controls: the volume (the AudioWorklet's gain), full screen for the screen and its controls, and
+// the drop zone's highlight while a file is dragged over it
+function applyVolume() {
+  const value = Number($('volume').value) / 100;
+  if (audio.node !== null) {
+    audio.node.port.postMessage({ type: 'volume', value });
+  }
+}
+$('volume').addEventListener('input', applyVolume);
+const audioNodeReady = setInterval(() => {
+  if (audio.node !== null) {
+    applyVolume();
+    clearInterval(audioNodeReady);
+  }
+}, 500);
+$('fullscreen').addEventListener('click', () => {
+  const card = $('screen-card');
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  } else if (card.requestFullscreen) {
+    card.requestFullscreen().catch((error) => log(`[página] pantalla completa no disponible: ${error.message}`));
+  }
+});
+for (const [event, over] of [['dragenter', true], ['dragover', true], ['dragleave', false], ['drop', false]]) {
+  $('drop').addEventListener(event, () => { $('drop').dataset.over = String(over); });
+}
