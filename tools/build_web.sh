@@ -24,7 +24,7 @@ rm -rf "$SITE"
 mkdir -p "$SITE/gx" "$SITE/bridge"
 # The engine's page (the game module, headless for now).
 cp "$ROOT"/web/shell/index.html "$ROOT"/web/shell/app.js "$ROOT"/web/shell/present.js "$ROOT"/web/shell/controls.js \
-   "$ROOT"/web/shell/audio_worklet.js \
+   "$ROOT"/web/shell/audio_worklet.js "$ROOT"/docs/img/logo_galaxy_web_port.svg \
    "$SITE"/
 # COOP/COEP on hosts without custom headers (GitHub Pages), with its licence (web/shell/vendor/README.md)
 cp "$ROOT"/web/shell/vendor/coi-serviceworker.js "$ROOT"/web/shell/vendor/coi-serviceworker.LICENSE "$SITE"/
