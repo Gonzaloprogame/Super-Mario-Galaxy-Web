@@ -1,6 +1,6 @@
 diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
 --- a/lib/gfx/frame.cpp	2026-11-01 13:07:48.343885162 +0000
-+++ b/lib/gfx/frame.cpp	2026-11-01 13:08:06.829007475 +0000
++++ b/lib/gfx/frame.cpp	2026-11-01 13:26:10.980815366 +0000
 @@ -24,6 +24,7 @@
  #include <chrono>
  #include <cstdint>
@@ -16,7 +16,7 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
 +// The frame's data (vertices, uniforms, indices, storage, texture uploads) is written to host memory, one block per
 +// staging slot, and each region's used bytes go to the staging buffer with Queue::WriteBuffer when the frame ends. The
 +// staging buffers are never mapped: in the browser, Unmap copied every mapped byte (some 71 MB a frame, of which a
-+// stage uses about 13), and a frame could not start before the GPU had mapped a buffer again.
++// stage uses about 13). A slot is released when the GPU has done its frame (OnSubmittedWorkDone).
 +std::array<std::unique_ptr<u8[]>, StagingBufferCount> g_stagingHost;
  
  struct RuntimeDrawType {
@@ -96,12 +96,18 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
      auto encoder = std::move(packet.encoder);
      const auto stats = packet.stats;
      auto afterSubmitCallbacks = std::move(packet.afterSubmitCallbacks);
-@@ -735,7 +763,7 @@
+@@ -735,7 +763,13 @@
      packet = {};
      g_frameSlots.release(frameSlot);
      expire_cached_bind_groups();
 -    map_staging_buffer(stagingSlot, true);
-+    g_stagingSlots.release(stagingSlot); // its data is in the queue already (WriteBuffer)
++    // The slot is free again once the GPU has done this frame's work, as when its buffer was mapped again: no more
++    // frames in flight than staging slots (without it the CPU ran ahead of the GPU unbounded and reused what was
++    // still in use), and the wait for a slot yields to the browser, which delivers WebGPU's callbacks
++    g_queue.OnSubmittedWorkDone(wgpu::CallbackMode::AllowSpontaneous,
++                                [stagingSlot](wgpu::QueueWorkDoneStatus, wgpu::StringView) {
++                                  g_stagingSlots.release(stagingSlot);
++                                });
      process_events();
    });
  }
