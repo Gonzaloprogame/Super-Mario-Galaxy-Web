@@ -22,8 +22,8 @@ enum {
     kRawStructSize = 24,      /* wia_raw_data_t */
     kGroupStructSize = 12,    /* rvz_group_t */
     kCacheEntries = 8,
-    kBlockSize = 4 << 20, /* the image is read in blocks this large (file_read) */
-    kBlockEntries = 4,
+    kBlockSize = 1 << 20, /* the image is read in blocks this large (file_read) */
+    kBlockEntries = 16,
     kLfgWords = 521,
 };
 
@@ -121,7 +121,9 @@ static int file_read_direct(RvzReader* r, uint64_t offset, void* dst, size_t siz
 
 /* The aligned block of the image at `start`, from the blocks kept or read into the least recently used one. In the
    browser each read of the user's file costs a fixed delay (some 70 ms a read on an Android phone, for 1.6 s in all on a
-   desktop): read in kBlockSize blocks, the boot's thousand small reads become a few dozen. */
+   desktop): read in kBlockSize blocks, the boot's thousand small reads become a few dozen. The size and count come
+   from replaying the reads of the boot and the first stage (1184) through this reader: 1 MB x 16 reads the file 57
+   times (57 MB), 4 MB x 4 45 times (179 MB), 256 KB x 16 168 times (42 MB). */
 static const Block* file_block(RvzReader* r, uint64_t start) {
     Block* slot = &r->blocks[0];
     for (int i = 0; i < kBlockEntries; i++) {
