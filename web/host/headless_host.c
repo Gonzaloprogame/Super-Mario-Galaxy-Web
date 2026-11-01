@@ -249,10 +249,26 @@ static const uint8_t* svc_disc_fst(void* user, size_t* size) {
     return sPak.fst;
 }
 
+/* The disc reads' time, for the report: the total, and the read in progress (when it started, its size) for the stall
+   report */
+static _Atomic uint64_t sDiscMicros, sDiscBusySinceMicros, sDiscBusySize;
+
+static uint64_t now_micros(void) {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (uint64_t)t.tv_sec * 1000000u + (uint64_t)t.tv_nsec / 1000u;
+}
+
 static void svc_disc_read(void* user, uint64_t offset, uint32_t size, void* dst, uint32_t slot) {
     (void)user;
     atomic_fetch_add(&sDiscReads, 1);
-    if (!read_at(offset, dst, size)) {
+    const uint64_t start = now_micros();
+    atomic_store(&sDiscBusySize, size);
+    atomic_store(&sDiscBusySinceMicros, start);
+    const int ok = read_at(offset, dst, size);
+    atomic_store(&sDiscBusySinceMicros, 0);
+    atomic_fetch_add(&sDiscMicros, now_micros() - start);
+    if (!ok) {
         nebula_game_disc_complete(slot, -1);
         return;
     }
@@ -440,10 +456,11 @@ static void report(void) {
     smg_console_counters(&console);
     fprintf(stderr,
             "[host] report: retraces %" PRIu64 ", frames %" PRIu64 ", GX %" PRIu64 " bytes in %" PRIu64
-            " spans, PE markers %u, disc reads %" PRIu64 " (%" PRIu64 " bytes), NAND requests %" PRIu64 " (%" PRIu64
+            " spans, PE markers %u, disc reads %" PRIu64 " (%" PRIu64 " bytes, %" PRIu64 " ms), NAND requests %" PRIu64 " (%" PRIu64
             " failed), Wii Remote reports %" PRIu64 ", audio blocks %" PRIu64 ", stage '%s'\n",
             atomic_load(&sRetraces), atomic_load(&sFrames), atomic_load(&sGxBytes), atomic_load(&sGxSpans),
-            atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), console.nand_requests,
+            atomic_load(&sPeMarkers), atomic_load(&sDiscReads), atomic_load(&sDiscBytes), atomic_load(&sDiscMicros) / 1000,
+            console.nand_requests,
             console.nand_failures, console.wpad_reports, console.ai_blocks, sStage);
 #if defined(SMG_HOST_AURORA)
     char peaks[256];
@@ -520,15 +537,21 @@ static void check_stall(uint64_t retrace) {
 #endif
     const uint64_t disc = atomic_load(&sDiscReads) - lastDisc, dsp = atomic_load(&sDspCalls) - lastDsp;
     const uint64_t coherent = atomic_load(&sCoherentCalls) - lastCoherent, names = atomic_load(&sObjectNames) - lastNames;
+    char discNow[96] = "no disc read in progress";
+    const uint64_t busySince = atomic_load(&sDiscBusySinceMicros);
+    if (busySince != 0) {
+        snprintf(discNow, sizeof(discNow), "a disc read of %" PRIu64 " bytes in progress for %" PRIu64 " ms",
+                 atomic_load(&sDiscBusySize), (now_micros() - busySince) / 1000);
+    }
     fprintf(stderr,
             "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); meanwhile the game "
             "read its remotes %" PRIu64 " times (its main loop %s), read the disc %" PRIu64 " times, sent its audio "
             "DSP %" PRIu64 " commands, flushed %" PRIu64 " ranges for the GPU and named %" PRIu64
-            " objects (the game %s); movie frames asked to decode %" PRIu64 "; NAND requests %" PRIu64
+            " objects (the game %s); %s; movie frames asked to decode %" PRIu64 "; NAND requests %" PRIu64
             "; audio blocks %" PRIu64 "; %s\n",
             stalled / 60.0, atomic_load(&sFrames), sStage, console.wpad_samples - lastSamples,
             console.wpad_samples != lastSamples ? "runs" : "is stopped", disc, dsp, coherent, names,
-            disc + dsp + coherent + names != 0 ? "works: loading, or slow" : "does nothing the host sees: stuck?",
+            disc + dsp + coherent + names != 0 ? "works: loading, or slow" : "does nothing the host sees: stuck?", discNow,
             atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, bridge);
 }
 
