@@ -364,6 +364,18 @@ ahora la disposición de los atributos indexados se calcula una vez por formato 
 - **Comprobado con el disco (contenedor):** procesar el flujo pasó de unos 22,5 ms a unos 13 ms por fotograma; el nivel
   se ve igual. `bridge_smoke.mjs` (50) y `browser_smoke.mjs` (31) pasan.
 
+**Arranque lento en el teléfono:** más de un minuto hasta la pantalla de archivos, con pausas de 6 a 24 s.
+- El informe mide ahora el tiempo de las lecturas del disco (`disc reads N (bytes, X ms)`) y, en cada pausa, la
+  lectura en curso. En el teléfono, las 1166 lecturas del arranque y el primer nivel (30 MB) sumaban 85 s, unos 73 ms
+  cada una; en el contenedor, 1,6 s. Cada acceso al archivo del usuario tiene allí un retraso fijo.
+- **Corrección:** el lector RVZ lee la imagen en bloques de 1 MB y guarda los 16 últimos (`web/host/rvz_reader.c`).
+  El tamaño sale de repetir esas 1184 lecturas con el lector fuera del navegador: 1 MB × 16 accede al archivo 57
+  veces (57 MB); 4 MB × 4, 45 veces pero 179 MB (en el contenedor las lecturas subieron a 4,8 s); 256 KB × 16, 168
+  veces.
+- **Comprobado en el contenedor:** el juego llega a la pantalla de archivos en menos de 10 s y las lecturas suman
+  494 ms (750 ms hasta cargar el nivel). `run_rvz_tests.sh` y `browser_smoke.mjs` pasan. **Sin comprobar todavía en
+  el teléfono.**
+
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
 
