@@ -175,6 +175,39 @@ $('copy-log').addEventListener('click', async () => {
   setTimeout(() => { $('copy-log').textContent = 'Copiar el registro'; }, 2000);
 });
 
+// The game's sound (web/shell/audio_worklet.js): its context is made at the click that starts the engine (browsers
+// start sound only after a gesture), and the engine's ring of samples is handed to it when the worker says where it
+// is. globalThis.smgAudio: {context, node, ring} for the tests.
+const audio = { context: null, node: null, ring: null, ready: null };
+globalThis.smgAudio = audio;
+
+function startAudio() {
+  if (audio.context !== null || typeof AudioContext === 'undefined') {
+    return;
+  }
+  try {
+    audio.context = new AudioContext({ latencyHint: 'interactive' });
+  } catch (error) {
+    log(`[página] sin sonido: ${error.message}`);
+    return;
+  }
+  audio.ready = audio.context.audioWorklet.addModule('audio_worklet.js').then(() => {
+    audio.node = new AudioWorkletNode(audio.context, 'smg-audio', { numberOfInputs: 0, outputChannelCount: [2] });
+    audio.node.connect(audio.context.destination);
+    if (audio.ring !== null) {
+      audio.node.port.postMessage({ type: 'ring', ...audio.ring });
+    }
+  }).catch((error) => log(`[página] sin sonido: ${error.message}`));
+  audio.context.resume().catch(() => {});
+}
+
+function attachAudio(buffer, address) {
+  audio.ring = { buffer, address };
+  if (audio.node !== null) {
+    audio.node.port.postMessage({ type: 'ring', buffer, address });
+  }
+}
+
 async function start() {
   const file = $('pak').files[0];
   if (!file) {
@@ -193,6 +226,9 @@ async function start() {
     return;
   }
   $('run').disabled = true;
+  if (mode === 'graphics') {
+    startAudio();
+  }
   logEl.textContent = '';
   $('screen-card').hidden = mode !== 'graphics';
   setStatus(`Cargando ${file.name} (${(file.size / 2 ** 20).toFixed(1)} MB)…`);
@@ -250,6 +286,10 @@ async function start() {
       case 'input':
         // The engine's shared memory and where its control words are (web/host/console_services.h)
         controls.attach(new Int32Array(data.buffer, data.address, data.words));
+        break;
+      case 'audio':
+        // The engine's ring of samples (web/host/audio_output.h), in its shared memory
+        attachAudio(data.buffer, data.address);
         break;
       case 'renderdebug':
         // The renderer's diagnostic mask (Aurora patch 0017): smgRenderDebug[0] = mask, read at each frame's start

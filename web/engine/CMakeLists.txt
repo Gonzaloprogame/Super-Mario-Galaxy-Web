@@ -9,9 +9,12 @@ add_executable(smg_web
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/host_services.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/rvz_reader.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/console_services.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp")
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp"
+    # The game's sound: Nebula's host implementation of the JAudio DSP program (GPL-3.0, compiled from third_party)
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/audio_output.cpp"
+    "${SMG_NEBULA_NATIVE}/../runtime/src/jaudio_host_mixer.cpp")
 target_include_directories(smg_web PRIVATE "${SMG_NEBULA_NATIVE}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../host"
-                           "${SMG_AURORA_LIB}")
+                           "${SMG_AURORA_LIB}" "${SMG_NEBULA_NATIVE}/../runtime/include")
 target_compile_definitions(smg_web PRIVATE SMG_HOST_AURORA=1)
 target_compile_options(smg_web PRIVATE -pthread)
 target_link_libraries(smg_web PRIVATE smg_game smg_zstd aurora_core_web aurora_vi_web)

@@ -236,13 +236,21 @@ void smg_console_wpad_sample(void* user, uint32_t chan) {
 
 static pthread_mutex_t sAiLock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t sAiWake = PTHREAD_COND_INITIALIZER;
-static uint32_t sAiSize, sAiRate = 32000;
+static uint32_t sAiStart, sAiSize, sAiRate = 32000;
 static int sAiRunning;
+
+/* Where each block the AI takes goes to be heard (web/host/audio_output.cpp, in the engine with sound); nowhere
+   without it */
+__attribute__((weak)) void smg_audio_block(uint32_t physical, uint32_t size, uint32_t rate) {
+    (void)physical;
+    (void)size;
+    (void)rate;
+}
 
 void smg_console_ai_dma(void* user, uint32_t start, uint32_t size) {
     (void)user;
-    (void)start; /* no sound output yet: the samples are not read */
     pthread_mutex_lock(&sAiLock);
+    sAiStart = start;
     sAiSize = size;
     pthread_cond_signal(&sAiWake);
     pthread_mutex_unlock(&sAiLock);
@@ -275,6 +283,7 @@ static void* ai_main(void* arg) {
             }
             scheduled = 0;
         }
+        const uint32_t start = sAiStart;
         const uint64_t size = sAiSize;
         const uint64_t rate = sAiRate != 0 ? sAiRate : 32000;
         pthread_mutex_unlock(&sAiLock);
@@ -283,6 +292,7 @@ static void* ai_main(void* arg) {
             scheduled = 1;
         }
         atomic_fetch_add(&sAiBlocks, 1);
+        smg_audio_block(start, (uint32_t)size, (uint32_t)rate); /* the block taken, before the game prepares the next */
         nebula_game_ai_interrupt();
         /* A block lasts its stereo 16-bit samples (4 bytes each) at the output rate */
         advance(&next, (int64_t)(size / 4 * 1000000000ull / rate));

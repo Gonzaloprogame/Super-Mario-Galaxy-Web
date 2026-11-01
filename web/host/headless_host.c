@@ -34,6 +34,7 @@
 #include "host_services.h"
 #include "rvz_reader.h"
 #if defined(SMG_HOST_AURORA)
+#include "audio_output.h"
 #include "aurora_bridge.h"
 #endif
 
@@ -473,6 +474,9 @@ static void report(void) {
     char times[320];
     smg_bridge_phase_times(times, sizeof(times));
     fprintf(stderr, "[host] render thread: %s\n", times);
+    char audio[320];
+    smg_audio_stats(audio, sizeof(audio));
+    fprintf(stderr, "[host] audio: %s\n", audio);
 #endif
 #if defined(__EMSCRIPTEN__)
     fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);
@@ -487,7 +491,12 @@ static _Atomic uint64_t sDspCalls, sCoherentCalls, sObjectNames;
 
 static int svc_audio_dsp(void* user, const uint32_t* words, uint32_t count) {
     atomic_fetch_add(&sDspCalls, 1);
+#if defined(SMG_HOST_AURORA)
+    (void)user;
+    return smg_audio_dsp(words, count); /* the game's JAudio DSP program, mixed (web/host/audio_output.cpp) */
+#else
     return sDefaults.audio_dsp(user, words, count);
+#endif
 }
 
 static void svc_gpu_coherent(void* user, uint32_t physical, uint32_t size) {
@@ -645,6 +654,14 @@ int main(int argc, char** argv) {
         },
         smg_console_input(), SMG_INPUT_WORDS);
 #if defined(SMG_HOST_AURORA)
+    /* The game's sound: the ring of samples the page's AudioWorklet plays (web/host/audio_output.h) */
+    EM_ASM(
+        {
+            if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                postMessage({type : 'audio', buffer : HEAPU8.buffer, address : $0});
+            }
+        },
+        smg_audio_ring());
     /* The renderer's diagnostic mask (Aurora patch 0017), which the page sets: smgRenderDebug in web/shell/app.js */
     EM_ASM(
         {
