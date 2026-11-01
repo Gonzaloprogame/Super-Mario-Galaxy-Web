@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/img/logo.svg" width="110" alt="">
+<img src="docs/img/logo_galaxy_web_port.svg" width="720" alt="Galaxy Web Port">
 
-# 🌌 Galaxy Web
+# 🌌 Galaxy Web Port
 
 ### Un port experimental de *Super Mario Galaxy* al navegador
 
