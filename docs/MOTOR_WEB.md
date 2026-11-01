@@ -354,6 +354,16 @@ bytes a una «valla» del hueco, que se mapea (la misma contrapresión de antes,
   software). `bridge_smoke.mjs` y `browser_smoke.mjs` pasan.
 - Lo siguiente en el perfil es el procesado del flujo GX (unos 22 ms por fotograma en el nivel).
 
+**En el teléfono del usuario (primer nivel, con el parche 0019):** unos 27 fotogramas por segundo; por fotograma,
+unos 20 ms procesando el flujo GX, 8 ms terminando, 8 ms esperando al juego y 0,1 ms esperando a la GPU. El límite es
+la CPU del hilo de render, no la GPU.
+
+**Parche 0020 de Aurora:** el flujo de un nivel trae unas 39 000 primitivas por fotograma (tiras cortas de las listas
+de los modelos). Para cada una, Aurora volvía a calcular el tamaño de cada atributo indexado antes de leer sus índices;
+ahora la disposición de los atributos indexados se calcula una vez por formato de vértice (cuando cambia).
+- **Comprobado con el disco (contenedor):** procesar el flujo pasó de unos 22,5 ms a unos 13 ms por fotograma; el nivel
+  se ve igual. `bridge_smoke.mjs` (50) y `browser_smoke.mjs` (31) pasan.
+
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
 
