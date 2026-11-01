@@ -331,6 +331,29 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
 - **Sin prueba automática:** una prueba del puente con una matriz cargada por índice no llegó a ser válida (la base
   del *array* de matrices no llegaba a Aurora en el puente, sin causa encontrada) y se quitó.
 
+## Rendimiento
+
+**Medición:** el informe del host da, cada 10 s, el tiempo por fotograma del hilo de render en cada fase
+(`[host] render thread:`): esperando al juego, empezando el fotograma, procesando el flujo GX y terminándolo (envío y
+presentación). Con `-DSMG_PROFILING_FUNCS=ON` el wasm guarda los nombres de sus funciones para el perfilador del
+navegador (no para el sitio publicado).
+
+**Primer nivel, en el contenedor (WebGPU por software), antes:** unos 130 ms por fotograma esperando a la GPU al
+empezar, 20 ms procesando el flujo y 29 ms terminando. El perfil del hilo de render puso el 12,7 % de su tiempo (unos
+40 % de su trabajo) en `_emwgpuBufferUnmap`: Aurora mapeaba cada fotograma un búfer de 71 MB y, en el navegador,
+`Unmap` copia todos los bytes mapeados aunque el nivel use unos 13 MB.
+
+**Parche 0019 de Aurora:** los datos del fotograma van a memoria normal y solo los bytes usados de cada región van
+al búfer con `Queue::WriteBuffer`. Cada hueco queda libre cuando la GPU termina su fotograma: el fotograma copia 4
+bytes a una «valla» del hueco, que se mapea (la misma contrapresión de antes, sin la copia).
+- Sin esa contrapresión la CPU se adelantaba sin límite a la GPU (fallos en `bridge_smoke.mjs`, `table index is out
+  of bounds`); con `Queue::OnSubmittedWorkDone` el juego se paraba al arrancar. La valla mapeada no tiene ninguno de
+  los dos problemas.
+- **Comprobado con el disco:** el primer nivel se ve igual; terminar el fotograma pasó de unos 29 ms a unos 13 ms, y
+  el hilo de render de un 30 % a un 20 % de ocupación. La espera a la GPU del contenedor no cambia (es su GPU por
+  software). `bridge_smoke.mjs` y `browser_smoke.mjs` pasan.
+- Lo siguiente en el perfil es el procesado del flujo GX (unos 22 ms por fotograma en el nivel).
+
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
 
