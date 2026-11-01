@@ -453,6 +453,9 @@ static void report(void) {
     char stats[256];
     smg_bridge_debug_stats(stats, sizeof(stats));
     fprintf(stderr, "[host] Aurora pipelines: %s\n", stats);
+    char times[320];
+    smg_bridge_phase_times(times, sizeof(times));
+    fprintf(stderr, "[host] render thread: %s\n", times);
 #endif
 #if defined(__EMSCRIPTEN__)
     fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);

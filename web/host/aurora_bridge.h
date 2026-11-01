@@ -29,6 +29,8 @@ void smg_bridge_set_debug_copies(int on);
    the pipeline states built */
 int32_t* smg_bridge_render_debug(void);
 void smg_bridge_debug_stats(char* out, size_t size);
+/* Where the render thread's time went since the last call, per frame drawn */
+void smg_bridge_phase_times(char* out, size_t size);
 
 /* The end of the process with Aurora: smg_bridge_stop, then the exit with `code` that the page hears (onExit). */
 void smg_bridge_exit(int code);

@@ -79,8 +79,19 @@ int64_t now_ms() {
   return static_cast<int64_t>(t.tv_sec) * 1000 + t.tv_nsec / 1000000;
 }
 
+// The render thread's time in each phase, in microseconds (its own clock; for the host's report: smg_bridge_phase_times)
+constexpr int PhaseCount = 7;
+std::atomic<uint64_t> g_phaseUs[PhaseCount];
+double g_phaseStart = 0.0;
+
 void set_phase(Phase phase) {
-  if (g_phase.exchange(phase, std::memory_order_relaxed) != phase) {
+  const double now = emscripten_get_now();
+  const int previous = g_phase.exchange(phase, std::memory_order_relaxed);
+  if (g_phaseStart != 0.0) {
+    g_phaseUs[previous].fetch_add(static_cast<uint64_t>((now - g_phaseStart) * 1000.0), std::memory_order_relaxed);
+  }
+  g_phaseStart = now;
+  if (previous != phase) {
     g_phaseSinceMs.store(now_ms(), std::memory_order_relaxed);
   }
 }
@@ -586,6 +597,27 @@ extern "C" void smg_bridge_buffer_peaks(char* out, size_t size) {
            kb(g_peakStorage), kb(g_peakUniform), kb(g_peakVerts), kb(g_peakIndices), kb(g_peakTextures),
            g_lastDraws.load(std::memory_order_relaxed), g_peakDraws.load(std::memory_order_relaxed),
            g_pipelinesCreated.load(std::memory_order_relaxed), g_pipelinesQueued.load(std::memory_order_relaxed));
+}
+
+// Where the render thread's time went since the last call: milliseconds per frame drawn in each phase
+extern "C" void smg_bridge_phase_times(char* out, size_t size) {
+  static uint64_t last[PhaseCount];
+  static uint32_t lastFrames;
+  uint64_t delta[PhaseCount];
+  for (int i = 0; i < PhaseCount; ++i) {
+    const uint64_t now = g_phaseUs[i].load(std::memory_order_relaxed);
+    delta[i] = now - last[i];
+    last[i] = now;
+  }
+  const uint32_t frames = g_frames.load(std::memory_order_relaxed);
+  const uint32_t drawn = frames - lastFrames;
+  lastFrames = frames;
+  const double per = drawn != 0 ? 1.0 / (1000.0 * drawn) : 0.0;
+  snprintf(out, size,
+           "%u frames; per frame, ms: waiting for the game %.1f, starting %.1f, refused %.1f, reading the stream %.1f, "
+           "peeks %.1f, ending (submit, present) %.1f, PE markers %.1f",
+           drawn, delta[PhaseWaiting] * per, delta[PhaseBeginFrame] * per, delta[PhaseBeginRefused] * per,
+           delta[PhaseSpan] * per, delta[PhasePeeks] * per, delta[PhaseEndFrame] * per, delta[PhaseMarker] * per);
 }
 
 extern "C" int32_t* smg_bridge_render_debug(void) { return &g_renderDebug; }
