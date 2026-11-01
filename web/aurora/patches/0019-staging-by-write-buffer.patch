@@ -1,6 +1,6 @@
 diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
 --- a/lib/gfx/frame.cpp	2026-11-01 13:07:48.343885162 +0000
-+++ b/lib/gfx/frame.cpp	2026-11-01 13:26:10.980815366 +0000
++++ b/lib/gfx/frame.cpp	2026-11-01 14:18:08.548579596 +0000
 @@ -24,6 +24,7 @@
  #include <chrono>
  #include <cstdint>
@@ -9,25 +9,34 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
  #include <mutex>
  #include <optional>
  #include <string>
-@@ -59,6 +60,11 @@
+@@ -59,6 +60,17 @@
  uint64_t g_nextFrameId = 1;
  render_worker::FrameSlotPool g_frameSlots{FrameSlotCount};
  render_worker::FrameSlotPool g_stagingSlots{StagingBufferCount};
 +// The frame's data (vertices, uniforms, indices, storage, texture uploads) is written to host memory, one block per
 +// staging slot, and each region's used bytes go to the staging buffer with Queue::WriteBuffer when the frame ends. The
 +// staging buffers are never mapped: in the browser, Unmap copied every mapped byte (some 71 MB a frame, of which a
-+// stage uses about 13). A slot is released when the GPU has done its frame (OnSubmittedWorkDone).
++// stage uses about 13).
 +std::array<std::unique_ptr<u8[]>, StagingBufferCount> g_stagingHost;
++// A slot is free again once the GPU has done its frame: each frame copies 4 bytes of its staging buffer to the slot's
++// fence, which is then mapped; the mapping completes when the GPU is done with it, as the staging buffer's own mapping
++// did (the same back-pressure: no more frames in flight than slots). Queue::OnSubmittedWorkDone's callbacks did not
++// arrive in time in the browser, and the game, waiting on its draw done, stopped.
++std::array<wgpu::Buffer, StagingBufferCount> g_stagingFences;
++std::array<std::atomic<bool>, StagingBufferCount> g_stagingFenceMapped;
  
  struct RuntimeDrawType {
    std::string label;
-@@ -439,14 +445,12 @@
+@@ -439,14 +451,15 @@
                 "Shared Storage Buffer");
    for (size_t i = 0; i < g_stagingBuffers.size(); ++i) {
      const auto label = fmt::format("Staging Buffer {}", i);
 -    createBuffer(g_stagingBuffers[i], wgpu::BufferUsage::MapWrite | wgpu::BufferUsage::CopySrc, StagingBufferSize,
 +    createBuffer(g_stagingBuffers[i], wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::CopySrc, StagingBufferSize,
                   label.c_str());
++    const auto fenceLabel = fmt::format("Staging Fence {}", i);
++    createBuffer(g_stagingFences[i], wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst, 4, fenceLabel.c_str());
++    g_stagingFenceMapped[i].store(false, std::memory_order_release);
    }
 +  // Never mapped (g_stagingHost): every slot is ready
    for (auto& state : g_mappingStates) {
@@ -39,7 +48,7 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
    }
  
    {
-@@ -608,6 +612,9 @@
+@@ -608,6 +621,9 @@
  
  bool wait_for_staging_buffer(size_t slot) {
    ZoneScopedN("Wait for buffer map");
@@ -49,7 +58,7 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
    map_staging_buffer(slot);
    while (true) {
      const auto mappingState = g_mappingStates[slot].load(std::memory_order_acquire);
-@@ -667,12 +674,15 @@
+@@ -667,12 +683,15 @@
    prepare_recording();
    frame.efb = efb::prepare_frame();
    size_t bufferOffset = 0;
@@ -67,7 +76,7 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
      bufferOffset += size;
    };
    mapBuffer(frame.verts, VertexBufferSize);
-@@ -712,8 +722,26 @@
+@@ -712,8 +731,26 @@
    const size_t stagingSlot = frame.stagingBuffer;
    render_worker::enqueue_end_frame(frameId, [frameSlot, stagingSlot, callback = std::move(callback)]() mutable {
      auto& packet = g_framePackets[frameSlot];
@@ -96,18 +105,32 @@ diff -ruN a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
      auto encoder = std::move(packet.encoder);
      const auto stats = packet.stats;
      auto afterSubmitCallbacks = std::move(packet.afterSubmitCallbacks);
-@@ -735,7 +763,13 @@
+@@ -724,6 +761,11 @@
+     g_resources.stats.lastIndexSize = stats.lastIndexSize;
+     g_resources.stats.lastStorageSize = stats.lastStorageSize;
+     g_resources.stats.lastTextureUploadSize = stats.lastTextureUploadSize;
++    // The slot's fence (g_stagingFences): used by this frame's commands, mapped once they are submitted
++    if (g_stagingFenceMapped[stagingSlot].exchange(false, std::memory_order_acq_rel)) {
++      g_stagingFences[stagingSlot].Unmap();
++    }
++    encoder.CopyBufferToBuffer(g_stagingBuffers[stagingSlot], 0, g_stagingFences[stagingSlot], 0, 4);
+     if (callback) {
+       callback(encoder, std::move(afterSubmitCallbacks));
+     }
+@@ -735,7 +777,15 @@
      packet = {};
      g_frameSlots.release(frameSlot);
      expire_cached_bind_groups();
 -    map_staging_buffer(stagingSlot, true);
-+    // The slot is free again once the GPU has done this frame's work, as when its buffer was mapped again: no more
-+    // frames in flight than staging slots (without it the CPU ran ahead of the GPU unbounded and reused what was
-+    // still in use), and the wait for a slot yields to the browser, which delivers WebGPU's callbacks
-+    g_queue.OnSubmittedWorkDone(wgpu::CallbackMode::AllowSpontaneous,
-+                                [stagingSlot](wgpu::QueueWorkDoneStatus, wgpu::StringView) {
-+                                  g_stagingSlots.release(stagingSlot);
-+                                });
++    // Free again once the GPU is done with this frame (its fence mapped): without it the CPU ran ahead of the GPU
++    // unbounded and reused what was still in use; the wait for a slot yields to the browser, which delivers the
++    // mapping's callback
++    g_stagingFences[stagingSlot].MapAsync(
++        wgpu::MapMode::Read, 0, 4, wgpu::CallbackMode::AllowSpontaneous,
++        [stagingSlot](wgpu::MapAsyncStatus status, wgpu::StringView) {
++          g_stagingFenceMapped[stagingSlot].store(status == wgpu::MapAsyncStatus::Success, std::memory_order_release);
++          g_stagingSlots.release(stagingSlot);
++        });
      process_events();
    });
  }
