@@ -251,6 +251,10 @@ async function start() {
         // The engine's shared memory and where its control words are (web/host/console_services.h)
         controls.attach(new Int32Array(data.buffer, data.address, data.words));
         break;
+      case 'renderdebug':
+        // The renderer's diagnostic mask (Aurora patch 0017): smgRenderDebug[0] = mask, read at each frame's start
+        globalThis.smgRenderDebug = new Int32Array(data.buffer, data.address, 1);
+        break;
       case 'status':
         if (!rendererFailed) {
           setStatus(data.text); // after a renderer failure, its error stays the status

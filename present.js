@@ -31,6 +31,11 @@
         }
         return;
       }
+      if (event.data.type === 'framelog') {
+        // A frame the renderer recorded on request (Aurora patch 0017): kept for whoever asked (globalThis.smgFrameLog)
+        globalThis.smgFrameLog = event.data.text;
+        return;
+      }
       if (event.data.type === 'exit') {
         if (presenter.onExit) {
           presenter.onExit(event.data.code);
