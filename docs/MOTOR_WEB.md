@@ -312,6 +312,25 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
     dibujado después queda oculto; con él, se ve, y fuera del *viewport* del quad la profundidad se conserva.
 - Con WebGPU por software, cada fotograma 3D tarda unos 5 s en el contenedor.
 
+**El escenario, después del parche 0016:** ya se veían los objetos, pero no el escenario.
+- Para encontrarlo, el parche 0017 añade diagnósticos que la página activa mientras el juego corre
+  (`globalThis.smgRenderDebug[0]`): una máscara que quita una parte del *pipeline* (niebla, iluminación, todo salvo
+  la textura o el color, la prueba de transparencia o la de profundidad), recuentos de los estados que usan las
+  dibujadas, y el registro de un fotograma completo (bit 6: cada dibujada, copia y marcador, con sus texturas y si
+  son copias del EFB), que llega a la página en un solo mensaje (`globalThis.smgFrameLog`).
+- El registro mostró unas 36 000 dibujadas antes de que el *bloom* copie la escena, y esa copia, plana.
+- Causa: los modelos del escenario cargan sus matrices por índice (`LOAD_INDX`) desde la memoria del juego. La CPU de
+  la consola las escribía en *big-endian*; el juego nativo las escribe en el orden del host, mientras que los datos
+  de los archivos siguen en *big-endian*. Aurora las leía en *big-endian*: matrices basura (en el teléfono, polígonos
+  estirados de colores planos; en el contenedor, nada). El renderizador de Nebula las lee en el orden del host
+  (`runtime/src/gx/fifo_parser.cpp`, `read_indexed_values`).
+- **Corrección, parche 0018 de Aurora:** las cargas por índice desde la memoria del juego se leen en el orden del
+  host.
+- **Comprobado con el disco:** en el primer nivel se ven el escenario, Mario, el cielo y el HUD. `bridge_smoke.mjs`
+  (50) y `browser_smoke.mjs` (31) pasan.
+- **Sin prueba automática:** una prueba del puente con una matriz cargada por índice no llegó a ser válida (la base
+  del *array* de matrices no llegaba a Aurora en el puente, sin causa encontrada) y se quitó.
+
 **Partidas guardadas:** la página guarda la NAND en IndexedDB, por disco, y se la devuelve al motor al arrancar.
 ## Controles
 
