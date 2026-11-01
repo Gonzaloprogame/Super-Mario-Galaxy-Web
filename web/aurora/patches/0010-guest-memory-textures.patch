@@ -1,0 +1,174 @@
+diff --git a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+index e438475..c5cd4a7 100644
+--- a/lib/gx/command_processor.cpp
++++ b/lib/gx/command_processor.cpp
+@@ -399,6 +399,8 @@ static void push_gx_draw(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, gfx::Rang
+   auto& state = g_gxState;
+   auto& cache = sDrawCache;
+ 
++  sync_guest_textures();
++
+   DrawImmediateData immediates{.vtxStart = vertRange.offset, .currentPnMtx = state.currentPnMtx};
+   for (int i = GX_VA_POS; i <= GX_VA_TEX7; ++i) {
+     if (state.vtxDesc[i] != GX_INDEX8 && state.vtxDesc[i] != GX_INDEX16) {
+diff --git a/lib/gx/gx.hpp b/lib/gx/gx.hpp
+index 2a2a62e..245ae0e 100644
+--- a/lib/gx/gx.hpp
++++ b/lib/gx/gx.hpp
+@@ -557,6 +557,8 @@ GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept;
+ u8 comp_type_size(GXAttr attr, GXCompType type) noexcept;
+ // Guest memory at a physical address (aurora/guest_memory.h); nullptr without a resolver or outside guest memory.
+ const u8* guest_memory(u32 physical, u32* available) noexcept;
++// Rebuilds the texture maps (and their TLUTs) whose hardware registers named guest memory since the last call.
++void sync_guest_textures() noexcept;
+ u8 comp_cnt_count(GXAttr attr, GXCompCnt cnt) noexcept;
+ 
+ constexpr bool efb_has_alpha(GXPixelFmt format) noexcept { return format == GX_PF_RGBA6_Z24; }
+diff --git a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+index 241c677..421e0fb 100644
+--- a/lib/gx/regs.cpp
++++ b/lib/gx/regs.cpp
+@@ -8,6 +8,21 @@
+ #include <bit>
+ #include <cmath>
+ 
++namespace aurora::gx {
++namespace {
++// Textures named by the hardware's registers (the game's SDK writes them as the console does; with a guest resolver).
++// A TLUT is loaded into TMEM (BP 0x64/0x65) and a texture map selects one by its TMEM offset (TX_SETTLUT); both are
++// tracked here and turned into Aurora's texture and TLUT slots at the next draw (sync_guest_textures).
++struct GuestTlut {
++  const u8* data = nullptr;
++  u16 numEntries = 0;
++};
++std::array<GuestTlut, 1024> sGuestTluts;     // by TMEM offset (512-byte units from 0x80000)
++std::array<u32, MaxTextures> sGuestTlutRegs{}; // TX_SETTLUT per texture map
++u32 sGuestTexturesDirty = 0;                   // texture maps whose registers changed
++} // namespace
++} // namespace aurora::gx
++
+ namespace aurora::gx::fifo {
+ namespace {
+ constexpr Module Log{"aurora::gx::fifo"};
+@@ -296,6 +311,21 @@ void bp_tlut_load(u8, u32 value) noexcept {
+     slot.loadTlut0 = g_gxState.bpRegCache[0x64];
+     slot.numEntries = static_cast<u16>(reg_get(value, 10, 10) + 1);
+   }
++  // The hardware's form: the source's physical address / 32 in BP 0x64, the TMEM offset and the count in 16-entry units
++  const u32 physical = reg_get(g_gxState.bpRegCache[0x64], 24, 0) << 5;
++  u32 available = 0;
++  const u8* data = guest_memory(physical, &available);
++  if (data != nullptr) {
++    const u32 numEntries = reg_get(value, 11, 10) * 16;
++    auto& tlut = sGuestTluts[reg_get(value, 10, 0)];
++    if (numEntries * sizeof(u16) <= available) {
++      tlut = {data, static_cast<u16>(numEntries)};
++    } else {
++      Log.error("TLUT load from 0x{:08X}: {} entries, {} bytes in guest memory", physical, numEntries, available);
++      tlut = {};
++    }
++    sGuestTexturesDirty = (1u << MaxTextures) - 1;
++  }
+ }
+ 
+ // TEV color combiner stages (0xC0, 0xC2, ... 0xDE)
+@@ -488,6 +518,7 @@ void bp_tex(u8 reg, u32 value) noexcept {
+   const u32 kind = (idx & 0x1F) / 4;
+   const u32 texMapId = (idx & 3) + (idx >= 0x20 ? 4 : 0);
+   auto& slot = g_gxState.loadedTextures[texMapId];
++  sGuestTexturesDirty |= 1u << texMapId;
+   switch (kind) {
+   case 0: // Mode0
+     slot.mode0 = value;
+@@ -504,6 +535,9 @@ void bp_tex(u8 reg, u32 value) noexcept {
+   case 5: // Image3
+     slot.image3 = value;
+     break;
++  case 6: // TLUT (TMEM offset and format)
++    sGuestTlutRegs[texMapId] = value;
++    break;
+   default:
+     break;
+   }
+@@ -554,6 +588,8 @@ constexpr auto kBpRegs = [] {
+   regs[0x59] = {bp_scissor};
+   regs[0x64] = {}; // TLUT load address; bp_tlut_load reads from shadow
+   regs[0x65] = {bp_tlut_load, DirtyTextures, /* alwaysHandle */ true};
++  // Texture cache invalidation: guest textures are hashed by content when bound, so only rebind
++  regs[0x66] = {nullptr, DirtyTextures, /* alwaysHandle */ true};
+   for (u32 base : {0x80u, 0xA0u}) {
+     for (u32 i = 0; i < 4; ++i) {
+       regs[base + 0x00 + i] = {bp_tex, DirtyTextures}; // Mode0
+@@ -562,7 +598,7 @@ constexpr auto kBpRegs = [] {
+       regs[base + 0x0C + i] = {};                      // Image1 (GXTexRegion)
+       regs[base + 0x10 + i] = {};                      // Image2 (GXTexRegion)
+       regs[base + 0x14 + i] = {bp_tex, DirtyTextures}; // Image3
+-      regs[base + 0x18 + i] = {};                      // TLUT region TMEM offset
++      regs[base + 0x18 + i] = {bp_tex, DirtyTextures}; // TLUT region TMEM offset
+     }
+   }
+   for (u8 r = 0xC0; r <= 0xDE; r += 2) {
+@@ -1254,6 +1290,63 @@ const u8* guest_memory(u32 physical, u32* available) noexcept {
+   *available = 0;
+   return sGuestResolver != nullptr ? sGuestResolver(physical, available) : nullptr;
+ }
++
++void sync_guest_textures() noexcept {
++  if (sGuestTexturesDirty == 0 || sGuestResolver == nullptr) {
++    return;
++  }
++  for (u32 i = 0; i < MaxTextures; ++i) {
++    if ((sGuestTexturesDirty & (1u << i)) == 0) {
++      continue;
++    }
++    auto& slot = g_gxState.loadedTextures[i];
++    if (slot.image0 == UINT32_MAX) {
++      continue; // never loaded
++    }
++    // Size and format come from Image0 (GXTexObj_::width/height/format); mipmaps from the min filter, as the hardware
++    // samples them; the data from Image3's physical address / 32. No object identity: Aurora's content cache hashes
++    // the data each time the texture is bound, which also catches the game rewriting it.
++    const u32 physical = (slot.image3 & 0xFFFFFF) << 5;
++    u32 available = 0;
++    const u8* data = guest_memory(physical, &available);
++    const u32 minFilter = (slot.mode0 >> 5) & 7;
++    slot.flags = (minFilter & 3) == 1 || (minFilter & 3) == 2 ? 1 : 0;
++    slot.mWidth = 0;
++    slot.mHeight = 0;
++    slot.mFormat = gfx::InvalidTextureFormat;
++    slot.texObjId = 0;
++    slot.texDataVersion = 0;
++    slot.data = nullptr;
++    if (data == nullptr) {
++      fifo::Log.error("Texture map {}: image at 0x{:08X} is not guest memory", i, physical);
++      continue;
++    }
++    const size_t bytes = texture::texture_source_size(slot.format(), slot.width(), slot.height(), slot.mip_count());
++    if (bytes == 0 || bytes > available) {
++      fifo::Log.error("Texture map {}: {}x{} format {} with {} levels needs {} bytes at 0x{:08X}, {} in guest memory", i,
++                slot.width(), slot.height(), slot.format(), slot.mip_count(), bytes, physical, available);
++      continue;
++    }
++    slot.data = data;
++    if (is_palette_format(slot.format())) {
++      // Each map gets its own TLUT slot, filled from the TMEM offset it selects
++      const u32 tlutReg = sGuestTlutRegs[i];
++      const auto& source = sGuestTluts[tlutReg & 0x3FF];
++      auto& tlut = g_gxState.loadedTluts[i];
++      tlut.data = source.data;
++      tlut.numEntries = source.numEntries;
++      tlut.format = static_cast<GXTlutFmt>((tlutReg >> 10) & 3);
++      tlut.tlutObjId = 0;
++      tlut.tlutDataVersion = 0;
++      tlut.flags = 0;
++      slot.tlut = static_cast<GXTlut>(i);
++      if (source.data == nullptr) {
++        fifo::Log.error("Texture map {}: no TLUT loaded at TMEM offset 0x{:03X}", i, tlutReg & 0x3FF);
++      }
++    }
++  }
++  sGuestTexturesDirty = 0;
++}
+ } // namespace aurora::gx
+ 
+ void aurora_set_guest_resolver(AuroraGuestResolver resolver) { aurora::gx::sGuestResolver = resolver; }

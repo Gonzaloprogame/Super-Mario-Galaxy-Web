@@ -1,0 +1,17 @@
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-11-01 00:03:20.848360595 +0000
++++ b/lib/gx/command_processor.cpp	2026-11-01 00:03:20.866252466 +0000
+@@ -288,7 +288,12 @@
+                     "indexed XF load outside array {}: offset={}, size={}, array size={}", arrayType, srcOffset,
+                     srcSize, arraySize);
+       auto const* srcData = static_cast<const u8*>(array.data) + srcOffset;
+-      if (!copy_xf_data(dstAddr, srcData, len, array.le ? std::endian::little : std::endian::big)) {
++      // What LOAD_INDX reads (matrices, lights) the CPU computes: big-endian from the console's CPU, but in host order
++      // from a game running natively (Nebula), whose guest memory these arrays are; data from files stays big-endian
++      // (Nebula's runtime/src/gx/fifo_parser.cpp, read_indexed_values). Read big-endian, the game's matrices were
++      // garbage and its stages' models vanished or stretched.
++      const auto order = array.le || has_guest_memory() ? std::endian::native : std::endian::big;
++      if (!copy_xf_data(dstAddr, srcData, len, order)) {
+ #ifndef NDEBUG
+         Log.debug("Unimplemented indexed XF load (opcode 0x{:02X}, dstAddr=%04x)", opcode, dstAddr);
+ #endif

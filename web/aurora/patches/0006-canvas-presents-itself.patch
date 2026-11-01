@@ -1,0 +1,17 @@
+diff --git a/lib/gfx/present_target.cpp b/lib/gfx/present_target.cpp
+index 915d22b..ffcbed2 100644
+--- a/lib/gfx/present_target.cpp
++++ b/lib/gfx/present_target.cpp
+@@ -416,7 +416,12 @@ void submit(const Request& request) {
+   wgpu::ConvertibleStatus status = wgpu::Status::Error;
+   {
+     ZoneScopedN("Present");
++#ifdef __EMSCRIPTEN__
++    // A canvas has no Present: the browser shows its current texture once the page's thread returns to the event loop.
++    status = wgpu::Status::Success;
++#else
+     status = target.surface.Present();
++#endif
+   }
+   if (status) {
+     target.status = PresentTargetStatus::Ready;

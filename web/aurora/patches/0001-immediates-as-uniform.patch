@@ -1,0 +1,128 @@
+diff --git a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
+index 82e25ea..9ec44af 100644
+--- a/lib/gfx/frame.cpp
++++ b/lib/gfx/frame.cpp
+@@ -517,6 +517,21 @@ void initialize() {
+         .entries = entries.data(),
+     };
+     g_resources.uniformBindGroup = g_device.CreateBindGroup(&bindGroupDescriptor);
++
++    const std::array immediateEntries{
++        wgpu::BindGroupEntry{
++            .binding = 0,
++            .buffer = g_resources.uniformBuffer,
++            .size = sizeof(gx::DrawImmediateData),
++        },
++    };
++    const wgpu::BindGroupDescriptor immediateDescriptor{
++        .label = "Immediate data bind group",
++        .layout = g_resources.uniformBindGroupLayout,
++        .entryCount = immediateEntries.size(),
++        .entries = immediateEntries.data(),
++    };
++    g_resources.immediateBindGroup = g_device.CreateBindGroup(&immediateDescriptor);
+   }
+ 
+   gx::initialize();
+@@ -570,6 +585,7 @@ void shutdown() {
+   g_resources.staticBindGroup = {};
+   g_resources.staticBindGroupLayout = {};
+   g_resources.uniformBindGroup = {};
++  g_resources.immediateBindGroup = {};
+   g_resources.uniformBindGroupLayout = {};
+   g_frameIndex = UINT32_MAX;
+   g_frameSlots.reset();
+diff --git a/lib/gfx/resources.hpp b/lib/gfx/resources.hpp
+index 3fdc0ee..afa0447 100644
+--- a/lib/gfx/resources.hpp
++++ b/lib/gfx/resources.hpp
+@@ -20,6 +20,7 @@ struct Resources {
+   wgpu::BindGroup staticBindGroup;
+   wgpu::BindGroupLayout uniformBindGroupLayout;
+   wgpu::BindGroup uniformBindGroup;
++  wgpu::BindGroup immediateBindGroup; // Web: DrawImmediateData as a uniform (lib/gx/pipeline.cpp)
+   wgpu::Limits limits;
+   AuroraStats stats{};
+ };
+diff --git a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+index be59752..9f0cf9c 100644
+--- a/lib/gx/command_processor.cpp
++++ b/lib/gx/command_processor.cpp
+@@ -467,7 +467,7 @@ static void push_gx_draw(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, gfx::Rang
+       .vertRange = vertRange,
+       .idxRange = idxRange,
+       .uniformRange = cache.uniformRange,
+-      .immediateData = immediates,
++      .immediateRange = gfx::push_uniform(immediates),
+       .vtxCount = vtxCount,
+       .indexCount = numIndices,
+       .instanceCount = instanceCount,
+diff --git a/lib/gx/gx.cpp b/lib/gx/gx.cpp
+index 490de4c..e012605 100644
+--- a/lib/gx/gx.cpp
++++ b/lib/gx/gx.cpp
+@@ -593,12 +593,13 @@ void initialize() noexcept {
+         gfx::detail::resources().staticBindGroupLayout,
+         gfx::detail::resources().uniformBindGroupLayout,
+         sTextureBindGroupLayout,
++        // Web: the draw's DrawImmediateData, a uniform with a dynamic offset (no immediate data in browsers).
++        gfx::detail::resources().uniformBindGroupLayout,
+     };
+     const wgpu::PipelineLayoutDescriptor desc{
+         .label = "GX Pipeline Layout",
+         .bindGroupLayoutCount = layouts.size(),
+         .bindGroupLayouts = layouts.data(),
+-        .immediateSize = sizeof(DrawImmediateData),
+     };
+     sPipelineLayout = g_device.CreatePipelineLayout(&desc);
+   }
+diff --git a/lib/gx/pipeline.cpp b/lib/gx/pipeline.cpp
+index aaf7c60..c49c910 100644
+--- a/lib/gx/pipeline.cpp
++++ b/lib/gx/pipeline.cpp
+@@ -63,7 +63,8 @@ void render(const DrawData& data, const wgpu::RenderPassEncoder& pass) {
+     return;
+   }
+   const auto& resources = gfx::detail::resources();
+-  pass.SetImmediates(0, &data.immediateData, sizeof(data.immediateData));
++  const std::array immediateOffsets{data.immediateRange.offset};
++  pass.SetBindGroup(3, resources.immediateBindGroup, immediateOffsets.size(), immediateOffsets.data());
+   const std::array offsets{data.uniformRange.offset};
+   pass.SetBindGroup(1, resources.uniformBindGroup, offsets.size(), offsets.data());
+   if (data.bindGroups.textureBindGroup) {
+diff --git a/lib/gx/pipeline.hpp b/lib/gx/pipeline.hpp
+index 54456ed..a7f656a 100644
+--- a/lib/gx/pipeline.hpp
++++ b/lib/gx/pipeline.hpp
+@@ -10,7 +10,7 @@ struct DrawData {
+   gfx::Range vertRange;
+   gfx::Range idxRange;
+   gfx::Range uniformRange;
+-  DrawImmediateData immediateData;
++  gfx::Range immediateRange; // Web: the draw's DrawImmediateData in the uniform buffer
+   uint32_t vtxCount;
+   uint32_t indexCount;
+   uint32_t instanceCount;
+diff --git a/lib/gx/shader.cpp b/lib/gx/shader.cpp
+index 2d10095..9723197 100644
+--- a/lib/gx/shader.cpp
++++ b/lib/gx/shader.cpp
+@@ -665,7 +665,7 @@ struct AttrAddress {
+   bool le;
+ };
+ 
+-// Immediates cannot contain arrays, so array_start is packed as three vec4u.
++// Immediates cannot contain arrays, so array_start is packed as three vec4u. (Web: a uniform at group 3, same layout.)
+ std::string imm_array_start(GXAttr attr) noexcept {
+   const u32 idx = attr - GX_VA_POS;
+   return fmt::format("imm.array_start{}.{}", idx / 4, "xyzw"[idx % 4]);
+@@ -1976,7 +1976,8 @@ struct Immediate {{
+     array_start1: vec4u,
+     array_start2: vec4u,
+ }};
+-var<immediate> imm: Immediate;
++@group(3) @binding(0)
++var<uniform> imm: Immediate;
+ 
+ struct Uniform {{
+     render_viewport_size: vec2f,

@@ -1,0 +1,39 @@
+diff --git a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+index 71dd886..6d8dab0 100644
+--- a/include/aurora/guest_memory.h
++++ b/include/aurora/guest_memory.h
+@@ -12,6 +12,10 @@ extern "C" {
+ typedef const uint8_t* (*AuroraGuestResolver)(uint32_t physical, uint32_t* available);
+ void aurora_set_guest_resolver(AuroraGuestResolver resolver);
+ 
++/* The size of the copy (GXCopyTex, GXCopyDisp) whose destination is `physical`, as the stream processed so far left
++   it: 1 and *width, *height, or 0 when there is none. On the thread that runs Aurora, between frames. */
++int aurora_guest_copy_size(uint32_t physical, uint32_t* width, uint32_t* height);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+index 2f4c4ca..52add20 100644
+--- a/lib/gx/regs.cpp
++++ b/lib/gx/regs.cpp
+@@ -1453,3 +1453,19 @@ void sync_guest_textures() noexcept {
+ } // namespace aurora::gx
+ 
+ void aurora_set_guest_resolver(AuroraGuestResolver resolver) { aurora::gx::sGuestResolver = resolver; }
++
++int aurora_guest_copy_size(uint32_t physical, uint32_t* width, uint32_t* height) {
++  u32 available = 0;
++  const u8* dest = aurora::gx::guest_memory(physical, &available);
++  if (dest == nullptr) {
++    return 0;
++  }
++  const auto& copies = aurora::gx::g_gxState.copyTextures;
++  const auto it = copies.find(dest);
++  if (it == copies.end() || !it->second) {
++    return 0;
++  }
++  *width = it->second.width;
++  *height = it->second.height;
++  return 1;
++}

@@ -1,0 +1,27 @@
+diff --git a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+index c5cd4a7..4f3b708 100644
+--- a/lib/gx/command_processor.cpp
++++ b/lib/gx/command_processor.cpp
+@@ -103,6 +103,7 @@ constexpr u8 CP_CMD_LOAD_INDX_C = GX_LOAD_INDX_C;
+ constexpr u8 CP_CMD_LOAD_INDX_D = GX_LOAD_INDX_D;
+ constexpr u8 CP_CMD_CALL_DL = GX_CMD_CALL_DL;
+ constexpr u8 CP_CMD_INVAL_VTX = GX_CMD_INVL_VC;
++constexpr u8 CP_CMD_NEBULA_HOST_MARKER = 0xF0;
+ constexpr u8 CP_CMD_LOAD_BP_REG = GX_LOAD_BP_REG & GX_OPCODE_MASK;
+ 
+ // Primitive type mask
+@@ -297,6 +298,14 @@ ProcessResult process(const u8* data, u32 size) noexcept {
+       break;
+     }
+ 
++    case CP_CMD_NEBULA_HOST_MARKER: {
++      // Nebula's host marker (its native/msl/include/nebula_gx_fifo.h): 0xF0, a kind, aux (u16), a and b (u32), 12
++      // bytes in all. Not a console command: Nebula's renderer reads it (draw identities, bloom, the EFB clear quad);
++      // here it is skipped, which its writer allows (an unread clear quad marker leaves the quad drawn as written).
++      reader.skip(11);
++      break;
++    }
++
+     case CP_CMD_INVAL_VTX: {
+       for (auto& array : g_gxState.arrays) {
+         array.cachedRange = {};

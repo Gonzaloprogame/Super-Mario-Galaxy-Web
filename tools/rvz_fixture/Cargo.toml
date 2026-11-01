@@ -1,0 +1,15 @@
+# Synthetic RVZ disc images for testing web/host/rvz_reader.c (docs/RVZ.md): every byte is made here, none comes from
+# a Nintendo disc. Each image is also read back with nod, an independent RVZ reader (the one Nebula's importer uses),
+# which must return the same partition data.
+[package]
+name = "rvz_fixture"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+nod = "=1.4.4"
+sha1 = "=0.10.6"
+zstd = "=0.13.3"
+
+[workspace]

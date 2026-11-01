@@ -1,0 +1,227 @@
+diff --git a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+new file mode 100644
+index 0000000..71dd886
+--- /dev/null
++++ b/include/aurora/guest_memory.h
+@@ -0,0 +1,17 @@
++#pragma once
++
++#include <stdint.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/* The hardware command stream names memory by the guest's 32-bit physical addresses (CP array bases, display list
++   calls). A resolver maps one to host memory: it returns where `physical` is, with the bytes readable from there in
++   *available, or NULL when the address is not guest memory. Without a resolver those commands are ignored, as before. */
++typedef const uint8_t* (*AuroraGuestResolver)(uint32_t physical, uint32_t* available);
++void aurora_set_guest_resolver(AuroraGuestResolver resolver);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+index 9f0cf9c..e438475 100644
+--- a/lib/gx/command_processor.cpp
++++ b/lib/gx/command_processor.cpp
+@@ -263,9 +263,10 @@ ProcessResult process(const u8* data, u32 size) noexcept {
+       const u32 srcOffset = static_cast<u32>(srcArrayIdx) * array.stride;
+       const u32 srcSize = static_cast<u32>(len) * sizeof(u32);
+       AURORA_ASSERT(array.data != nullptr, "indexed XF load from unmapped array {}", arrayType);
+-      AURORA_ASSERT(srcOffset <= array.size && srcSize <= array.size - srcOffset,
++      const u32 arraySize = array.guestAvailable != 0 ? array.guestAvailable : array.size;
++      AURORA_ASSERT(srcOffset <= arraySize && srcSize <= arraySize - srcOffset,
+                     "indexed XF load outside array {}: offset={}, size={}, array size={}", arrayType, srcOffset,
+-                    srcSize, array.size);
++                    srcSize, arraySize);
+       auto const* srcData = static_cast<const u8*>(array.data) + srcOffset;
+       if (!copy_xf_data(dstAddr, srcData, len, array.le ? std::endian::little : std::endian::big)) {
+ #ifndef NDEBUG
+@@ -276,9 +277,23 @@ ProcessResult process(const u8* data, u32 size) noexcept {
+     }
+ 
+     case CP_CMD_CALL_DL: {
+-      // Call display list: 8 bytes (address + size)
+-      Log.warn("Ignoring nested GX_CMD_CALL_DL");
+-      reader.skip(8);
++      // Call display list: 8 bytes (physical address + size). The hardware does not nest calls.
++      static bool sInDisplayList = false;
++      const u32 address = reader.read<u32>();
++      const u32 listSize = reader.read<u32>();
++      u32 available = 0;
++      const u8* list = guest_memory(address, &available);
++      if (list == nullptr) {
++        Log.warn("Ignoring GX_CMD_CALL_DL to 0x{:08X}: not guest memory", address);
++      } else if (sInDisplayList) {
++        Log.warn("Ignoring nested GX_CMD_CALL_DL");
++      } else if (listSize > available) {
++        Log.error("Ignoring GX_CMD_CALL_DL to 0x{:08X}: {} bytes, {} in guest memory", address, listSize, available);
++      } else {
++        sInDisplayList = true;
++        process(list, listSize);
++        sInDisplayList = false;
++      }
+       break;
+     }
+ 
+@@ -491,6 +506,49 @@ static void handle_draw_unmerged(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, g
+   push_gx_draw(prim, fmt, vtxCount, vertRange, idxRange, numIndices);
+ }
+ 
++// Arrays in guest memory (set by a CP array base) have no size in the registers: upload what the draws' indices reach.
++// Growing an array re-uploads it, which changes the draw's immediates (no merge with the previous draw).
++static void bound_guest_arrays(GXVtxFmt fmt, std::span<const u8> vertexData, u32 vtxSize, u16 vtxCount) noexcept {
++  const auto& vtxFmt = g_gxState.vtxFmts[fmt];
++  u32 offset = 0;
++  for (int i = GX_VA_PNMTXIDX; i <= GX_VA_TEX7; ++i) {
++    const auto desc = g_gxState.vtxDesc[i];
++    if (desc == GX_NONE) {
++      continue;
++    }
++    const auto attr = static_cast<GXAttr>(i);
++    const auto& attrFmt = vtxFmt.attrs[i];
++    const u32 elemSize = comp_type_size(attr, attrFmt.type) * comp_cnt_count(attr, attrFmt.cnt);
++    if (desc == GX_DIRECT) {
++      offset += elemSize;
++      continue;
++    }
++    const bool nbt3 = i == GX_VA_NRM && attrFmt.cnt == GX_NRM_NBT3;
++    const u32 idxSize = desc == GX_INDEX8 ? 1 : 2;
++    const u32 idxCount = nbt3 ? 3 : 1;
++    auto& array = g_gxState.arrays[i];
++    if (array.guestAvailable != 0) {
++      u32 maxIdx = 0;
++      for (u32 v = 0; v < vtxCount; ++v) {
++        const u8* p = vertexData.data() + v * vtxSize + offset;
++        for (u32 k = 0; k < idxCount; ++k) {
++          const u32 idx = idxSize == 1 ? p[k] : read_bits<u16>(p + k * 2);
++          maxIdx = std::max(maxIdx, idx);
++        }
++      }
++      // An NBT3 index addresses one of the three vectors
++      const u32 reach = maxIdx * array.stride + (nbt3 ? elemSize / 3 : elemSize);
++      const u32 needed = std::min((reach + 3) & ~3u, array.guestAvailable);
++      if (needed > array.size) {
++        array.size = needed;
++        array.cachedRange = {};
++        g_gxState.dirty |= DirtyImmediates;
++      }
++    }
++    offset += idxSize * idxCount;
++  }
++}
++
+ static void draw_prim(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept {
+   ZoneScoped;
+   u32 vtxSize;
+@@ -503,13 +561,15 @@ static void draw_prim(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader&
+   if (totalVtxBytes > reader.remaining())
+     UNLIKELY { handle_draw_overrun(totalVtxBytes, reader); }
+ 
++  const auto vertexData = reader.take(totalVtxBytes);
++  bound_guest_arrays(fmt, vertexData, vtxSize, vtxCount);
++
+   const bool cleanState = g_gxState.dirty == 0 && fmt == sDrawCache.lastDrawFmt && sDrawCache.lineMode == 0 &&
+                           prim != GX_LINES && prim != GX_LINESTRIP && prim != GX_POINTS;
+   auto* lastDraw = cleanState ? gfx::get_last_draw_command<DrawData>() : nullptr;
+   const bool canMerge = lastDraw != nullptr && lastDraw->instanceCount == 1;
+ 
+   // Push raw vertex data to buffer. Merged draws must remain contiguous with the previous range.
+-  const auto vertexData = reader.take(totalVtxBytes);
+   gfx::Range vertRange = gfx::push_verts(vertexData.data(), vertexData.size(), canMerge ? 0 : 4);
+ 
+   // Try to merge with previous draw call
+diff --git a/lib/gx/gx.hpp b/lib/gx/gx.hpp
+index 77a821d..2a2a62e 100644
+--- a/lib/gx/gx.hpp
++++ b/lib/gx/gx.hpp
+@@ -299,6 +299,9 @@ struct AttrArray {
+   u8 stride;
+   bool le = true;
+   gfx::Range cachedRange;
++  // Non-zero for an array set by a CP array base (guest memory): the bytes readable from `data`. Its `size` is then
++  // what draws have indexed so far (command_processor.cpp, bound_guest_arrays).
++  u32 guestAvailable = 0;
+ };
+ inline bool operator==(const AttrArray& lhs, const AttrArray& rhs) {
+   return lhs.data == rhs.data && lhs.size == rhs.size && lhs.stride == rhs.stride && lhs.le == rhs.le;
+@@ -552,6 +555,8 @@ wgpu::ShaderModule build_shader(const ShaderConfig& config, const gfx::RenderTar
+ GXBindGroups build_bind_groups(const ShaderInfo& info) noexcept;
+ 
+ u8 comp_type_size(GXAttr attr, GXCompType type) noexcept;
++// Guest memory at a physical address (aurora/guest_memory.h); nullptr without a resolver or outside guest memory.
++const u8* guest_memory(u32 physical, u32* available) noexcept;
+ u8 comp_cnt_count(GXAttr attr, GXCompCnt cnt) noexcept;
+ 
+ constexpr bool efb_has_alpha(GXPixelFmt format) noexcept { return format == GX_PF_RGBA6_Z24; }
+diff --git a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+index c2b1cf9..241c677 100644
+--- a/lib/gx/regs.cpp
++++ b/lib/gx/regs.cpp
+@@ -1,5 +1,7 @@
+ #include "regs.hpp"
+ 
++#include <aurora/guest_memory.h>
++
+ #include "gx_fmt.hpp"
+ #include "texture.hpp"
+ 
+@@ -685,8 +687,29 @@ void cp_vat_c(u8 addr, u32 value) noexcept {
+   g_gxState.clearVtxSizeCache();
+ }
+ 
+-void cp_arraybase_unsupported(u8, u32) noexcept {
+-  Log.error("CP_REG_ARRAYBASE_ID is not supported. Use GX_AURORA_LOAD_ARRAYBASE instead.");
++void cp_arraybase(u8 addr, u32 value) noexcept {
++  const u32 attrIdx = addr - 0xA0 + GX_VA_POS;
++  u32 available = 0;
++  const u8* data = guest_memory(value, &available);
++  if (data == nullptr) {
++    Log.error("CP array base 0x{:08X} (attribute {}) is not guest memory; use GX_AURORA_LOAD_ARRAYBASE", value,
++              attrIdx);
++    return;
++  }
++  auto& array = g_gxState.arrays[attrIdx];
++  if (array.data == data && !array.le && array.guestAvailable == available) {
++    return;
++  }
++  if (array.le) {
++    // Endianness is baked into the shader; guest arrays are big-endian
++    g_gxState.dirty |= DirtyPipeline;
++  }
++  array.data = data;
++  array.size = 0;
++  array.le = false;
++  array.guestAvailable = available;
++  array.cachedRange = {};
++  g_gxState.dirty |= DirtyImmediates;
+ }
+ 
+ // Array strides (0xB0-0xBF)
+@@ -709,7 +732,7 @@ constexpr auto kCpRegs = [] {
+     regs[0x90 + i] = {cp_vat_c, DirtyPipeline};
+   }
+   for (u8 i = 0; i < 0x10; ++i) {
+-    regs[0xA0 + i] = {cp_arraybase_unsupported, 0, /* alwaysHandle */ true};
++    regs[0xA0 + i] = {cp_arraybase, 0, /* alwaysHandle */ true};
+     regs[0xB0 + i] = {cp_array_stride, DirtyPipeline};
+   }
+   return regs;
+@@ -1221,3 +1244,16 @@ void handle_xf(u16 addr, std::span<const u8> data) noexcept {
+ }
+ 
+ } // namespace aurora::gx::fifo
++
++namespace aurora::gx {
++namespace {
++AuroraGuestResolver sGuestResolver = nullptr;
++}
++
++const u8* guest_memory(u32 physical, u32* available) noexcept {
++  *available = 0;
++  return sGuestResolver != nullptr ? sGuestResolver(physical, available) : nullptr;
++}
++} // namespace aurora::gx
++
++void aurora_set_guest_resolver(AuroraGuestResolver resolver) { aurora::gx::sGuestResolver = resolver; }

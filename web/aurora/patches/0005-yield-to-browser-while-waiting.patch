@@ -1,0 +1,29 @@
+diff --git a/lib/gfx/frame.cpp b/lib/gfx/frame.cpp
+index 9ec44af..af5f542 100644
+--- a/lib/gfx/frame.cpp
++++ b/lib/gfx/frame.cpp
+@@ -1,5 +1,9 @@
+ #include "frame.hpp"
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten.h>
++#endif
++
+ #include "pipeline_cache.hpp"
+ #include "readback/readback.hpp"
+ #include "recording.hpp"
+@@ -179,7 +183,14 @@ void wait_for_gpu_progress(std::chrono::nanoseconds sleepDuration) {
+   if (render_worker::is_idle()) {
+     enqueue_process_events();
+   }
++#ifdef __EMSCRIPTEN__
++  // The browser delivers WebGPU callbacks (a staging buffer's MapAsync) only when the page's thread returns to its
++  // event loop, which a sleep never does: yield to it instead (Asyncify), for at least a millisecond.
++  emscripten_sleep(static_cast<unsigned>(std::max<int64_t>(
++      1, std::chrono::duration_cast<std::chrono::milliseconds>(sleepDuration).count())));
++#else
+   std::this_thread::sleep_for(sleepDuration);
++#endif
+ }
+ 
+ void pace_frame_start() {

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e1a">
+<!-- COOP/COEP where the host cannot send them (GitHub Pages): web/shell/vendor/README.md -->
+<script src="coi-serviceworker.js"></script>
+<title>Galaxy Web Port · motor experimental</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffd34d' d='M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0b0e1a; --bg2: #121733; --fg: #eef1ff; --muted: #9aa3c7; --card: rgba(20, 26, 52, .72);
+    --border: rgba(140, 160, 255, .18); --ok: #4cd6a0; --err: #ff7b8a; --accent: #7b8cff; --accent2: #b06bff;
+    --gold: #ffd34d; --key: #262e55; --key-held: #7b8cff;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--fg); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(176, 107, 255, .22), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(123, 140, 255, .18), transparent 60%),
+      linear-gradient(180deg, var(--bg2), var(--bg) 70%);
+    background-attachment: fixed;
+  }
+  /* A field of small stars, drawn by CSS (no image) */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .55;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 72% 12%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 38% 64%, #cfd6ff, transparent), radial-gradient(1px 1px at 86% 72%, #fff, transparent),
+      radial-gradient(1px 1px at 22% 86%, #e7d6ff, transparent), radial-gradient(1.5px 1.5px at 58% 34%, #fff, transparent),
+      radial-gradient(1px 1px at 92% 40%, #cfd6ff, transparent), radial-gradient(1px 1px at 6% 52%, #fff, transparent);
+  }
+  main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px 16px 56px; }
+  header { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 4px 0 18px; text-align: center; }
+  .banner { display: block; width: 100%; max-width: 620px; height: auto; border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(123, 140, 255, .25); }
+  .intro { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+             clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .logo { width: 52px; height: 52px; flex: none; filter: drop-shadow(0 0 14px rgba(255, 211, 77, .45)); }
+  h1 { margin: 0; font-size: 1.6rem; letter-spacing: .3px; }
+  h1 span { background: linear-gradient(90deg, var(--gold), #ffb36b 40%, var(--accent2)); -webkit-background-clip: text;
+            background-clip: text; color: transparent; }
+  .tagline { margin: 2px 0 0; color: var(--muted); font-size: .92rem; }
+  .badge { display: inline-block; margin-left: 0; padding: 1px 8px; border-radius: 999px; font-size: .72rem;
+           font-weight: 700; letter-spacing: .4px; vertical-align: middle; color: #1a1030;
+           background: linear-gradient(90deg, var(--gold), #ffb36b); }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  a { color: #aab6ff; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; background: rgba(255,255,255,.06);
+         padding: 1px 5px; border-radius: 5px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin: 14px 0;
+          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .card h2 { margin: 0 0 10px; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+  .step { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: .8rem;
+          background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; font-size: .9rem; }
+
+  /* The game file: a drop zone around the file input */
+  .drop { position: relative; display: block; border: 2px dashed rgba(140,160,255,.35); border-radius: 14px;
+          padding: 22px 16px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop[data-over=true] { border-color: var(--accent); background: rgba(123,140,255,.08); }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .drop strong { font-size: 1rem; }
+  .drop .muted { display: block; margin-top: 4px; font-size: .85rem; }
+  #file-info { margin: 10px 0 0; font-size: .9rem; }
+  #file-info[data-ok=true] { color: var(--ok); }
+  #file-info[data-ok=false] { color: var(--err); }
+
+  .options { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 14px; }
+  select, input[type=number] { width: 100%; font: inherit; color: var(--fg); background: rgba(8,10,24,.6);
+          border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+  button { font: inherit; border: 0; border-radius: 12px; padding: 10px 18px; cursor: pointer; color: #fff;
+           background: rgba(255,255,255,.08); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #run { font-weight: 700; font-size: 1.02rem; padding: 12px 26px;
+         background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 6px 20px rgba(123,140,255,.35); }
+  #run:not(:disabled):hover { filter: brightness(1.1); }
+
+  #status { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+            font-size: .92rem; }
+  #status::before { content: "●"; margin-right: 8px; color: var(--muted); }
+  #status[data-kind=error] { border-color: var(--err); color: var(--err); }
+  #status[data-kind=error]::before { color: var(--err); }
+  #status[data-kind=ok] { border-color: rgba(76,214,160,.5); }
+  #status[data-kind=ok]::before { color: var(--ok); }
+
+  /* The screen */
+  #screen-card[hidden] { display: none; }
+  .screen-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+                margin-bottom: 10px; }
+  .screen-bar h2 { margin: 0; }
+  .screen-tools { display: flex; gap: 8px; align-items: center; }
+  .screen-tools button { padding: 7px 12px; border-radius: 10px; font-size: .88rem; }
+  .volume { display: flex; align-items: center; gap: 6px; font-size: .88rem; color: var(--muted); }
+  .volume input { width: 96px; accent-color: var(--accent); }
+  .frame, #pad, #screen-info, #pad-help { max-width: 720px; margin-left: auto; margin-right: auto; }
+  .frame { position: relative; border-radius: 14px; padding: 6px;
+           background: linear-gradient(135deg, rgba(123,140,255,.5), rgba(176,107,255,.5)); }
+  #screen { display: block; width: 100%; aspect-ratio: 4 / 3; background: #000; border-radius: 10px;
+            image-rendering: auto; touch-action: none; }
+  #screen-info { margin: 8px 0 0; font-size: .82rem; }
+  #screen-card:fullscreen { background: #000; padding: 0; border: 0; border-radius: 0; display: flex;
+                            flex-direction: column; justify-content: center; }
+  #screen-card:fullscreen .frame { padding: 0; background: none; }
+  #screen-card:fullscreen #screen { max-height: 100vh; width: auto; margin: 0 auto; border-radius: 0; }
+  #screen-card:fullscreen .screen-bar, #screen-card:fullscreen #screen-info,
+  #screen-card:fullscreen #pad-help { display: none; }
+
+  /* The touch controls (controls.js): the Nunchuk's stick, the D-pad, A/B/Z/C and the shake, the system buttons */
+  #pad { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "stick main" "dpad system";
+         gap: 14px 12px; align-items: center; margin-top: 14px; touch-action: none; user-select: none;
+         -webkit-user-select: none; }
+  #pad button { background: var(--key); color: #fff; border-radius: 50%; padding: 0; width: 54px; height: 54px;
+                font-weight: 800; touch-action: none; border: 1px solid rgba(255,255,255,.08);
+                box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+  #pad button[data-held=true] { background: var(--key-held); transform: translateY(1px); }
+  .pad-stick { grid-area: stick; width: 132px; height: 132px; border-radius: 50%; position: relative; touch-action: none;
+               background: radial-gradient(circle at 50% 45%, #2f3970, var(--key)); border: 1px solid rgba(255,255,255,.08); }
+  .pad-knob { position: absolute; left: 35px; top: 35px; width: 62px; height: 62px; border-radius: 50%;
+              background: radial-gradient(circle at 40% 35%, #a9b4ff, #6575d8); pointer-events: none;
+              box-shadow: 0 4px 12px rgba(0,0,0,.35); }
+  .pad-dpad { grid-area: dpad; display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); }
+  .pad-dpad button { width: 44px !important; height: 44px !important; border-radius: 10px !important; }
+  .pad-dpad [data-button=UP] { grid-area: 1 / 2; } .pad-dpad [data-button=LEFT] { grid-area: 2 / 1; }
+  .pad-dpad [data-button=RIGHT] { grid-area: 2 / 3; } .pad-dpad [data-button=DOWN] { grid-area: 3 / 2; }
+  .pad-main { grid-area: main; display: grid; grid-template-columns: 66px 66px; gap: 8px; justify-items: center; }
+  .pad-main .pad-a { width: 66px !important; height: 66px !important; font-size: 1.35rem;
+                     background: linear-gradient(135deg, var(--accent), var(--accent2)) !important; }
+  .pad-main .pad-shake { border-radius: 22px !important; width: 140px !important; height: 44px !important;
+                         grid-column: 1 / 3; font-size: .9rem; }
+  .pad-system { grid-area: system; display: grid; grid-template-columns: repeat(3, 42px); gap: 8px; }
+  .pad-system button { width: 42px !important; height: 42px !important; }
+  #pad-help { margin: 10px 0 0; font-size: .82rem; }
+
+  details { margin: 0; }
+  details > summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center;
+                      justify-content: space-between; gap: 10px; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after { content: "▾"; color: var(--muted); transition: transform .15s; }
+  details[open] > summary::after { transform: rotate(180deg); }
+  .help { margin-top: 10px; font-size: .9rem; }
+  .help ul { margin: 6px 0 0; padding-left: 20px; }
+  #log { background: #070912; color: #d6dbe5; border-radius: 10px; padding: 12px; height: 320px; overflow: auto;
+         font: 12px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word;
+         margin: 10px 0 0; border: 1px solid var(--border); }
+  .log-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+  #copy-log { padding: 7px 12px; border-radius: 10px; font-size: .88rem; }
+  footer { margin-top: 26px; color: var(--muted); font-size: .82rem; text-align: center; }
+  footer p { margin: 4px 0; }
+  @media (max-width: 520px) {
+    h1 { font-size: 1.3rem; } .logo { width: 42px; height: 42px; }
+    #pad button { width: 50px; height: 50px; }
+  }
+</style>
+</head>
+<body data-state="loading">
+<main>
+  <header>
+    <img class="banner" src="logo_galaxy_web_port.svg" width="1200" height="420" alt="">
+    <div class="intro">
+      <h1 class="sr-only">Galaxy Web Port</h1>
+      <span class="badge">EXPERIMENTAL · v0.1.0</span>
+      <p class="tagline">El código del juego compilado a WebAssembly, dibujado con WebGPU. Sin archivos de Nintendo:
+        juegas con tu propia copia.</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="step">1</span> Tu copia del juego</h2>
+    <label class="drop" id="drop" for="pak">
+      <input id="pak" type="file" accept=".rvz,.pak">
+      <strong>Elige o arrastra tu archivo <code>.rvz</code></strong>
+      <span class="muted">Super Mario Galaxy, Norteamérica (RMGE01). No sale de tu navegador: el motor lo lee por trozos.</span>
+    </label>
+    <p id="file-info" class="muted" role="status" aria-live="polite"></p>
+    <details class="help">
+      <summary>¿Qué archivo necesito?</summary>
+      <ul class="muted">
+        <li>Una copia de seguridad de <strong>tu</strong> disco en formato <strong>RVZ</strong> de Dolphin, con
+          compresión Zstandard (la de Dolphin por defecto) o sin compresión.</li>
+        <li>Las imágenes ISO y WBFS guardan la partición cifrada: conviértelas a RVZ en Dolphin.</li>
+        <li>También vale el <code>game.pak</code> de <code>nebula-import</code>. Más detalles en
+          <code>docs/ARCHIVOS_DEL_JUEGO.md</code>.</li>
+      </ul>
+    </details>
+
+    <h2 style="margin-top: 18px"><span class="step">2</span> Opciones</h2>
+    <div class="options">
+      <div><label for="language">Idioma de la consola</label>
+        <select id="language">
+          <option value="4">Español</option>
+          <option value="1">English</option>
+          <option value="3">Français</option>
+          <option value="2">Deutsch</option>
+          <option value="5">Italiano</option>
+          <option value="6">Nederlands</option>
+          <option value="0">日本語</option>
+        </select></div>
+      <div><label for="mode">Modo</label>
+        <select id="mode">
+          <option value="graphics">Con gráficos y sonido</option>
+          <option value="diagnostic">Diagnóstico (sin renderizador)</option>
+        </select></div>
+      <div><label for="seconds">Duración en segundos (0: sin límite)</label>
+        <input id="seconds" type="number" min="0" max="3600" value="0"></div>
+    </div>
+    <div class="actions">
+      <button id="run" type="button">▶ Arrancar el motor</button>
+      <span class="muted" style="font-size: .85rem">Necesita un navegador con WebGPU (Chrome o Edge recientes).</span>
+    </div>
+  </section>
+
+  <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
+
+  <section class="card" id="screen-card" hidden>
+    <div class="screen-bar">
+      <h2><span class="step">3</span> Pantalla</h2>
+      <div class="screen-tools">
+        <label class="volume" for="volume" style="margin: 0">🔊 <input id="volume" type="range" min="0" max="100" value="80"></label>
+        <button id="fullscreen" type="button">⛶ Pantalla completa</button>
+      </div>
+    </div>
+    <div class="frame"><canvas id="screen" width="640" height="480"></canvas></div>
+    <p class="muted" id="screen-info">Ningún fotograma recibido del motor.</p>
+    <div id="pad"></div>
+    <p class="muted" id="pad-help">Toca la pantalla para apuntar con el puntero. Teclado: espacio A, Mayús B, Z, C, Q
+      agitar, WASD palanca, flechas cruceta, P más, M menos, H HOME, 1 y 2. Ratón: puntero, clic A, clic derecho B.</p>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Registro del motor</summary>
+      <pre id="log" tabindex="0"></pre>
+      <div class="log-actions"><button id="copy-log" type="button">Copiar el registro</button></div>
+    </details>
+  </section>
+
+  <footer>
+    <p>Proyecto experimental sin relación con Nintendo. Basado en la decompilación Petari y en Nebula; renderizado con
+      Aurora. No incluye ni descarga ningún archivo del juego.</p>
+    <p><a href="https://github.com/gonzaloprogame/Super-Mario-Galaxy-Web">Código fuente en GitHub</a></p>
+  </footer>
+</main>
+<script src="present.js"></script>
+<script src="controls.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

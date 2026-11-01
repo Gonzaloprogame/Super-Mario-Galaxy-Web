@@ -1,0 +1,17 @@
+diff --git a/lib/gfx/encoding.cpp b/lib/gfx/encoding.cpp
+index 7cc8b88..1b4de00 100644
+--- a/lib/gfx/encoding.cpp
++++ b/lib/gfx/encoding.cpp
+@@ -35,8 +35,10 @@ constexpr Module Log{"aurora::gfx"};
+ WGPURenderPipeline g_currentPipeline = nullptr;
+ 
+ void apply_viewport(const wgpu::RenderPassEncoder& pass, const Viewport& vp) {
+-  const float minDepth = gx::UseReversedZ ? 1.f - vp.zfar : vp.znear;
+-  const float maxDepth = gx::UseReversedZ ? 1.f - vp.znear : vp.zfar;
++  // The console's SDK writes the XF viewport as a scale and an offset in 24-bit depth units; rebuilt from them, the
++  // range can land a rounding step outside [0, 1], which WebGPU rejects (the hardware clamps it).
++  const float minDepth = std::clamp(gx::UseReversedZ ? 1.f - vp.zfar : vp.znear, 0.f, 1.f);
++  const float maxDepth = std::clamp(gx::UseReversedZ ? 1.f - vp.znear : vp.zfar, minDepth, 1.f);
+   pass.SetViewport(vp.left, vp.top, vp.width, vp.height, minDepth, maxDepth);
+ }
+ 
