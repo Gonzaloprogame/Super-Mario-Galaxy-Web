@@ -1,0 +1,17 @@
+diff -ruN a/lib/gx/regs.cpp b/lib/gx/regs.cpp
+--- a/lib/gx/regs.cpp	2026-11-01 21:45:37.119385819 +0000
++++ b/lib/gx/regs.cpp	2026-11-01 21:45:37.133400288 +0000
+@@ -830,9 +830,11 @@
+   u32 available = 0;
+   const u8* data = guest_memory(value, &available);
+   if (data == nullptr) {
+-    // Once per address: a game sets the same one again for every shape (each line costs the page a message)
++    // Once per address: a game sets the same one again for every shape (each line costs the page a message).
++    // Not for 0x08000000: in the browser build the module image's window starts at linear address 0, so this is a null
++    // pointer the game sets for an array it does not draw from; a draw that indexes it still fails as before.
+     static std::vector<u32> sReported;
+-    if (std::find(sReported.begin(), sReported.end(), value) == sReported.end()) {
++    if (value != 0x08000000u && std::find(sReported.begin(), sReported.end(), value) == sReported.end()) {
+       sReported.push_back(value);
+       Log.error("CP array base 0x{:08X} (attribute {}) is not guest memory; use GX_AURORA_LOAD_ARRAYBASE", value,
+                 attrIdx);

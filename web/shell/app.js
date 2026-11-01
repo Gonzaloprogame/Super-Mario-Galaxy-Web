@@ -49,13 +49,17 @@ const engines = {
 // hands it over after each change (presenter.onNand) and gets the last copy when it starts (web/host/headless_host.c).
 // Without IndexedDB (a private window may refuse it) the game still saves, until the page is closed.
 const nandStore = {
+  db: null,
   open() {
-    return new Promise((resolve, reject) => {
+    // One connection for the page's life (one per save piled up, and would block a version change)
+    this.db ??= new Promise((resolve, reject) => {
       const request = indexedDB.open('smg-web', 1);
       request.onupgradeneeded = () => request.result.createObjectStore('nand');
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
+    this.db.catch(() => { this.db = null; }); // a failed open is tried again next time
+    return this.db;
   },
   async run(mode, action) {
     const db = await this.open();
@@ -194,6 +198,7 @@ function startAudio() {
   audio.ready = audio.context.audioWorklet.addModule('audio_worklet.js').then(() => {
     audio.node = new AudioWorkletNode(audio.context, 'smg-audio', { numberOfInputs: 0, outputChannelCount: [2] });
     audio.node.connect(audio.context.destination);
+    applyVolume();
     if (audio.ring !== null) {
       audio.node.port.postMessage({ type: 'ring', ...audio.ring });
     }
@@ -350,6 +355,9 @@ async function start() {
   const nand = disc.id ? await nandStore.get(disc.id) : null;
   if (nand) {
     log(`[página] partida guardada de ${disc.id} en este navegador: ${nand.length} bytes`);
+    // The copy the session starts from, kept apart before the game can write over it: if the engine cannot read it
+    // (a damaged copy, a format a later version changes), the next save would replace it with an empty NAND
+    await nandStore.put(`${disc.id}.anterior`, nand);
   }
   presenter.onNand = (id, data) => nandStore.put(id, data);
   // ?debug=1: a second canvas with the game's largest copy of each frame, as Aurora made it (web/host/aurora_bridge.cpp)
@@ -391,12 +399,6 @@ function applyVolume() {
   }
 }
 $('volume').addEventListener('input', applyVolume);
-const audioNodeReady = setInterval(() => {
-  if (audio.node !== null) {
-    applyVolume();
-    clearInterval(audioNodeReady);
-  }
-}, 500);
 $('fullscreen').addEventListener('click', () => {
   const card = $('screen-card');
   if (document.fullscreenElement) {

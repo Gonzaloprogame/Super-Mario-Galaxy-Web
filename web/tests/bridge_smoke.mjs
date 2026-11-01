@@ -167,7 +167,7 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
 // The render thread's description (the host's stall report): its phase, queue and counters
 {
   const status = lines.find((l) => l.startsWith('[bridge] status: '));
-  check(status && /render thread [a-z' ]+ for \d+ ms; \d+ items queued \(of 4096\); [1-9]\d* spans read, [1-9]\d* PE markers answered, [1-9]\d* frames drawn, \d+ frames refused by Aurora/.test(status),
+  check(status && /render thread [a-z' ]+ for \d+ ms; \d+ items queued \(of 16384\); [1-9]\d* spans read, [1-9]\d* PE markers answered, [1-9]\d* frames drawn, \d+ frames refused by Aurora/.test(status),
         `descripción del hilo de render para el informe de bloqueos: "${(status || '').slice(17, 140)}…"`);
 }
 // A renderer failure (?fault=1: the scene writes 0xC8, neither a GX command nor a Nebula marker, at its fourth frame).

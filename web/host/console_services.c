@@ -702,48 +702,55 @@ int smg_console_nand_import(const uint8_t* blob, size_t size) {
         return -1;
     }
     const uint32_t count = get_le(blob + 4, 4);
-    size_t at = 8;
-    for (uint32_t k = 0; k < count; k++) {
-        if (size - at < 3) {
-            return -1;
+    /* Two passes: the whole blob is checked before the NAND is touched, so a blob it cannot read leaves nothing half
+       loaded (the next save would put that half in the page's copy) */
+    for (int apply = 0; apply < 2; apply++) {
+        size_t at = 8;
+        for (uint32_t k = 0; k < count; k++) {
+            if (size - at < 3) {
+                return -1;
+            }
+            const int directory = blob[at] != 0;
+            const size_t length = get_le(blob + at + 1, 2);
+            if (length == 0 || length >= MaxPath || size - at < 7 + length) {
+                return -1;
+            }
+            char path[MaxPath];
+            memcpy(path, blob + at + 3, length);
+            path[length] = '\0';
+            const size_t bytes = get_le(blob + at + 3 + length, 4);
+            if (size - at - 7 - length < bytes || !valid_path(path)) {
+                return -1;
+            }
+            const uint8_t* data = blob + at + 7 + length;
+            at += 7 + length + bytes;
+            if (!apply) {
+                continue;
+            }
+            if (directory) {
+                create_folders(path);
+                continue;
+            }
+            char parent[MaxPath];
+            memcpy(parent, path, length + 1);
+            *strrchr(parent, '/') = '\0';
+            if (parent[0] != '\0') {
+                create_folders(parent);
+            }
+            int node = find(path);
+            if (node < 0 && (node = add_node(path, 0)) < 0) {
+                return -1;
+            }
+            Node* n = &sNodes[node];
+            n->size = 0;
+            if (!reserve(&n->data, &n->capacity, bytes)) {
+                return -1;
+            }
+            if (bytes != 0) {
+                memcpy(n->data, data, bytes);
+            }
+            n->size = bytes;
         }
-        const int directory = blob[at] != 0;
-        const size_t length = get_le(blob + at + 1, 2);
-        if (length == 0 || length >= MaxPath || size - at < 7 + length) {
-            return -1;
-        }
-        char path[MaxPath];
-        memcpy(path, blob + at + 3, length);
-        path[length] = '\0';
-        const size_t bytes = get_le(blob + at + 3 + length, 4);
-        if (size - at - 7 - length < bytes || !valid_path(path)) {
-            return -1;
-        }
-        const uint8_t* data = blob + at + 7 + length;
-        at += 7 + length + bytes;
-        if (directory) {
-            create_folders(path);
-            continue;
-        }
-        char parent[MaxPath];
-        memcpy(parent, path, length + 1);
-        *strrchr(parent, '/') = '\0';
-        if (parent[0] != '\0') {
-            create_folders(parent);
-        }
-        int node = find(path);
-        if (node < 0 && (node = add_node(path, 0)) < 0) {
-            return -1;
-        }
-        Node* n = &sNodes[node];
-        n->size = 0;
-        if (!reserve(&n->data, &n->capacity, bytes)) {
-            return -1;
-        }
-        if (bytes != 0) {
-            memcpy(n->data, data, bytes);
-        }
-        n->size = bytes;
     }
     return (int)count;
 }

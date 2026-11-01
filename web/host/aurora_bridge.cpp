@@ -44,7 +44,10 @@ struct Item {
   uint32_t physical = 0;
 };
 
-constexpr uint32_t QueueSize = 4096;
+// Room for the stream's items and the cache flushes a stage's load sends between two frames: with 4096 the queue
+// filled while loading ("4096 items queued (of 4096)" in a stall report), and the game's thread, all its threads,
+// waited in push for the renderer (its audio thread too). 16 bytes an item.
+constexpr uint32_t QueueSize = 16384;
 Item g_queue[QueueSize];
 std::atomic<uint32_t> g_head{0}; // next item to read (render thread)
 std::atomic<uint32_t> g_tail{0}; // next item to write (simulation thread)

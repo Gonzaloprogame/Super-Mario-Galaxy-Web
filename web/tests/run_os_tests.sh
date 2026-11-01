@@ -40,12 +40,16 @@ emcc -O2 -I$N/include -I"$ROOT/web/host" "$ROOT/web/tests/host_services_test.c" 
 # The console's devices of the web host (Wii Remote, audio interface, NAND).
 emcc -O2 -pthread -sPTHREAD_POOL_SIZE=4 -sEXIT_RUNTIME -I$N/include -I"$ROOT/web/host" \
     "$ROOT/web/tests/console_services_test.c" "$ROOT/web/host/console_services.c" -o "$OUT/console_services_tests.js"
+# The game's sound for the page (web/host/audio_output.cpp, with Nebula's mixer it links): the AI's blocks in the ring.
+emcc -O2 -I$N/include -I"$ROOT/web/host" -c "$ROOT/web/tests/audio_output_test.c" -o "$OUT/audio_output_test.o"
+em++ -O2 -std=c++20 -I$N/include -I"$ROOT/web/host" -I"$N/../runtime/include" "$OUT/audio_output_test.o" \
+    "$ROOT/web/host/audio_output.cpp" "$N/../runtime/src/jaudio_host_mixer.cpp" -o "$OUT/audio_output_tests.js"
 # PowerPC's integer division (tools/wasm_ppc_divide.py): without the rewrite the first division by zero traps.
 emcc -O2 "$ROOT/web/tests/ppc_divide_test.c" -o "$OUT/ppc_divide_tests.js"
 python3 -I "$ROOT/tools/wasm_ppc_divide.py" "$OUT/ppc_divide_tests.wasm" "$OUT/ppc_divide_tests.wasm"
 
 status=0
-for t in context_switch_tests os_scheduler_tests mtx_tests msl_runtime_tests host_services_tests console_services_tests ppc_divide_tests; do
+for t in context_switch_tests os_scheduler_tests mtx_tests msl_runtime_tests host_services_tests console_services_tests audio_output_tests ppc_divide_tests; do
     echo "== $t"
     node "$OUT/$t.js" || { echo "FAILED: $t (exit $?)"; status=1; }
 done

@@ -165,6 +165,21 @@ int main(void) {
         check(restored >= 5 && memcmp(buffer, "Luigi!", 6) == 0, "NAND kept: the blob brings back a deleted save");
         check(smg_console_nand_import((const uint8_t*)"SMGX", 4) == -1 && smg_console_nand_import(blob, size - 3) == -1,
               "NAND kept: a malformed or cut blob is refused");
+        /* All or nothing: a cut blob brings back none of its files (the next save would put a half NAND in the page's
+           copy) */
+        fs(NEBULA_FS_DELETE, DATA "/GameData.bin", NULL, 0, NULL, 0, 0, 0, 0);
+        /* the whole blob, then one more node whose header cannot be read: every good file comes before the error */
+        uint8_t* bad = malloc(size + 3);
+        memcpy(bad, blob, size);
+        const uint32_t more = (uint32_t)bad[4] + 1; /* the node count, little-endian (under 256 here) */
+        bad[4] = (uint8_t)more;
+        bad[size] = 0;
+        bad[size + 1] = 0xFF; /* a path of 65535 bytes */
+        bad[size + 2] = 0xFF;
+        const int cut = smg_console_nand_import(bad, size + 3);
+        check(cut == -1 && fs(NEBULA_FS_OPEN, DATA "/GameData.bin", NULL, 0, NULL, 0, 0, 0, 1) == -12,
+              "NAND kept: a blob that fails at its end leaves the NAND as it was");
+        free(bad);
         free(blob);
     }
 
