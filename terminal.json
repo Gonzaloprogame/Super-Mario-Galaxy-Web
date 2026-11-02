@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:25:14+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar que el test detecta un encabezado roto a propósito",
-   "cmd": "S=$S/thp_mut && mkdir -p $S/galaxy && sed 's/if ((bits \\& 1u) == 0u) {/if (false) {/' web/host/compat/galaxy/fused_multiply_add.h > $S/galaxy/fused_multiply_add.h && grep -c \"if (…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:25:41+00:00",
-   "tipo": "editar",
-   "desc": "",
-   "cmd": "~/repo/web/tests/thp_video_test.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:25:46+00:00",
    "tipo": "editar",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "$S/thpcheck/extract.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:14:29+00:00",
+   "tipo": "bash",
+   "desc": "Extraer localmente un vídeo THP del disco y ver sus datos",
+   "cmd": "cd $S/thpcheck && R=~/repo; Z=$R/third_party/deps/zstd/lib; cc -O2 -I$R/web/host -I$Z -DZSTD_DISABLE_ASM=1 -DZSTD_LEGACY_SUPPORT=0 -pthread extract.c $R/web/host/rvz_reader.c $Z/c…",
+   "ok": false
+  },
+  {
+   "t": "2026-11-02T18:14:32+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué devuelve rvz_read",
+   "cmd": "sed -n 10,26p ~/repo/web/host/rvz_reader.h",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:14:13+00:00"
+ "actualizado": "2026-11-02T18:14:32+00:00"
 }
