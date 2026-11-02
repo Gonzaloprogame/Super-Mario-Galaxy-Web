@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:13:50+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo el host monta sus servicios y lee sus argumentos",
-   "cmd": "cd ~/repo && grep -n \"services\\.[a-z_]* = svc_\\|sDefaults = \\|smg_host_services_defaults\\|host_services_init\" web/host/headless_host.c | head -30; grep -n \"argc > 4\\|argv\\[4\\]\\|ar…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:14:12+00:00",
    "tipo": "bash",
    "desc": "Añadir la gira de galaxias al host web",
@@ -279,8 +272,15 @@
    "desc": "Llevar el juego a EggStarGalaxy y esperar el cuelgue otra vez",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:59:01+00:00",
+   "tipo": "bash",
+   "desc": "Perfilar todos los hilos durante el cuelgue",
+   "cmd": "S=$S; cd $S/drive && timeout 600 node prof.mjs 19223 10 40 > $S/drive/prof_egg.txt 2>&1; echo \"salida $?\"; grep -n \"=== worker\\|workers\\|start \" $S/drive/prof_egg.txt | head -12",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:58:12+00:00"
+ "actualizado": "2026-11-02T20:59:01+00:00"
 }
