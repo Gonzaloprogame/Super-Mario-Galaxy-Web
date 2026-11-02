@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:23:50+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/host/thp_video.h",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:24:08+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Ver qué teclas mueven el stick del Nunchuk",
    "cmd": "cd ~/repo && grep -n \"KeyW\\|ArrowUp\\|stick\" web/shell/controls.js | head -10",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:12:16+00:00",
+   "tipo": "bash",
+   "desc": "Caminar hacia el castillo y vigilar el decodificador",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 30); do curl -s \"127.0.0.1:18777/keys?down=KeyW&ms=4000\" >/dev/null; W 6; log=$(curl -s \"127.0.0.1:187…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:07:05+00:00"
+ "actualizado": "2026-11-02T18:12:16+00:00"
 }
