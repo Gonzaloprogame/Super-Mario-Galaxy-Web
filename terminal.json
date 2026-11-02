@@ -13,8 +13,15 @@
    "desc": "Trigger a harmless command to check the hook fires",
    "cmd": "sleep 1; true",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:10:52+00:00",
+   "tipo": "bash",
+   "desc": "Check whether the hook recorded the last commands",
+   "cmd": "S=$S; python3 -c \"import json;d=json.load(open('$S/directo/feed/terminal.json'));[print(l['tipo'],l['cmd']) for l in d['lineas'][-4:]]\"",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:10:48+00:00"
+ "actualizado": "2026-11-02T17:10:52+00:00"
 }
