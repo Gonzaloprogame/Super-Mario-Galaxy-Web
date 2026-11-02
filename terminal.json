@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:03:12+00:00",
-   "tipo": "bash",
-   "desc": "Ver las últimas líneas del registro durante el bloqueo de prueba",
-   "cmd": "S=$S; cd ~/repo && python3 -I web/tests/make_fixture.py $S/fx >/dev/null && sed -i \"s#\\${root}/build/browser-fixtures/fixture_emptydol.pak#$S/fx/fixture_emptydol.pak#\" $S/hang_pro…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:03:18+00:00",
    "tipo": "bash",
    "desc": "Leer la condición del informe de bloqueos",
@@ -279,8 +272,15 @@
    "desc": "Arrancar la ejecución hacia EggStarGalaxy con el puerto de depuración",
    "cmd": "S=$S; cd $S/drive && PROFILE_PORT=19222 TOUR=\"EggStarGalaxy:1\" TOURFRAMES=6000 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run41 graphics $S/drive/nand_RMGE01.bin > $S/drive/r…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:36:51+00:00",
+   "tipo": "bash",
+   "desc": "Llevar el juego a EggStarGalaxy y esperar el cuelgue",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:34:51+00:00"
+ "actualizado": "2026-11-02T20:36:51+00:00"
 }
