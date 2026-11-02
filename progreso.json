@@ -1,0 +1,28 @@
+{
+  "version": "0.1.1-experimental",
+  "actualizado": "2026-11-02",
+  "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
+  "ahora": {
+    "etiqueta": "En curso · Hito 8",
+    "titulo": "Panel de progreso para el directo",
+    "detalle": "Una página para Streamlabs u OBS que muestra el avance del port con datos reales del repositorio."
+  },
+  "comprobaciones": [
+    { "texto": "Primer nivel completo", "detalle": "Escenario, Mario, cielo y HUD, comprobado con el disco", "estado": "hecho" },
+    { "texto": "Arranque, archivos y partidas guardadas", "detalle": "Partida en IndexedDB, con copia de seguridad", "estado": "hecho" },
+    { "texto": "Controles táctiles, teclado y ratón", "detalle": "Comprobado en Android", "estado": "hecho" },
+    { "texto": "Sonido en un dispositivo real", "detalle": "La mezcla funciona; falta oírlo en el móvil", "estado": "pendiente" },
+    { "texto": "Rendimiento en el móvil", "detalle": "Unos 27 fps en el primer nivel; objetivo 30 o más", "estado": "pendiente" },
+    { "texto": "Vídeos THP", "detalle": "Las escenas de vídeo todavía no se ven", "estado": "pendiente" }
+  ],
+  "hitos": [
+    { "n": 1, "nombre": "Diagnóstico", "estado": "hecho", "pct": 100 },
+    { "n": 2, "nombre": "Entorno reproducible", "estado": "hecho", "pct": 100 },
+    { "n": 3, "nombre": "Compilación a WebAssembly", "estado": "hecho", "pct": 100 },
+    { "n": 4, "nombre": "Arranque con el disco real (RVZ)", "estado": "hecho", "pct": 100 },
+    { "n": 5, "nombre": "Gráficos con WebGPU", "estado": "parcial", "pct": 80 },
+    { "n": 6, "nombre": "Sonido y controles", "estado": "parcial", "pct": 70 },
+    { "n": 7, "nombre": "Jugable de principio a fin", "estado": "encurso", "pct": 15 },
+    { "n": 8, "nombre": "Rendimiento y publicación", "estado": "encurso", "pct": 45 }
+  ]
+}
