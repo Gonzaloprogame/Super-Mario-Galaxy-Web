@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:26:23+00:00",
-   "tipo": "bash",
-   "desc": "Ver el informe del host donde se cuentan los vídeos",
-   "cmd": "sed -n 550,575p web/host/headless_host.c && grep -n \"sThpDecodes\" web/host/headless_host.c && sed -n 1,30p web/host/headless_host.c | grep -n \"#include\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:26:35+00:00",
    "tipo": "bash",
    "desc": "Conectar el decodificador THP al host del motor",
@@ -279,8 +272,15 @@
    "desc": "Decodificar 5 fotogramas con nuestro camino y con ffmpeg",
    "cmd": "cd $S/thpcheck && R=~/repo; c++ -std=c++20 -O2 -I$R/web/host/compat -I$R/third_party/nebula/runtime/include -I$R/web/host decode_frames.cpp $R/web/host/thp_video.cpp $R/third_part…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:15:56+00:00",
+   "tipo": "bash",
+   "desc": "Calcular el PSNR frente a ffmpeg",
+   "cmd": "cd $S/thpcheck && python3 -I - <<'EOF'  … (+11 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:15:48+00:00"
+ "actualizado": "2026-11-02T18:15:56+00:00"
 }
