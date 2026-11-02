@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:03:18+00:00",
-   "tipo": "bash",
-   "desc": "Leer la condición del informe de bloqueos",
-   "cmd": "awk '/^static void check_stall/,/reported = 0;/' web/host/headless_host.c | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:08:08+00:00",
    "tipo": "bash",
    "desc": "Simular un bloqueo dentro de un servicio y repetir la prueba",
@@ -279,8 +272,15 @@
    "desc": "Llevar el juego a EggStarGalaxy y esperar el cuelgue",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:37:17+00:00",
+   "tipo": "bash",
+   "desc": "Perfilar los hilos del motor durante el cuelgue",
+   "cmd": "S=$S; curl -s \"127.0.0.1:18777/log?tail=6000\" | sed 's/^\\[vigía\\] //' | grep \"stall\" | tail -1 | grep -o \"render thread [^;]*\\|inside the host's [^;]*\\|not inside a host[^;]*\"; cd…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:36:51+00:00"
+ "actualizado": "2026-11-02T20:37:17+00:00"
 }
