@@ -7,12 +7,15 @@ en `COMPILACION_WASM.md`.
 |---|---|---|
 | 1. Diagnóstico | Informe con comparación, estrategia y riesgos basado en el código | **Completado** (`DIAGNOSTICO.md`) |
 | 2. Entorno reproducible | Versiones fijadas, fuentes a revisiones fijas, compilación por script | **Completado** (`ENTORNO.md`, `tools/`) |
-| 3. Prueba de compilación | El módulo de juego compila y enlaza a wasm; errores reales registrados | **Completado**: 1.898/1.898 unidades, enlace sin símbolos sin resolver |
-| 4. Primera ejecución web | El código compilado se carga en un navegador y la inicialización funciona | **Parcial**: núcleo OS verificado (tests de Nebula en wasm) y módulo cargado en Chromium hasta la carga de datos de `main.dol`; el arranque completo necesita un `game.pak` real |
-| 5. Backend gráfico | Una escena 3D real del juego dibujada desde su FIFO GX | **En curso**: Aurora GX compila entera para el navegador (70 unidades, 6 parches pequeños) y dibuja una escena GX de prueba en el WebGPU de Chromium, verificada leyendo el EFB (`BACKEND_WEBGPU.md`). Conectado el FIFO del juego: la GX del propio juego dibuja una escena de prueba que Aurora renderiza y se verifica leyendo el EFB (`PUENTE_FIFO.md`). Fase 2 en curso: arrays de vértices indexados, listas de visualización, texturas, TLUT, copias del EFB a textura y copia a pantalla (`GXCopyDisp`, con su borrado) por dirección física, lecturas del EFB del juego (`gx_peek_efb`) y presentación en la página del XFB que elige el VI, verificados (parches 0009 a 0013 y el puente) |
-| 6. Integración | Recursos, niveles, física, animación, cámara, audio y controles | Pendiente |
-| 7. Jugabilidad | Movimiento, saltos, gravedad, interacción, cámara | Pendiente |
-| 8. Optimización y publicación | Rendimiento, memoria, estabilidad, tiempos de carga, despliegue | Pendiente |
+| 3. Compilación a WebAssembly | El módulo de juego compila y enlaza a wasm; errores reales registrados | **Completado**: 1.898/1.898 unidades, enlace sin símbolos sin resolver |
+| 4. Arranque con el disco real | El juego arranca en el navegador desde la imagen RVZ del usuario | **Completado**: título, elección de archivo y partidas guardadas, comprobado con el disco en escritorio y Android (`MOTOR_WEB.md`) |
+| 5. Gráficos con WebGPU | Las escenas del juego se dibujan como en la consola | **Parcial**: el primer nivel se ve completo (parches de Aurora 0009 a 0021, `PUENTE_FIFO.md`); faltan los vídeos THP y probar más niveles |
+| 6. Sonido y controles | Música, efectos y controles del Wiimote con Nunchuk | **Parcial**: controles táctiles, teclado y ratón comprobados en Android; la mezcla de sonido funciona (`MOTOR_WEB.md`), falta oírla en un dispositivo; sin mandos físicos |
+| 7. Jugable de principio a fin | Movimiento, cámara, niveles y progreso hasta el final del juego | **En curso**: se juega el primer nivel; el resto, sin probar |
+| 8. Rendimiento y publicación | Rendimiento, memoria, estabilidad, tiempos de carga, despliegue | **En curso**: unos 27 fps en Android en el primer nivel; versiones 0.1.0 y 0.1.1 publicadas en GitHub Pages |
+
+El panel del directo (`web/shell/overlay.html`) muestra este estado desde `docs/progreso.json`, con porcentajes
+estimados por hito.
 
 ## Próximos pasos, por prioridad
 

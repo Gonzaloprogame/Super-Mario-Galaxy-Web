@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galaxy Web Port · progreso en directo</title>
+<!-- Panel para el directo (fuente de navegador de Streamlabs u OBS, 1920×1080). Los datos son los del repositorio:
+     docs/progreso.json (lo que se está haciendo, comprobaciones e hitos) y los últimos commits de la rama, leídos de
+     GitHub y renovados cada pocos minutos. Parámetros: ?rama=<rama> ?fondo=transparente ?cada=<segundos> -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --bg: #0a0920; --panel: #13112c; --panel-2: #1b1839; --line: #2b2655; --fg: #f3f1ff; --muted: #9b96c7;
+    --gold: #ffc61a; --blue: #5fc8ff; --live: #ff3d6e; --ok: #58e69b; --warn: #ffa247; --violet: #b06bff;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #2a1f6b 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #0e3a5c 0%, transparent 55%), var(--bg);
+    color: var(--fg); font: 14px/1.5 "Outfit", system-ui, sans-serif;
+  }
+  body.transparent { background: transparent; }
+  /* Diseñado a 1280 px de ancho y escalado al tamaño de la fuente (1920×1080 en el directo) */
+  .stage { width: 1280px; transform-origin: 0 0; padding: 22px 24px; }
+  .num, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .wrap { display: flex; flex-direction: column; gap: 18px; }
+
+  .top { display: flex; align-items: center; gap: 22px; background: var(--panel); border: 1px solid var(--line);
+         border-radius: 18px; padding: 16px 22px; position: relative; overflow: hidden; }
+  .top::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .8;
+    background-image: radial-gradient(2px 2px at 20px 30px, #fff8, transparent),
+      radial-gradient(1.5px 1.5px at 120px 80px, #ffe27aaa, transparent), radial-gradient(1.5px 1.5px at 260px 20px, #9fe3ffaa, transparent),
+      radial-gradient(2px 2px at 420px 70px, #fff6, transparent), radial-gradient(1.5px 1.5px at 700px 40px, #ffe27a88, transparent),
+      radial-gradient(2px 2px at 900px 90px, #fff5, transparent); }
+  .emblem { position: relative; z-index: 1; width: 74px; height: 74px; flex: none;
+            filter: drop-shadow(0 0 14px rgba(255, 198, 26, .45)); }
+  .logo { position: relative; z-index: 1; min-width: 0; }
+  .logo .name { font: 400 38px/1 "Bungee", system-ui, sans-serif; white-space: nowrap; letter-spacing: .02em;
+    background: linear-gradient(90deg, var(--gold), #ff9d3a 45%, var(--blue)); -webkit-background-clip: text;
+    background-clip: text; color: transparent; }
+  .logo .sub { margin-top: 6px; font-weight: 600; font-size: 12px; letter-spacing: .1em; white-space: nowrap; text-transform: uppercase;
+               color: var(--muted); }
+  .logo .sub b { color: var(--blue); font-weight: 700; }
+  .live { position: relative; z-index: 1; display: inline-flex; white-space: nowrap; flex: none; align-items: center; gap: 8px; background: var(--live);
+          color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .12em; padding: 7px 14px; border-radius: 999px; }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .meter { position: relative; z-index: 1; margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .ring { width: 96px; height: 96px; flex: none; }
+  .ring .val { font: 400 22px "Bungee", system-ui, sans-serif; fill: var(--fg); }
+  .ring .arc { transition: stroke-dasharray 1.2s ease; }
+  .meter-text .t { font-weight: 600; font-size: 15px; }
+  .meter-text .s { color: var(--muted); font-size: 13px; }
+  .meter-text .big { font: 700 13px "JetBrains Mono", monospace; color: var(--gold); white-space: nowrap; }
+
+  .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; align-items: start; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; min-width: 0; }
+  .panel h2 { margin: 0 0 14px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+              color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .panel h2 .dot { width: 8px; height: 8px; border-radius: 2px; background: var(--gold); }
+
+  .now { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+  .now .label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+  .now .title { font: 400 18px/1.25 "Bungee", system-ui, sans-serif; margin: 6px 0 8px; }
+  .now p { margin: 0; color: var(--muted); }
+  .now .commit { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 13px; }
+  .now .commit .when { color: var(--gold); font: 700 12px "JetBrains Mono", monospace; margin-right: 8px; }
+  .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .checks li { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; background: #0f0d26;
+               border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; }
+  .tag { font-size: 11px; font-weight: 700; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .tag.hecho { background: #58e69b1f; color: var(--ok); } .tag.pendiente { background: #ffa2471f; color: var(--warn); }
+  .mark { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+  .mark.hecho { background: var(--ok); color: #05210f; }
+  .mark.pendiente { border: 2px solid var(--warn); color: var(--warn); }
+  .checks .txt small { display: block; color: var(--muted); font-size: 12px; }
+
+  .road { display: grid; gap: 9px; }
+  .hito { display: grid; grid-template-columns: 34px 1fr 52px; gap: 12px; align-items: center; padding: 9px 12px;
+          border-radius: 12px; background: #0f0d26; border: 1px solid var(--line); }
+  .hito .n { font: 700 12px "JetBrains Mono", monospace; text-align: center; border-radius: 8px; padding: 6px 0;
+             background: var(--panel-2); color: var(--muted); }
+  .hito.hecho .n { background: #58e69b26; color: var(--ok); } .hito.parcial .n { background: #ffc61a26; color: var(--gold); }
+  .hito.encurso .n { background: #5fc8ff26; color: var(--blue); }
+  .hito .name { font-weight: 600; font-size: 14px; } .hito .state { font-size: 12px; color: var(--muted); }
+  .bar { height: 6px; border-radius: 999px; background: #241f4d; margin-top: 6px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; border-radius: 999px; width: 0; transition: width 1.2s ease; }
+  .hecho .bar > span { background: var(--ok); } .parcial .bar > span { background: var(--gold); }
+  .encurso .bar > span { background: var(--blue); }
+  .hito .pct { text-align: right; font: 700 14px "JetBrains Mono", monospace; }
+  .note { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+
+  .ticker { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px;
+            display: flex; gap: 12px; align-items: center; overflow: hidden; }
+  .ticker .badge { flex: none; background: var(--gold); color: #1a1200; font-weight: 800; font-size: 12px;
+                   letter-spacing: .1em; padding: 7px 12px; border-radius: 10px; text-transform: uppercase; }
+  .ticker .lane { overflow: hidden; flex: 1; mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+  .ticker ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; width: max-content; }
+  .ticker li { flex: none; font-size: 13px; background: #0f0d26; border: 1px solid var(--line); border-radius: 999px;
+               padding: 6px 12px; white-space: nowrap; }
+  .ticker li b { color: var(--blue); font: 700 12px "JetBrains Mono", monospace; margin-right: 8px; }
+  footer { color: var(--muted); font-size: 12px; text-align: center; }
+  footer .err { color: var(--warn); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .live { animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 #ff3d6e88; } 70% { box-shadow: 0 0 0 10px #ff3d6e00; } 100% { box-shadow: 0 0 0 0 #ff3d6e00; } }
+    .ticker ul.scroll { animation: scroll var(--scroll-time, 40s) linear infinite; }
+    @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+<div class="wrap">
+  <header class="top">
+    <svg class="emblem" viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="star" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff2a8"/><stop offset=".55" stop-color="#ffd34d"/><stop offset="1" stop-color="#ff9f43"/>
+      </linearGradient></defs>
+      <ellipse cx="32" cy="34" rx="30" ry="10" fill="none" stroke="#b06bff" stroke-width="2.5" transform="rotate(-20 32 34)" opacity=".9"/>
+      <path fill="url(#star)" d="M32 6l6.9 14.8 16.2 1.9-12 11.1 3.2 16L32 41.9 17.7 49.8l3.2-16-12-11.1 16.2-1.9z"/>
+    </svg>
+    <div class="logo">
+      <div class="name">GALAXY WEB PORT</div>
+      <div class="sub">Super Mario Galaxy en el navegador · <b>WebAssembly + WebGPU</b></div>
+    </div>
+    <span class="live"><i></i>EN DIRECTO</span>
+    <div class="meter">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#ffc61a"/><stop offset="1" stop-color="#5fc8ff"/>
+        </linearGradient></defs>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#241f4d" stroke-width="12"/>
+        <circle class="arc" id="arc" cx="60" cy="60" r="50" fill="none" stroke="url(#g)" stroke-width="12"
+                stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 60 60)"/>
+        <text class="val" id="pct" x="60" y="68" text-anchor="middle">…</text>
+      </svg>
+      <div class="meter-text">
+        <div class="t">Progreso total</div>
+        <div class="s" id="summary">Cargando…</div>
+        <div class="big" id="version"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="grid">
+    <article class="panel">
+      <h2><span class="dot"></span>Probando ahora</h2>
+      <div class="now">
+        <div class="label" id="now-label"></div>
+        <div class="title" id="now-title"></div>
+        <p id="now-detail"></p>
+        <div class="commit" id="now-commit" hidden><span class="when" id="now-when"></span><span id="now-msg"></span></div>
+      </div>
+      <ul class="checks" id="checks"></ul>
+    </article>
+    <article class="panel">
+      <h2><span class="dot"></span>Hoja de ruta</h2>
+      <div class="road" id="road"></div>
+      <p class="note" id="note"></p>
+    </article>
+  </section>
+
+  <section class="ticker" aria-label="Últimos avances">
+    <span class="badge">Últimos avances</span>
+    <div class="lane"><ul id="ticker"></ul></div>
+  </section>
+
+  <footer><span id="footer">github.com/Gonzaloprogame/Super-Mario-Galaxy-Web</span> <span class="err" id="err"></span></footer>
+</div>
+</div>
+<script>
+'use strict';
+const params = new URLSearchParams(location.search);
+const REPO = 'Gonzaloprogame/Super-Mario-Galaxy-Web';
+const BRANCH = params.get('rama') || 'ccr-8700b376-tetafz';
+const EVERY = Math.max(60, Number(params.get('cada')) || 120) * 1000; // GitHub allows 60 unauthenticated calls an hour
+if (params.get('fondo') === 'transparente') {
+  document.body.classList.add('transparent');
+}
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text; // text only: commit messages are not HTML
+  return node;
+};
+
+// The stage is laid out at 1280 px wide and scaled to the source's size
+function fit() {
+  // Width and height: the whole panel stays in the source (1920×1080 or any other size)
+  const stage = $('stage');
+  const scale = Math.min(window.innerWidth / 1280, window.innerHeight / stage.offsetHeight);
+  stage.style.transform = `scale(${scale})`;
+  stage.style.marginLeft = `${(window.innerWidth - 1280 * scale) / 2}px`;
+}
+window.addEventListener('resize', fit);
+fit();
+
+const LABELS = { hecho: 'Completado', parcial: 'Parcial', encurso: 'En curso', pendiente: 'Pendiente' };
+
+function ago(date) {
+  const minutes = Math.max(0, Math.round((Date.now() - date) / 60000));
+  if (minutes < 1) return 'ahora';
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.round(minutes / 60);
+  return hours < 48 ? `hace ${hours} h` : `hace ${Math.round(hours / 24)} d`;
+}
+
+function showProgress(p) {
+  const hitos = p.hitos || [];
+  const total = hitos.length ? Math.round(hitos.reduce((sum, h) => sum + h.pct, 0) / hitos.length) : 0;
+  $('arc').setAttribute('stroke-dasharray', `${total} 100`);
+  $('pct').textContent = `${total}%`;
+  const count = (st) => hitos.filter((h) => h.estado === st).length;
+  $('summary').textContent = `${count('hecho')} de ${hitos.length} hitos completados · ${count('parcial')} parciales · ` +
+    `${count('encurso')} en curso`;
+  $('version').textContent = `v${p.version} · actualizado ${p.actualizado}`;
+  $('now-label').textContent = p.ahora?.etiqueta || '';
+  $('now-title').textContent = p.ahora?.titulo || '';
+  $('now-detail').textContent = p.ahora?.detalle || '';
+  $('checks').replaceChildren(...(p.comprobaciones || []).map((c) => {
+    const li = el('li');
+    li.append(el('span', `mark ${c.estado}`, c.estado === 'hecho' ? '✓' : '!'));
+    const txt = el('span', 'txt', c.texto);
+    txt.append(el('small', '', c.detalle));
+    li.append(txt, el('span', `tag ${c.estado}`, c.estado === 'hecho' ? 'HECHO' : 'PENDIENTE'));
+    return li;
+  }));
+  $('road').replaceChildren(...hitos.map((h) => {
+    const row = el('div', `hito ${h.estado}`);
+    const mid = el('div');
+    const bar = el('div', 'bar');
+    const fill = el('span');
+    bar.append(fill);
+    mid.append(el('div', 'name', h.nombre), el('div', 'state', LABELS[h.estado] || h.estado), bar);
+    row.append(el('div', 'n', `H${h.n}`), mid, el('div', 'pct', `${h.pct}%`));
+    requestAnimationFrame(() => { fill.style.width = `${h.pct}%`; });
+    return row;
+  }));
+  $('note').textContent = p.nota || '';
+  fit();
+}
+
+function showCommits(commits) {
+  const items = commits.map((c) => ({
+    when: new Date(c.commit.committer?.date || c.commit.author?.date),
+    msg: c.commit.message.split('\n')[0],
+  }));
+  if (items.length) {
+    $('now-when').textContent = `Último commit ${ago(items[0].when)}`;
+    $('now-msg').textContent = items[0].msg;
+    $('now-commit').hidden = false;
+  }
+  const make = () => items.map((it) => {
+    const li = el('li');
+    li.append(el('b', '', ago(it.when)), document.createTextNode(it.msg));
+    return li;
+  });
+  // Twice, so the strip scrolls without a gap
+  const list = $('ticker');
+  list.replaceChildren(...make(), ...make());
+  list.classList.add('scroll');
+  list.style.setProperty('--scroll-time', `${Math.max(30, items.length * 7)}s`);
+  fit();
+}
+
+async function json(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`${response.status} ${url.split('/').slice(2, 3)}`);
+  return response.json();
+}
+
+async function refresh() {
+  const errors = [];
+  try {
+    showProgress(await json(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/docs/progreso.json?t=${Date.now()}`));
+  } catch (error) {
+    // The copy published with the page, when GitHub cannot be read
+    try { showProgress(await json('progreso.json')); } catch { errors.push('progreso'); }
+  }
+  try {
+    showCommits(await json(`https://api.github.com/repos/${REPO}/commits?sha=${encodeURIComponent(BRANCH)}&per_page=8`));
+  } catch (error) {
+    errors.push('commits');
+  }
+  $('err').textContent = errors.length ? `· sin conexión con GitHub (${errors.join(', ')}); se reintenta` : '';
+}
+
+refresh();
+setInterval(refresh, EVERY);
+</script>
+</body>
+</html>
