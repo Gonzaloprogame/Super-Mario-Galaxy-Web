@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:14:32+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el puente sin el parche 0022 y ejecutar la prueba",
-   "cmd": "S=$S; mv web/aurora/patches/0022-texcoord-without-texgen.patch $S/p0022/held.patch && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && emcmake cmake -S web -B build/all -G Nin…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:16:50+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el puente con el parche 0022 y ejecutar la prueba completa",
-   "cmd": "S=$S; mv $S/p0022/held.patch web/aurora/patches/0022-texcoord-without-texgen.patch && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && emcmake cmake -S web -B build/all -G Nin…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:16:57+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo recoge el registro la prueba del puente",
-   "cmd": "grep -n \"lines\\b\\|lines =\\|lines.push\\|bridge.log\\|smgLog\" web/tests/bridge_smoke.mjs | head -12",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:17:27+00:00",
    "tipo": "bash",
    "desc": "Leer el registro de la página en la prueba y repetirla",
@@ -279,8 +258,29 @@
    "desc": "Buscar en la API de Nebula cómo cargar un nivel directamente",
    "cmd": "cd ~/repo/third_party/nebula && grep -n -i \"stage\\|scenario\\|warp\\|NEBULA_OPTION_\" native/include/nebula_game_api.h | head -40",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:12:53+00:00",
+   "tipo": "bash",
+   "desc": "Leer la API de órdenes de prueba de Nebula",
+   "cmd": "sed -n 96,132p native/include/nebula_game_api.h; grep -n \"NebulaTestCommand\\|nebula_game_test\" native/include/nebula_game_api.h | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:12:57+00:00",
+   "tipo": "bash",
+   "desc": "Ver la interfaz test_scene_frame y si el host web la implementa",
+   "cmd": "cd ~/repo && grep -n \"test_scene_frame\" third_party/nebula/native/include/nebula_game_api.h web/host/*.c | head; grep -n -B2 -A6 \"test_scene_frame)\" third_party/nebula/native/incl…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:13:04+00:00",
+   "tipo": "bash",
+   "desc": "Leer las respuestas por defecto de los servicios de prueba",
+   "cmd": "sed -n 190,210p web/host/host_services.c; sed -n 340,370p web/host/host_services.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:12:48+00:00"
+ "actualizado": "2026-11-02T20:13:04+00:00"
 }
