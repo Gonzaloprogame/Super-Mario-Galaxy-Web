@@ -5,7 +5,7 @@
   "ahora": {
     "etiqueta": "En curso · Hito 5",
     "titulo": "Vídeos THP",
-    "detalle": "Reproducir las escenas de vídeo del juego en el navegador, reutilizando el decodificador THP de Nebula."
+    "detalle": "Decodificador conectado y comprobado (mismos píxeles que en Nebula, unos 3 ms por fotograma). Ahora: verlo dentro del juego, en el vídeo del prólogo."
   },
   "comprobaciones": [
     {
