@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:22:23+00:00",
-   "tipo": "bash",
-   "desc": "Ver la estructura de los tests THP de Nebula",
-   "cmd": "wc -l runtime/src/native_thp_video_tests.cpp && sed -n 1,10p runtime/src/native_thp_video_tests.cpp && grep -n \"^[a-zA-Z].*(\\|TEST\\|main\\|expect\\|check(\" runtime/src/native_thp_vi…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:22:26+00:00",
    "tipo": "bash",
    "desc": "Leer los tests THP de Nebula",
@@ -279,8 +272,15 @@
    "desc": "Esperar las líneas del decodificador de vídeo",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 40); do l=$(curl -s \"127.0.0.1:18777/log?tail=8000\" | grep -E \"movie|Aborted|stall:\"); [ -n \"$l\" ] && …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:53:21+00:00",
+   "tipo": "bash",
+   "desc": "Capturar la pantalla actual",
+   "cmd": "curl -s \"127.0.0.1:18777/shot?name=m5\" >/dev/null; echo ok",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:53:16+00:00"
+ "actualizado": "2026-11-02T17:53:21+00:00"
 }
