@@ -389,7 +389,34 @@ hilo del juego dentro de un servicio. Los informes y el aviso de bloqueo llegan 
 servicio y la página lo dice en su estado. Con la primera versión, que escribía también en la salida de errores, esa
 comprobación fallaba.
 
-**Pendiente:** la causa del cuelgue de la primera galaxia. Hace falta el registro de una nueva prueba con esta versión.
+La primera versión decidía que el juego estaba colgado cuando el registro llevaba 8 s en silencio; como los
+informes ya no pasan por la salida de errores, eso daba falsas alarmas en partidas normales. Ahora la señal es el
+**latido** del hilo del juego: un contador en el anillo que sube con cada servicio del host que llama (dibujo, disco,
+audio…) y con cada fotograma de escena. En una partida real la página avisó solo cuando empezó el cuelgue, no durante
+los minutos previos de carga, título, menús y prólogo.
+
+## Gira de galaxias (2026-11-02)
+
+`?tour=Galaxia:misión,Galaxia:misión,…&tourframes=N` hace que el host cambie de galaxia cada N fotogramas de escena
+con el propio cambio de escenario del juego (`NEBULA_TEST_CHANGE_STAGE`), como la gira de prueba del host de Nebula
+(`GALAXY_TEST_GALAXY_TOUR`). Sirve para encontrar, galaxia a galaxia, lo que el motor web no sabe dibujar o ejecutar,
+sin jugar hasta cada una. La lista de galaxias se da en la URL; no está en el repositorio. Cada parada queda en el
+registro (`[host] tour: stop i of N, …`).
+
+Primera tanda, con el disco del usuario en el contenedor (sin GPU real, todo mucho más lento que en un PC):
+
+| Galaxia | Resultado |
+|---|---|
+| `HeavensDoorGalaxy` | Carga y se juega. Una parada de 9 s al entrar (el hilo de render empezando un fotograma mientras la GPU por software compila *pipelines*), y sigue. |
+| `AstroGalaxy` | Igual: paradas de 10 y 18 s al cargar, y sigue. |
+| `EggStarGalaxy` | **Se cuelga siempre** (tres de tres, también yendo directamente). |
+
+El cuelgue de `EggStarGalaxy`, según el aviso de bloqueo: el hilo de render lleva todo el tiempo en
+`aurora::gx::fifo::drain()` (Aurora interpretando la GX del fotograma) sin avanzar; la cola hacia él se llena
+(16.384 de 16.384) y el hilo de audio del juego (`JASAudioThread` → `JASDSPChannel::updateProc`) espera sitio dentro
+de `gpu_coherent`. El perfilador del navegador confirma el hilo de audio, pero el hilo de render no le responde: está en
+un bucle de WebAssembly que no devuelve el control. **Siguiente paso:** medir dentro de `drain()` qué orden GX lo
+atrapa. De paso, el perfil muestra que el hilo de la NAND gasta el 100 % de su CPU esperando activamente.
 
 ## Rendimiento
 

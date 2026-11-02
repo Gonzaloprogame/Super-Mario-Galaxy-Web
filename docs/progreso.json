@@ -4,8 +4,8 @@
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
     "etiqueta": "En curso · Hito 7",
-    "titulo": "Cuelgue en la primera galaxia",
-    "detalle": "El registro ya no se queda mudo si el juego se cuelga: los informes llegan por memoria compartida y dicen dónde se quedó el hilo del juego."
+    "titulo": "Gira de galaxias",
+    "detalle": "Galaxia a galaxia con el disco real: HeavensDoor y Astro cargan; EggStar se cuelga en el renderizador (drain de Aurora). Buscando la orden GX que lo atrapa."
   },
   "comprobaciones": [
     {
@@ -80,7 +80,7 @@
       "n": 7,
       "nombre": "Jugable de principio a fin",
       "estado": "encurso",
-      "pct": 15
+      "pct": 20
     },
     {
       "n": 8,

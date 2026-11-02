@@ -198,13 +198,17 @@ static uint64_t now_micros(void);
    main thread, where the game runs, and waits for it. If the game's thread hangs, the clock thread itself stops at its
    next report, and the stall report never comes (the log goes silent just when it matters). So when the page reads
    this ring (sWatchReader: the engine runs in the page's worker), the reports go only here, written without waiting
-   for anyone; the page reads it every second (web/shell/app.js) and adds its lines to the log, marked "[vigía]" while
-   the rest of the log is silent. Without the page (the Node builds) they go to stderr. `written` counts every byte
-   ever written; the text is at written % SMG_WATCH_SIZE. */
+   for anyone; the page reads it every second (web/shell/app.js) and adds its lines to the log. `beat` is the game's
+   thread's heartbeat: counted at each host service it calls (SERVICE_ENTER, each scene frame); when it stops for 8 s
+   while the ring goes on, the page says the game's thread does not answer and marks the lines "[vigía]". Without the
+   page (the Node builds) the reports go to stderr. `written` counts every byte ever written; the text is at
+   written % SMG_WATCH_SIZE. */
 #define SMG_WATCH_SIZE 32768u
 static struct {
     _Alignas(8) _Atomic uint32_t written;
     uint32_t size;
+    _Atomic uint32_t beat;
+    uint32_t reserved;
     char text[SMG_WATCH_SIZE];
 } sWatch = {.size = SMG_WATCH_SIZE};
 static pthread_mutex_t sWatchLock = PTHREAD_MUTEX_INITIALIZER;
@@ -241,6 +245,7 @@ static _Atomic(const char*) sInService;
 static _Atomic uint64_t sInServiceSince;
 #define SERVICE_ENTER(name)                              \
     do {                                                 \
+        atomic_fetch_add(&sWatch.beat, 1);               \
         atomic_store(&sInServiceSince, now_micros());    \
         atomic_store(&sInService, (const char*)(name));  \
     } while (0)
@@ -401,6 +406,79 @@ static void svc_power(void* user, uint32_t what) {
     (void)user;
     fprintf(stderr, "[host] power request %u\n", what);
     host_exit(0);
+}
+
+/* ---- the galaxy tour (the page's ?tour=, docs/MOTOR_WEB.md): each stop in turn, through the game's own stage change
+   (MR::requestChangeStageInGameMoving, NEBULA_TEST_CHANGE_STAGE), every `frames` scene frames. The way Nebula's host
+   visits galaxies (GALAXY_TEST_GALAXY_TOUR): to find, galaxy by galaxy, what the web engine cannot draw or run, without
+   playing to each one. The list comes from the page, not from this repository. ---- */
+#define SMG_TOUR_MAX 160
+static struct {
+    char stage[64];
+    int32_t scenario;
+} sTour[SMG_TOUR_MAX];
+static size_t sTourStops, sTourNext;
+static uint64_t sTourFrames = 1200, sTourSince, sSceneFrames, sTourStartMicros;
+static int sTourDone;
+
+/* "Stage:scenario,Stage:scenario,..." (scenario 1 when left out) */
+static void tour_parse(const char* spec, const char* frames) {
+    const char* p = spec;
+    while (*p != '\0' && sTourStops < SMG_TOUR_MAX) {
+        const char* end = strchr(p, ',');
+        const size_t length = end != NULL ? (size_t)(end - p) : strlen(p);
+        char entry[80];
+        snprintf(entry, sizeof(entry), "%.*s", (int)(length < sizeof(entry) - 1 ? length : sizeof(entry) - 1), p);
+        char* colon = strchr(entry, ':');
+        int scenario = 1;
+        if (colon != NULL) {
+            *colon = '\0';
+            scenario = atoi(colon + 1);
+        }
+        if (entry[0] != '\0') {
+            snprintf(sTour[sTourStops].stage, sizeof(sTour[sTourStops].stage), "%s", entry);
+            sTour[sTourStops].scenario = scenario > 0 ? scenario : 1;
+            sTourStops++;
+        }
+        if (end == NULL) {
+            break;
+        }
+        p = end + 1;
+    }
+    if (frames != NULL && atoi(frames) >= 60) {
+        sTourFrames = (uint64_t)atoi(frames);
+    }
+    host_log("[host] tour: %zu stops, %" PRIu64 " scene frames apart\n", sTourStops, sTourFrames);
+}
+
+static int svc_test_scene_frame(void* user, NebulaTestAction* action) {
+    (void)user;
+    sSceneFrames++;
+    atomic_fetch_add(&sWatch.beat, 1);
+    if (sTourStops == 0 || sTourDone) {
+        return 0;
+    }
+    if (sTourStartMicros == 0) {
+        sTourStartMicros = now_micros();
+    }
+    /* The first stop 2 s into the first game scene, the others `frames` apart */
+    if (++sTourSince < (sTourNext == 0 ? 120u : sTourFrames)) {
+        return 0;
+    }
+    sTourSince = 0;
+    const double elapsed = (double)(now_micros() - sTourStartMicros) / 1e6;
+    if (sTourNext == sTourStops) {
+        sTourDone = 1;
+        host_log("[host] tour: done, %zu stops in %.0f s\n", sTourStops, elapsed);
+        return 0;
+    }
+    action->kind = NEBULA_TEST_CHANGE_STAGE;
+    action->scenario = sTour[sTourNext].scenario;
+    snprintf(action->stage, sizeof(action->stage), "%s", sTour[sTourNext].stage);
+    host_log("[host] tour: stop %zu of %zu, %s scenario %d (scene frame %" PRIu64 ", %.0f s)\n", sTourNext + 1,
+             sTourStops, action->stage, (int)action->scenario, sSceneFrames, elapsed);
+    sTourNext++;
+    return 1;
 }
 
 /* The game names its stage often (each scene step): logged when it changes */
@@ -725,6 +803,7 @@ int main(int argc, char** argv) {
     services.power = svc_power;
     services.game_stage = svc_game_stage;
     services.thp_video_decode = svc_thp_video_decode;
+    services.test_scene_frame = svc_test_scene_frame;
     sDefaults = services;
     services.audio_dsp = svc_audio_dsp;
     services.gpu_coherent = svc_gpu_coherent;
@@ -734,6 +813,9 @@ int main(int argc, char** argv) {
     smg_console_start(sPak.id);
     if (argc > 4 && argv[4][0] != '\0') {
         restore_nand(argv[4]);
+    }
+    if (argc > 6 && argv[6][0] != '\0') {
+        tour_parse(argv[6], argc > 7 ? argv[7] : NULL);
     }
     smg_console_on_nand_change(nand_changed);
 #if defined(SMG_HOST_AURORA)
