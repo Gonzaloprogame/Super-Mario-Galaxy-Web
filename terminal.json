@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:12:02+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/tools/directo/setup.sh",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:12:11+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Ejecutar el test THP en nativo y en WebAssembly",
    "cmd": "chmod +x web/tests/run_thp_video_test.sh && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && time web/tests/run_thp_video_test.sh 2>&1 | tail -25",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:25:14+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar que el test detecta un encabezado roto a propósito",
+   "cmd": "S=$S/thp_mut && mkdir -p $S/galaxy && sed 's/if ((bits \\& 1u) == 0u) {/if (false) {/' web/host/compat/galaxy/fused_multiply_add.h > $S/galaxy/fused_multiply_add.h && grep -c \"if (…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:25:01+00:00"
+ "actualizado": "2026-11-02T17:25:14+00:00"
 }
