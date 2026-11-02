@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:17:27+00:00",
-   "tipo": "bash",
-   "desc": "Leer el registro de la página en la prueba y repetirla",
-   "cmd": "python3 - <<'EOF'  … (+16 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:17:39+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el motor completo con el parche 0022",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_0022.log 2>&1; echo \"salida: $?\"; tail -1 $S/build_0022.log",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:17:39+00:00",
    "tipo": "bash",
    "desc": "Buscar dónde documentar el resultado y el parche 0022",
@@ -279,8 +265,22 @@
    "desc": "Leer las respuestas por defecto de los servicios de prueba",
    "cmd": "sed -n 190,210p web/host/host_services.c; sed -n 340,370p web/host/host_services.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:13:13+00:00",
+   "tipo": "bash",
+   "desc": "Listar las pruebas ocultas que admite el host de Nebula",
+   "cmd": "cd ~/repo/third_party/nebula && grep -n \"GALAXY_TEST_[A-Z_]*\" -o native/host/host_main.cpp runtime/src/*.cpp 2>/dev/null | awk -F: '{print $NF}' | sort | uniq -c | sort -rn | head…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:13:19+00:00",
+   "tipo": "bash",
+   "desc": "Leer la gira de galaxias de prueba de Nebula",
+   "cmd": "grep -n \"GALAXY_TOUR\" native/host/host_main.cpp runtime/src/*.cpp | head; f=$(grep -ln \"GALAXY_TEST_GALAXY_TOUR\\\"\" native/host/host_main.cpp runtime/src/*.cpp | head -1); n=$(grep…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:13:04+00:00"
+ "actualizado": "2026-11-02T20:13:19+00:00"
 }
