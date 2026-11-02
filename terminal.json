@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:45:31+00:00",
-   "tipo": "bash",
-   "desc": "Leer cómo la página muestra y copia el registro",
-   "cmd": "sed -n 160,185p web/shell/app.js; sed -n 280,340p web/shell/app.js; grep -n \"wasmMemory\\|HEAPU8\\|EXPORTED_FUNCTIONS\\|EMSCRIPTEN_KEEPALIVE\" web/cmake/SmgGame.cmake web/engine/CMake…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:45:47+00:00",
    "tipo": "bash",
    "desc": "Ver los servicios del host y el informe de bloqueos",
@@ -279,8 +272,15 @@
    "desc": "Pasar el título y entrar con el archivo 1 hasta la primera parada",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 30; curl -s \"127.0.0.1:18777/keys?down=Space,ShiftLeft&ms=1500\" >/dev/null; W 40; curl -s \"127.0.0.1:18777/tap?x=0.33…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:21:43+00:00",
+   "tipo": "bash",
+   "desc": "Detectar el cuelgue por el latido del hilo del juego",
+   "cmd": "python3 - <<'EOF'  … (+89 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:21:12+00:00"
+ "actualizado": "2026-11-02T20:21:43+00:00"
 }
