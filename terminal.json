@@ -146,8 +146,29 @@
    "desc": "Buscar la llamada al decodificador en el host de Nebula",
    "cmd": "grep -n -i \"thp\" native/host/host_main.cpp runtime/src/native_host.cpp | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:21:07+00:00",
+   "tipo": "bash",
+   "desc": "Leer el adaptador THP del host de Nebula",
+   "cmd": "sed -n 3025,3085p native/host/host_main.cpp",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:21:13+00:00",
+   "tipo": "bash",
+   "desc": "Buscar cómo invalida texturas el puente con Aurora",
+   "cmd": "cd ~/repo && grep -n \"^[a-z].*smg_bridge_[a-z_]*(\" web/host/aurora_bridge.h; grep -rn -i \"invalidat\\|memory_write\\|texture.*cache\\|tex_cache\" web/host/aurora_bridge.cpp | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:21:17+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué hace smg_bridge_coherent y quién la llama",
+   "cmd": "sed -n 38,46p web/host/aurora_bridge.h; grep -n \"smg_bridge_coherent\" -r web/host web/game | head; grep -n \"coherent\" web/host/aurora_bridge.cpp | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:21:04+00:00"
+ "actualizado": "2026-11-02T17:21:17+00:00"
 }
