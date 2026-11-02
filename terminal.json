@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:22:47+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/host/compat/galaxy/fused_multiply_add.h",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:22:54+00:00",
    "tipo": "bash",
    "desc": "Limitar el pragma de contracción a la función",
@@ -279,8 +272,15 @@
    "desc": "Avanzar el prólogo con A y vigilar el decodificador",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 24); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=600\" >/dev/null; W 8; l=$(curl -s \"127.0.0.1:18777…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:57:21+00:00",
+   "tipo": "bash",
+   "desc": "Seguir avanzando el prólogo y vigilar el decodificador",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 40); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=1500\" >/dev/null; W 12; l=$(curl -s \"127.0.0.1:187…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:56:58+00:00"
+ "actualizado": "2026-11-02T17:57:21+00:00"
 }
