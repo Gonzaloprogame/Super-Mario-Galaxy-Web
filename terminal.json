@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:09:53+00:00",
-   "tipo": "bash",
-   "desc": "Leer el dibujo texturizado de la escena y cómo se activan sus variantes",
-   "cmd": "sed -n 308,360p web/bridge/gx_bridge_scene.c; grep -n \"requested()\" web/bridge/gx_bridge_scene.c web/bridge/bridge_main.c | head; grep -n \"clear_quad\\|clearquad\\|clear-quad\" web/t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:09:59+00:00",
    "tipo": "bash",
    "desc": "Leer la prueba del cuadrado de borrado como modelo",
@@ -279,8 +272,15 @@
    "desc": "Ver las últimas líneas del registro durante el bloqueo de prueba",
    "cmd": "S=$S; cd ~/repo && python3 -I web/tests/make_fixture.py $S/fx >/dev/null && sed -i \"s#\\${root}/build/browser-fixtures/fixture_emptydol.pak#$S/fx/fixture_emptydol.pak#\" $S/hang_pro…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:03:18+00:00",
+   "tipo": "bash",
+   "desc": "Leer la condición del informe de bloqueos",
+   "cmd": "awk '/^static void check_stall/,/reported = 0;/' web/host/headless_host.c | head -30",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:03:12+00:00"
+ "actualizado": "2026-11-02T20:03:18+00:00"
 }
