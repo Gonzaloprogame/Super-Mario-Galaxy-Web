@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:24:44+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar y subir el soporte de vídeos THP",
-   "cmd": "git add web/host/thp_video.cpp web/host/thp_video.h web/host/compat web/host/headless_host.c web/engine/CMakeLists.txt web/tests/thp_video_test.cpp web/tests/run_thp_video_test.sh…  … (+30 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:24:55+00:00",
    "tipo": "bash",
    "desc": "Comparar el sitio compilado con lo publicado",
@@ -279,8 +272,15 @@
    "desc": "Publicar el motor con el parche 0022 en GitHub Pages",
    "cmd": "G=$S/gh-pages; cd ~/repo/build/site && for f in bridge/gx_bridge.js bridge/gx_bridge.wasm bridge/gx_replay.js bridge/gx_replay.wasm gx/gx_demo.js gx/gx_demo.wasm progreso.json smg…  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:44:50+00:00",
+   "tipo": "bash",
+   "desc": "Ver por dónde llega el registro del motor a la página",
+   "cmd": "grep -n \"printErr\\|print:\\|postMessage\" web/shell/boot_worker.post.js | head -15; grep -n \"emscripten_sleep\\|emscripten_yield\\|ASYNCIFY\\|PROXY_TO_PTHREAD\" web/cmake/SmgGame.cmake …",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-02T19:22:41+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-02T19:44:50+00:00"
 }
