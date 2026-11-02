@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:17:47+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo se listan las adaptaciones de Aurora",
-   "cmd": "sed -n 48,68p docs/PUENTE_FIFO.md | tail -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:18:04+00:00",
    "tipo": "bash",
    "desc": "Documentar el resultado en el juego y el parche 0022",
@@ -279,8 +272,15 @@
    "desc": "Ver cómo el host monta sus servicios y lee sus argumentos",
    "cmd": "cd ~/repo && grep -n \"services\\.[a-z_]* = svc_\\|sDefaults = \\|smg_host_services_defaults\\|host_services_init\" web/host/headless_host.c | head -30; grep -n \"argc > 4\\|argv\\[4\\]\\|ar…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:14:12+00:00",
+   "tipo": "bash",
+   "desc": "Añadir la gira de galaxias al host web",
+   "cmd": "python3 - <<'EOF'  … (+87 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:13:50+00:00"
+ "actualizado": "2026-11-02T20:14:12+00:00"
 }
