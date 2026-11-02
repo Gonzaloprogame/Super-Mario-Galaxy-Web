@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:14:12+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la gira de galaxias al host web",
-   "cmd": "python3 - <<'EOF'  … (+87 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T20:14:21+00:00",
-   "tipo": "bash",
-   "desc": "Pasar la gira de la página al motor",
-   "cmd": "python3 - <<'EOF'  … (+23 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:14:39+00:00",
    "tipo": "bash",
    "desc": "Listar localmente las galaxias del disco",
@@ -279,8 +265,22 @@
    "desc": "Perfilar todos los hilos durante el cuelgue",
    "cmd": "S=$S; cd $S/drive && timeout 600 node prof.mjs 19223 10 40 > $S/drive/prof_egg.txt 2>&1; echo \"salida $?\"; grep -n \"=== worker\\|workers\\|start \" $S/drive/prof_egg.txt | head -12",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:59:06+00:00",
+   "tipo": "bash",
+   "desc": "Localizar el perfil del hilo de render",
+   "cmd": "S=$S; awk '/=== worker/{w=NR} /drain|render_main|fifo/{print w}' $S/drive/prof_egg.txt | sort -u;",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:59:13+00:00",
+   "tipo": "bash",
+   "desc": "Resumir qué hace cada hilo perfilado",
+   "cmd": "S=$S; awk '/=== worker/{print; c=0; t=0} /-- total/{t=1; next} t && c<6 && !/^ *100.0%  \\(root\\)/{print \"   \" $0; c++}' $S/drive/prof_egg.txt | head -50; grep -c \"\" $S/drive/prof_…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:59:01+00:00"
+ "actualizado": "2026-11-02T20:59:13+00:00"
 }
