@@ -156,7 +156,7 @@ de inmediato.
 | Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras recientes sin medir allí |
 | Arranque rápido | 🧪 | En escritorio < 10 s; en Android, corregido y pendiente de medir |
 | Más allá del primer nivel | ⏳ | Prácticamente sin probar |
-| Vídeos (THP) | ⏳ | No se reproducen todavía |
+| Vídeos (THP) | 🧪 | Decodificador conectado; da los mismos píxeles en el navegador que en Nebula. **Falta verlo dentro del juego** |
 | Versiones PAL y japonesa | ⏳ | Solo se ha probado la norteamericana (RMGE01) |
 | Jugar de principio a fin | ❌ | **Todavía no** |
 

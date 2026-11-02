@@ -36,6 +36,7 @@
 #if defined(SMG_HOST_AURORA)
 #include "audio_output.h"
 #include "aurora_bridge.h"
+#include "thp_video.h"
 #endif
 
 /* ---- game.pak: the decrypted game partition at its own offsets (crates/nebula-import) ----
@@ -300,20 +301,34 @@ static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) 
 #endif
 }
 
-/* Movies (THP): no decoder yet. The frame is refused as a failed decode (the game's player then does not show it);
-   counted, and said once in the log. */
+/* Movies (THP). With the renderer, Nebula's decoder writes the frame's planes (web/host/thp_video.cpp); the first
+   frame and any refused one are said in the log. Without it (the Node builds) there is nothing to show them on: the
+   frame is refused as a failed decode, and the game's player does not show it. */
 static _Atomic uint64_t sThpDecodes;
 
 static int32_t svc_thp_video_decode(void* user, const void* frame, uint32_t size, void* y, void* u, void* v) {
     (void)user;
+    const uint64_t n = atomic_fetch_add(&sThpDecodes, 1);
+#if defined(SMG_HOST_AURORA)
+    const int32_t result = smg_thp_video_decode(frame, size, y, u, v);
+    uint16_t width = 0, height = 0;
+    if (n == 0 || result != 0) {
+        smg_thp_frame_size(frame, size, &width, &height);
+        fprintf(stderr, "[host] movie frame %" PRIu64 " (THP, %ux%u, %u bytes): %s (decoder error %d)\n", n + 1,
+                width, height, size, result == 0 ? "decoded" : "REFUSED", (int)result);
+    }
+    return result;
+#else
     (void)frame;
     (void)y;
     (void)u;
     (void)v;
-    if (atomic_fetch_add(&sThpDecodes, 1) == 0) {
-        fprintf(stderr, "[host] the game plays a movie (THP, frame of %u bytes): there is no movie decoder yet\n", size);
+    if (n == 0) {
+        fprintf(stderr, "[host] the game plays a movie (THP, frame of %u bytes): this build has no renderer, so no decoder\n",
+                size);
     }
     return -1;
+#endif
 }
 
 static void svc_power(void* user, uint32_t what) {
@@ -477,6 +492,12 @@ static void report(void) {
     char audio[320];
     smg_audio_stats(audio, sizeof(audio));
     fprintf(stderr, "[host] audio: %s\n", audio);
+    uint64_t movieDecoded = 0, movieRefused = 0, movieNs = 0;
+    smg_thp_stats(&movieDecoded, &movieRefused, &movieNs);
+    if (movieDecoded + movieRefused != 0) {
+        fprintf(stderr, "[host] movies: %" PRIu64 " frames decoded, %" PRIu64 " refused, %.2f ms a frame\n",
+                movieDecoded, movieRefused, (double)movieNs / 1e6 / (double)(movieDecoded + movieRefused));
+    }
 #endif
 #if defined(__EMSCRIPTEN__)
     fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);

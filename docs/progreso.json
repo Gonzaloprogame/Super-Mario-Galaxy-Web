@@ -35,7 +35,7 @@
     },
     {
       "texto": "Vídeos THP",
-      "detalle": "Las escenas de vídeo todavía no se ven",
+      "detalle": "Decodificador conectado y comprobado; falta verlo dentro del juego",
       "estado": "pendiente"
     }
   ],
@@ -68,7 +68,7 @@
       "n": 5,
       "nombre": "Gráficos con WebGPU",
       "estado": "parcial",
-      "pct": 80
+      "pct": 85
     },
     {
       "n": 6,

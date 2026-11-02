@@ -12,8 +12,14 @@ add_executable(smg_web
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/aurora_bridge.cpp"
     # The game's sound: Nebula's host implementation of the JAudio DSP program (GPL-3.0, compiled from third_party)
     "${CMAKE_CURRENT_SOURCE_DIR}/../host/audio_output.cpp"
-    "${SMG_NEBULA_NATIVE}/../runtime/src/jaudio_host_mixer.cpp")
+    "${SMG_NEBULA_NATIVE}/../runtime/src/jaudio_host_mixer.cpp"
+    # THP movies: Nebula's decoder (GPL-3.0, compiled unchanged from third_party) behind the host (web/host/thp_video.cpp)
+    "${CMAKE_CURRENT_SOURCE_DIR}/../host/thp_video.cpp"
+    "${SMG_NEBULA_NATIVE}/../runtime/src/native_thp_video.cpp")
+# web/host/compat comes before Nebula's runtime/include: its galaxy/fused_multiply_add.h replaces Nebula's x86 one
+# (intrinsics and CPUID) with the same exact operation in plain binary64 arithmetic (web/tests/run_thp_video_test.sh).
 target_include_directories(smg_web PRIVATE "${SMG_NEBULA_NATIVE}/include" "${CMAKE_CURRENT_SOURCE_DIR}/../host"
+                           "${CMAKE_CURRENT_SOURCE_DIR}/../host/compat"
                            "${SMG_AURORA_LIB}" "${SMG_NEBULA_NATIVE}/../runtime/include")
 target_compile_definitions(smg_web PRIVATE SMG_HOST_AURORA=1)
 target_compile_options(smg_web PRIVATE -pthread)

@@ -331,6 +331,40 @@ gráficos, en Node, llega al título en menos de 10 s y va a 60 fotogramas por s
 - **Sin prueba automática:** una prueba del puente con una matriz cargada por índice no llegó a ser válida (la base
   del *array* de matrices no llegaba a Aurora en el puente, sin causa encontrada) y se quitó.
 
+## Vídeos THP (2026-11-02)
+
+El reproductor del juego (`THPSimplePlayerWrapper`) da al host la parte de vídeo de cada fotograma: un JPEG baseline
+4:2:0 sin relleno de bytes. El host del motor (`web/host/thp_video.cpp`) lee su tamaño del segmento SOF0, lo decodifica
+con el decodificador de Nebula (`third_party/nebula/runtime/src/native_thp_video.cpp`, compilado sin cambios) en los
+planos Y, U y V del juego (texturas I8 en mosaicos de 8×4) y avisa al puente de Aurora de que esos rangos cambiaron
+(`smg_bridge_coherent`), porque el juego no vacía la caché sobre ellos. Nebula hace lo mismo en su host.
+
+**Multiplicar y sumar exacto.** El decodificador de Nebula reproduce los píxeles de la consola con operaciones de
+multiplicar y sumar con un solo redondeo. Su encabezado usa intrínsecos de x86 y CPUID, que no existen en
+WebAssembly, y wasm no tiene esa instrucción (`std::fma` es una rutina por software, demasiado lenta). En el motor web,
+`web/host/compat/galaxy/fused_multiply_add.h` ocupa su lugar: el producto de dos float es exacto en double, el error de
+la suma se calcula con TwoSum y, si la suma no es exacta, se redondea a impar antes de pasar a float (Boldo y
+Melquiond, 2008). El resultado es el de una FMA de verdad.
+
+**Comprobado:**
+
+- `web/tests/run_thp_video_test.sh`: la operación coincide con `fmaf` de la biblioteca de C en 3.000.007 casos, de
+  ellos 1.000.000 construidos para caer justo en un punto medio entre dos float (donde una suma en double se equivoca).
+  Con el redondeo a impar quitado a propósito, el test falla (500.415 casos distintos).
+- El mismo test decodifica 300 fotogramas sintéticos: nativo con el encabezado de Nebula, nativo con el web y
+  WebAssembly en Node dan la misma suma de comprobación de los planos.
+- Con el disco del usuario, fuera del juego y sin publicar nada: cinco fotogramas de un vídeo del prólogo (640×368)
+  decodificados por el camino del host comparados con el decodificador independiente de ffmpeg dan unos **50 dB de
+  PSNR** en los tres planos (la mitad de los píxeles idénticos; el resto difiere por la IDCT). En WebAssembly salen
+  idénticos al nativo y cuestan **unos 3 ms por fotograma** en el contenedor.
+- El motor compila con el decodificador, y el informe del host añade una línea `[host] movies: …` (fotogramas
+  decodificados, rechazados y tiempo medio).
+
+**Sin comprobar:** el vídeo dentro del juego. En una partida nueva, las páginas del libro del prólogo y el principio
+del jardín del castillo **no piden ningún fotograma THP** (0 en el registro): los vídeos del prólogo los lanza un objeto
+del nivel (`MovieStarter`) más adelante. La hipótesis de la sexta prueba («el nivel empieza con una película THP») era
+falsa en este camino. En esa misma partida el nivel cargó y se jugó sin el bloqueo de Android.
+
 ## Rendimiento
 
 **Medición:** el informe del host da, cada 10 s, el tiempo por fotograma del hilo de render en cada fase
