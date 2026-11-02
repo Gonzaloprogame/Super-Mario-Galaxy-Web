@@ -9,3 +9,4 @@ build-*/
 *.arc
 /game/
 tools/sqlite/target/
+.claude/settings.local.json
