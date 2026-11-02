@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:15:56+00:00",
-   "tipo": "bash",
-   "desc": "Calcular el PSNR frente a ffmpeg",
-   "cmd": "cd $S/thpcheck && python3 -I - <<'EOF'  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:16:13+00:00",
    "tipo": "bash",
    "desc": "Repetir la comparación sin conversión de rango",
@@ -279,8 +272,15 @@
    "desc": "Compilar el puente con el parche 0022 y ejecutar la prueba completa",
    "cmd": "S=$S; mv $S/p0022/held.patch web/aurora/patches/0022-texcoord-without-texgen.patch && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && emcmake cmake -S web -B build/all -G Nin…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:16:57+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo recoge el registro la prueba del puente",
+   "cmd": "grep -n \"lines\\b\\|lines =\\|lines.push\\|bridge.log\\|smgLog\" web/tests/bridge_smoke.mjs | head -12",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:16:50+00:00"
+ "actualizado": "2026-11-02T19:16:57+00:00"
 }
