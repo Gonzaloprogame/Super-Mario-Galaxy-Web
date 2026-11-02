@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:26:49+00:00",
-   "tipo": "bash",
-   "desc": "Ver qué hace el script de compilación web",
-   "cmd": "sed -n 1,30p tools/build_web.sh | grep -v \"^#\" | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:26:54+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el motor web con el decodificador THP",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_thp.log 2>&1; echo \"salida: $?\"; tail -5 $S/build_thp.log",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:27:02+00:00",
-   "tipo": "bash",
-   "desc": "Ver los scripts de prueba en el navegador",
-   "cmd": "S=$S; ls $S/drive/ 2>/dev/null | head -30; ls -la $S/disc/ 2>/dev/null | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:27:07+00:00",
    "tipo": "bash",
    "desc": "Leer cómo se usa el driver del navegador",
@@ -279,8 +258,29 @@
    "desc": "Medir el decodificador en WebAssembly y compararlo con el nativo",
    "cmd": "cd $S/thpcheck && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && R=~/repo; em++ -std=c++20 -O2 -I$R/web/host/compat -I$R/third_party/nebula/runtime/include -I$R/web/host dec…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:16:44+00:00",
+   "tipo": "bash",
+   "desc": "Recompilar el motor con la línea de vídeos en el informe",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_thp2.log 2>&1; echo \"salida: $?\"; tail -2 $S/build_thp2.log",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T18:16:44+00:00",
+   "tipo": "bash",
+   "desc": "Leer lo que dicen los documentos sobre los vídeos",
+   "cmd": "sed -n 196,222p docs/MOTOR_WEB.md && grep -n \"THP\" docs/HOJA_DE_RUTA.md README.md docs/progreso.json",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T18:16:52+00:00",
+   "tipo": "bash",
+   "desc": "Ver el final del documento del motor",
+   "cmd": "tail -30 docs/MOTOR_WEB.md | head -30 && grep -n \"^## \" docs/MOTOR_WEB.md | tail -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:16:31+00:00"
+ "actualizado": "2026-11-02T18:16:52+00:00"
 }
