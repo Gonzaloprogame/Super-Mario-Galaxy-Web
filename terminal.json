@@ -104,8 +104,29 @@
    "desc": "Ver la interfaz THP de Nebula",
    "cmd": "cd ~/repo/third_party/nebula && wc -l native/sdk/thp/thp_native.c runtime/src/native_thp_video.cpp runtime/include/galaxy/native_thp_video.h && grep -n -i \"thp\" native/include/neb…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:19+00:00",
+   "tipo": "bash",
+   "desc": "Buscar el soporte THP en el host web",
+   "cmd": "cd ~/repo && grep -rn \"thp_video_decode\\|thp_native\\|movie\" --include=*.c --include=*.cpp --include=*.h --include=*.txt --include=*.cmake --include=CMakeLists.txt web native tools…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:22+00:00",
+   "tipo": "bash",
+   "desc": "Leer el stub THP del host y la API del decodificador de Nebula",
+   "cmd": "sed -n 295,325p web/host/headless_host.c && sed -n 1,22p third_party/nebula/runtime/include/galaxy/native_thp_video.h && grep -n \"^[a-z].*(\\|#include\" third_party/nebula/runtime/s…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo Nebula llama al decodificador y sus dependencias de CPU",
+   "cmd": "cd ~/repo/third_party/nebula && grep -n \"thp_video_decode\\|decode_video\\|movie_frame\" runtime/src/native_host.cpp | head; sed -n 500,562p runtime/src/native_thp_video.cpp; grep -n…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:20:13+00:00"
+ "actualizado": "2026-11-02T17:20:28+00:00"
 }
