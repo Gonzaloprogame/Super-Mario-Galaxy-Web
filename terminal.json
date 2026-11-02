@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:18:04+00:00",
-   "tipo": "bash",
-   "desc": "Documentar el resultado en el juego y el parche 0022",
-   "cmd": "grep -n \"| \\`00\\(19\\|20\\|21\\)\" docs/PUENTE_FIFO.md | head; python3 - <<'EOF'  … (+42 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:21:16+00:00",
    "tipo": "bash",
    "desc": "Revisar la tabla de parches y esperar la compilación",
@@ -279,8 +272,15 @@
    "desc": "Añadir la gira de galaxias al host web",
    "cmd": "python3 - <<'EOF'  … (+87 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:14:21+00:00",
+   "tipo": "bash",
+   "desc": "Pasar la gira de la página al motor",
+   "cmd": "python3 - <<'EOF'  … (+23 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:14:12+00:00"
+ "actualizado": "2026-11-02T20:14:21+00:00"
 }
