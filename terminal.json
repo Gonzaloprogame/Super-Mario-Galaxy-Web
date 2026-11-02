@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:21:33+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la conversión de puntero a dirección física",
-   "cmd": "grep -n \"physical\" web/host/headless_host.c | head -30; grep -n \"physical\\|guest_base\\|mem1\\|MEM1\" third_party/nebula/native/include/nebula_game_api.h | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:21:37+00:00",
    "tipo": "bash",
    "desc": "Ver las regiones de memoria y el aviso movie_frame",
@@ -279,8 +272,15 @@
    "desc": "Esperar a la carga del prólogo o al primer fotograma de vídeo",
    "cmd": "S=$S; until grep -q \"loading:\\|done at\" $S/drive/run32_play.out 2>/dev/null || curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -q \"movie frame\"; do sleep 10; done; cat $S/drive/ru…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:44:12+00:00",
+   "tipo": "bash",
+   "desc": "Esperar al primer vídeo o al cambio de escenario",
+   "cmd": "for i in $(seq 1 90); do l=$(curl -s \"127.0.0.1:18777/log?tail=30000\"); echo \"$l\" | grep -q \"movie frame\\|stage: PeachCastle\\|stage: Opening\\|Aborted\" && break; sleep 10; done; ec…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:34:07+00:00"
+ "actualizado": "2026-11-02T17:44:12+00:00"
 }
