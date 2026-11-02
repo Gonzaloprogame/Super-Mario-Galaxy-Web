@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:14:39+00:00",
-   "tipo": "bash",
-   "desc": "Listar localmente las galaxias del disco",
-   "cmd": "cd $S/thpcheck && python3 - <<'EOF'  … (+8 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:18:41+00:00",
    "tipo": "bash",
    "desc": "Compilar el motor con la gira y preparar el driver",
@@ -279,8 +272,15 @@
    "desc": "Resumir qué hace cada hilo perfilado",
    "cmd": "S=$S; awk '/=== worker/{print; c=0; t=0} /-- total/{t=1; next} t && c<6 && !/^ *100.0%  \\(root\\)/{print \"   \" $0; c++}' $S/drive/prof_egg.txt | head -50; grep -c \"\" $S/drive/prof_…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:59:20+00:00",
+   "tipo": "bash",
+   "desc": "Leer el perfil completo de un hilo sin marcos visibles",
+   "cmd": "S=$S; sed -n 77,132p $S/drive/prof_egg.txt | grep -v \" 0.0% \"",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:59:13+00:00"
+ "actualizado": "2026-11-02T20:59:20+00:00"
 }
