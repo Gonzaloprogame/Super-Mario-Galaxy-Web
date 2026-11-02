@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:21:53+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar las pruebas de humo con el motor nuevo",
-   "cmd": "timeout 900 node web/tests/browser_smoke.mjs 2>&1 | grep -E \"^FAIL|pasaron|fallaron\"; timeout 600 node web/tests/bridge_smoke.mjs build/site/bridge 2>&1 | grep -E \"^FAIL|pasaron|f…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:22:07+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir el parche 0022 y ver qué cambia en el sitio",
@@ -279,8 +272,15 @@
    "desc": "Listar localmente las galaxias del disco",
    "cmd": "cd $S/thpcheck && python3 - <<'EOF'  … (+8 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:18:41+00:00",
+   "tipo": "bash",
+   "desc": "Compilar el motor con la gira y preparar el driver",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_tour.log 2>&1; echo \"compilación: $?\"; grep -m3 \"error\" $S/build_tour.log; S=$S; python3 - <<EOF  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:14:39+00:00"
+ "actualizado": "2026-11-02T20:18:41+00:00"
 }
