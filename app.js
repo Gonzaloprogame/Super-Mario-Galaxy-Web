@@ -288,16 +288,21 @@ async function start() {
   presenter.onExit = finish;
   // The watch log (web/host/headless_host.c, host_log): the host's reports come through a ring in the engine's shared
   // memory, read here every second, not through the engine's stderr: that goes through the game's thread, and when the
-  // game hangs it holds the log back (the reports with it). While the rest of the log is silent (8 s), the ring's lines
-  // are marked "[vigía]" and the status says the game's thread does not answer.
+  // game hangs it holds the log back (the reports with it). The ring also holds the game's thread's heartbeat; when it
+  // has not moved for 8 s, the ring's lines are marked "[vigía]" and the status says the game's thread does not answer.
   let watch = null;
-  let lastLogAt = performance.now();
   let watchSaid = false;
   const readWatch = () => {
     if (!watch) {
       return;
     }
-    const written = Atomics.load(watch.written, 0);
+    const written = Atomics.load(watch.words, 0);
+    const beat = Atomics.load(watch.words, 2);
+    const now = performance.now();
+    if (beat !== watch.beat) {
+      watch.beat = beat;
+      watch.beatAt = now;
+    }
     if (written === watch.read) {
       return;
     }
@@ -308,11 +313,11 @@ async function start() {
       bytes[i] = watch.text[(written - count + i) % size];
     }
     watch.read = written;
-    const silent = performance.now() - lastLogAt > 8000;
+    const silent = beat !== 0 && now - watch.beatAt > 8000;
     if (silent && !watchSaid) {
       watchSaid = true;
-      log('[página] el registro del motor lleva más de 8 s en silencio, pero el host sigue informando: el hilo del ' +
-          'juego no responde. Sus informes llegan por memoria compartida (líneas «[vigía]»).');
+      log(`[página] el hilo del juego lleva ${((now - watch.beatAt) / 1000).toFixed(0)} s sin llamar al host, pero el ` +
+          'host sigue informando: el hilo del juego no responde. Sus informes siguen llegando (líneas «[vigía]»).');
       if (!rendererFailed) {
         setStatus('El hilo del juego no responde. Los informes del host siguen llegando (líneas «[vigía]» del ' +
                   'registro): cópialo con «Copiar el registro».', 'error');
@@ -333,13 +338,13 @@ async function start() {
   worker.onmessage = ({ data }) => {
     switch (data.type) {
       case 'log':
-        lastLogAt = performance.now();
         log(data.text);
         break;
       case 'watch': {
-        // The ring: {written: u32, size: u32, text[size]} (web/host/headless_host.c, sWatch)
-        const words = new Uint32Array(data.buffer, data.address, 2);
-        watch = { written: words, text: new Uint8Array(data.buffer, data.address + 8, words[1]), read: Atomics.load(words, 0) };
+        // The ring: {written, size, beat, reserved: u32; text[size]} (web/host/headless_host.c, sWatch)
+        const words = new Uint32Array(data.buffer, data.address, 4);
+        watch = { words, text: new Uint8Array(data.buffer, data.address + 16, words[1]), read: Atomics.load(words, 0),
+                  beat: Atomics.load(words, 2), beatAt: performance.now() };
         break;
       }
       case 'input':
@@ -429,7 +434,11 @@ async function start() {
   }
   // ?hangtest=1 (web/tests/browser_smoke.mjs): the host hangs the game's thread on purpose, to test the watch log
   const hangtest = new URLSearchParams(location.search).get('hangtest') === '1';
-  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug, hangtest });
+  // ?tour=Stage:scenario,...&tourframes=N: the galaxy tour (web/host/headless_host.c), every N scene frames
+  const tour = new URLSearchParams(location.search).get('tour') || '';
+  const tourFrames = Number(new URLSearchParams(location.search).get('tourframes')) || 0;
+  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug, hangtest,
+                       tour, tourFrames });
 }
 
 const missing = requirements();

@@ -3,9 +3,9 @@
   "actualizado": "2026-11-02",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
-    "etiqueta": "En curso · Hito 5",
-    "titulo": "Primera galaxia",
-    "detalle": "Arreglado el error del renderizador «unhandled tcg src 21» al llegar a la primera galaxia (parche de Aurora 0022)."
+    "etiqueta": "En curso · Hito 7",
+    "titulo": "Cuelgue en la primera galaxia",
+    "detalle": "El registro ya no se queda mudo si el juego se cuelga: los informes llegan por memoria compartida y dicen dónde se quedó el hilo del juego."
   },
   "comprobaciones": [
     {
