@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:47:17+00:00",
-   "tipo": "bash",
-   "desc": "Ver dónde arranca el reloj y cómo llega la opción debug",
-   "cmd": "grep -n \"pthread_create\\|clock_main, \\|argv\\[5\\]\" web/host/headless_host.c | head; grep -n \"debug\" web/shell/app.js | head -8",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:47:21+00:00",
-   "tipo": "bash",
-   "desc": "Ver el arranque del reloj y el mensaje de arranque al worker",
-   "cmd": "sed -n 780,800p web/host/headless_host.c; grep -n \"debug\" web/shell/app.js | sed -n 8,20p; grep -n \"postMessage({ file\\|worker.postMessage\" web/shell/app.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:47:28+00:00",
    "tipo": "bash",
    "desc": "Leer el ayudante run() de la prueba del navegador",
@@ -279,8 +265,22 @@
    "desc": "Compilar el latido y repetir la prueba del navegador",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && BUILD_DIR=build/all tools/build_web.sh > $S/build_beat.log 2>&1; echo \"compilación: $?\"; grep -m3 \" error\" $S/build_beat.log; …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:29:47+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance de la gira",
+   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | grep -E \"tour|stage:|FATAL|ERROR|WARNING|stall|resumed|Aborted\" | sed 's/^\\[vigía\\] //' | cut -c1-200 | tail -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:29:53+00:00",
+   "tipo": "bash",
+   "desc": "Leer el informe completo del cuelgue en EggStarGalaxy",
+   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | grep -E \"stall: no GX from the game for (35|95|125|155) s\" | tail -1 | sed 's/; /;\\n  /g'",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:29:42+00:00"
+ "actualizado": "2026-11-02T20:29:53+00:00"
 }
