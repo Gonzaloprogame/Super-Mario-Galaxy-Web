@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:44:24+00:00",
-   "tipo": "bash",
-   "desc": "Capturar la pantalla actual del juego",
-   "cmd": "S=$S; curl -s \"127.0.0.1:18777/shot?name=m1\" ; ls $S/drive/run32/shots | tail -3",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:45:14+00:00",
-   "tipo": "bash",
-   "desc": "Pulsar A+B en la pantalla de título y capturar",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; curl -s \"127.0.0.1:18777/keys?down=Space,ShiftLeft&ms=1500\" >/dev/null; W 40; curl -s \"127.0.0.1:18777/shot?name=m2\" >/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:45:47+00:00",
    "tipo": "bash",
    "desc": "Elegir el archivo 1 y capturar",
@@ -279,8 +265,22 @@
    "desc": "Esperar el resultado de la caminata hacia el castillo",
    "cmd": "F=$TMP until grep -q \"^fin \" $F 2>/dev/null; do sleep 15; done; cat $F",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:36:25+00:00",
+   "tipo": "bash",
+   "desc": "Ver hasta dónde llegó la caminata antes de que se parara el driver",
+   "cmd": "S=$S; cat $TMP grep -E \"movie|Aborted|stage:\" $S/drive/run32/log.txt 2>/dev/null | tail -5; ls -t $S/drive/run32/ | head -5; curl -s -m 3 \"127.0.0.1:18777/state\" || echo \"driver p…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T18:36:34+00:00",
+   "tipo": "bash",
+   "desc": "Buscar procesos del navegador y del servidor que sigan vivos",
+   "cmd": "ps -eo pid,etimes,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1, $2, substr($0, index($0,$3), 80)}' | head -10",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:36:18+00:00"
+ "actualizado": "2026-11-02T18:36:34+00:00"
 }
