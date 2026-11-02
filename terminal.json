@@ -223,8 +223,15 @@
    "desc": "Leer el CMake del motor web",
    "cmd": "sed -n 1,40p web/engine/CMakeLists.txt; grep -rn \"CMAKE_CXX_STANDARD\" web/CMakeLists.txt CMakeLists.txt 2>/dev/null",
    "ok": false
+  },
+  {
+   "t": "2026-11-02T17:22:07+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué funciones del encabezado usa el decodificador",
+   "cmd": "cd ~/repo/third_party/nebula && grep -rn \"fused_multiply_add\\|madd(\" runtime/src/jaudio_host_mixer.cpp | head -5; grep -n \"fused_multiply_add\\|host_has_fma3\\|GALAXY_FUSED\" runtime…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:21:58+00:00"
+ "actualizado": "2026-11-02T17:22:07+00:00"
 }
