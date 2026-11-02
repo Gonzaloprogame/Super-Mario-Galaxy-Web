@@ -1,0 +1,13 @@
+{
+ "lineas": [
+  {
+   "t": "2026-11-02T17:10:06+00:00",
+   "tipo": "bash",
+   "desc": "Crear la rama del panel de la terminal",
+   "cmd": "git worktree add --orphan -b directo $S/directo/feed",
+   "ok": true
+  }
+ ],
+ "estado": "trabajando",
+ "actualizado": "2026-11-02T17:10:06+00:00"
+}
