@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:36:34+00:00",
-   "tipo": "bash",
-   "desc": "Buscar procesos del navegador y del servidor que sigan vivos",
-   "cmd": "ps -eo pid,etimes,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1, $2, substr($0, index($0,$3), 80)}' | head -10",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:08:28+00:00",
    "tipo": "bash",
    "desc": "Buscar el error de Aurora y la enumeración de fuentes de coordenadas",
@@ -279,8 +272,15 @@
    "desc": "Leer el registro compartido desde la página cuando el motor calla",
    "cmd": "python3 - <<'EOF'  … (+70 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:47:17+00:00",
+   "tipo": "bash",
+   "desc": "Ver dónde arranca el reloj y cómo llega la opción debug",
+   "cmd": "grep -n \"pthread_create\\|clock_main, \\|argv\\[5\\]\" web/host/headless_host.c | head; grep -n \"debug\" web/shell/app.js | head -8",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:46:59+00:00"
+ "actualizado": "2026-11-02T19:47:17+00:00"
 }
