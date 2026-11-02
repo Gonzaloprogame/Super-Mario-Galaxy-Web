@@ -191,6 +191,61 @@ static _Atomic uint64_t sGxBytes, sGxSpans, sDiscReads, sDiscBytes, sRetraces, s
 static _Atomic uint32_t sPeMarkers;
 static char sStage[64];
 
+static uint64_t now_micros(void);
+
+/* ---- the watch log: the host's reports in a ring of shared memory the page reads by itself ----
+   The engine's stderr reaches the page through the game's thread: Emscripten proxies a pthread's write to the worker's
+   main thread, where the game runs, and waits for it. If the game's thread hangs, the clock thread itself stops at its
+   next report, and the stall report never comes (the log goes silent just when it matters). So when the page reads
+   this ring (sWatchReader: the engine runs in the page's worker), the reports go only here, written without waiting
+   for anyone; the page reads it every second (web/shell/app.js) and adds its lines to the log, marked "[vigía]" while
+   the rest of the log is silent. Without the page (the Node builds) they go to stderr. `written` counts every byte
+   ever written; the text is at written % SMG_WATCH_SIZE. */
+#define SMG_WATCH_SIZE 32768u
+static struct {
+    _Alignas(8) _Atomic uint32_t written;
+    uint32_t size;
+    char text[SMG_WATCH_SIZE];
+} sWatch = {.size = SMG_WATCH_SIZE};
+static pthread_mutex_t sWatchLock = PTHREAD_MUTEX_INITIALIZER;
+static _Atomic int sWatchReader;
+
+static void host_log(const char* format, ...) {
+    char line[2048];
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(line, sizeof(line), format, args);
+    va_end(args);
+    if (n < 0) {
+        return;
+    }
+    if ((size_t)n >= sizeof(line)) {
+        n = (int)sizeof(line) - 1;
+    }
+    if (!atomic_load(&sWatchReader)) {
+        fputs(line, stderr);
+        return;
+    }
+    pthread_mutex_lock(&sWatchLock);
+    const uint32_t at = atomic_load(&sWatch.written);
+    for (int i = 0; i < n; i++) {
+        sWatch.text[(at + (uint32_t)i) % SMG_WATCH_SIZE] = line[i];
+    }
+    atomic_store(&sWatch.written, at + (uint32_t)n);
+    pthread_mutex_unlock(&sWatchLock);
+}
+
+/* Where the game's thread is in the host: set around the services that can wait (the renderer's queue and answers,
+   the disc, the audio mix, the movie decoder), for the stall report. */
+static _Atomic(const char*) sInService;
+static _Atomic uint64_t sInServiceSince;
+#define SERVICE_ENTER(name)                              \
+    do {                                                 \
+        atomic_store(&sInServiceSince, now_micros());    \
+        atomic_store(&sInService, (const char*)(name));  \
+    } while (0)
+#define SERVICE_LEAVE() atomic_store(&sInService, (const char*)NULL)
+
 /* ---- services ---- */
 
 static void svc_log(void* user, const char* text) {
@@ -214,18 +269,25 @@ static void svc_gx_submit(void* user, const uint8_t* bytes, size_t size) {
     (void)user;
     atomic_fetch_add(&sGxBytes, size);
     atomic_fetch_add(&sGxSpans, 1);
+    SERVICE_ENTER("gx_submit (the renderer's queue)");
     smg_bridge_submit(bytes, size);
+    SERVICE_LEAVE();
 }
 
 static void svc_gx_pe_marker(void* user, int finish, uint16_t token) {
     (void)user;
     atomic_fetch_add(&sPeMarkers, 1);
+    SERVICE_ENTER("gx_pe_marker (the renderer's queue)");
     smg_bridge_pe_marker(finish, token);
+    SERVICE_LEAVE();
 }
 
 static uint32_t svc_gx_peek_efb(void* user, uint16_t x, uint16_t y, uint32_t type, uint16_t token) {
     (void)user;
-    return smg_bridge_peek_efb(x, y, type, token);
+    SERVICE_ENTER("gx_peek_efb (waiting for the renderer's answer)");
+    const uint32_t value = smg_bridge_peek_efb(x, y, type, token);
+    SERVICE_LEAVE();
+    return value;
 }
 #else
 /* The GX command stream: counted and released; drawing it is the renderer's work (docs/ARQUITECTURA_WEB.md). */
@@ -267,7 +329,9 @@ static void svc_disc_read(void* user, uint64_t offset, uint32_t size, void* dst,
     const uint64_t start = now_micros();
     atomic_store(&sDiscBusySize, size);
     atomic_store(&sDiscBusySinceMicros, start);
+    SERVICE_ENTER("disc_read");
     const int ok = read_at(offset, dst, size);
+    SERVICE_LEAVE();
     atomic_store(&sDiscBusySinceMicros, 0);
     atomic_fetch_add(&sDiscMicros, now_micros() - start);
     if (!ok) {
@@ -310,7 +374,9 @@ static int32_t svc_thp_video_decode(void* user, const void* frame, uint32_t size
     (void)user;
     const uint64_t n = atomic_fetch_add(&sThpDecodes, 1);
 #if defined(SMG_HOST_AURORA)
+    SERVICE_ENTER("thp_video_decode");
     const int32_t result = smg_thp_video_decode(frame, size, y, u, v);
+    SERVICE_LEAVE();
     uint16_t width = 0, height = 0;
     if (n == 0 || result != 0) {
         smg_thp_frame_size(frame, size, &width, &height);
@@ -470,7 +536,7 @@ static double sSeconds = 10.0;
 static void report(void) {
     SmgConsoleCounters console;
     smg_console_counters(&console);
-    fprintf(stderr,
+    host_log(
             "[host] report: retraces %" PRIu64 ", frames %" PRIu64 ", GX %" PRIu64 " bytes in %" PRIu64
             " spans, PE markers %u, disc reads %" PRIu64 " (%" PRIu64 " bytes, %" PRIu64 " ms), NAND requests %" PRIu64 " (%" PRIu64
             " failed), Wii Remote reports %" PRIu64 ", audio blocks %" PRIu64 ", stage '%s'\n",
@@ -481,26 +547,26 @@ static void report(void) {
 #if defined(SMG_HOST_AURORA)
     char peaks[256];
     smg_bridge_buffer_peaks(peaks, sizeof(peaks));
-    fprintf(stderr, "[host] Aurora: %u frames drawn, %u shown on the page; frame buffers' peaks: %s\n",
+    host_log( "[host] Aurora: %u frames drawn, %u shown on the page; frame buffers' peaks: %s\n",
             smg_bridge_frames(), smg_bridge_presented(), peaks);
     char stats[256];
     smg_bridge_debug_stats(stats, sizeof(stats));
-    fprintf(stderr, "[host] Aurora pipelines: %s\n", stats);
+    host_log( "[host] Aurora pipelines: %s\n", stats);
     char times[320];
     smg_bridge_phase_times(times, sizeof(times));
-    fprintf(stderr, "[host] render thread: %s\n", times);
+    host_log( "[host] render thread: %s\n", times);
     char audio[320];
     smg_audio_stats(audio, sizeof(audio));
-    fprintf(stderr, "[host] audio: %s\n", audio);
+    host_log( "[host] audio: %s\n", audio);
     uint64_t movieDecoded = 0, movieRefused = 0, movieNs = 0;
     smg_thp_stats(&movieDecoded, &movieRefused, &movieNs);
     if (movieDecoded + movieRefused != 0) {
-        fprintf(stderr, "[host] movies: %" PRIu64 " frames decoded, %" PRIu64 " refused, %.2f ms a frame\n",
+        host_log( "[host] movies: %" PRIu64 " frames decoded, %" PRIu64 " refused, %.2f ms a frame\n",
                 movieDecoded, movieRefused, (double)movieNs / 1e6 / (double)(movieDecoded + movieRefused));
     }
 #endif
 #if defined(__EMSCRIPTEN__)
-    fprintf(stderr, "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);
+    host_log( "[host] wasm memory %zu MB\n", emscripten_get_heap_size() >> 20);
 #endif
 }
 
@@ -514,7 +580,10 @@ static int svc_audio_dsp(void* user, const uint32_t* words, uint32_t count) {
     atomic_fetch_add(&sDspCalls, 1);
 #if defined(SMG_HOST_AURORA)
     (void)user;
-    return smg_audio_dsp(words, count); /* the game's JAudio DSP program, mixed (web/host/audio_output.cpp) */
+    SERVICE_ENTER("audio_dsp (the JAudio mix)");
+    const int done = smg_audio_dsp(words, count); /* the game's JAudio DSP program, mixed (web/host/audio_output.cpp) */
+    SERVICE_LEAVE();
+    return done;
 #else
     return sDefaults.audio_dsp(user, words, count);
 #endif
@@ -524,7 +593,9 @@ static void svc_gpu_coherent(void* user, uint32_t physical, uint32_t size) {
     atomic_fetch_add(&sCoherentCalls, 1);
 #if defined(SMG_HOST_AURORA)
     (void)user;
+    SERVICE_ENTER("gpu_coherent (the renderer's queue)");
     smg_bridge_coherent(physical, size);
+    SERVICE_LEAVE();
 #else
     sDefaults.gpu_coherent(user, physical, size);
 #endif
@@ -544,7 +615,7 @@ static void check_stall(uint64_t retrace) {
     smg_console_counters(&console);
     if (gx != lastGx || gx == 0) {
         if (reported != 0) {
-            fprintf(stderr, "[host] the game's stream resumed after %.0f s\n", (retrace - sinceRetrace) / 60.0);
+            host_log( "[host] the game's stream resumed after %.0f s\n", (retrace - sinceRetrace) / 60.0);
         }
         lastGx = gx;
         sinceRetrace = retrace;
@@ -573,16 +644,22 @@ static void check_stall(uint64_t retrace) {
         snprintf(discNow, sizeof(discNow), "a disc read of %" PRIu64 " bytes in progress for %" PRIu64 " ms",
                  atomic_load(&sDiscBusySize), (now_micros() - busySince) / 1000);
     }
-    fprintf(stderr,
+    char inService[160] = "the game's thread is not inside a host service (its own code, or waiting for its threads)";
+    const char* service = atomic_load(&sInService);
+    if (service != NULL) {
+        snprintf(inService, sizeof(inService), "the game's thread has been inside the host's %s for %" PRIu64 " ms",
+                 service, (now_micros() - atomic_load(&sInServiceSince)) / 1000);
+    }
+    host_log(
             "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); meanwhile the game "
             "read its remotes %" PRIu64 " times (its main loop %s), read the disc %" PRIu64 " times, sent its audio "
             "DSP %" PRIu64 " commands, flushed %" PRIu64 " ranges for the GPU and named %" PRIu64
             " objects (the game %s); %s; movie frames asked to decode %" PRIu64 "; NAND requests %" PRIu64
-            "; audio blocks %" PRIu64 "; %s\n",
+            "; audio blocks %" PRIu64 "; %s; %s\n",
             stalled / 60.0, atomic_load(&sFrames), sStage, console.wpad_samples - lastSamples,
             console.wpad_samples != lastSamples ? "runs" : "is stopped", disc, dsp, coherent, names,
             disc + dsp + coherent + names != 0 ? "works: loading, or slow" : "does nothing the host sees: stuck?", discNow,
-            atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, bridge);
+            atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, inService, bridge);
 }
 
 /* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run (none when the
@@ -674,6 +751,16 @@ int main(int argc, char** argv) {
             }
         },
         smg_console_input(), SMG_INPUT_WORDS);
+    /* The watch log (above): from here on the host's reports reach the page through it */
+    atomic_store(&sWatchReader, EM_ASM_INT(
+                                    {
+                                        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                                            postMessage({type : 'watch', buffer : HEAPU8.buffer, address : $0});
+                                            return 1;
+                                        }
+                                        return 0;
+                                    },
+                                    &sWatch));
 #if defined(SMG_HOST_AURORA)
     /* The game's sound: the ring of samples the page's AudioWorklet plays (web/host/audio_output.h) */
     EM_ASM(
@@ -705,6 +792,17 @@ int main(int argc, char** argv) {
     pthread_t clock;
     if (pthread_create(&clock, NULL, clock_main, NULL) != 0) {
         die("the retrace clock cannot start");
+    }
+    if (argc > 5 && strcmp(argv[5], "hangtest") == 0) {
+        /* The page's ?hangtest=1 (web/tests/browser_smoke.mjs): as if the game had drawn and then hung inside a host
+           service, its thread spins without yielding while the clock thread goes on. The reports and the stall report
+           (which names the service) reach the page only through the watch log. */
+        fprintf(stderr, "[host] hang test: the game's thread stops answering now\n");
+        atomic_store(&sGxBytes, 1);
+        SERVICE_ENTER("hang test");
+        for (;;) {
+            (void)atomic_load(&sRetraces);
+        }
     }
     if (sSeconds > 0.0) {
         fprintf(stderr, "[host] running the game for %.1f s\n", sSeconds);

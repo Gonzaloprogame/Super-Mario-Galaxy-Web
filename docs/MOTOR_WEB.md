@@ -369,6 +369,28 @@ dos vídeos del prólogo completos, sin un solo fotograma rechazado, y el juego 
 Allí Aurora se detuvo con `unhandled tcg src 21`: una etapa TEV leía una coordenada de textura que ningún generador
 crea. Lo arregla el parche de Aurora 0022 (`PUENTE_FIFO.md`).
 
+## Cuelgues del hilo del juego: el registro de vigía (2026-11-02)
+
+En la primera galaxia (`HeavensDoorGalaxy`) el juego se colgó en el PC del usuario sin ningún error: el registro
+terminaba en un informe normal y la página seguía en «Motor en marcha». El motivo de ese silencio: Emscripten hace
+pasar la salida de errores de cada hilo por el hilo principal del worker, que es el del juego, y **espera** a que la
+escriba. Con el hilo del juego colgado, el hilo del reloj se quedaba parado en su siguiente informe y el aviso de
+bloqueo (`[host] stall: …`) no llegaba nunca.
+
+Ahora los informes del host (`host_log` en `web/host/headless_host.c`) van a un anillo de 32 KB en la memoria
+compartida, que la página lee por su cuenta cada segundo (`web/shell/app.js`), sin pasar por el hilo del juego. Si el
+resto del registro lleva más de 8 s en silencio mientras el anillo avanza, la página marca esas líneas con `[vigía]` y
+dice en su estado que el hilo del juego no responde. Además, el aviso de bloqueo dice en qué servicio del host está el
+hilo del juego y desde cuándo (envío al renderizador, lectura del EFB, disco, mezcla de audio, vídeos), o que no está
+en ninguno. Sin la página (las compilaciones de Node), los informes siguen yendo a la salida de errores.
+
+**Comprobado:** `browser_smoke.mjs` arranca la página con `?hangtest=1`, que hace que el host cuelgue a propósito el
+hilo del juego dentro de un servicio. Los informes y el aviso de bloqueo llegan como `[vigía]`, el aviso nombra el
+servicio y la página lo dice en su estado. Con la primera versión, que escribía también en la salida de errores, esa
+comprobación fallaba.
+
+**Pendiente:** la causa del cuelgue de la primera galaxia. Hace falta el registro de una nueva prueba con esta versión.
+
 ## Rendimiento
 
 **Medición:** el informe del host da, cada 10 s, el tiempo por fotograma del hilo de render en cada fase

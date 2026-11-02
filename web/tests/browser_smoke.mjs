@@ -134,6 +134,28 @@ await withServer('isolated', async (url) => {
         /system language: English \(the disc's UsEnglish folder\)/.test(fr.log),
         'idioma: uno que el disco no tiene se cambia por el inglés, y el registro lo dice');
 
+  // A hung game's thread (?hangtest=1, web/host/headless_host.c): the log reaches the page through that thread, so it
+  // goes silent; the host's reports still reach the page through the watch log in shared memory ("[vigía]" lines)
+  {
+    const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(`${url}?hangtest=1`);
+    await page.setInputFiles('#pak', join(fixtures, 'fixture_emptydol.pak'));
+    await page.selectOption('#mode', 'diagnostic');
+    await page.fill('#seconds', '3600'); // the diagnostic mode needs a length; the run never gets there
+    await page.click('#run');
+    const seen = await page.waitForFunction(() => /\[vigía\] \[host\] stall:/.test(document.getElementById('log').textContent),
+      null, { timeout: 90000 }).then(() => true, () => false);
+    const hungLog = await page.textContent('#log');
+    const hungStatus = await page.textContent('#status');
+    check(/hang test: the game's thread stops answering/.test(hungLog), 'bloqueo de prueba: el hilo del juego deja de responder');
+    check(seen, 'bloqueo: el informe de bloqueo llega a la página por memoria compartida (líneas «[vigía]»)');
+    check(/\[vigía\] \[host\] stall: .*inside the host's hang test for \d+ ms/.test(hungLog),
+          'bloqueo: el informe dice en qué servicio del host está el hilo del juego, y desde cuándo');
+    check(/no responde/.test(hungStatus), `bloqueo: la página lo dice en su estado ("${hungStatus.trim().slice(0, 60)}…")`);
+    await browser.close();
+  }
+
   // The controls: the engine gives the page its control words (in its shared memory, marked "SMGI" by the host);
   // the keyboard and the touch controls write them as web/host/console_services.h says
   const c = await run(url, join(fixtures, 'fixture_emptydol.pak'), 120000, 'graphics', {}, {

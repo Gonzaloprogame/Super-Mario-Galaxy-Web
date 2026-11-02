@@ -286,11 +286,62 @@ async function start() {
     }, 1500);
   };
   presenter.onExit = finish;
+  // The watch log (web/host/headless_host.c, host_log): the host's reports come through a ring in the engine's shared
+  // memory, read here every second, not through the engine's stderr: that goes through the game's thread, and when the
+  // game hangs it holds the log back (the reports with it). While the rest of the log is silent (8 s), the ring's lines
+  // are marked "[vigía]" and the status says the game's thread does not answer.
+  let watch = null;
+  let lastLogAt = performance.now();
+  let watchSaid = false;
+  const readWatch = () => {
+    if (!watch) {
+      return;
+    }
+    const written = Atomics.load(watch.written, 0);
+    if (written === watch.read) {
+      return;
+    }
+    const size = watch.text.length;
+    const count = Math.min((written - watch.read) >>> 0, size);
+    const bytes = new Uint8Array(count);
+    for (let i = 0; i < count; i++) {
+      bytes[i] = watch.text[(written - count + i) % size];
+    }
+    watch.read = written;
+    const silent = performance.now() - lastLogAt > 8000;
+    if (silent && !watchSaid) {
+      watchSaid = true;
+      log('[página] el registro del motor lleva más de 8 s en silencio, pero el host sigue informando: el hilo del ' +
+          'juego no responde. Sus informes llegan por memoria compartida (líneas «[vigía]»).');
+      if (!rendererFailed) {
+        setStatus('El hilo del juego no responde. Los informes del host siguen llegando (líneas «[vigía]» del ' +
+                  'registro): cópialo con «Copiar el registro».', 'error');
+      }
+    }
+    for (const line of new TextDecoder().decode(bytes).split('\n')) {
+      if (line) {
+        log(silent ? `[vigía] ${line}` : line);
+      }
+    }
+  };
+  const watchTimer = setInterval(() => {
+    readWatch();
+    if (ended) {
+      clearInterval(watchTimer);
+    }
+  }, 1000);
   worker.onmessage = ({ data }) => {
     switch (data.type) {
       case 'log':
+        lastLogAt = performance.now();
         log(data.text);
         break;
+      case 'watch': {
+        // The ring: {written: u32, size: u32, text[size]} (web/host/headless_host.c, sWatch)
+        const words = new Uint32Array(data.buffer, data.address, 2);
+        watch = { written: words, text: new Uint8Array(data.buffer, data.address + 8, words[1]), read: Atomics.load(words, 0) };
+        break;
+      }
       case 'input':
         // The engine's shared memory and where its control words are (web/host/console_services.h)
         controls.attach(new Int32Array(data.buffer, data.address, data.words));
@@ -376,7 +427,9 @@ async function start() {
       debugCanvas.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(pixels), width, height), 0, 0);
     };
   }
-  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug });
+  // ?hangtest=1 (web/tests/browser_smoke.mjs): the host hangs the game's thread on purpose, to test the watch log
+  const hangtest = new URLSearchParams(location.search).get('hangtest') === '1';
+  worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug, hangtest });
 }
 
 const missing = requirements();
