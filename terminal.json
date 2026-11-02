@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:25:58+00:00",
-   "tipo": "bash",
-   "desc": "Caminar hacia el castillo hasta que el juego pida un vídeo",
-   "cmd": "end=$(( $(date +%s) + 1500 )); while [ $(date +%s) -lt $end ]; do curl -s \"127.0.0.1:18777/keys?down=KeyW&ms=20000\" >/dev/null; if curl -s \"127.0.0.1:18777/log?tail=6000\" | grep -…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T18:26:08+00:00",
-   "tipo": "bash",
-   "desc": "Actualizar «Probando ahora» en el panel",
-   "cmd": "python3 - <<'EOF'  … (+9 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:36:18+00:00",
    "tipo": "bash",
    "desc": "Esperar el resultado de la caminata hacia el castillo",
@@ -279,8 +265,22 @@
    "desc": "Leer los servicios del host que llama el hilo del juego",
    "cmd": "sed -n 186,292p web/host/headless_host.c; sed -n 505,535p web/host/headless_host.c; sed -n 660,700p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:46:18+00:00",
+   "tipo": "bash",
+   "desc": "Localizar el arranque del worker en la página",
+   "cmd": "grep -n \"let ended\\|const log = \\|function log(\\|presenter.onExit = finish\\|const finish = \\|worker = new Worker\" web/shell/app.js | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T19:46:21+00:00",
+   "tipo": "bash",
+   "desc": "Leer la función de registro y el arranque del worker",
+   "cmd": "sed -n 12,24p web/shell/app.js; sed -n 240,290p web/shell/app.js",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:45:52+00:00"
+ "actualizado": "2026-11-02T19:46:21+00:00"
 }
