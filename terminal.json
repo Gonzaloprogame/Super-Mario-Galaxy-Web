@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:16:13+00:00",
-   "tipo": "bash",
-   "desc": "Repetir la comparación sin conversión de rango",
-   "cmd": "cd $S/thpcheck && ffmpeg -v error -y -i PrologueA.thp -vf \"select='eq(n\\,0)+eq(n\\,300)+eq(n\\,1000)+eq(n\\,2500)+eq(n\\,4000)'\" -fps_mode passthrough -pix_fmt yuvj420p -f rawvideo re…  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:16:31+00:00",
    "tipo": "bash",
    "desc": "Medir el decodificador en WebAssembly y compararlo con el nativo",
@@ -279,8 +272,15 @@
    "desc": "Ver cómo recoge el registro la prueba del puente",
    "cmd": "grep -n \"lines\\b\\|lines =\\|lines.push\\|bridge.log\\|smgLog\" web/tests/bridge_smoke.mjs | head -12",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:17:27+00:00",
+   "tipo": "bash",
+   "desc": "Leer el registro de la página en la prueba y repetirla",
+   "cmd": "python3 - <<'EOF'  … (+16 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:16:57+00:00"
+ "actualizado": "2026-11-02T19:17:27+00:00"
 }
