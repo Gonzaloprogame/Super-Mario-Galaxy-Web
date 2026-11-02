@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:34:07+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a la carga del prólogo o al primer fotograma de vídeo",
-   "cmd": "S=$S; until grep -q \"loading:\\|done at\" $S/drive/run32_play.out 2>/dev/null || curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -q \"movie frame\"; do sleep 10; done; cat $S/drive/ru…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:44:12+00:00",
    "tipo": "bash",
    "desc": "Esperar al primer vídeo o al cambio de escenario",
@@ -279,8 +272,15 @@
    "desc": "Mantener el stick hacia delante 20 segundos",
    "cmd": "curl -s \"127.0.0.1:18777/keys?down=KeyW&ms=20000\" >/dev/null; curl -s \"127.0.0.1:18777/shot?name=m10\" >/dev/null; curl -s \"127.0.0.1:18777/log?tail=3000\" | grep -E \"movie\" | tail …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:25:58+00:00",
+   "tipo": "bash",
+   "desc": "Caminar hacia el castillo hasta que el juego pida un vídeo",
+   "cmd": "end=$(( $(date +%s) + 1500 )); while [ $(date +%s) -lt $end ]; do curl -s \"127.0.0.1:18777/keys?down=KeyW&ms=20000\" >/dev/null; if curl -s \"127.0.0.1:18777/log?tail=6000\" | grep -…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:25:48+00:00"
+ "actualizado": "2026-11-02T18:25:58+00:00"
 }
