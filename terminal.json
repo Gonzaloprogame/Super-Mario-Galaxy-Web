@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:25:11+00:00",
-   "tipo": "bash",
-   "desc": "Publicar el motor con vídeos THP en GitHub Pages",
-   "cmd": "G=$S/gh-pages; cd ~/repo/build/site && cp progreso.json smg_headless_web.js smg_headless_web.wasm smg_web.js smg_web.wasm \"$G/\" && cd \"$G\" && git add -A && git commit -q -m \"Engin…  … (+3 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:25:20+00:00",
    "tipo": "bash",
    "desc": "Ver el estado del juego en marcha",
@@ -279,8 +272,15 @@
    "desc": "Leer el puente entre el worker del motor y la página",
    "cmd": "cat web/shell/boot_worker.post.js | head -60; grep -n \"'log'\\|case 'log'\\|type === 'log'\\|copyLog\\|Copiar el registro\\|function appendLog\\|logLines\" web/shell/app.js | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:45:31+00:00",
+   "tipo": "bash",
+   "desc": "Leer cómo la página muestra y copia el registro",
+   "cmd": "sed -n 160,185p web/shell/app.js; sed -n 280,340p web/shell/app.js; grep -n \"wasmMemory\\|HEAPU8\\|EXPORTED_FUNCTIONS\\|EMSCRIPTEN_KEEPALIVE\" web/cmake/SmgGame.cmake web/engine/CMake…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:45:27+00:00"
+ "actualizado": "2026-11-02T19:45:31+00:00"
 }
