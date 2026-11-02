@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:17:39+00:00",
-   "tipo": "bash",
-   "desc": "Buscar dónde documentar el resultado y el parche 0022",
-   "cmd": "grep -n \"Sin comprobar:\\*\\* el vídeo dentro del juego\" docs/MOTOR_WEB.md; grep -n \"0021\" docs/*.md README.md | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:17:44+00:00",
    "tipo": "bash",
    "desc": "Leer el texto que hay que actualizar y la lista de parches",
@@ -279,8 +272,15 @@
    "desc": "Leer la gira de galaxias de prueba de Nebula",
    "cmd": "grep -n \"GALAXY_TOUR\" native/host/host_main.cpp runtime/src/*.cpp | head; f=$(grep -ln \"GALAXY_TEST_GALAXY_TOUR\\\"\" native/host/host_main.cpp runtime/src/*.cpp | head -1); n=$(grep…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:13:24+00:00",
+   "tipo": "bash",
+   "desc": "Leer cuándo cambia de galaxia la gira de Nebula",
+   "cmd": "n=$(grep -n \"GALAXY_TEST_GALAXY_TOUR\\\"\" native/host/host_main.cpp | head -1 | cut -d: -f1); sed -n \"$((n+61)),$((n+140))p\" native/host/host_main.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:13:19+00:00"
+ "actualizado": "2026-11-02T20:13:24+00:00"
 }
