@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:18:59+00:00",
-   "tipo": "bash",
-   "desc": "Arrancar la primera tanda de la gira con el disco del usuario",
-   "cmd": "S=$S; cd $S/drive && TOUR=\"HeavensDoorGalaxy:1,AstroGalaxy:1,EggStarGalaxy:1,HoneyBeeKingdomGalaxy:1,TriLegLv1Galaxy:1,FloaterOtaKingGalaxy:1\" TOURFRAMES=600 node driver.mjs ~/rep…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:19:17+00:00",
    "tipo": "bash",
    "desc": "Esperar a la selección de archivo y ver el anuncio de la gira",
@@ -279,8 +272,15 @@
    "desc": "Recompilar sin nombres de funciones y repetir la prueba del navegador",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|prof.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/de…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T21:04:05+00:00",
+   "tipo": "bash",
+   "desc": "Documentar, confirmar, subir y publicar la gira y el latido",
+   "cmd": "python3 - <<'EOF'  … (+69 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T21:03:27+00:00"
+ "actualizado": "2026-11-02T21:04:05+00:00"
 }
