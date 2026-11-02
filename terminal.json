@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:56:58+00:00",
-   "tipo": "bash",
-   "desc": "Avanzar el prólogo con A y vigilar el decodificador",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 24); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=600\" >/dev/null; W 8; l=$(curl -s \"127.0.0.1:18777…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:57:21+00:00",
-   "tipo": "bash",
-   "desc": "Seguir avanzando el prólogo y vigilar el decodificador",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 40); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=1500\" >/dev/null; W 12; l=$(curl -s \"127.0.0.1:187…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:06:31+00:00",
    "tipo": "bash",
    "desc": "Avanzar el prólogo hasta un vídeo o un cambio de escena",
@@ -279,8 +265,22 @@
    "desc": "Leer la decodificación del registro XF del generador de coordenadas",
    "cmd": "sed -n 955,1000p build/all/aurora/aurora-patched/lib/gx/regs.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:08:49+00:00",
+   "tipo": "bash",
+   "desc": "Ver de dónde puede salir el valor 21",
+   "cmd": "A=build/all/aurora/aurora-patched; grep -rn \"GX_MAX_TEXGENSRC\" $A/lib $A/include | head; grep -n \"struct TcgConfig\" -A 14 $A/lib/gx/*.hpp | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T19:08:52+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo trata Aurora un generador sin fuente",
+   "cmd": "A=build/all/aurora/aurora-patched; sed -n 900,925p $A/lib/gx/shader.cpp; sed -n 415,440p $A/lib/gx/shader_info.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:08:42+00:00"
+ "actualizado": "2026-11-02T19:08:52+00:00"
 }
