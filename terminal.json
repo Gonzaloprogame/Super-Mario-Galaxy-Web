@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:47:28+00:00",
-   "tipo": "bash",
-   "desc": "Leer el ayudante run() de la prueba del navegador",
-   "cmd": "sed -n 25,100p web/tests/browser_smoke.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:47:41+00:00",
    "tipo": "bash",
    "desc": "Leer el bloque de pruebas de la página",
@@ -279,8 +272,15 @@
    "desc": "Leer el informe completo del cuelgue en EggStarGalaxy",
    "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | grep -E \"stall: no GX from the game for (35|95|125|155) s\" | tail -1 | sed 's/; /;\\n  /g'",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:30:08+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué pasó justo antes del cuelgue y cómo espera el hilo del juego",
+   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | sed 's/^\\[vigía\\] //' | awk '/tour: stop 3 of 6/{f=1} f' | grep -v \"^\\[host\\] \\(report\\|Aurora\\|render thread\\|audio\\|movies\\|wasm\\…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:29:53+00:00"
+ "actualizado": "2026-11-02T20:30:08+00:00"
 }
