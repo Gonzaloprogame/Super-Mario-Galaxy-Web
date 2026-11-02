@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:14:29+00:00",
-   "tipo": "bash",
-   "desc": "Extraer localmente un vídeo THP del disco y ver sus datos",
-   "cmd": "cd $S/thpcheck && R=~/repo; Z=$R/third_party/deps/zstd/lib; cc -O2 -I$R/web/host -I$Z -DZSTD_DISABLE_ASM=1 -DZSTD_LEGACY_SUPPORT=0 -pthread extract.c $R/web/host/rvz_reader.c $Z/c…",
-   "ok": false
-  },
-  {
    "t": "2026-11-02T18:14:32+00:00",
    "tipo": "bash",
    "desc": "Ver qué devuelve rvz_read",
@@ -279,8 +272,15 @@
    "desc": "Leer el dibujo texturizado de la escena y cómo se activan sus variantes",
    "cmd": "sed -n 308,360p web/bridge/gx_bridge_scene.c; grep -n \"requested()\" web/bridge/gx_bridge_scene.c web/bridge/bridge_main.c | head; grep -n \"clear_quad\\|clearquad\\|clear-quad\" web/t…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:09:59+00:00",
+   "tipo": "bash",
+   "desc": "Leer la prueba del cuadrado de borrado como modelo",
+   "cmd": "sed -n 120,132p web/bridge/bridge_main.c; sed -n 132,175p web/tests/bridge_smoke.mjs; sed -n 362,372p web/bridge/gx_bridge_scene.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:09:53+00:00"
+ "actualizado": "2026-11-02T19:09:59+00:00"
 }
