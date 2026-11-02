@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:36:18+00:00",
-   "tipo": "bash",
-   "desc": "Esperar el resultado de la caminata hacia el castillo",
-   "cmd": "F=$TMP until grep -q \"^fin \" $F 2>/dev/null; do sleep 15; done; cat $F",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:36:25+00:00",
    "tipo": "bash",
    "desc": "Ver hasta dónde llegó la caminata antes de que se parara el driver",
@@ -279,8 +272,15 @@
    "desc": "Leer la función de registro y el arranque del worker",
    "cmd": "sed -n 12,24p web/shell/app.js; sed -n 240,290p web/shell/app.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:46:44+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el registro compartido y las marcas de servicio al host",
+   "cmd": "python3 - <<'EOF'  … (+147 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:46:21+00:00"
+ "actualizado": "2026-11-02T19:46:44+00:00"
 }
