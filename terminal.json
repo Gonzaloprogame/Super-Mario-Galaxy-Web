@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:12:57+00:00",
-   "tipo": "bash",
-   "desc": "Ver la interfaz test_scene_frame y si el host web la implementa",
-   "cmd": "cd ~/repo && grep -n \"test_scene_frame\" third_party/nebula/native/include/nebula_game_api.h web/host/*.c | head; grep -n -B2 -A6 \"test_scene_frame)\" third_party/nebula/native/incl…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:13:04+00:00",
    "tipo": "bash",
    "desc": "Leer las respuestas por defecto de los servicios de prueba",
@@ -279,8 +272,15 @@
    "desc": "Leer el perfilador de workers",
    "cmd": "S=$S; wc -l $S/drive/prof.mjs; sed -n 5,60p $S/drive/prof.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:52:04+00:00",
+   "tipo": "bash",
+   "desc": "Perfilar con plazo máximo por hilo",
+   "cmd": "S=$S; cd $S/drive && python3 - <<'EOF'  … (+18 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:48:09+00:00"
+ "actualizado": "2026-11-02T20:52:04+00:00"
 }
