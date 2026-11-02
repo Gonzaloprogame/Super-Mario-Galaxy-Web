@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:14:38+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar que Pages ya sirve el panel nuevo",
-   "cmd": "cat $TMP curl -s \"https://gonzaloprogame.github.io/Super-Mario-Galaxy-Web/overlay.html?v=$RANDOM\" | cmp - ~/repo/web/shell/overlay.html && echo \"versión nueva servida\"",
-   "ok": false
-  },
-  {
    "t": "2026-11-02T17:15:02+00:00",
    "tipo": "bash",
    "desc": "Leer el resultado de la espera de Pages",
@@ -279,8 +272,15 @@
    "desc": "Ver el informe del host donde se cuentan los vídeos",
    "cmd": "sed -n 550,575p web/host/headless_host.c && grep -n \"sThpDecodes\" web/host/headless_host.c && sed -n 1,30p web/host/headless_host.c | grep -n \"#include\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:26:35+00:00",
+   "tipo": "bash",
+   "desc": "Conectar el decodificador THP al host del motor",
+   "cmd": "python3 - <<'EOF'  … (+49 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:26:23+00:00"
+ "actualizado": "2026-11-02T17:26:35+00:00"
 }
