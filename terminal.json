@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:45:27+00:00",
-   "tipo": "bash",
-   "desc": "Leer el puente entre el worker del motor y la página",
-   "cmd": "cat web/shell/boot_worker.post.js | head -60; grep -n \"'log'\\|case 'log'\\|type === 'log'\\|copyLog\\|Copiar el registro\\|function appendLog\\|logLines\" web/shell/app.js | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:45:31+00:00",
    "tipo": "bash",
    "desc": "Leer cómo la página muestra y copia el registro",
@@ -279,8 +272,15 @@
    "desc": "Esperar a la selección de archivo y ver el anuncio de la gira",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:21:12+00:00",
+   "tipo": "bash",
+   "desc": "Pasar el título y entrar con el archivo 1 hasta la primera parada",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 30; curl -s \"127.0.0.1:18777/keys?down=Space,ShiftLeft&ms=1500\" >/dev/null; W 40; curl -s \"127.0.0.1:18777/tap?x=0.33…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:19:17+00:00"
+ "actualizado": "2026-11-02T20:21:12+00:00"
 }
