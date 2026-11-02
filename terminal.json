@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:44:50+00:00",
-   "tipo": "bash",
-   "desc": "Ver por dónde llega el registro del motor a la página",
-   "cmd": "grep -n \"printErr\\|print:\\|postMessage\" web/shell/boot_worker.post.js | head -15; grep -n \"emscripten_sleep\\|emscripten_yield\\|ASYNCIFY\\|PROXY_TO_PTHREAD\" web/cmake/SmgGame.cmake …",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:45:27+00:00",
    "tipo": "bash",
    "desc": "Leer el puente entre el worker del motor y la página",
@@ -279,8 +272,15 @@
    "desc": "Arrancar la primera tanda de la gira con el disco del usuario",
    "cmd": "S=$S; cd $S/drive && TOUR=\"HeavensDoorGalaxy:1,AstroGalaxy:1,EggStarGalaxy:1,HoneyBeeKingdomGalaxy:1,TriLegLv1Galaxy:1,FloaterOtaKingGalaxy:1\" TOURFRAMES=600 node driver.mjs ~/rep…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:19:17+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a la selección de archivo y ver el anuncio de la gira",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:18:59+00:00"
+ "actualizado": "2026-11-02T20:19:17+00:00"
 }
