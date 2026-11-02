@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:08:48+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar, subir y publicar el registro de vigía",
-   "cmd": "python3 - <<'EOF'  … (+63 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:12:48+00:00",
    "tipo": "bash",
    "desc": "Buscar en la API de Nebula cómo cargar un nivel directamente",
@@ -279,8 +272,15 @@
    "desc": "Ver el perfil del hilo de render durante el cuelgue",
    "cmd": "S=$S; cd $S/drive && timeout 120 node prof.mjs 19222 10 30 2>&1 | awk '/=== worker/{n++} n>=3' | grep -v \"^  0.0%\" | head -90",
    "ok": false
+  },
+  {
+   "t": "2026-11-02T20:47:51+00:00",
+   "tipo": "bash",
+   "desc": "Perfilar todos los hilos y guardar el resultado",
+   "cmd": "S=$S; cd $S/drive && timeout 500 node prof.mjs 19222 10 30 > $S/drive/prof_egg.txt 2>&1; echo \"salida $?\"; grep -n \"=== worker\" $S/drive/prof_egg.txt",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:39:25+00:00"
+ "actualizado": "2026-11-02T20:47:51+00:00"
 }
