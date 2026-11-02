@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:21:27+00:00",
-   "tipo": "bash",
-   "desc": "Ver si el reproductor del juego vacía la caché tras decodificar",
-   "cmd": "sed -n 440,475p third_party/nebula/native/petari/src/Game/Screen/THPSimplePlayerWrapper.cpp; grep -n \"DCFlush\\|DCStore\\|GXInvalidateTexAll\" third_party/nebula/native/petari/src/Ga…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:21:33+00:00",
    "tipo": "bash",
    "desc": "Buscar la conversión de puntero a dirección física",
@@ -279,8 +272,15 @@
    "desc": "",
    "cmd": "~/repo/web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:34:07+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a la carga del prólogo o al primer fotograma de vídeo",
+   "cmd": "S=$S; until grep -q \"loading:\\|done at\" $S/drive/run32_play.out 2>/dev/null || curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -q \"movie frame\"; do sleep 10; done; cat $S/drive/ru…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:31:39+00:00"
+ "actualizado": "2026-11-02T17:34:07+00:00"
 }
