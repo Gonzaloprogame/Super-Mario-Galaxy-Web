@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:22:26+00:00",
-   "tipo": "bash",
-   "desc": "Leer los tests THP de Nebula",
-   "cmd": "sed -n 9,86p runtime/src/native_thp_video_tests.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:22:47+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Capturar la pantalla actual",
    "cmd": "curl -s \"127.0.0.1:18777/shot?name=m5\" >/dev/null; echo ok",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:56:58+00:00",
+   "tipo": "bash",
+   "desc": "Avanzar el prólogo con A y vigilar el decodificador",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 24); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=600\" >/dev/null; W 8; l=$(curl -s \"127.0.0.1:18777…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:53:21+00:00"
+ "actualizado": "2026-11-02T17:56:58+00:00"
 }
