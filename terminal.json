@@ -83,8 +83,15 @@
    "desc": "Leer el resultado de la espera de Pages",
    "cmd": "cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:19:54+00:00",
+   "tipo": "bash",
+   "desc": "Buscar tareas pendientes en la documentación",
+   "cmd": "git diff --stat HEAD -- tools/directo/terminal_feed.py; grep -rn -i \"peachcastle\\|THP\\|bloqueo\\|pendiente\" docs/*.md README.md | head -30",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-02T17:15:06+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-02T17:19:54+00:00"
 }
