@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:09:19+00:00",
-   "tipo": "bash",
-   "desc": "Ver el formato de los parches de Aurora y cómo se aplican",
-   "cmd": "head -12 web/aurora/patches/0021-null-array-base-quiet.patch; grep -n \"patch\" tools/build_web.sh web/aurora/CMakeLists.txt | head -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:09:28+00:00",
    "tipo": "bash",
    "desc": "Preparar el parche 0022 de Aurora",
@@ -279,8 +272,15 @@
    "desc": "Buscar escrituras del hilo del reloj fuera de host_log",
    "cmd": "awk '/^static void\\* clock_main/,/^}/' web/host/headless_host.c | grep -n \"fprintf\\|die(\\|host_exit\\|printf\\|report()\\|stall\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:56:26+00:00",
+   "tipo": "bash",
+   "desc": "Enviar los informes solo por el anillo cuando la página lo lee",
+   "cmd": "python3 - <<'EOF'  … (+96 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:56:09+00:00"
+ "actualizado": "2026-11-02T19:56:26+00:00"
 }
