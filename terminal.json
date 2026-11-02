@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:12:48+00:00",
-   "tipo": "bash",
-   "desc": "Buscar en la API de Nebula cómo cargar un nivel directamente",
-   "cmd": "cd ~/repo/third_party/nebula && grep -n -i \"stage\\|scenario\\|warp\\|NEBULA_OPTION_\" native/include/nebula_game_api.h | head -40",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T20:12:53+00:00",
-   "tipo": "bash",
-   "desc": "Leer la API de órdenes de prueba de Nebula",
-   "cmd": "sed -n 96,132p native/include/nebula_game_api.h; grep -n \"NebulaTestCommand\\|nebula_game_test\" native/include/nebula_game_api.h | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:12:57+00:00",
    "tipo": "bash",
    "desc": "Ver la interfaz test_scene_frame y si el host web la implementa",
@@ -279,8 +265,22 @@
    "desc": "Perfilar todos los hilos y guardar el resultado",
    "cmd": "S=$S; cd $S/drive && timeout 500 node prof.mjs 19222 10 30 > $S/drive/prof_egg.txt 2>&1; echo \"salida $?\"; grep -n \"=== worker\" $S/drive/prof_egg.txt",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:48:01+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar el puerto de depuración y perfiladores colgados",
+   "cmd": "curl -s -m 5 http://127.0.0.1:19222/json/version | head -3; curl -s -m 5 http://127.0.0.1:19222/json/list | grep -c '\"type\"'; ps -eo pid,etimes,cmd | grep \"prof.mjs\" | grep -v grep",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:48:09+00:00",
+   "tipo": "bash",
+   "desc": "Leer el perfilador de workers",
+   "cmd": "S=$S; wc -l $S/drive/prof.mjs; sed -n 5,60p $S/drive/prof.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:47:51+00:00"
+ "actualizado": "2026-11-02T20:48:09+00:00"
 }
