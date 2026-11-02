@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:13:04+00:00",
-   "tipo": "bash",
-   "desc": "Leer las respuestas por defecto de los servicios de prueba",
-   "cmd": "sed -n 190,210p web/host/host_services.c; sed -n 340,370p web/host/host_services.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:13:13+00:00",
    "tipo": "bash",
    "desc": "Listar las pruebas ocultas que admite el host de Nebula",
@@ -279,8 +272,15 @@
    "desc": "Perfilar con plazo máximo por hilo",
    "cmd": "S=$S; cd $S/drive && python3 - <<'EOF'  … (+18 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:55:50+00:00",
+   "tipo": "bash",
+   "desc": "Ver por qué no arranca el perfilador en los hilos",
+   "cmd": "S=$S; cd $S/drive && sed -i 's/^await new Promise((r) => setTimeout(r, Number(seconds) \\* 1000));/for (const w of workers) if (w.error) console.log(`start ${w.url}: ${w.error}`);\\…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:52:04+00:00"
+ "actualizado": "2026-11-02T20:55:50+00:00"
 }
