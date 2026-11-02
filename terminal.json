@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:20:22+00:00",
-   "tipo": "bash",
-   "desc": "Leer el stub THP del host y la API del decodificador de Nebula",
-   "cmd": "sed -n 295,325p web/host/headless_host.c && sed -n 1,22p third_party/nebula/runtime/include/galaxy/native_thp_video.h && grep -n \"^[a-z].*(\\|#include\" third_party/nebula/runtime/s…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:20:28+00:00",
    "tipo": "bash",
    "desc": "Ver cómo Nebula llama al decodificador y sus dependencias de CPU",
@@ -279,8 +272,15 @@
    "desc": "Leer cómo se usa el driver del navegador",
    "cmd": "S=$S; sed -n 1,40p $S/drive/driver.mjs | grep -n \"//\\|argv\\|process.env\" | head -30; cat $S/drive/level_shots.sh | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:30:52+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que termine la compilación del motor",
+   "cmd": "S=$S; ls $S/drive/*.sh; until [ -s $TMP ]; do sleep 5; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:27:07+00:00"
+ "actualizado": "2026-11-02T17:30:52+00:00"
 }
