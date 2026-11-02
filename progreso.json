@@ -4,8 +4,8 @@
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
     "etiqueta": "En curso · Hito 8",
-    "titulo": "Panel de progreso para el directo",
-    "detalle": "Una página para Streamlabs u OBS que muestra el avance del port con datos reales del repositorio."
+    "titulo": "Panel del directo con terminal en vivo",
+    "detalle": "Una página para Streamlabs u OBS con el avance real del port y las órdenes de la terminal según se ejecutan."
   },
   "comprobaciones": [
     { "texto": "Primer nivel completo", "detalle": "Escenario, Mario, cielo y HUD, comprobado con el disco", "estado": "hecho" },
