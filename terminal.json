@@ -125,8 +125,15 @@
    "desc": "Ver cómo Nebula llama al decodificador y sus dependencias de CPU",
    "cmd": "cd ~/repo/third_party/nebula && grep -n \"thp_video_decode\\|decode_video\\|movie_frame\" runtime/src/native_host.cpp | head; sed -n 500,562p runtime/src/native_thp_video.cpp; grep -n…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:37+00:00",
+   "tipo": "bash",
+   "desc": "Leer la implementación exacta de multiplicar y sumar",
+   "cmd": "sed -n 1,140p runtime/include/galaxy/fused_multiply_add.h",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:20:28+00:00"
+ "actualizado": "2026-11-02T17:20:37+00:00"
 }
