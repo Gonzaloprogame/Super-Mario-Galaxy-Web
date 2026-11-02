@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:47:41+00:00",
-   "tipo": "bash",
-   "desc": "Leer el bloque de pruebas de la página",
-   "cmd": "sed -n 100,175p web/tests/browser_smoke.mjs",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:47:56+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el bloqueo de prueba y su comprobación",
-   "cmd": "python3 - <<'EOF'  … (+59 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:53:44+00:00",
    "tipo": "bash",
    "desc": "Compilar y ejecutar la prueba del navegador con el bloqueo de prueba",
@@ -279,8 +265,22 @@
    "desc": "Ver qué pasó justo antes del cuelgue y cómo espera el hilo del juego",
    "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | sed 's/^\\[vigía\\] //' | awk '/tour: stop 3 of 6/{f=1} f' | grep -v \"^\\[host\\] \\(report\\|Aurora\\|render thread\\|audio\\|movies\\|wasm\\…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:30:22+00:00",
+   "tipo": "bash",
+   "desc": "Leer la espera de push() y buscar cómo atender llamadas pendientes",
+   "cmd": "sed -n 146,158p web/host/aurora_bridge.cpp; grep -rn \"process_queued_calls\" ~/tools/emsdk/upstream/emscripten/system/include/emscripten/*.h | head -5",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:30:33+00:00",
+   "tipo": "bash",
+   "desc": "Buscar las esperas activas del hilo del juego",
+   "cmd": "grep -n \"sched_yield\\|emscripten_futex_wait\\|Atomics.wait\\|while (.*load(\" web/host/aurora_bridge.cpp web/host/audio_output.cpp web/host/headless_host.c web/host/console_services.…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:30:08+00:00"
+ "actualizado": "2026-11-02T20:30:33+00:00"
 }
