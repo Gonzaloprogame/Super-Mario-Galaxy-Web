@@ -6,8 +6,15 @@
    "desc": "Crear la rama del panel de la terminal",
    "cmd": "git worktree add --orphan -b directo $S/directo/feed",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:10:48+00:00",
+   "tipo": "bash",
+   "desc": "Trigger a harmless command to check the hook fires",
+   "cmd": "sleep 1; true",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:10:06+00:00"
+ "actualizado": "2026-11-02T17:10:48+00:00"
 }
