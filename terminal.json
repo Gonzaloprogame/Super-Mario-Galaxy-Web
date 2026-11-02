@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:09:28+00:00",
-   "tipo": "bash",
-   "desc": "Preparar el parche 0022 de Aurora",
-   "cmd": "S=$S/p0022; rm -rf $S; mkdir -p $S/a/lib/gx $S/b/lib/gx; A=~/repo/build/all/aurora/aurora-patched; cp $A/lib/gx/shader.cpp $S/a/lib/gx/ && cp $A/lib/gx/shader.cpp $S/b/lib/gx/ && …  … (+18 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:09:35+00:00",
    "tipo": "bash",
    "desc": "Ver los includes de shader.cpp",
@@ -279,8 +272,15 @@
    "desc": "Enviar los informes solo por el anillo cuando la página lo lee",
    "cmd": "python3 - <<'EOF'  … (+96 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:02:22+00:00",
+   "tipo": "bash",
+   "desc": "Recompilar y repetir la prueba del navegador",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_watch2.log 2>&1; echo \"compilación: $?\"; grep -E \"error\" $S/build_watch2.log | head -5; timeout …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:56:26+00:00"
+ "actualizado": "2026-11-02T20:02:22+00:00"
 }
