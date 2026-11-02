@@ -167,8 +167,15 @@
    "desc": "Ver qué hace smg_bridge_coherent y quién la llama",
    "cmd": "sed -n 38,46p web/host/aurora_bridge.h; grep -n \"smg_bridge_coherent\" -r web/host web/game | head; grep -n \"coherent\" web/host/aurora_bridge.cpp | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:21:22+00:00",
+   "tipo": "bash",
+   "desc": "Ver quién llama al decodificador y la ruta de coherencia",
+   "cmd": "sed -n 495,510p web/host/headless_host.c; grep -rn \"__NebulaTHPVideoDecode\\|THPVideoDecode\" third_party/nebula/native --include=*.c --include=*.cpp --include=*.h | grep -v \"thp_na…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:21:17+00:00"
+ "actualizado": "2026-11-02T17:21:22+00:00"
 }
