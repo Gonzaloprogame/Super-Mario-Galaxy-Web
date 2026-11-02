@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:21:04+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la llamada al decodificador en el host de Nebula",
-   "cmd": "grep -n -i \"thp\" native/host/host_main.cpp runtime/src/native_host.cpp | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:21:07+00:00",
-   "tipo": "bash",
-   "desc": "Leer el adaptador THP del host de Nebula",
-   "cmd": "sed -n 3025,3085p native/host/host_main.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:21:13+00:00",
    "tipo": "bash",
    "desc": "Buscar cómo invalida texturas el puente con Aurora",
@@ -279,8 +265,22 @@
    "desc": "Esperar a que el driver responda y ver el log",
    "cmd": "S=$S; cd $S/drive && for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; sleep 2; done; curl -s \"127.0.0.1:18777/log?tail=8\" | cut -c1-200",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:31:17+00:00",
+   "tipo": "bash",
+   "desc": "Ir hasta el prólogo del juego en segundo plano",
+   "cmd": "S=$S; cd $S/drive && bash to_play.sh > $S/drive/run32_play.out 2>&1; tail -3 $S/drive/run32_play.out",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:31:24+00:00",
+   "tipo": "bash",
+   "desc": "Revisar los cambios pendientes",
+   "cmd": "git status --short && git diff --stat",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:31:10+00:00"
+ "actualizado": "2026-11-02T17:31:24+00:00"
 }
