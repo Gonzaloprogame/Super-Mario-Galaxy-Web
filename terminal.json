@@ -90,8 +90,15 @@
    "desc": "Buscar tareas pendientes en la documentación",
    "cmd": "git diff --stat HEAD -- tools/directo/terminal_feed.py; grep -rn -i \"peachcastle\\|THP\\|bloqueo\\|pendiente\" docs/*.md README.md | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:08+00:00",
+   "tipo": "bash",
+   "desc": "Anunciar la tarea en el panel y buscar el código THP de Nebula",
+   "cmd": "python3 - <<'EOF'  … (+9 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:19:54+00:00"
+ "actualizado": "2026-11-02T17:20:08+00:00"
 }
