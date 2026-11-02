@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:09:59+00:00",
-   "tipo": "bash",
-   "desc": "Leer la prueba del cuadrado de borrado como modelo",
-   "cmd": "sed -n 120,132p web/bridge/bridge_main.c; sed -n 132,175p web/tests/bridge_smoke.mjs; sed -n 362,372p web/bridge/gx_bridge_scene.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:10:17+00:00",
    "tipo": "bash",
    "desc": "Añadir la prueba de la coordenada sin generador al puente",
@@ -279,8 +272,15 @@
    "desc": "Leer la condición del informe de bloqueos",
    "cmd": "awk '/^static void check_stall/,/reported = 0;/' web/host/headless_host.c | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:08:08+00:00",
+   "tipo": "bash",
+   "desc": "Simular un bloqueo dentro de un servicio y repetir la prueba",
+   "cmd": "python3 - <<'EOF'  … (+17 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:03:18+00:00"
+ "actualizado": "2026-11-02T20:08:08+00:00"
 }
