@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:31:10+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que el driver responda y ver el log",
-   "cmd": "S=$S; cd $S/drive && for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; sleep 2; done; curl -s \"127.0.0.1:18777/log?tail=8\" | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:31:17+00:00",
    "tipo": "bash",
    "desc": "Ir hasta el prólogo del juego en segundo plano",
@@ -279,8 +272,15 @@
    "desc": "Ver qué puertos usan las pruebas de humo",
    "cmd": "grep -n \"1[0-9]\\{4\\}\" web/tests/browser_smoke.mjs web/tests/bridge_smoke.mjs | head -5",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:24:30+00:00",
+   "tipo": "bash",
+   "desc": "Ejecutar las pruebas de humo del navegador y del puente",
+   "cmd": "timeout 900 node web/tests/browser_smoke.mjs 2>&1 | tail -15; timeout 300 node web/tests/bridge_smoke.mjs build/site/bridge 2>&1 | tail -6",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:23:30+00:00"
+ "actualizado": "2026-11-02T18:24:30+00:00"
 }
