@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:13:43+00:00",
-   "tipo": "bash",
-   "desc": "Ver si hay ffmpeg y qué ofrece el lector RVZ",
-   "cmd": "which ffmpeg ffprobe 2>&1; python3 -c \"import PIL; print('PIL', PIL.__version__)\" 2>&1; cd ~/repo && grep -n \"^[a-z].*rvz_[a-z_]*(\" web/host/rvz_reader.h | head; ls tools/ | head …",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:13:59+00:00",
    "tipo": "bash",
    "desc": "Ver dependencias del lector RVZ y cómo se compila",
@@ -279,8 +272,15 @@
    "desc": "Ver los includes de shader.cpp",
    "cmd": "S=$S/p0022; cd $S && grep -n \"^#include\" b/lib/gx/shader.cpp | head -12",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:09:40+00:00",
+   "tipo": "bash",
+   "desc": "Completar el parche 0022 y añadirlo al repositorio",
+   "cmd": "S=$S/p0022; cd $S && sed -i 's/^#include <absl\\/container\\/flat_hash_set.h>$/#include <absl\\/container\\/flat_hash_set.h>\\n#include <atomic>/' b/lib/gx/shader.cpp && diff -ruN a b …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:09:35+00:00"
+ "actualizado": "2026-11-02T19:09:40+00:00"
 }
