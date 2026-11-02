@@ -2,13 +2,6 @@
  "lineas": [
   {
    "t": "2026-11-02T17:23:50+00:00",
-   "tipo": "bash",
-   "desc": "Usar la función común a ambos encabezados en el test",
-   "cmd": "sed -i 's/galaxy::fused_multiply_add(a, b, c)/galaxy::fused_multiply_add_sse2(a, b, c)/; s/galaxy::fused_multiply_add(s\\[0\\], s\\[1\\], s\\[2\\])/galaxy::fused_multiply_add_sse2(s[0],…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:23:50+00:00",
    "tipo": "escribir",
    "desc": "",
    "cmd": "~/repo/web/host/thp_video.h",
@@ -279,8 +272,15 @@
    "desc": "Buscar cuándo reproduce el juego sus vídeos THP",
    "cmd": "cd ~/repo/third_party/nebula/native/petari && grep -rn -i \"\\.thp\\|MovieData\\|startMovie\\|MoviePlayingSequence\\|THPSimplePlayerWrapper(\" src include 2>/dev/null | grep -v \"^src/Gam…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:07:05+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué teclas mueven el stick del Nunchuk",
+   "cmd": "cd ~/repo && grep -n \"KeyW\\|ArrowUp\\|stick\" web/shell/controls.js | head -10",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:06:55+00:00"
+ "actualizado": "2026-11-02T18:07:05+00:00"
 }
