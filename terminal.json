@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:25:46+00:00",
-   "tipo": "editar",
-   "desc": "",
-   "cmd": "~/repo/web/tests/thp_video_test.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:25:58+00:00",
    "tipo": "bash",
    "desc": "Repetir la prueba con el encabezado roto a propósito",
@@ -279,8 +272,15 @@
    "desc": "Ver qué devuelve rvz_read",
    "cmd": "sed -n 10,26p ~/repo/web/host/rvz_reader.h",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:15:08+00:00",
+   "tipo": "bash",
+   "desc": "Corregir el extractor y sacar el vídeo del disco",
+   "cmd": "cd $S/thpcheck && sed -i 's/if (rvz_read(/if (!rvz_read(/g' extract.c && grep -c \"if (!rvz_read(\" extract.c && R=~/repo; Z=$R/third_party/deps/zstd/lib; cc -O2 -I$R/web/host -I$Z …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:14:32+00:00"
+ "actualizado": "2026-11-02T18:15:08+00:00"
 }
