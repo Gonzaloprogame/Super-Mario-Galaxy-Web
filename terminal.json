@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:30:58+00:00",
-   "tipo": "bash",
-   "desc": "Leer cómo se arrancan el servidor y el driver",
-   "cmd": "S=$S; cat $S/drive/to_play.sh | head -20; sed -n 12,34p $S/drive/driver.mjs; head -20 ~/repo/tools/serve.py | grep -n \"port\\|argv\"",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:31:05+00:00",
-   "tipo": "bash",
-   "desc": "Arrancar el juego en el navegador sin interfaz con el disco del usuario",
-   "cmd": "S=$S; cd $S/drive && node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run32 graphics $S/drive/nand_RMGE01.bin > $S/drive/run32.out 2>&1",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:31:10+00:00",
    "tipo": "bash",
    "desc": "Esperar a que el driver responda y ver el log",
@@ -279,8 +265,22 @@
    "desc": "Esperar el resultado de la recompilación",
    "cmd": "until [ -s $TMP ]; do sleep 5; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:23:25+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo se ejecutan las pruebas de humo",
+   "cmd": "head -6 web/tests/browser_smoke.mjs web/tests/bridge_smoke.mjs | grep -v \"^$\"",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T18:23:30+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué puertos usan las pruebas de humo",
+   "cmd": "grep -n \"1[0-9]\\{4\\}\" web/tests/browser_smoke.mjs web/tests/bridge_smoke.mjs | head -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:23:19+00:00"
+ "actualizado": "2026-11-02T18:23:30+00:00"
 }
