@@ -76,8 +76,15 @@
    "desc": "Comprobar que Pages ya sirve el panel nuevo",
    "cmd": "cat $TMP curl -s \"https://gonzaloprogame.github.io/Super-Mario-Galaxy-Web/overlay.html?v=$RANDOM\" | cmp - ~/repo/web/shell/overlay.html && echo \"versión nueva servida\"",
    "ok": false
+  },
+  {
+   "t": "2026-11-02T17:15:02+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resultado de la espera de Pages",
+   "cmd": "cat $TMP",
+   "ok": true
   }
  ],
  "estado": "en espera",
- "actualizado": "2026-11-02T17:14:47+00:00"
+ "actualizado": "2026-11-02T17:15:06+00:00"
 }
