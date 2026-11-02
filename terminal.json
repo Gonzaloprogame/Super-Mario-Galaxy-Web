@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:55:59+00:00",
-   "tipo": "bash",
-   "desc": "Ver si las compilaciones web tienen hilos precreados",
-   "cmd": "grep -n \"SMG_WEB_LINK_OPTIONS\\|PTHREAD_POOL\\|PROXY\" web/cmake/SmgGame.cmake web/game/CMakeLists.txt | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:56:09+00:00",
    "tipo": "bash",
    "desc": "Buscar escrituras del hilo del reloj fuera de host_log",
@@ -279,8 +272,15 @@
    "desc": "Leer la implementación de sched_yield en Emscripten",
    "cmd": "E=~/tools/emsdk/upstream/emscripten/system/lib; grep -rn \"sched_yield\" $E/libc/musl/src/sched/sched_yield.c $E/pthread/*.c 2>/dev/null | head -5; grep -n \"void _emscripten_yield\" …",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:30:54+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resto de _emscripten_yield y sched_yield",
+   "cmd": "E=~/tools/emsdk/upstream/emscripten/system/lib; sed -n 38,60p $E/pthread/emscripten_yield.c; sed -n 8,22p $E/libc/musl/src/sched/sched_yield.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:30:50+00:00"
+ "actualizado": "2026-11-02T20:30:54+00:00"
 }
