@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:12:48+00:00",
-   "tipo": "bash",
-   "desc": "Commit the terminal box, push and publish to Pages",
-   "cmd": "git add .gitignore docs/progreso.json web/shell/overlay.html docs/DIRECTO.md tools/directo/ && git commit -q -F - <<'EOF'  … (+24 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:12:53+00:00",
    "tipo": "bash",
    "desc": "Esperar a que GitHub Pages sirva el panel nuevo",
@@ -279,8 +272,15 @@
    "desc": "Repetir la prueba con el encabezado roto a propósito",
    "cmd": "sed -i '/std::mt19937_64 again(0x6d61.6464u);/d' web/tests/thp_video_test.cpp && grep -c \"again\" web/tests/thp_video_test.cpp; S=$S/thp_mut; R=third_party/nebula/runtime; echo \"==…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:26:17+00:00",
+   "tipo": "bash",
+   "desc": "Ejecutar de nuevo el test THP completo",
+   "cmd": "grep -n \"again\" web/tests/thp_video_test.cpp; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && web/tests/run_thp_video_test.sh 2>&1 | grep -v \"^$\" | tail -14; echo \"salida del…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:25:58+00:00"
+ "actualizado": "2026-11-02T17:26:17+00:00"
 }
