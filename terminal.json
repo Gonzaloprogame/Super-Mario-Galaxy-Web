@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:02:22+00:00",
-   "tipo": "bash",
-   "desc": "Recompilar y repetir la prueba del navegador",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_watch2.log 2>&1; echo \"compilación: $?\"; grep -E \"error\" $S/build_watch2.log | head -5; timeout …",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:02:31+00:00",
    "tipo": "bash",
    "desc": "Preparar una prueba manual del bloqueo",
@@ -279,8 +272,15 @@
    "desc": "Ver a qué fase corresponde «processing the frame's stream»",
    "cmd": "sed -n 58,70p web/host/aurora_bridge.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:31:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver si sigue la ejecución y cómo se usa el perfilador",
+   "cmd": "curl -s -m 3 \"127.0.0.1:18777/state\" | cut -c1-80 || echo \"driver parado\"; S=$S; head -30 $S/drive/prof.mjs | grep -n \"argv\\|PORT\\|//\" | head -12",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:31:16+00:00"
+ "actualizado": "2026-11-02T20:31:28+00:00"
 }
