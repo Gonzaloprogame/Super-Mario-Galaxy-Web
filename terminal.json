@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:12:16+00:00",
-   "tipo": "bash",
-   "desc": "Caminar hacia el castillo y vigilar el decodificador",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 30); do curl -s \"127.0.0.1:18777/keys?down=KeyW&ms=4000\" >/dev/null; W 6; log=$(curl -s \"127.0.0.1:187…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T18:13:33+00:00",
-   "tipo": "bash",
-   "desc": "Medir la velocidad del juego en el contenedor",
-   "cmd": "a=$(curl -s \"127.0.0.1:18777/log?tail=4000\" | grep -o \"report: retraces [0-9]*, frames [0-9]*\" | tail -1); sleep 60; b=$(curl -s \"127.0.0.1:18777/log?tail=4000\" | grep -o \"report:…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:13:43+00:00",
    "tipo": "bash",
    "desc": "Ver si hay ffmpeg y qué ofrece el lector RVZ",
@@ -279,8 +265,22 @@
    "desc": "Ver el formato de los parches de Aurora y cómo se aplican",
    "cmd": "head -12 web/aurora/patches/0021-null-array-base-quiet.patch; grep -n \"patch\" tools/build_web.sh web/aurora/CMakeLists.txt | head -8",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:09:28+00:00",
+   "tipo": "bash",
+   "desc": "Preparar el parche 0022 de Aurora",
+   "cmd": "S=$S/p0022; rm -rf $S; mkdir -p $S/a/lib/gx $S/b/lib/gx; A=~/repo/build/all/aurora/aurora-patched; cp $A/lib/gx/shader.cpp $S/a/lib/gx/ && cp $A/lib/gx/shader.cpp $S/b/lib/gx/ && …  … (+18 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T19:09:35+00:00",
+   "tipo": "bash",
+   "desc": "Ver los includes de shader.cpp",
+   "cmd": "S=$S/p0022; cd $S && grep -n \"^#include\" b/lib/gx/shader.cpp | head -12",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:09:19+00:00"
+ "actualizado": "2026-11-02T19:09:35+00:00"
 }
