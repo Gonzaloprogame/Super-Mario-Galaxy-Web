@@ -34,8 +34,15 @@
    "desc": "",
    "cmd": "~/repo/tools/directo/setup.sh",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:12:11+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/docs/DIRECTO.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:12:02+00:00"
+ "actualizado": "2026-11-02T17:12:11+00:00"
 }
