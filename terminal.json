@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:16:52+00:00",
-   "tipo": "bash",
-   "desc": "Ver el final del documento del motor",
-   "cmd": "tail -30 docs/MOTOR_WEB.md | head -30 && grep -n \"^## \" docs/MOTOR_WEB.md | tail -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:17:12+00:00",
    "tipo": "bash",
    "desc": "Documentar los vídeos THP con lo comprobado y lo pendiente",
@@ -279,8 +272,15 @@
    "desc": "Leer el texto que hay que actualizar y la lista de parches",
    "cmd": "sed -n 360,368p docs/MOTOR_WEB.md; grep -n \"^## \\|0021\" docs/PUENTE_FIFO.md | tail -8",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:17:47+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo se listan las adaptaciones de Aurora",
+   "cmd": "sed -n 48,68p docs/PUENTE_FIFO.md | tail -8",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:17:44+00:00"
+ "actualizado": "2026-11-02T19:17:47+00:00"
 }
