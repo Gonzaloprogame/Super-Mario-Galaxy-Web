@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:22:07+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar y subir el parche 0022 y ver qué cambia en el sitio",
-   "cmd": "git add web/aurora/patches/0022-texcoord-without-texgen.patch web/bridge/bridge_main.c web/bridge/gx_bridge_scene.c web/tests/bridge_smoke.mjs README.md docs/HOJA_DE_RUTA.md docs/…  … (+20 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:22:25+00:00",
    "tipo": "bash",
    "desc": "Publicar el motor con el parche 0022 en GitHub Pages",
@@ -279,8 +272,15 @@
    "desc": "Compilar el motor con la gira y preparar el driver",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_tour.log 2>&1; echo \"compilación: $?\"; grep -m3 \"error\" $S/build_tour.log; S=$S; python3 - <<EOF  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:18:48+00:00",
+   "tipo": "bash",
+   "desc": "Ver la lista completa de galaxias",
+   "cmd": "tr '\\n' ' ' < $S/galaxies.txt",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:18:41+00:00"
+ "actualizado": "2026-11-02T20:18:48+00:00"
 }
