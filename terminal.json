@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:21:58+00:00",
-   "tipo": "bash",
-   "desc": "Leer el CMake del motor web",
-   "cmd": "sed -n 1,40p web/engine/CMakeLists.txt; grep -rn \"CMAKE_CXX_STANDARD\" web/CMakeLists.txt CMakeLists.txt 2>/dev/null",
-   "ok": false
-  },
-  {
    "t": "2026-11-02T17:22:07+00:00",
    "tipo": "bash",
    "desc": "Ver qué funciones del encabezado usa el decodificador",
@@ -279,8 +272,15 @@
    "desc": "Elegir el archivo 1 y capturar",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; curl -s \"127.0.0.1:18777/tap?x=0.333&y=0.51\" >/dev/null; W 3; curl -s \"127.0.0.1:18777/keys?down=Space&ms=400\" >/dev/nu…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:46:28+00:00",
+   "tipo": "bash",
+   "desc": "Pulsar «Jugar con este archivo» y esperar al vídeo",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; curl -s \"127.0.0.1:18777/tap?x=0.70&y=0.89\" >/dev/null; W 3; curl -s \"127.0.0.1:18777/keys?down=Space&ms=400\" >/dev/nul…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:45:47+00:00"
+ "actualizado": "2026-11-02T17:46:28+00:00"
 }
