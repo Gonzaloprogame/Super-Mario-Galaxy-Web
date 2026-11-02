@@ -55,8 +55,22 @@
    "desc": "Actualizar «Probando ahora» y revisar el último commit del feed",
    "cmd": "sed -i 's/\"titulo\": \"Panel de progreso para el directo\"/\"titulo\": \"Panel del directo con terminal en vivo\"/; s/\"detalle\": \"Una página para Streamlabs u OBS que muestra el avance d…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:12:48+00:00",
+   "tipo": "bash",
+   "desc": "Commit the terminal box, push and publish to Pages",
+   "cmd": "git add .gitignore docs/progreso.json web/shell/overlay.html docs/DIRECTO.md tools/directo/ && git commit -q -F - <<'EOF'  … (+24 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:12:53+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que GitHub Pages sirva el panel nuevo",
+   "cmd": "u=https://gonzaloprogame.github.io/Super-Mario-Galaxy-Web/overlay.html; n=0; until curl -s \"$u?v=$RANDOM\" | cmp -s - ~/repo/web/shell/overlay.html || [ $n -ge 40 ]; do n=$((n+1));…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:12:32+00:00"
+ "actualizado": "2026-11-02T17:12:53+00:00"
 }
