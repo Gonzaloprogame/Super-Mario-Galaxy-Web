@@ -20,8 +20,15 @@
    "desc": "Check whether the hook recorded the last commands",
    "cmd": "S=$S; python3 -c \"import json;d=json.load(open('$S/directo/feed/terminal.json'));[print(l['tipo'],l['cmd']) for l in d['lineas'][-4:]]\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:11:41+00:00",
+   "tipo": "bash",
+   "desc": "Add the live terminal box to the overlay and re-render",
+   "cmd": "python3 - <<'EOF'  … (+192 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:10:52+00:00"
+ "actualizado": "2026-11-02T17:11:41+00:00"
 }
