@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T18:16:31+00:00",
-   "tipo": "bash",
-   "desc": "Medir el decodificador en WebAssembly y compararlo con el nativo",
-   "cmd": "cd $S/thpcheck && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && R=~/repo; em++ -std=c++20 -O2 -I$R/web/host/compat -I$R/third_party/nebula/runtime/include -I$R/web/host dec…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T18:16:44+00:00",
-   "tipo": "bash",
-   "desc": "Recompilar el motor con la línea de vídeos en el informe",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_thp2.log 2>&1; echo \"salida: $?\"; tail -2 $S/build_thp2.log",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T18:16:44+00:00",
-   "tipo": "bash",
-   "desc": "Leer lo que dicen los documentos sobre los vídeos",
-   "cmd": "sed -n 196,222p docs/MOTOR_WEB.md && grep -n \"THP\" docs/HOJA_DE_RUTA.md README.md docs/progreso.json",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T18:16:52+00:00",
    "tipo": "bash",
    "desc": "Ver el final del documento del motor",
@@ -279,8 +258,29 @@
    "desc": "Leer el registro de la página en la prueba y repetirla",
    "cmd": "python3 - <<'EOF'  … (+16 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T19:17:39+00:00",
+   "tipo": "bash",
+   "desc": "Compilar el motor completo con el parche 0022",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_0022.log 2>&1; echo \"salida: $?\"; tail -1 $S/build_0022.log",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T19:17:39+00:00",
+   "tipo": "bash",
+   "desc": "Buscar dónde documentar el resultado y el parche 0022",
+   "cmd": "grep -n \"Sin comprobar:\\*\\* el vídeo dentro del juego\" docs/MOTOR_WEB.md; grep -n \"0021\" docs/*.md README.md | head -5",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T19:17:44+00:00",
+   "tipo": "bash",
+   "desc": "Leer el texto que hay que actualizar y la lista de parches",
+   "cmd": "sed -n 360,368p docs/MOTOR_WEB.md; grep -n \"^## \\|0021\" docs/PUENTE_FIFO.md | tail -8",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T19:17:27+00:00"
+ "actualizado": "2026-11-02T19:17:44+00:00"
 }
