@@ -97,8 +97,15 @@
    "desc": "Anunciar la tarea en el panel y buscar el código THP de Nebula",
    "cmd": "python3 - <<'EOF'  … (+9 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:13+00:00",
+   "tipo": "bash",
+   "desc": "Ver la interfaz THP de Nebula",
+   "cmd": "cd ~/repo/third_party/nebula && wc -l native/sdk/thp/thp_native.c runtime/src/native_thp_video.cpp runtime/include/galaxy/native_thp_video.h && grep -n -i \"thp\" native/include/neb…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:20:08+00:00"
+ "actualizado": "2026-11-02T17:20:13+00:00"
 }
