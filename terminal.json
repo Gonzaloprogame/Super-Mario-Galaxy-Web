@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:30:52+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que termine la compilación del motor",
-   "cmd": "S=$S; ls $S/drive/*.sh; until [ -s $TMP ]; do sleep 5; done; cat $TMP",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:30:58+00:00",
    "tipo": "bash",
    "desc": "Leer cómo se arrancan el servidor y el driver",
@@ -279,8 +272,15 @@
    "desc": "Documentar los vídeos THP con lo comprobado y lo pendiente",
    "cmd": "python3 - <<'EOF'  … (+62 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:23:19+00:00",
+   "tipo": "bash",
+   "desc": "Esperar el resultado de la recompilación",
+   "cmd": "until [ -s $TMP ]; do sleep 5; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T18:17:12+00:00"
+ "actualizado": "2026-11-02T18:23:19+00:00"
 }
