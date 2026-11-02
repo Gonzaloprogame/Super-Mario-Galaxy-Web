@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:20:55+00:00",
-   "tipo": "bash",
-   "desc": "Ver la licencia y cómo se compila el código de Nebula",
-   "cmd": "cd ~/repo && head -3 LICENSE* 2>/dev/null; ls web/*/ | head -40; grep -rn \"nebula\" web/CMakeLists.txt web/*/CMakeLists.txt 2>/dev/null | head -20; ls web/nebula 2>/dev/null",
-   "ok": false
-  },
-  {
    "t": "2026-11-02T17:21:04+00:00",
    "tipo": "bash",
    "desc": "Buscar la llamada al decodificador en el host de Nebula",
@@ -279,8 +272,15 @@
    "desc": "Arrancar el juego en el navegador sin interfaz con el disco del usuario",
    "cmd": "S=$S; cd $S/drive && node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run32 graphics $S/drive/nand_RMGE01.bin > $S/drive/run32.out 2>&1",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:31:10+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que el driver responda y ver el log",
+   "cmd": "S=$S; cd $S/drive && for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; sleep 2; done; curl -s \"127.0.0.1:18777/log?tail=8\" | cut -c1-200",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:31:05+00:00"
+ "actualizado": "2026-11-02T17:31:10+00:00"
 }
