@@ -195,8 +195,15 @@
    "desc": "Ver las regiones de memoria y el aviso movie_frame",
    "cmd": "sed -n 25,40p third_party/nebula/native/include/nebula_game_api.h; sed -n 528,540p third_party/nebula/native/include/nebula_game_api.h; grep -n \"regions\\|NebulaMemoryRegion\\|memor…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:21:41+00:00",
+   "tipo": "bash",
+   "desc": "Buscar dónde conoce el host la memoria del juego",
+   "cmd": "grep -rn \"NebulaGameMemoryRegion\\|memory_region\\|game_memory\" web/host/*.c web/host/*.cpp third_party/nebula/native/include/nebula_game_api.h | head -15",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:21:37+00:00"
+ "actualizado": "2026-11-02T17:21:41+00:00"
 }
