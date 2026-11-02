@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:22:54+00:00",
-   "tipo": "bash",
-   "desc": "Limitar el pragma de contracción a la función",
-   "cmd": "cd ~/repo && python3 - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:23:32+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Seguir avanzando el prólogo y vigilar el decodificador",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 40); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=1500\" >/dev/null; W 12; l=$(curl -s \"127.0.0.1:187…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T18:06:31+00:00",
+   "tipo": "bash",
+   "desc": "Avanzar el prólogo hasta un vídeo o un cambio de escena",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for p in $(seq 1 40); do curl -s \"127.0.0.1:18777/keys?down=Space&ms=1500\" >/dev/null; W 12; log=$(curl -s \"127.0.0.1:1…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:57:21+00:00"
+ "actualizado": "2026-11-02T18:06:31+00:00"
 }
