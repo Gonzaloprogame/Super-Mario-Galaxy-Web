@@ -73,6 +73,7 @@ int smg_bridge_scene_frame_done(void);
 int smg_bridge_fault_requested(void);
 int smg_bridge_arrays_requested(void);
 int smg_bridge_clear_quad_requested(void);
+int smg_bridge_untexgen_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
 
@@ -334,6 +335,24 @@ static void draw(void) {
         GXPosition3f32(x1, -0.3f, -0.5f);
         GXTexCoord2f32(1.f, 1.f);
         GXPosition3f32(x0, -0.3f, -0.5f);
+        GXTexCoord2f32(0.f, 1.f);
+        GXEnd();
+    }
+
+    /* A TEV stage reading GX_TEXCOORD3, which no texgen makes (one texgen enabled, texgen 3 never set): undefined on
+       console, where a game goes on (the game did this on its way to its first galaxy). Aurora stopped with "unhandled
+       tcg src 21"; with patch 0022 it draws the square with coordinates 0 and says so in the log. */
+    if (smg_bridge_untexgen_requested()) {
+        GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD3, GX_TEXMAP0, GX_COLOR_NULL);
+        GXSetTevOp(GX_TEVSTAGE0, GX_REPLACE);
+        GXBegin(GX_QUADS, GX_VTXFMT1, 4);
+        GXPosition3f32(-0.2f, 0.9f, -0.5f);
+        GXTexCoord2f32(0.f, 0.f);
+        GXPosition3f32(0.2f, 0.9f, -0.5f);
+        GXTexCoord2f32(1.f, 0.f);
+        GXPosition3f32(0.2f, 0.7f, -0.5f);
+        GXTexCoord2f32(1.f, 1.f);
+        GXPosition3f32(-0.2f, 0.7f, -0.5f);
         GXTexCoord2f32(0.f, 1.f);
         GXEnd();
     }

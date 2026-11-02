@@ -156,7 +156,7 @@ de inmediato.
 | Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras recientes sin medir allí |
 | Arranque rápido | 🧪 | En escritorio < 10 s; en Android, corregido y pendiente de medir |
 | Más allá del primer nivel | ⏳ | Prácticamente sin probar |
-| Vídeos (THP) | 🧪 | Decodificador conectado; da los mismos píxeles en el navegador que en Nebula. **Falta verlo dentro del juego** |
+| Vídeos (THP) | ✅ | Los vídeos del prólogo se reproducen en el juego: 12.667 fotogramas decodificados, ninguno rechazado, unos 3,5 ms cada uno |
 | Versiones PAL y japonesa | ⏳ | Solo se ha probado la norteamericana (RMGE01) |
 | Jugar de principio a fin | ❌ | **Todavía no** |
 
@@ -292,7 +292,7 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 - [ ] Oír y ajustar el sonido en dispositivos reales.
 - [ ] Más fotogramas por segundo en teléfonos.
 - [ ] Avanzar por el observatorio y las primeras galaxias, corrigiendo lo que aparezca.
-- [ ] Vídeos THP.
+- [x] Vídeos THP.
 - [ ] Mandos físicos (Gamepad API).
 - [ ] Versiones PAL y japonesa.
 

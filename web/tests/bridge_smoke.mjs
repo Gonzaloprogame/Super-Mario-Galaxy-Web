@@ -152,6 +152,19 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   points.forEach(([name, , want], i) => check(painted && near(pixels[i], want), `clear quad del EFB, ${name} = (${want}): ${pixels[i]}`));
   await quad.close();
 }
+// A TEV stage reading a texcoord no texgen makes (?untexgen=1, web/bridge/gx_bridge_scene.c): undefined on console,
+// where the game goes on; Aurora stopped ("unhandled tcg src 21"). With patch 0022 the frames go on and the log says it.
+{
+  const page = await browser.newPage();
+  await page.goto(`http://127.0.0.1:${port}/gx_bridge.html?untexgen=1`);
+  const painted = await page.waitForFunction(() => globalThis.smgPresenter && globalThis.smgPresenter.frames >= 5,
+    null, { timeout: 120000 }).then(() => true, () => false);
+  const fatal = await page.evaluate(() => (globalThis.bridge && globalThis.bridge.fatal) || '');
+  const said = await page.evaluate(() => (globalThis.bridge && globalThis.bridge.lines) || []);
+  check(painted && !fatal, `una etapa TEV que lee una coordenada sin generador no para el renderizador (${fatal || 'sigue dibujando'})`);
+  check(said.some((l) => /no texgen makes it/.test(l)), 'y el registro lo dice');
+  await page.close();
+}
 // An abort() in a thread of the engine (?abort=1, after the report): the page hears it, with its C stack
 {
   const aborting = await browser.newPage();

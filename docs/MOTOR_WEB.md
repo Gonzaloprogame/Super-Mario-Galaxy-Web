@@ -360,10 +360,14 @@ Melquiond, 2008). El resultado es el de una FMA de verdad.
 - El motor compila con el decodificador, y el informe del host añade una línea `[host] movies: …` (fotogramas
   decodificados, rechazados y tiempo medio).
 
-**Sin comprobar:** el vídeo dentro del juego. En una partida nueva, las páginas del libro del prólogo y el principio
-del jardín del castillo **no piden ningún fotograma THP** (0 en el registro): los vídeos del prólogo los lanza un objeto
-del nivel (`MovieStarter`) más adelante. La hipótesis de la sexta prueba («el nivel empieza con una película THP») era
-falsa en este camino. En esa misma partida el nivel cargó y se jugó sin el bloqueo de Android.
+**En el juego (prueba del usuario en su PC, 2026-11-02).** Las páginas del libro y el principio del jardín no piden
+ningún fotograma THP: los vídeos del prólogo los lanza un objeto del nivel (`MovieStarter`) más adelante. La hipótesis
+de la sexta prueba («el nivel empieza con una película THP») era falsa. Al llegar a ese punto, el registro dice
+`movie frame 1 (THP, 640x368, …): decoded` y después `movies: 12667 frames decoded, 0 refused, 3.48 ms a frame`: los
+dos vídeos del prólogo completos, sin un solo fotograma rechazado, y el juego siguió hasta `HeavensDoorGalaxy`.
+
+Allí Aurora se detuvo con `unhandled tcg src 21`: una etapa TEV leía una coordenada de textura que ningún generador
+crea. Lo arregla el parche de Aurora 0022 (`PUENTE_FIFO.md`).
 
 ## Rendimiento
 

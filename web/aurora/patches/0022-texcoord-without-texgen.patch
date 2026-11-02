@@ -1,0 +1,32 @@
+diff -ruN a/lib/gx/shader.cpp b/lib/gx/shader.cpp
+--- a/lib/gx/shader.cpp	2026-11-02 19:09:28.689229533 +0000
++++ b/lib/gx/shader.cpp	2026-11-02 19:09:40.799707882 +0000
+@@ -10,6 +10,7 @@
+ #include <dolphin/gx/GXEnum.h>
+ 
+ #include <absl/container/flat_hash_set.h>
++#include <atomic>
+ #include <mutex>
+ #include <string_view>
+ #include <utility>
+@@ -1213,8 +1214,18 @@
+       vtxXfrAttrs += fmt::format("\n    var tc{} = vec4f({}, 1.0);", i, nbt_slice_local(NbtSlice::B));
+     } else if (tcg.src == GX_TG_TANGENT) {
+       vtxXfrAttrs += fmt::format("\n    var tc{} = vec4f({}, 1.0);", i, nbt_slice_local(NbtSlice::T));
+-    } else
+-      UNLIKELY FATAL("unhandled tcg src {}", underlying(tcg.src));
++    } else {
++      // No texgen makes this texcoord (src unset: GX_MAX_TEXGENSRC), usually a TEV stage still set from an earlier
++      // draw. Undefined on console, where the game goes on; drawn here with coordinates 0 and said in the log (at most
++      // 8 times), as for a TEV stage whose indirect stage is not enabled (validate_shader_config).
++      static std::atomic<u32> sReported{0};
++      if (sReported.fetch_add(1, std::memory_order_relaxed) < 8) {
++        Log.warn("GX: a stage reads texcoord {}, but no texgen makes it (texgen source {}, type {}; undefined on "
++                 "console, drawn with coordinates 0)",
++                 i, underlying(tcg.src), underlying(tcg.type));
++      }
++      vtxXfrAttrs += fmt::format("\n    var tc{} = vec4f(0.0, 0.0, 1.0, 1.0);", i);
++    }
+     if (tcg.type == GX_TG_MTX2x4 || tcg.type == GX_TG_MTX3x4) {
+       if (info.indexAttr.test(GX_VA_TEX0MTXIDX + i)) {
+         vtxXfrAttrs += fmt::format("\n    var tc{0}_tmp = tc{0} * ubuf.postex_mtx[in_texmtxidx{0} / 3u];", i);

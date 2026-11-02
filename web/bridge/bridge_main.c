@@ -129,6 +129,15 @@ int smg_bridge_clear_quad_requested(void) {
     return requested;
 }
 
+/* The test of a TEV stage reading a texcoord no texgen makes (bridge_smoke.mjs, ?untexgen=1, Aurora patch 0022) */
+int smg_bridge_untexgen_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('untexgen') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* The test of an abort in a thread of the engine (bridge_smoke.mjs, ?abort=1): once reported, the scene's thread
    calls abort(), which the page must hear (web/platform/abort_report_wasm.c) */
 static int abort_requested(void) {

@@ -4,8 +4,8 @@
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
     "etiqueta": "En curso · Hito 5",
-    "titulo": "Vídeos THP",
-    "detalle": "Decodificador conectado y comprobado (mismos píxeles que en Nebula, unos 3 ms por fotograma). Ahora: verlo dentro del juego, en el vídeo del prólogo."
+    "titulo": "Primera galaxia",
+    "detalle": "Arreglado el error del renderizador «unhandled tcg src 21» al llegar a la primera galaxia (parche de Aurora 0022)."
   },
   "comprobaciones": [
     {
@@ -35,8 +35,8 @@
     },
     {
       "texto": "Vídeos THP",
-      "detalle": "Decodificador conectado y comprobado; falta verlo dentro del juego",
-      "estado": "pendiente"
+      "detalle": "Los vídeos del prólogo se ven en el juego (12.667 fotogramas, 0 rechazados)",
+      "estado": "hecho"
     }
   ],
   "hitos": [
