@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T17:12:24+00:00",
-   "tipo": "bash",
-   "desc": "Run the setup script against the current feed and validate the hooks",
-   "cmd": "chmod +x tools/directo/setup.sh tools/directo/terminal_feed.py && cp .claude/settings.local.json $S/settings.before.json && DIRECTO_TRAILER='Co-Authored-By: Claude Opus 5.5 <[corr…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T17:12:32+00:00",
-   "tipo": "bash",
-   "desc": "Actualizar «Probando ahora» y revisar el último commit del feed",
-   "cmd": "sed -i 's/\"titulo\": \"Panel de progreso para el directo\"/\"titulo\": \"Panel del directo con terminal en vivo\"/; s/\"detalle\": \"Una página para Streamlabs u OBS que muestra el avance d…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T17:12:48+00:00",
    "tipo": "bash",
    "desc": "Commit the terminal box, push and publish to Pages",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "~/repo/web/tests/thp_video_test.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:25:46+00:00",
+   "tipo": "editar",
+   "desc": "",
+   "cmd": "~/repo/web/tests/thp_video_test.cpp",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T17:25:58+00:00",
+   "tipo": "bash",
+   "desc": "Repetir la prueba con el encabezado roto a propósito",
+   "cmd": "sed -i '/std::mt19937_64 again(0x6d61.6464u);/d' web/tests/thp_video_test.cpp && grep -c \"again\" web/tests/thp_video_test.cpp; S=$S/thp_mut; R=third_party/nebula/runtime; echo \"==…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:25:41+00:00"
+ "actualizado": "2026-11-02T17:25:58+00:00"
 }
