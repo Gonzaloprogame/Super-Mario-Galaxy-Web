@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:13:13+00:00",
-   "tipo": "bash",
-   "desc": "Listar las pruebas ocultas que admite el host de Nebula",
-   "cmd": "cd ~/repo/third_party/nebula && grep -n \"GALAXY_TEST_[A-Z_]*\" -o native/host/host_main.cpp runtime/src/*.cpp 2>/dev/null | awk -F: '{print $NF}' | sort | uniq -c | sort -rn | head…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:13:19+00:00",
    "tipo": "bash",
    "desc": "Leer la gira de galaxias de prueba de Nebula",
@@ -279,8 +272,15 @@
    "desc": "Ver por qué no arranca el perfilador en los hilos",
    "cmd": "S=$S; cd $S/drive && sed -i 's/^await new Promise((r) => setTimeout(r, Number(seconds) \\* 1000));/for (const w of workers) if (w.error) console.log(`start ${w.url}: ${w.error}`);\\…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:56:01+00:00",
+   "tipo": "bash",
+   "desc": "Detener la ejecución y los procesos que queden",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|prof.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; sleep 2; ps -eo cmd | grep -cE \"chrom|driver.mjs\"",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:55:50+00:00"
+ "actualizado": "2026-11-02T20:56:01+00:00"
 }
