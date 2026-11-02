@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:02:37+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo se generan las particiones de prueba",
-   "cmd": "sed -n 18,24p web/tests/browser_smoke.mjs; S=$S; mkdir -p $S/fx && grep -n \"make_fixture\" web/tests/browser_smoke.mjs | head -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:03:12+00:00",
    "tipo": "bash",
    "desc": "Ver las últimas líneas del registro durante el bloqueo de prueba",
@@ -279,8 +272,15 @@
    "desc": "Compilar el motor con nombres de funciones para perfilar",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && emcmake…",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:34:51+00:00",
+   "tipo": "bash",
+   "desc": "Arrancar la ejecución hacia EggStarGalaxy con el puerto de depuración",
+   "cmd": "S=$S; cd $S/drive && PROFILE_PORT=19222 TOUR=\"EggStarGalaxy:1\" TOURFRAMES=6000 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run41 graphics $S/drive/nand_RMGE01.bin > $S/drive/r…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:34:40+00:00"
+ "actualizado": "2026-11-02T20:34:51+00:00"
 }
