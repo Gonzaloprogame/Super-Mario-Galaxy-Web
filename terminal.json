@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T19:45:47+00:00",
-   "tipo": "bash",
-   "desc": "Ver los servicios del host y el informe de bloqueos",
-   "cmd": "grep -n \"^static [a-z_0-9 ]*svc_[a-z_]*(\" web/host/headless_host.c; sed -n 470,500p web/host/headless_host.c; sed -n 548,590p web/host/headless_host.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T19:45:52+00:00",
-   "tipo": "bash",
-   "desc": "Leer los servicios del host que llama el hilo del juego",
-   "cmd": "sed -n 186,292p web/host/headless_host.c; sed -n 505,535p web/host/headless_host.c; sed -n 660,700p web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T19:46:18+00:00",
    "tipo": "bash",
    "desc": "Localizar el arranque del worker en la página",
@@ -279,8 +265,22 @@
    "desc": "Detectar el cuelgue por el latido del hilo del juego",
    "cmd": "python3 - <<'EOF'  … (+89 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T20:21:52+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance de la gira y los avisos",
+   "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -E \"tour|stage:|FATAL|ERROR|WARNING|stall|Aborted|movie frame\" | grep -v \"^\\[vigía\\] \\[host\\] report\" | cut -c1-220 | tail -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-02T20:21:57+00:00",
+   "tipo": "bash",
+   "desc": "Leer el informe de bloqueo completo",
+   "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -E \"stall|resumed\" | tail -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:21:43+00:00"
+ "actualizado": "2026-11-02T20:21:57+00:00"
 }
