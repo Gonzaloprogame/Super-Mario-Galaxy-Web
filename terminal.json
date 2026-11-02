@@ -132,8 +132,22 @@
    "desc": "Leer la implementación exacta de multiplicar y sumar",
    "cmd": "sed -n 1,140p runtime/include/galaxy/fused_multiply_add.h",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T17:20:55+00:00",
+   "tipo": "bash",
+   "desc": "Ver la licencia y cómo se compila el código de Nebula",
+   "cmd": "cd ~/repo && head -3 LICENSE* 2>/dev/null; ls web/*/ | head -40; grep -rn \"nebula\" web/CMakeLists.txt web/*/CMakeLists.txt 2>/dev/null | head -20; ls web/nebula 2>/dev/null",
+   "ok": false
+  },
+  {
+   "t": "2026-11-02T17:21:04+00:00",
+   "tipo": "bash",
+   "desc": "Buscar la llamada al decodificador en el host de Nebula",
+   "cmd": "grep -n -i \"thp\" native/host/host_main.cpp runtime/src/native_host.cpp | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T17:20:37+00:00"
+ "actualizado": "2026-11-02T17:21:04+00:00"
 }
