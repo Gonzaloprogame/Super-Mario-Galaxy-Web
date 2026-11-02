@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:18:48+00:00",
-   "tipo": "bash",
-   "desc": "Ver la lista completa de galaxias",
-   "cmd": "tr '\\n' ' ' < $S/galaxies.txt",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:18:59+00:00",
    "tipo": "bash",
    "desc": "Arrancar la primera tanda de la gira con el disco del usuario",
@@ -279,8 +272,15 @@
    "desc": "Comprobar cuándo avisa la página de que el juego no responde",
    "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=8000\" | grep -nE \"\\[página\\] el hilo del juego lleva|stage: Egg|stall: no GX from the game for 5 s|tour: stop\" | cut -c1-140",
    "ok": true
+  },
+  {
+   "t": "2026-11-02T21:03:27+00:00",
+   "tipo": "bash",
+   "desc": "Recompilar sin nombres de funciones y repetir la prueba del navegador",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|prof.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/de…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-02T20:59:33+00:00"
+ "actualizado": "2026-11-02T21:03:27+00:00"
 }
