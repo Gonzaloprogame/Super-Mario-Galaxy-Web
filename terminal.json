@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:58:02+00:00",
-   "tipo": "bash",
-   "desc": "Leer la caché guardada y pasarla al motor desde la página",
-   "cmd": "python3 - <<'EOF'  … (+30 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:58:25+00:00",
    "tipo": "bash",
    "desc": "Añadir el objeto que gobierna la pantalla de carga",
@@ -279,8 +272,15 @@
    "desc": "Añadir el soporte de mandos físicos a los controles",
    "cmd": "cat > $S/edit_gamepad.py <<'EOF'  … (+118 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:46:04+00:00",
+   "tipo": "bash",
+   "desc": "Añadir la prueba del mando simulado",
+   "cmd": "cat > $S/edit_gamepad_test.py <<'EOF'  … (+45 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:45:44+00:00"
+ "actualizado": "2026-11-03T19:46:04+00:00"
 }
