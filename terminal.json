@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:19:18+00:00",
-   "tipo": "bash",
-   "desc": "Leer la descripción del hilo de render en el puente",
-   "cmd": "sed -n \"$(grep -n 'extern \"C\" void smg_bridge_describe' web/host/aurora_bridge.cpp | cut -d: -f1),+12p\" web/host/aurora_bridge.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:19:29+00:00",
    "tipo": "bash",
    "desc": "Añadir el progreso del procesador a la descripción del render",
@@ -279,8 +272,15 @@
    "desc": "Ver las variables de color y el estilo del marco de la pantalla",
    "cmd": "sed -n 8,30p web/shell/index.html | grep -n \"\\-\\-\" | head -20; grep -n \"^  \\.frame\\|\\.frame {\" web/shell/index.html",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:57:42+00:00",
+   "tipo": "bash",
+   "desc": "Añadir la pantalla de carga a la página",
+   "cmd": "python3 - <<'EOF'  … (+49 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:57:25+00:00"
+ "actualizado": "2026-11-03T18:57:42+00:00"
 }
