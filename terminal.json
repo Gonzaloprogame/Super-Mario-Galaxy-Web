@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:55:41+00:00",
-   "tipo": "bash",
-   "desc": "Localizar dónde el hilo de render se declara listo",
-   "cmd": "grep -n \"g_state.store\\|g_state{\" web/host/aurora_bridge.cpp | head; n=$(grep -n \"g_state.store(1\" web/host/aurora_bridge.cpp | head -1 | cut -d: -f1); sed -n \"$((n-12)),$((n+3))p…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:56:01+00:00",
    "tipo": "bash",
    "desc": "Precompilar los pipelines guardados antes de arrancar el juego",
@@ -279,8 +272,15 @@
    "desc": "Corregir el aviso y revisar el resultado",
    "cmd": "python3 - <<'EOF'  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:38:19+00:00",
+   "tipo": "bash",
+   "desc": "Confirmar en español y subir el README actualizado",
+   "cmd": "sed -i 's/hay una gira de prueba para recorrerlas (`?tour=`)/hay una gira de prueba para recorrerlos (`?tour=`)/' README.md && grep -c \"recorrerlos\" README.md && git add README.md…  … (+15 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:37:39+00:00"
+ "actualizado": "2026-11-03T19:38:19+00:00"
 }
