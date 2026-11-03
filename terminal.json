@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:07:02+00:00",
-   "tipo": "bash",
-   "desc": "Ver el formato original del archivo de progreso",
-   "cmd": "cd ~/repo; git show HEAD:docs/progreso.json | head -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:07:06+00:00",
    "tipo": "bash",
    "desc": "Conservar el formato del archivo de progreso",
@@ -279,8 +272,15 @@
    "desc": "Leer el parche 0022",
    "cmd": "cd ~/repo; sed -n 1,60p web/aurora/patches/0022*.patch",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:37:22+00:00",
+   "tipo": "bash",
+   "desc": "Anotar el aviso de SurfingLv1Galaxy",
+   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+7 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-03T23:37:14+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-03T23:37:30+00:00"
 }
