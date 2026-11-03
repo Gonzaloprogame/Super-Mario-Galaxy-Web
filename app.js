@@ -490,6 +490,7 @@ async function start() {
         break;
       case 'error':
         loading.stop();
+        if (data.stack) log(`[página] ${data.text}; pila:\n${data.stack}`);
         setStatus(data.text, 'error');
         document.body.dataset.state = 'error';
         $('run').disabled = false;
@@ -577,9 +578,10 @@ async function start() {
     };
   }
   // ?hangtest=1 (web/tests/browser_smoke.mjs): the host hangs the game's thread on purpose, to test the watch log
-  // (?hangtest=yield: the thread waits yielding instead, as Nebula's scheduler sleeping for work)
+  // (?hangtest=yield: the thread waits yielding instead, as Nebula's scheduler sleeping for work; ?hangtest=trap: the
+  // host calls a function that does not exist, to test that the error's stack reaches the log)
   const hangtestParam = new URLSearchParams(location.search).get('hangtest');
-  const hangtest = hangtestParam === '1' ? 'hangtest' : hangtestParam === 'yield' ? 'hangtest-yield' : '';
+  const hangtest = { 1: 'hangtest', yield: 'hangtest-yield', trap: 'hangtest-trap' }[hangtestParam] || '';
   // ?tour=Stage:scenario,...&tourframes=N: the galaxy tour (web/host/headless_host.c), every N scene frames
   const tour = new URLSearchParams(location.search).get('tour') || '';
   const tourFrames = Number(new URLSearchParams(location.search).get('tourframes')) || 0;
