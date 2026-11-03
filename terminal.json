@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:42:14+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el motor con 0025 y llevar el juego a EggStarGalaxy",
-   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:42:24+00:00",
    "tipo": "bash",
    "desc": "Comprobar que el juego dibuja en EggStarGalaxy y hacer una captura",
@@ -279,8 +272,15 @@
    "desc": "Sumar bien los pipelines creados en la segunda sesión",
    "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | sed 's/^\\[vigía\\] //' | grep -E \"pipelines in the last\" | awk '{s+=$8; ms+=$11} END {print \"segunda sesión: pipelines creados jugando:\",…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:10:19+00:00",
+   "tipo": "bash",
+   "desc": "Volcar la lista de 102 shaders y parar la segunda sesión",
+   "cmd": "S=$S; curl -s \"127.0.0.1:18777/pipelines\"; echo; cp $S/drive/run48/pipelines_RMGE01.bin $S/drive/pipelines_session2.bin; ls -la $S/drive/pipelines_session2.bin | awk '{print $5, \"…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:09:59+00:00"
+ "actualizado": "2026-11-03T19:10:19+00:00"
 }
