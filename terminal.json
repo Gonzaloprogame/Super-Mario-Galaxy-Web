@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:32:55+00:00",
-   "tipo": "bash",
-   "desc": "Probar ?hostnew=1 sin el arreglo",
-   "cmd": "cd ~/repo; S=$S; sed -i \"s|console.log('result', JSON.stringify(b.result), 'fatal', b.fatal);|console.log('result', JSON.stringify(b.result).slice(0,80), 'fatal', b.fatal, 'hostne…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T21:33:14+00:00",
-   "tipo": "bash",
-   "desc": "Endurecer la prueba: memoria del host, no nula ni del juego",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+35 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:34:40+00:00",
    "tipo": "bash",
    "desc": "Probar la prueba endurecida sin el arreglo",
@@ -279,8 +265,22 @@
    "desc": "Ver cómo lee la página el registro de vigía",
    "cmd": "cd ~/repo; grep -n \"watch\" web/shell/app.js | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:14:53+00:00",
+   "tipo": "bash",
+   "desc": "Leer la lectura del registro de vigía y el final del motor",
+   "cmd": "cd ~/repo; sed -n 398,470p web/shell/app.js; grep -n \"case 'exit'\\|case 'error'\" -A4 web/shell/app.js | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T22:15:07+00:00",
+   "tipo": "bash",
+   "desc": "Leer el registro de vigía al parar el motor y probarlo",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+18 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:14:50+00:00"
+ "actualizado": "2026-11-03T22:15:07+00:00"
 }
