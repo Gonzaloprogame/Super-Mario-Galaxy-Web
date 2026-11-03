@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:52:36+00:00",
-   "tipo": "bash",
-   "desc": "Preparar el sitio de diagnóstico",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:52:43+00:00",
    "tipo": "bash",
    "desc": "Ejecutar la secuencia con el motor de diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Anotar la causa y el arreglo en el registro",
    "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+18 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:46:55+00:00",
+   "tipo": "bash",
+   "desc": "Esperar la compilación y la prueba del puente",
+   "cmd": "until ! pgrep -f \"build_web.sh|bridge_smoke.mjs\" >/dev/null; do sleep 15; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:36:49+00:00"
+ "actualizado": "2026-11-03T21:46:55+00:00"
 }
