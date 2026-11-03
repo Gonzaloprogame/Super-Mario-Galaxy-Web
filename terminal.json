@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:19:29+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el progreso del procesador a la descripción del render",
-   "cmd": "python3 - <<'EOF'  … (+20 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:24:45+00:00",
    "tipo": "bash",
    "desc": "Compilar el motor con el parche 0024",
@@ -279,8 +272,15 @@
    "desc": "Añadir la pantalla de carga a la página",
    "cmd": "python3 - <<'EOF'  … (+49 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:58:02+00:00",
+   "tipo": "bash",
+   "desc": "Leer la caché guardada y pasarla al motor desde la página",
+   "cmd": "python3 - <<'EOF'  … (+30 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:57:42+00:00"
+ "actualizado": "2026-11-03T18:58:02+00:00"
 }
