@@ -1,48 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:30:09+00:00",
-   "tipo": "bash",
-   "desc": "Ver el estado de la reproducción",
-   "cmd": "S=$S; tail -3 $S/tour/out_cocoon/tour.md; grep \"report:\" $S/tour/out_cocoon/log_tail.txt | tail -1 | cut -c1-200; grep -h \"frames drawn\" $S/tour/out_cocoon/log_tail.txt | tail -1 …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:30:14+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado de la espera",
-   "cmd": "S=$S; cat $TMP cat $S/tour/out_cocoon/tour.md; ls $S/tour/out_cocoon",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:30:20+00:00",
-   "tipo": "bash",
-   "desc": "Ver cuánto duró cada parada de la primera tanda",
-   "cmd": "S=$S; python3 -c \"  … (+2 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:30:24+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado de la reproducción",
-   "cmd": "S=$S; cat $TMP | cut -c1-300",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:30:33+00:00",
-   "tipo": "bash",
-   "desc": "Repetir la secuencia de cinco escenarios con la pila",
-   "cmd": "S=$S; head -5 $S/tour/batch_00 > $S/tour/seq5; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_seq5 --nand $S/d…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:30:38+00:00",
-   "tipo": "bash",
-   "desc": "Ver las variables del script de compilación",
-   "cmd": "cd ~/repo; sed -n 1,25p tools/build_web.sh",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:33:04+00:00",
    "tipo": "bash",
    "desc": "Compilar el host con el modo de prueba nuevo",
@@ -279,8 +237,50 @@
    "desc": "Esperar el final del diagnóstico",
    "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*out_diag\" >/dev/null; do sleep 15; done; S=$S; cat $S/tour/out_diag/tour.md | cut -c1-250; grep \"\\[diag\\]\" $S/tour/out_diag/log_end.txt | head -…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:08:23+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar la pila del motor de diagnóstico",
+   "cmd": "cd ~/repo; S=$S; grep -A12 \"pila:\" $S/tour/out_diag/log_end.txt > $S/diag_stack.txt; cat $S/diag_stack.txt | head -8; python3 -I tools/wasm_symbols.py $S/diag_stack.txt build/site…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:08:47+00:00",
+   "tipo": "bash",
+   "desc": "Leer host_log y la configuración de Asyncify",
+   "cmd": "cd ~/repo; n=$(grep -n \"^static void host_log\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+40))p\" web/host/headless_host.c; grep -n \"ASYNCIFY\" web/engine/CMakeLists.t…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:08:57+00:00",
+   "tipo": "bash",
+   "desc": "Buscar qué operator new tiene el motor",
+   "cmd": "cd ~/repo; grep -n \"operator new\\|^[0-9]*:_Znwm\\|^[0-9]*:_Znwj\\|:malloc$\\|:dlmalloc\\|:emmalloc\" build/site_diag/smg_web.js.symbols | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:01+00:00",
+   "tipo": "bash",
+   "desc": "Buscar el operator new global y malloc",
+   "cmd": "cd ~/repo; grep -n \"operator new(unsigned long)\\|operator new\\[\\]\\|:malloc\\b\\|malloc\" build/site_diag/smg_web.js.symbols | head -20; grep -rn \"operator new(size_t\\|operator new(st…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:05+00:00",
+   "tipo": "bash",
+   "desc": "Ver el operator new de JKRHeap y cómo se enlaza",
+   "cmd": "cd ~/repo; grep -n \":operator new\\|:operator delete\" build/site_diag/smg_web.js.symbols | head; grep -rn \"operator new\\|JKR\\|_Znw\" web/cmake/SmgGame.cmake third_party/nebula/nativ…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:09+00:00",
+   "tipo": "bash",
+   "desc": "Leer cómo se separa el operator new del juego",
+   "cmd": "cd ~/repo; sed -n 45,70p web/cmake/SmgGame.cmake; cat web/platform/operator_new_wasm.cpp | head -80",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:08:17+00:00"
+ "actualizado": "2026-11-03T21:09:09+00:00"
 }
