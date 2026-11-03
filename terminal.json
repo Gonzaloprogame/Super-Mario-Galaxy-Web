@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T12:23:14+00:00",
-   "tipo": "bash",
-   "desc": "Añadir conmutaciones, hilo en curso y sonda al aviso de bloqueo",
-   "cmd": "python3 - <<'EOF'  … (+107 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T12:23:35+00:00",
    "tipo": "bash",
    "desc": "Añadir la variante de bloqueo que cede y sus comprobaciones",
@@ -279,8 +272,15 @@
    "desc": "Compilar el motor con el parche 0024",
    "cmd": "sed -i 's/    char bridge\\[320\\] = \"no renderer\";/    char bridge[512] = \"no renderer\";/' web/host/headless_host.c && sed -i '0,/^#include </s//#include <cstring>\\n#include <strin…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:26:21+00:00",
+   "tipo": "bash",
+   "desc": "Reproducir el cuelgue de EggStarGalaxy y leer el progreso de Aurora",
+   "cmd": "S=$S; cd $S/drive && (TOUR=\"EggStarGalaxy:1\" TOURFRAMES=6000 timeout 1500 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run45 graphics $S/drive/nand_RMGE01.bin > $S/drive/run45.…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:24:45+00:00"
+ "actualizado": "2026-11-03T18:26:21+00:00"
 }
