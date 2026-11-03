@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:42:24+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar que el juego dibuja en EggStarGalaxy y hacer una captura",
-   "cmd": "curl -s \"127.0.0.1:18777/log?tail=12000\" | sed 's/^\\[vigía\\] //' | grep -E \"^\\[host\\] report:\" | tail -3 | grep -o \"retraces [0-9]*, frames [0-9]*, GX [0-9]* bytes\\|Wii Remote rep…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:44:25+00:00",
    "tipo": "bash",
    "desc": "Ejecutar las pruebas del sitio y del puente con el motor completo",
@@ -279,8 +272,15 @@
    "desc": "Volcar la lista de 102 shaders y parar la segunda sesión",
    "cmd": "S=$S; curl -s \"127.0.0.1:18777/pipelines\"; echo; cp $S/drive/run48/pipelines_RMGE01.bin $S/drive/pipelines_session2.bin; ls -la $S/drive/pipelines_session2.bin | awk '{print $5, \"…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:10:36+00:00",
+   "tipo": "bash",
+   "desc": "Leer el valor final de la barra al empezar el juego",
+   "cmd": "cat > $S/edit_loading2.py <<'EOF'  … (+51 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:10:19+00:00"
+ "actualizado": "2026-11-03T19:10:36+00:00"
 }
