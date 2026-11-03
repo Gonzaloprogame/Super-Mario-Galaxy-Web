@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:07:32+00:00",
-   "tipo": "bash",
-   "desc": "Subir y publicar el estado del panel",
-   "cmd": "cd ~/repo; S=$S; git add docs/progreso.json && git commit -q -m \"Panel de directo: la gira por las galaxias y el arreglo de CocoonExGalaxy  … (+6 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:07:48+00:00",
    "tipo": "bash",
    "desc": "Ver dónde empiezan los datos del binario",
@@ -279,8 +272,15 @@
    "desc": "Confirmar y subir la nota de SurfingLv1Galaxy",
    "cmd": "cd ~/repo; git add docs/PROGRESO_AUTONOMO.md && git commit -q -m \"Progreso: aviso de texcoord sin generador en SurfingLv1Galaxy  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:55:00+00:00",
+   "tipo": "bash",
+   "desc": "Ver el resultado de la tanda 04",
+   "cmd": "S=$S; cat $S/tour/out_04/tour.md | cut -c1-330; grep -c \"memory error\" $S/tour/out_04/log_end.txt; grep -c \"report:\" $S/tour/out_04/log_end.txt; grep \"aurora WARNING\\|aurora ERROR…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T23:37:42+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T23:55:00+00:00"
 }
