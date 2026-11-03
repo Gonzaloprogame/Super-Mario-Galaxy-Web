@@ -33,7 +33,7 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** gira, tanda 01 (`$S/tour/batch_01`, 8 escenarios); antes, los 3 de la
+- **En curso:** gira, tanda 02 (`$S/tour/batch_02`, `--site build/site_next`). Hecho: la 01 y, antes, los 3 de la
   tanda 00 que no llegaron a correr (CosmosGarden, CubeBubbleExLv1, CubeBubbleExLv2): `$S/tour/next_01` los junta con
   la tanda 01. Comando: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out
   $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`.
@@ -154,3 +154,26 @@ abortos. La gira guarda además el registro entero (`log_end.txt`) cuando la pá
 - **Pruebas:** `browser_smoke.mjs`: `?hangtest=nullwrite` (el host escribe 32 bytes en la dirección 64) debe dar la
   alarma con esos bytes; un arranque normal no debe darla. 48 PASS, 0 FAIL (con `SMG_SITE`, una copia del sitio,
   porque la gira usaba `build/site`).
+
+### Bloque 5: tanda 01 de la gira (2026-11-03)
+
+Los tres que faltaban de la tanda 00 y los ocho de la 01, con el arreglo del bloque 3 (sin la alarma del bloque 4, que
+se compiló a mitad). Once de once cargaron y dibujaron 900 fotogramas de escena; ningún aviso de Aurora.
+
+| Escenario | Carga | Paradas del juego |
+|---|---|---|
+| CosmosGardenGalaxy | 14 s* | 1, recuperada |
+| CubeBubbleExLv1Galaxy | 7,8 s* | 0 |
+| CubeBubbleExLv2Galaxy | 5,6 s | 0 |
+| DarkRoomGalaxy | 6,2 s | 0 |
+| FactoryGalaxy | 15,5 s* | 1, recuperada |
+| FishTunnelGalaxy | 5,2 s | 0 |
+| FlipPanelExGalaxy | 2,8 s | 0 |
+| FloaterOtaKingGalaxy | 4,7 s | 0 |
+| HeavenlyBeachGalaxy | 10 s | 0 |
+| HellProminenceGalaxy | 10 s | 0 |
+| HoneyBeeExGalaxy | 3,1 s | 0 |
+
+\* Coincidieron con compilaciones en el contenedor (4 núcleos): su carga no es representativa.
+
+Llevamos 20 escenarios de la gira, más los 4 comprobados antes: 24 de 44. Ninguno jugado.
