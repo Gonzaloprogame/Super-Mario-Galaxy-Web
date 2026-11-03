@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T17:59:29+00:00",
-   "tipo": "bash",
-   "desc": "Completar el parche 0023 y añadirlo al repositorio",
-   "cmd": "S=$S/p0023; cd $S && python3 - <<'EOF'  … (+6 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T17:59:39+00:00",
    "tipo": "bash",
    "desc": "Leer el aviso de cambio de escenario del host",
@@ -279,8 +272,15 @@
    "desc": "Probar el puente sin el parche 0025 para ver fallar la prueba",
    "cmd": "sed -i 's/getImageData(320, 260, 1, 1)/getImageData(320, 272, 1, 1)/' web/tests/bridge_smoke.mjs && S=$S; mv web/aurora/patches/0025-draws-under-three-vertices.patch $S/p0025/held…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:34:29+00:00",
+   "tipo": "bash",
+   "desc": "Probar el puente con el parche 0025",
+   "cmd": "S=$S; mv $S/p0025/held.patch web/aurora/patches/0025-draws-under-three-vertices.patch && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && emcmake cmake -S web -B build/all -G …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:31:59+00:00"
+ "actualizado": "2026-11-03T18:34:29+00:00"
 }
