@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:07:52+00:00",
-   "tipo": "bash",
-   "desc": "Arrancar el juego con gira a HeavensDoorGalaxy para medir",
-   "cmd": "S=$S; cd $S/drive && TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run43 graphics $S/drive/nand_RMGE01.bin > $S/drive/run43.out 2>&1",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:09:40+00:00",
    "tipo": "bash",
    "desc": "Esperar las líneas de medida de pipelines",
@@ -279,8 +272,15 @@
    "desc": "Ejecutar las pruebas del sitio y del puente con el motor completo",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && timeout 1800 node web/tests/browser_smoke.mjs 2…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:45:40+00:00",
+   "tipo": "bash",
+   "desc": "Documentar, confirmar en español, subir y publicar el arreglo de EggStarGalaxy",
+   "cmd": "python3 - <<'EOF'  … (+71 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:44:25+00:00"
+ "actualizado": "2026-11-03T18:45:40+00:00"
 }
