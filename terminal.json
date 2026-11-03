@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:56:01+00:00",
-   "tipo": "bash",
-   "desc": "Detener la ejecución y los procesos que queden",
-   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|prof.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; sleep 2; ps -eo cmd | grep -cE \"chrom|driver.mjs\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:56:11+00:00",
    "tipo": "bash",
    "desc": "Volver a arrancar la ejecución hacia EggStarGalaxy",
@@ -279,8 +272,15 @@
    "desc": "Compilar el motor con la medida de cargas",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:14:24+00:00",
+   "tipo": "bash",
+   "desc": "Arrancar el juego y esperar la línea de medida de la carga",
+   "cmd": "S=$S; cd $S/drive && (TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 timeout 900 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run44 graphics $S/drive/nand_RMGE01.bin > $S/drive/run…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:13:35+00:00"
+ "actualizado": "2026-11-03T18:14:24+00:00"
 }
