@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:57:42+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la pantalla de carga a la página",
-   "cmd": "python3 - <<'EOF'  … (+49 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:58:02+00:00",
    "tipo": "bash",
    "desc": "Leer la caché guardada y pasarla al motor desde la página",
@@ -279,8 +272,15 @@
    "desc": "Leer el resto de los controles y la ayuda de la página",
    "cmd": "sed -n 110,188p web/shell/controls.js; grep -n \"pad-help\" -A 8 web/shell/index.html | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:45:44+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el soporte de mandos físicos a los controles",
+   "cmd": "cat > $S/edit_gamepad.py <<'EOF'  … (+118 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:45:14+00:00"
+ "actualizado": "2026-11-03T19:45:44+00:00"
 }
