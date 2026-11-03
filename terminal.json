@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:10:49+00:00",
-   "tipo": "bash",
-   "desc": "Aplicar el arreglo y añadir su prueba",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+108 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T21:21:02+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar que la prueba nueva falla sin el arreglo",
-   "cmd": "cd ~/repo; S=$S; cp $S/pipeline_cache.cpp.orig build/all/aurora/aurora-patched/lib/gfx/pipeline_cache.cpp; cp web/host/aurora_bridge.cpp $S/aurora_bridge.fixed.cpp; python3 - <<'E…  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:30:18+00:00",
    "tipo": "bash",
    "desc": "Esperar la prueba del puente sin el arreglo",
@@ -279,8 +265,22 @@
    "desc": "Añadir el detector de escrituras por puntero nulo",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+66 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:08:21+00:00",
+   "tipo": "bash",
+   "desc": "Hacer exacta la condición de los modos de cuelgue",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+7 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T22:08:24+00:00",
+   "tipo": "bash",
+   "desc": "Leer el ayudante run de la prueba",
+   "cmd": "cd ~/repo; sed -n 59,110p web/tests/browser_smoke.mjs; sed -n 178,200p web/tests/browser_smoke.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:08:11+00:00"
+ "actualizado": "2026-11-03T22:08:24+00:00"
 }
