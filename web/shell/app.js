@@ -433,7 +433,9 @@ async function start() {
     };
   }
   // ?hangtest=1 (web/tests/browser_smoke.mjs): the host hangs the game's thread on purpose, to test the watch log
-  const hangtest = new URLSearchParams(location.search).get('hangtest') === '1';
+  // (?hangtest=yield: the thread waits yielding instead, as Nebula's scheduler sleeping for work)
+  const hangtestParam = new URLSearchParams(location.search).get('hangtest');
+  const hangtest = hangtestParam === '1' ? 'hangtest' : hangtestParam === 'yield' ? 'hangtest-yield' : '';
   // ?tour=Stage:scenario,...&tourframes=N: the galaxy tour (web/host/headless_host.c), every N scene frames
   const tour = new URLSearchParams(location.search).get('tour') || '';
   const tourFrames = Number(new URLSearchParams(location.search).get('tourframes')) || 0;

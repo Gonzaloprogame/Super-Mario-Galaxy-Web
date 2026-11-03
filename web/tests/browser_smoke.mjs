@@ -153,6 +153,24 @@ await withServer('isolated', async (url) => {
     check(/\[vigía\] \[host\] stall: .*inside the host's hang test for \d+ ms/.test(hungLog),
           'bloqueo: el informe dice en qué servicio del host está el hilo del juego, y desde cuándo');
     check(/no responde/.test(hungStatus), `bloqueo: la página lo dice en su estado ("${hungStatus.trim().slice(0, 60)}…")`);
+    check(/\[vigía\] \[host\] stall: .*a probe sent [\d.]+ s ago was not run/.test(hungLog),
+          'bloqueo en un bucle sin ceder: la sonda no se ejecuta, y el aviso lo dice');
+    await browser.close();
+  }
+  // The same hang in a wait that yields (?hangtest=yield), as Nebula's scheduler sleeping for want of work: the probe runs
+  {
+    const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(`${url}?hangtest=yield`);
+    await page.setInputFiles('#pak', join(fixtures, 'fixture_emptydol.pak'));
+    await page.selectOption('#mode', 'diagnostic');
+    await page.fill('#seconds', '3600');
+    await page.click('#run');
+    await page.waitForFunction(() => /\[vigía\] \[host\] stall:/.test(document.getElementById('log').textContent),
+      null, { timeout: 90000 }).catch(() => {});
+    const waitLog = await page.textContent('#log');
+    check(/\[vigía\] \[host\] stall: .*a probe sent [\d.]+ s ago was run: the game's thread waits/.test(waitLog),
+          'bloqueo en una espera que cede: la sonda se ejecuta, y el aviso lo dice');
     await browser.close();
   }
 

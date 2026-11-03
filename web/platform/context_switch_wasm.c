@@ -40,6 +40,19 @@ static pthread_t sSimulationThread;
 static int sBooted;
 static uint8_t sHostAsyncify[kHostAsyncifySize] __attribute__((aligned(16)));
 static NebulaFiber* sCurrent;
+/* For the host's stall report (web/host/headless_host.c): the switches so far and the running thread's entry (its
+   function's table index) and argument, read from the host's clock thread. */
+static uint64_t sSwitches;
+static uintptr_t sRunningEntry, sRunningArg;
+
+uint64_t nebula_web_switches(void) {
+    return __atomic_load_n(&sSwitches, __ATOMIC_RELAXED);
+}
+
+uintptr_t nebula_web_running_thread(uintptr_t* arg) {
+    *arg = __atomic_load_n(&sRunningArg, __ATOMIC_RELAXED);
+    return __atomic_load_n(&sRunningEntry, __ATOMIC_RELAXED);
+}
 
 static void fiber_entry(void* p) {
     NebulaFiber* self = (NebulaFiber*)p;
@@ -80,6 +93,9 @@ void nebula_switch_stack(void** from_sp, void* to_sp) {
     fprintf(stderr, "[switch] %p -> %p\n", (void*)from, (void*)to);
 #endif
     sCurrent = to;
+    __atomic_fetch_add(&sSwitches, 1, __ATOMIC_RELAXED);
+    __atomic_store_n(&sRunningEntry, (uintptr_t)to->entry, __ATOMIC_RELAXED);
+    __atomic_store_n(&sRunningArg, (uintptr_t)to->arg, __ATOMIC_RELAXED);
     emscripten_fiber_swap(&from->fiber, &to->fiber);
     /* Running again: whoever switched here set sCurrent to this thread. */
 }

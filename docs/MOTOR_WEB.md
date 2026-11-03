@@ -395,6 +395,19 @@ informes ya no pasan por la salida de errores, eso daba falsas alarmas en partid
 audio…) y con cada fotograma de escena. En una partida real la página avisó solo cuando empezó el cuelgue, no durante
 los minutos previos de carga, título, menús y prólogo.
 
+**Qué hace el hilo del juego cuando no llama al host (2026-11-03).** En el PC del usuario el juego se paró en el libro
+del prólogo sin estar dentro de ningún servicio: sin dibujar, sin disco y sin mandar órdenes al audio. Eso es, o bien
+que todos sus hilos esperan algo que no llega (el planificador de Nebula durmiendo por falta de trabajo), o bien que
+uno de ellos da vueltas sin ceder. El aviso de bloqueo lo distingue ahora con dos medidas:
+
+- las **conmutaciones** entre hilos del juego (`web/platform/context_switch_wasm.c`) durante la parada y la entrada
+  (índice en la tabla de funciones) del hilo que corre;
+- una **sonda**: el hilo del reloj le pasa al hilo del juego una tarea vacía a los 4 s de parada. Si espera, la
+  ejecuta; si está en un bucle sin ceder, no.
+
+`browser_smoke.mjs` comprueba los dos casos (`?hangtest=1`, un bucle sin ceder: la sonda no se ejecuta;
+`?hangtest=yield`, una espera que cede: sí).
+
 ## Gira de galaxias (2026-11-02)
 
 `?tour=Galaxia:misión,Galaxia:misión,…&tourframes=N` hace que el host cambie de galaxia cada N fotogramas de escena

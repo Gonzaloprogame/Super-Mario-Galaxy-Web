@@ -686,8 +686,28 @@ static void svc_object_name(void* user, uint32_t id, const char* name) {
 
 /* When the game's stream stops while the retrace goes on (5 s without GX): what each side is doing, in the log, and
    again every 30 s while it lasts. The game's reads of its remotes say whether its main loop still runs. */
+/* What the game's thread does while it stalls, apart from host services (it calls none):
+   - its threads' switches (web/platform/context_switch_wasm.c): none while one runs on, or while it sleeps for work;
+   - a probe: an empty task the clock thread hands the game's thread. Waiting (Nebula's scheduler sleeping for want of
+     work, or a wait that yields) it runs it; running its own code without yielding it never does. */
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/proxying.h>
+#include <emscripten/threading.h>
+uint64_t nebula_web_switches(void);
+uintptr_t nebula_web_running_thread(uintptr_t* arg);
+static _Atomic uint32_t sProbeAnswers;
+static void probe_answer(void* arg) {
+    (void)arg;
+    atomic_fetch_add(&sProbeAnswers, 1);
+}
+#endif
+
 static void check_stall(uint64_t retrace) {
     static uint64_t lastGx, sinceRetrace, lastSamples, reported, lastDisc, lastDsp, lastCoherent, lastNames;
+#if defined(__EMSCRIPTEN__)
+    static uint64_t lastSwitches;
+    static uint32_t probeSent, probeAnswersBefore; /* probeSent: the retrace it went out, 0 when none */
+#endif
     const uint64_t gx = atomic_load(&sGxBytes);
     SmgConsoleCounters console;
     smg_console_counters(&console);
@@ -702,10 +722,23 @@ static void check_stall(uint64_t retrace) {
         lastDsp = atomic_load(&sDspCalls);
         lastCoherent = atomic_load(&sCoherentCalls);
         lastNames = atomic_load(&sObjectNames);
+#if defined(__EMSCRIPTEN__)
+        lastSwitches = nebula_web_switches();
+        probeSent = 0;
+#endif
         reported = 0;
         return;
     }
     const uint64_t stalled = retrace - sinceRetrace;
+#if defined(__EMSCRIPTEN__)
+    /* The probe goes out 4 s into the stall, a second before the first report reads it */
+    if (stalled >= 240 && probeSent == 0) {
+        probeAnswersBefore = atomic_load(&sProbeAnswers);
+        probeSent = (uint32_t)retrace;
+        emscripten_proxy_async(emscripten_proxy_get_system_queue(), emscripten_main_runtime_thread_id(), probe_answer,
+                               NULL);
+    }
+#endif
     if (stalled < 300 || (reported != 0 && stalled - reported < 1800)) {
         return;
     }
@@ -722,12 +755,27 @@ static void check_stall(uint64_t retrace) {
         snprintf(discNow, sizeof(discNow), "a disc read of %" PRIu64 " bytes in progress for %" PRIu64 " ms",
                  atomic_load(&sDiscBusySize), (now_micros() - busySince) / 1000);
     }
-    char inService[160] = "the game's thread is not inside a host service (its own code, or waiting for its threads)";
+    char inService[512] = "the game's thread is not inside a host service";
     const char* service = atomic_load(&sInService);
     if (service != NULL) {
         snprintf(inService, sizeof(inService), "the game's thread has been inside the host's %s for %" PRIu64 " ms",
                  service, (now_micros() - atomic_load(&sInServiceSince)) / 1000);
     }
+#if defined(__EMSCRIPTEN__)
+    {
+        uintptr_t arg = 0;
+        const uintptr_t entry = nebula_web_running_thread(&arg);
+        const int answered = probeSent != 0 && atomic_load(&sProbeAnswers) != probeAnswersBefore;
+        const size_t used = strlen(inService);
+        snprintf(inService + used, sizeof(inService) - used,
+                 "; its threads switched %" PRIu64 " times meanwhile; the running one entered at function table index "
+                 "%u (arg 0x%x); a probe sent %.1f s ago %s",
+                 nebula_web_switches() - lastSwitches, (unsigned)entry, (unsigned)arg,
+                 probeSent != 0 ? (double)(retrace - probeSent) / 60.0 : 0.0,
+                 answered ? "was run: the game's thread waits (its scheduler sleeping for work, or a wait that yields)"
+                          : "was not run: the game's thread runs its own code without yielding (a loop)");
+    }
+#endif
     host_log(
             "[host] stall: no GX from the game for %.0f s (VI frames %" PRIu64 ", stage '%s'); meanwhile the game "
             "read its remotes %" PRIu64 " times (its main loop %s), read the disc %" PRIu64 " times, sent its audio "
@@ -875,7 +923,8 @@ int main(int argc, char** argv) {
     if (pthread_create(&clock, NULL, clock_main, NULL) != 0) {
         die("the retrace clock cannot start");
     }
-    if (argc > 5 && strcmp(argv[5], "hangtest") == 0) {
+    if (argc > 5 && strncmp(argv[5], "hangtest", 8) == 0) {
+        const int yielding = strcmp(argv[5], "hangtest-yield") == 0;
         /* The page's ?hangtest=1 (web/tests/browser_smoke.mjs): as if the game had drawn and then hung inside a host
            service, its thread spins without yielding while the clock thread goes on. The reports and the stall report
            (which names the service) reach the page only through the watch log. */
@@ -883,7 +932,12 @@ int main(int argc, char** argv) {
         atomic_store(&sGxBytes, 1);
         SERVICE_ENTER("hang test");
         for (;;) {
-            (void)atomic_load(&sRetraces);
+            /* hangtest-yield: a wait that yields (as Nebula's scheduler sleeping for work), which runs the probe */
+            if (yielding) {
+                sched_yield();
+            } else {
+                (void)atomic_load(&sRetraces);
+            }
         }
     }
     if (sSeconds > 0.0) {

@@ -34,7 +34,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
         nandPath = '/nand.bin';
       }
       module.callMain([`/game/${file.name}`, String(seconds), String(language), nandPath,
-                      debug ? 'debug' : hangtest ? 'hangtest' : '', tour || '', String(tourFrames || '')]);
+                      debug ? 'debug' : hangtest || '', tour || '', String(tourFrames || '')]);
     } catch (error) {
       // exit() unwinds with an ExitStatus; onExit has reported it.
       if (!(error && error.name === 'ExitStatus')) {
