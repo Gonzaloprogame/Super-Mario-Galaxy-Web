@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:56:51+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo guarda la página la partida en IndexedDB",
-   "cmd": "grep -n \"nandStore\\|indexedDB\\|const store\\|objectStore\\|function open\" web/shell/app.js | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T18:56:58+00:00",
-   "tipo": "bash",
-   "desc": "Leer el almacén de IndexedDB y el arranque del motor en la página",
-   "cmd": "sed -n 48,80p web/shell/app.js; sed -n 400,440p web/shell/app.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:57:12+00:00",
    "tipo": "bash",
    "desc": "Localizar la zona de pantalla en la página",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "~/repo/tools/galaxy_tour.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:44:35+00:00",
+   "tipo": "bash",
+   "desc": "Preparar las tandas de escenarios de la gira",
+   "cmd": "S=$S; mkdir -p $S/tour; grep -v -x -e PeachCastleGardenGalaxy -e HeavensDoorGalaxy -e AstroGalaxy -e EggStarGalaxy $S/galaxies.txt > $S/tour/remaining.txt; wc -l < $S/tour/remaini…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T19:44:44+00:00",
+   "tipo": "bash",
+   "desc": "Lanzar la primera tanda de la gira de escenarios",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|galaxy_tour\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; S=$S; cd ~/repo && timeout 3300 node tools/galax…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:44:23+00:00"
+ "actualizado": "2026-11-03T19:44:44+00:00"
 }
