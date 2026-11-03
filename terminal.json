@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:46:39+00:00",
-   "tipo": "bash",
-   "desc": "Leer la exportación de la caché en el puente",
-   "cmd": "cd ~/repo; grep -n \"pipeline_cache_export\\|pipeline_cache_count\" -A30 web/host/aurora_bridge.cpp | head -60",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:46:42+00:00",
    "tipo": "bash",
    "desc": "Buscar el bloqueo en la exportación del parche 0026",
@@ -279,8 +272,15 @@
    "desc": "Leer el flujo del binario de prueba del puente",
    "cmd": "cd ~/repo; sed -n 60,131p web/bridge/bridge_main.c; sed -n 195,260p web/bridge/bridge_main.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:10:49+00:00",
+   "tipo": "bash",
+   "desc": "Aplicar el arreglo y añadir su prueba",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+108 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:10:21+00:00"
+ "actualizado": "2026-11-03T21:10:49+00:00"
 }
