@@ -3,9 +3,9 @@
   "actualizado": "2026-11-03",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
-    "etiqueta": "En curso · Hito 8",
-    "titulo": "Pantalla de carga",
-    "detalle": "Antes de jugar se preparan los shaders guardados de sesiones anteriores: entrar en una galaxia ya conocida pasa de crear 62 pipelines en mitad del juego a 0."
+    "etiqueta": "En curso · Hito 7",
+    "titulo": "Gira por las galaxias",
+    "detalle": "El motor recorre los escenarios solo y apunta lo que falla. Encontrado y arreglado: el motor moría tras varias galaxias (CocoonExGalaxy) porque el host escribía sobre su memoria."
   },
   "comprobaciones": [
     {
@@ -36,6 +36,16 @@
     {
       "texto": "Vídeos THP",
       "detalle": "Los vídeos del prólogo se ven en el juego (12.667 fotogramas, 0 rechazados)",
+      "estado": "hecho"
+    },
+    {
+      "texto": "Mandos físicos (Gamepad API)",
+      "detalle": "Probados con un mando simulado; falta uno real",
+      "estado": "pendiente"
+    },
+    {
+      "texto": "CocoonExGalaxy sin fallos",
+      "detalle": "Arreglado y comprobado con la gira de cinco galaxias",
       "estado": "hecho"
     }
   ],
