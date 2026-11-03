@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:14:28+00:00",
-   "tipo": "bash",
-   "desc": "Probar el detector con una copia del sitio",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+8 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:14:39+00:00",
    "tipo": "bash",
    "desc": "Ver el registro del modo de prueba del puntero nulo",
@@ -279,8 +272,15 @@
    "desc": "Recompilar el sitio y compararlo con el probado",
    "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; bash tools/build_web.sh > $S/build.log 2>&1; echo \"build $?\"; for f in app.js smg_web.wasm smg_headless_web.was…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:57:58+00:00",
+   "tipo": "bash",
+   "desc": "Ver las órdenes del conductor",
+   "cmd": "cd ~/repo; rm -rf build/site_next; S=$S; sed -n 50,120p $S/drive/driver.mjs | grep -n \"pathname ===\\|state\" | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:57:49+00:00"
+ "actualizado": "2026-11-03T23:57:58+00:00"
 }
