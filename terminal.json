@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:46:53+00:00",
-   "tipo": "bash",
-   "desc": "Leer el texto de ayuda de los controles",
-   "cmd": "sed -n 269,271p web/shell/index.html",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:47:08+00:00",
    "tipo": "bash",
    "desc": "Documentar los controles del mando en la página y el README",
@@ -279,8 +272,15 @@
    "desc": "Revisar los cambios del README y la página",
    "cmd": "cd ~/repo; git diff README.md web/shell/index.html",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:10:05+00:00",
+   "tipo": "bash",
+   "desc": "Confirmar y subir los mandos con la documentación ajustada",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+38 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:09:26+00:00"
+ "actualizado": "2026-11-03T20:10:05+00:00"
 }
