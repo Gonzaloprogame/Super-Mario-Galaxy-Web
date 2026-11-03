@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:09:47+00:00",
-   "tipo": "bash",
-   "desc": "Sumar los pipelines creados durante la segunda sesión",
-   "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | sed 's/^\\[vigía\\] //' | grep -E \"load '|bridge\\] pipelines|stage:\" | cut -c1-170; curl -s \"127.0.0.1:18777/log?tail=20000\" | sed 's/^\\[v…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:09:59+00:00",
    "tipo": "bash",
    "desc": "Sumar bien los pipelines creados en la segunda sesión",
@@ -279,8 +272,15 @@
    "desc": "Ver núcleos y carga del contenedor",
    "cmd": "nproc; uptime",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:01:16+00:00",
+   "tipo": "bash",
+   "desc": "Anotar el primer bloque en el registro de progreso",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+25 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:00:53+00:00"
+ "actualizado": "2026-11-03T20:01:16+00:00"
 }
