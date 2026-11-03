@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:44:11+00:00",
-   "tipo": "bash",
-   "desc": "Ver el avance de la secuencia de cinco escenarios",
-   "cmd": "S=$S; cat $S/tour/out_seq5/tour.md; date",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:44:20+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la sección para reanudar al registro de progreso",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+23 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:46:10+00:00",
    "tipo": "bash",
    "desc": "Esperar el final de la secuencia",
@@ -279,8 +265,22 @@
    "desc": "Ver desde dónde se llaman trace_record y post_frame_log",
    "cmd": "cd ~/repo; grep -n \"trace_record(\\|post_frame_log()\" web/host/aurora_bridge.cpp | head; grep -n \"^void render_main\\|^static void\\* render_main\\|render_main(void\" web/host/aurora_b…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:53+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué binarios incluyen el puente y si hay pruebas de operator new",
+   "cmd": "cd ~/repo; grep -rn \"aurora_bridge.cpp\\|operator_new_wasm\\|context_switch_wasm\" web --include=CMakeLists.txt --include=*.cmake | head; grep -rln \"operator_new\\|in_game_context\\|__…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:56+00:00",
+   "tipo": "bash",
+   "desc": "Ver con qué se enlazan los binarios del puente",
+   "cmd": "cd ~/repo; sed -n 1,40p web/bridge/CMakeLists.txt; grep -rn \"operator_new_wasm\\|platform/\" web/game/CMakeLists.txt web/cmake/SmgGame.cmake | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:09:41+00:00"
+ "actualizado": "2026-11-03T21:09:56+00:00"
 }
