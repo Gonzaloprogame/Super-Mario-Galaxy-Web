@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:00:05+00:00",
-   "tipo": "bash",
-   "desc": "Leer el comando /nand y la inyección de la partida en el driver",
-   "cmd": "S=$S; sed -n 60,68p $S/drive/driver.mjs; sed -n 24,28p $S/drive/driver.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:00:20+00:00",
    "tipo": "bash",
    "desc": "Añadir al driver el volcado y la inyección de la lista de shaders",
@@ -279,8 +272,15 @@
    "desc": "Esperar a la primera parada de la gira",
    "cmd": "S=$S; for i in $(seq 1 60); do grep -q \"Galaxy:\" $S/tour/out_00/tour.md 2>/dev/null && break; sleep 10; done; date +%T; cat $S/tour/out_00/tour.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:59:21+00:00",
+   "tipo": "bash",
+   "desc": "Relanzar la gira y ver la cola del registro",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|galaxy_tour\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; S=$S; cd ~/repo && (timeout 3300 node tools/gala…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:57:37+00:00"
+ "actualizado": "2026-11-03T19:59:21+00:00"
 }
