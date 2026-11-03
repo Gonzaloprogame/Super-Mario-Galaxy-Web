@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:07:06+00:00",
-   "tipo": "bash",
-   "desc": "Conservar el formato del archivo de progreso",
-   "cmd": "cd ~/repo; python3 -c \"  … (+1 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:07:32+00:00",
    "tipo": "bash",
    "desc": "Subir y publicar el estado del panel",
@@ -279,8 +272,15 @@
    "desc": "Anotar el aviso de SurfingLv1Galaxy",
    "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:37:38+00:00",
+   "tipo": "bash",
+   "desc": "Confirmar y subir la nota de SurfingLv1Galaxy",
+   "cmd": "cd ~/repo; git add docs/PROGRESO_AUTONOMO.md && git commit -q -m \"Progreso: aviso de texcoord sin generador en SurfingLv1Galaxy  … (+3 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T23:37:30+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T23:37:38+00:00"
 }
