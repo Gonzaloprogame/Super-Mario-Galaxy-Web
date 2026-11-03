@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:15:21+00:00",
-   "tipo": "bash",
-   "desc": "Ver el resto del montaje del registro de vigía",
-   "cmd": "cd ~/repo; sed -n 1020,1040p web/host/headless_host.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T22:15:21+00:00",
-   "tipo": "bash",
-   "desc": "Ver dónde se activa el lector y qué servicio de error se usa",
-   "cmd": "cd ~/repo; sed -n 1000,1020p web/host/headless_host.c; sed -n 10,20p web/host/host_services.c; grep -n \"services.fatal\\|\\.fatal = \" web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:15:35+00:00",
    "tipo": "bash",
    "desc": "Ver si el informe final llega más tarde",
@@ -279,8 +265,22 @@
    "desc": "Leer cómo se conecta el mando del host",
    "cmd": "cd ~/repo; sed -n 30,60p web/host/console_services.c; sed -n 205,240p web/host/console_services.c; grep -n \"wpad_sample\\|wpad_control\" web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:59:32+00:00",
+   "tipo": "bash",
+   "desc": "Buscar avisos del conjunto de hilos en la consola",
+   "cmd": "S=$S; curl -s 127.0.0.1:18777/state | python3 -c \"import json,sys;d=json.load(sys.stdin);print('\\n'.join(l[:200] for l in d['console'] if 'pool' in l.lower() or 'thread' in l.lowe…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T23:59:37+00:00",
+   "tipo": "bash",
+   "desc": "Ver la consola y contar los hilos que se crean",
+   "cmd": "S=$S; curl -s 127.0.0.1:18777/state | python3 -c \"import json,sys;d=json.load(sys.stdin);print(len(d['console']));print('\\n'.join(l[:220] for l in d['console'][-15:]))\"; cd ~/repo…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:59:20+00:00"
+ "actualizado": "2026-11-03T23:59:37+00:00"
 }
