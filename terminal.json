@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:21:57+00:00",
-   "tipo": "bash",
-   "desc": "Leer el informe de bloqueo completo",
-   "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | grep -E \"stall|resumed\" | tail -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:22:08+00:00",
    "tipo": "bash",
    "desc": "Buscar qué hace el hilo de render al empezar un fotograma",
@@ -279,8 +272,15 @@
    "desc": "Buscar la espera ociosa del sistema operativo del juego",
    "cmd": "grep -n \"idle\" third_party/nebula/native/sdk/os/os_native.c | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:21:44+00:00",
+   "tipo": "bash",
+   "desc": "Buscar cómo espera el planificador cuando no hay hilos listos",
+   "cmd": "grep -n \"pthread_cond_wait\\|pthread_cond_timedwait\\|futex\\|no thread\\|nothing to run\\|SelectThread\\|wait_for_interrupt\\|deliver\" third_party/nebula/native/sdk/os/os_native.c | hea…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:21:38+00:00"
+ "actualizado": "2026-11-03T12:21:44+00:00"
 }
