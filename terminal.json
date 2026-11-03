@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:49:24+00:00",
-   "tipo": "bash",
-   "desc": "Repetir la secuencia de cinco escenarios con el arreglo",
-   "cmd": "S=$S; rm -rf $S/tour/out_fix; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_fix --nand $S/drive/nand_RMGE01.b…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:49:42+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir el arreglo",
@@ -279,8 +272,15 @@
    "desc": "Confirmar y subir el detector",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+43 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:23:22+00:00",
+   "tipo": "bash",
+   "desc": "Publicar el detector en la página",
+   "cmd": "S=$S; B=~/repo/build/site_next; cd $S/gh-pages && cp $B/app.js $B/smg_web.js $B/smg_web.wasm $B/smg_headless_web.js $B/smg_headless_web.wasm . && diff -rq $B . | grep -v \"\\.git\\|n…  … (+3 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:23:05+00:00"
+ "actualizado": "2026-11-03T22:23:22+00:00"
 }
