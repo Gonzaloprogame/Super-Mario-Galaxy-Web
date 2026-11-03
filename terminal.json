@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:06:32+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar y subir la gira y la documentación",
-   "cmd": "cd ~/repo; git add docs/MOTOR_WEB.md docs/PROGRESO_AUTONOMO.md tools/galaxy_tour.mjs && git commit -q -F - <<'EOF'  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:07:42+00:00",
    "tipo": "bash",
    "desc": "Ver cómo se copia la página a build/site",
@@ -279,8 +272,15 @@
    "desc": "Desensamblar el motor y buscar la instrucción del fallo",
    "cmd": "cd ~/repo; S=$S; ~/tools/emsdk/upstream/bin/llvm-objdump -d build/site/smg_web.wasm 2>/dev/null > $S/smg_web.dis; grep -n \"^ *625723:\\|^ *62571\\|^ *62572\" $S/smg_web.dis | head; w…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:47:11+00:00",
+   "tipo": "bash",
+   "desc": "Ver las instrucciones alrededor del fallo",
+   "cmd": "S=$S; sed -n 3202380,3202445p $S/smg_web.dis",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:47:08+00:00"
+ "actualizado": "2026-11-03T20:47:11+00:00"
 }
