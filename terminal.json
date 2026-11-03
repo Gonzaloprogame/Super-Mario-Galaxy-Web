@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:52:04+00:00",
-   "tipo": "bash",
-   "desc": "Perfilar con plazo máximo por hilo",
-   "cmd": "S=$S; cd $S/drive && python3 - <<'EOF'  … (+18 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-02T20:55:50+00:00",
-   "tipo": "bash",
-   "desc": "Ver por qué no arranca el perfilador en los hilos",
-   "cmd": "S=$S; cd $S/drive && sed -i 's/^await new Promise((r) => setTimeout(r, Number(seconds) \\* 1000));/for (const w of workers) if (w.error) console.log(`start ${w.url}: ${w.error}`);\\…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:56:01+00:00",
    "tipo": "bash",
    "desc": "Detener la ejecución y los procesos que queden",
@@ -279,8 +265,22 @@
    "desc": "Esperar las líneas de medida de pipelines",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 90); do …",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:10:11+00:00",
+   "tipo": "bash",
+   "desc": "Medir cada carga de escenario y su reparto entre disco y pipelines",
+   "cmd": "python3 - <<'EOF'  … (+68 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T18:13:35+00:00",
+   "tipo": "bash",
+   "desc": "Compilar el motor con la medida de cargas",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:09:40+00:00"
+ "actualizado": "2026-11-03T18:13:35+00:00"
 }
