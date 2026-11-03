@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:46:53+00:00",
-   "tipo": "bash",
-   "desc": "Buscar los accesos a g_knownPipelines en Aurora",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; f=$(grep -rln \"g_knownPipelines\" lib | head -3); echo $f; grep -n \"g_knownPipelines\\|g_pipelineMutex\\|struct KnownPipeline\" -B2 -A2 $f |…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:46:58+00:00",
    "tipo": "bash",
    "desc": "Buscar un desensamblador de wasm",
@@ -279,8 +272,15 @@
    "desc": "Esperar la prueba del puente sin el arreglo",
    "cmd": "until ! pgrep -f \"bridge_smoke.mjs\" >/dev/null; do sleep 10; done; S=$S; grep -c PASS $S/bridge_nofix.log; grep \"exportación\\|FAIL\" $S/bridge_nofix.log | cut -c1-250",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:30:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver el principio del registro de la prueba del puente",
+   "cmd": "S=$S; head -30 $S/bridge_nofix.log | cut -c1-300",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:30:18+00:00"
+ "actualizado": "2026-11-03T21:30:28+00:00"
 }
