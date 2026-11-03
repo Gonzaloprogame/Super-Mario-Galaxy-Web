@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:48:55+00:00",
-   "tipo": "bash",
-   "desc": "Ver el tamaño de la pila de arranque",
-   "cmd": "cd ~/repo; grep -rn \"kBootStackSize\\|__NebulaBootStackBase\" third_party/nebula/native/sdk web/platform 2>/dev/null | head",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:49:00+00:00",
-   "tipo": "bash",
-   "desc": "Leer la colocación de la pila de arranque",
-   "cmd": "cd ~/repo; sed -n 805,830p third_party/nebula/native/sdk/os/os_native.c; sed -n 940,960p third_party/nebula/native/sdk/os/os_native.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:49:29+00:00",
-   "tipo": "bash",
-   "desc": "Añadir comprobaciones de diagnóstico locales a la exportación",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; cp lib/gfx/pipeline_cache.cpp $S/pipeline_cache.cpp.orig; python3 - <<'EOF'  … (+53 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:52:26+00:00",
    "tipo": "bash",
    "desc": "Compilar el motor de diagnóstico",
@@ -279,8 +258,29 @@
    "desc": "Buscar asignaciones en las funciones del puente que llama el juego",
    "cmd": "cd ~/repo; grep -n \"smg_bridge_[a-z_]*(\" web/host/headless_host.c | grep -o \"smg_bridge_[a-z_]*\" | sort -u; for f in smg_bridge_submit smg_bridge_pe_marker smg_bridge_peek_efb smg…",
    "ok": false
+  },
+  {
+   "t": "2026-11-03T21:36:29+00:00",
+   "tipo": "bash",
+   "desc": "Revisar el resto de funciones del puente",
+   "cmd": "cd ~/repo; for f in smg_bridge_coherent smg_bridge_buffer_peaks smg_bridge_debug_stats smg_bridge_phase_times smg_bridge_render_debug smg_bridge_set_debug_copies smg_bridge_frames…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:34+00:00",
+   "tipo": "bash",
+   "desc": "Ver en qué hilo se describe el puente",
+   "cmd": "cd ~/repo; grep -n \"smg_bridge_describe\\|^static void check_stall\\|^static void report\\|check_stall(\\|report(\" web/host/headless_host.c | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:38+00:00",
+   "tipo": "bash",
+   "desc": "Ver desde qué hilos se llaman report y check_stall",
+   "cmd": "cd ~/repo; sed -n 255,270p web/host/headless_host.c; sed -n 870,900p web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:36:24+00:00"
+ "actualizado": "2026-11-03T21:36:38+00:00"
 }
