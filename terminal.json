@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:39:25+00:00",
-   "tipo": "bash",
-   "desc": "Ver el perfil del hilo de render durante el cuelgue",
-   "cmd": "S=$S; cd $S/drive && timeout 120 node prof.mjs 19222 10 30 2>&1 | awk '/=== worker/{n++} n>=3' | grep -v \"^  0.0%\" | head -90",
-   "ok": false
-  },
-  {
    "t": "2026-11-02T20:47:51+00:00",
    "tipo": "bash",
    "desc": "Perfilar todos los hilos y guardar el resultado",
@@ -279,8 +272,15 @@
    "desc": "Leer el aviso de cambio de escenario del host",
    "cmd": "grep -n \"^static void svc_game_stage\" -A 14 web/host/headless_host.c | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T17:59:55+00:00",
+   "tipo": "bash",
+   "desc": "Añadir los tiempos de pipelines al informe y al cambio de escenario",
+   "cmd": "python3 - <<'EOF'  … (+56 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T17:59:39+00:00"
+ "actualizado": "2026-11-03T17:59:55+00:00"
 }
