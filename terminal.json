@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:28:26+00:00",
-   "tipo": "bash",
-   "desc": "Buscar las coordenadas del triángulo en la prueba del puente",
-   "cmd": "grep -n \"triángulo\\|'triangle'\\|\\[320\" web/tests/bridge_smoke.mjs | head -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:28:33+00:00",
    "tipo": "bash",
    "desc": "Buscar los puntos del lienzo que lee la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Volcar la lista guardada y anotar las cifras de la primera sesión",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 60; curl -s \"127.0.0.1:18777/pipelines\"; echo; curl -s \"127.0.0.1:18777/log?tail=12000\" | sed 's/^\\[vigía\\] //' | gre…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:07:03+00:00",
+   "tipo": "bash",
+   "desc": "Segunda sesión: ver la barra de shaders con la lista guardada",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; S=$S; cp $S/drive/run47/pipelines_RMGE01.bin $S/drive/pipeli…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:06:32+00:00"
+ "actualizado": "2026-11-03T19:07:03+00:00"
 }
