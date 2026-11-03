@@ -26,22 +26,20 @@ hilo bloqueado en una espera.
 | 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | en curso |
 | 2 | Mandos físicos (Gamepad API) | hecho con mando simulado; falta un mando real |
 | 3 | Cuelgue del libro del prólogo | bloqueado: no se reproduce aquí; falta el registro `[vigía]` del PC del usuario |
-| 4 | Arreglar lo que encuentre la gira | pendiente |
+| 4 | Arreglar lo que encuentre la gira | CocoonExGalaxy arreglada (bloque 3); sigue la gira |
 
 ## Para reanudar
 
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** fallo `RuntimeError: table index is out of bounds` en CocoonExGalaxy, solo tras la secuencia
-  BattleShip → BeltConveyerEx → BreakDownPlanet → CannonFleet → CocoonEx (sola no falla en 3000 fotogramas).
-  Reproducción: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_seq5
-  --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`; la pila queda en `out_seq5/log_end.txt`, y
-  `tools/wasm_symbols.py` nombra sus funciones.
-- **Después:** `tools/build_web.sh` y `node web/tests/browser_smoke.mjs` (prueba nueva `?hangtest=trap`, sin ejecutar
-  todavía); publicar `app.js` y el motor en gh-pages si pasa.
-- **Luego:** tandas 01 a 04 de la gira (`$S/tour/batch_01` … `batch_04`, 8 escenarios cada una).
-- **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario); PAL y japonesa (Nebula solo
+- **En curso:** gira, tanda 01 (`$S/tour/batch_01`, 8 escenarios); antes, los 3 de la
+  tanda 00 que no llegaron a correr (CosmosGarden, CubeBubbleExLv1, CubeBubbleExLv2): `$S/tour/next_01` los junta con
+  la tanda 01. Comando: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out
+  $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`.
+- **Luego:** tandas 02 a 04 de la gira (`$S/tour/batch_02` … `batch_04`), arreglando lo que se pare.
+- **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario; puede ser el mismo fallo de
+  memoria arreglado en el bloque 3, sin comprobar); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
 
 ## Bloques de trabajo
@@ -132,3 +130,9 @@ abortos. La gira guarda además el registro entero (`log_end.txt`) cuando la pá
 - **Prueba nueva:** `bridge_smoke.mjs`, `?hostnew=1` (`web/bridge/bridge_main.c`): la exportación desde el hilo del
   juego debe devolver memoria del host (ni nula ni dentro de la arena). **Sin el arreglo falla**: «12 bytes at 0, at
   address 0». Con él: «12 bytes at 0x4de7b50, the host's memory».
+- **Comprobado en el juego:** la misma secuencia de cinco escenarios con el arreglo: las cinco paradas completas,
+  CocoonExGalaxy 166 s (antes moría a los 110–115 s), la gira terminada. La exportación sigue funcionando (300
+  pipelines guardados). Publicado en gh-pages (`5e5d471`).
+- **Posible relación con el cuelgue del libro:** el fallo escribía sobre datos estáticos del motor a cada cambio de
+  escenario y cada 600 escenas, así que pudo también colgar el juego en cualquier sitio. Sin comprobar: hay que
+  repetir el prólogo en el PC del usuario con esta versión.
