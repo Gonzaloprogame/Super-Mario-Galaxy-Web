@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:52:43+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar la secuencia con el motor de diagnóstico",
-   "cmd": "S=$S; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_diag --nand $S/drive/nand_RMGE01.bin --frames 900 --hang …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:52:54+00:00",
-   "tipo": "bash",
-   "desc": "Guardar siempre el registro completo al terminar la gira",
-   "cmd": "pkill -f \"galaxy_tour.mjs.*out_diag\"; sleep 2; cd ~/repo; python3 - <<'EOF'  … (+18 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:53:01+00:00",
    "tipo": "bash",
    "desc": "Relanzar la secuencia con el motor de diagnóstico",
@@ -279,8 +265,22 @@
    "desc": "Esperar la compilación y la prueba del puente",
    "cmd": "until ! pgrep -f \"build_web.sh|bridge_smoke.mjs\" >/dev/null; do sleep 15; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:47:01+00:00",
+   "tipo": "bash",
+   "desc": "Ver el estado de la compilación y la prueba",
+   "cmd": "S=$S; tail -2 $S/build.log | cut -c1-150; cat $S/bridge_fix.log 2>/dev/null | cut -c1-200",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:47:06+00:00",
+   "tipo": "bash",
+   "desc": "Leer el principio de la prueba del puente",
+   "cmd": "cd ~/repo; sed -n 1,60p web/tests/bridge_smoke.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:46:55+00:00"
+ "actualizado": "2026-11-03T21:47:06+00:00"
 }
