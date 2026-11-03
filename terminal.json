@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:05:07+00:00",
-   "tipo": "bash",
-   "desc": "Buscar dependencias de la versión norteamericana",
-   "cmd": "cd ~/repo; grep -rn \"RMGE01\\|RMGE\\b\\|RMG[EPJK]\" web --include=*.js --include=*.c --include=*.cpp --include=*.h --include=*.html --include=*.mjs | grep -v \"^web/tests\" | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:05:13+00:00",
    "tipo": "bash",
    "desc": "Esperar a que termine la primera tanda de la gira",
@@ -279,8 +272,15 @@
    "desc": "Esperar el final de la secuencia",
    "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*seq5\" >/dev/null; do sleep 15; done; S=$S; cat $S/tour/out_seq5/tour.md | tail -2 | cut -c1-300",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:14+00:00",
+   "tipo": "bash",
+   "desc": "Leer la pila del fallo",
+   "cmd": "S=$S; grep -n -A45 \"pila:\" $S/tour/out_seq5/log_end.txt | cut -c1-200 | head -60; python3 -c \"  … (+2 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:46:10+00:00"
+ "actualizado": "2026-11-03T20:46:14+00:00"
 }
