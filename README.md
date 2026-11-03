@@ -34,10 +34,10 @@
 
 > [!WARNING]
 > ### 🚧 Versión experimental: todavía no se puede jugar de principio a fin
-> Esta es la **primera versión pública** y tiene **fallos conocidos y por descubrir**. Hoy se puede llegar
-> a la pantalla de título, elegir un archivo, ver el prólogo y **jugar el primer nivel**, pero **el juego no se puede
-> completar**: más allá de ese punto apenas se ha probado, puede haber errores gráficos, cuelgues, sonidos que
-> fallen o partes que vayan lentas.
+> Tiene **fallos conocidos y por descubrir**. Hoy se puede llegar a la pantalla de título, elegir un archivo, ver el
+> prólogo con sus vídeos, **jugar el jardín del castillo** y entrar en las **primeras galaxias** (comprobados el observatorio y
+> dos galaxias), pero **el juego no se puede completar**: hay un cuelgue conocido en el libro del prólogo, el resto
+> de galaxias está sin probar y puede haber errores gráficos, sonidos que fallen o partes que vayan lentas.
 >
 > **Aun así, es un buen comienzo.** Que el código original del juego arranque, dibuje un nivel completo, suene,
 > responda a los controles y guarde la partida dentro de una pestaña del navegador era el paso más difícil. Lo que
@@ -143,33 +143,43 @@ de inmediato.
 
 ## 📊 Estado del proyecto
 
-**Versión 0.1.1-experimental.** Así está cada parte, con lo que de verdad se ha comprobado:
+**Versión 0.1.1-experimental, más lo publicado después en la página** (sin número de versión todavía: ver
+[novedades](#-novedades-desde-la-011-experimental)). Así está cada parte, con lo que de verdad se ha comprobado (*fecha
+de esta tabla: 3 de noviembre de 2026*):
 
 | Parte | Estado | Detalle |
 |---|:---:|---|
 | Arranque y pantalla de título | ✅ | Comprobado con un disco real, en escritorio y Android |
+| Pantalla de carga | ✅ | Pasos reales del arranque y barra de shaders guardados (desde la segunda sesión) |
 | Elegir archivo y crear partida | ✅ | Las partidas se guardan y se recuperan |
-| Prólogo (el libro de cuentos) | ✅ | Avanza con A hasta el final |
-| Primer nivel, completo | ✅ | Escenario, Mario, cielo, efectos y HUD |
+| Prólogo (el libro de cuentos) | 🧪 | Avanza con A; **en un PC se colgó en la segunda página** (sin causa todavía) |
+| Vídeos (THP) | ✅ | Los dos vídeos del prólogo, completos: 12.667 fotogramas, ninguno rechazado, ~3,5 ms cada uno |
+| Jardín del castillo (primer nivel) | ✅ | Escenario, Mario, cielo, efectos y HUD |
+| Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
+| Observatorio (*AstroGalaxy*) | 🧪 | Carga y se mueve; sin jugar a fondo |
+| *EggStarGalaxy* | ✅ | Se colgaba siempre; **arreglado** (parche 0025) y comprobado 4 minutos con el disco |
+| Resto de escenarios (40 de 44) | ⏳ | Sin probar; hay una gira de prueba para recorrerlos (`?tour=`) |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
-| Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; **pendiente de oír en un dispositivo** |
-| Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras recientes sin medir allí |
-| Arranque rápido | 🧪 | En escritorio < 10 s; en Android, corregido y pendiente de medir |
-| Más allá del primer nivel | ⏳ | Prácticamente sin probar |
-| Vídeos (THP) | ✅ | Los vídeos del prólogo se reproducen en el juego: 12.667 fotogramas decodificados, ninguno rechazado, unos 3,5 ms cada uno |
+| Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; sin confirmar en un teléfono |
+| Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras posteriores sin medir allí |
+| Cargas de escenario | 🧪 | El disco ya es rápido (~0,4 s por carga); el registro mide cada carga (`[host] load …`) |
 | Versiones PAL y japonesa | ⏳ | Solo se ha probado la norteamericana (RMGE01) |
 | Jugar de principio a fin | ❌ | **Todavía no** |
 
 ### 🐞 Fallos conocidos
 
+- 🧊 **Cuelgue en el libro del prólogo:** en un PC el juego se paró en la segunda página del libro, con todo el juego
+  quieto (ni dibujo, ni disco, ni sonido) y fuera de cualquier servicio del motor. Todavía no se reproduce en el
+  entorno de desarrollo; el aviso de bloqueo ya dice si el juego espera algo o da vueltas en un bucle, y con ese dato
+  se buscará la causa.
 - 🐢 **Velocidad:** en teléfonos va por debajo de 30 fps; en escritorio con GPU por software es mucho más lento.
-- ⏱️ **Pausas al arrancar:** en algunos teléfonos el arranque tenía pausas largas mientras leía el disco (ya
-  corregido; pendiente de confirmar en Android).
-- 🎬 **Vídeos:** las escenas en vídeo no se ven.
+- ⏸️ **Pausas la primera vez:** cada combinación de efectos nueva crea un *pipeline* gráfico en mitad del juego (una
+  pausa pequeña). Desde la segunda sesión en el mismo navegador se preparan antes de jugar, en la pantalla de carga.
 - 🌠 **Efectos:** puede haber efectos de luz, transparencias o resplandores que no se vean igual que en la consola.
 - 🕹️ **Puntero:** apuntar con el dedo funciona, pero a veces hace falta pulsar A dos veces en los menús.
-- 💥 **Cuelgues:** si el motor se detiene, la página lo dice con un error; el botón «Copiar el registro» guarda lo
-  necesario para investigarlo.
+- 💥 **Si algo se para:** la página lo dice. Si el juego se cuelga sin error, el estado avisa de que el hilo del juego
+  no responde y los informes siguen llegando al registro (líneas `[vigía]`). El botón «Copiar el registro» guarda todo
+  lo necesario para investigarlo.
 
 ¿Has encontrado otro? Abre una *issue* con el **registro del motor** (botón «Copiar el registro»), tu dispositivo y
 navegador, y qué estabas haciendo. **No adjuntes archivos del juego.**
@@ -185,6 +195,9 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
 - 💿 Leer el formato RVZ de Dolphin directamente en el navegador, sin claves ni conversiones.
 - ⚡ Medir y optimizar: menos de la mitad de tiempo por fotograma que en las primeras versiones, y un arranque en
   Android que pasaba de más de un minuto de lecturas a unos pocos segundos.
+- 🎬 Reproducir los vídeos del juego con el decodificador de Nebula, píxel a píxel igual que en su versión de PC.
+- 🔎 Diagnosticar cuelgues que no dejan error: un registro que sigue llegando aunque el juego se pare, y un aviso que
+  dice dónde se quedó (en qué servicio, qué orden gráfica, si el juego espera o da vueltas).
 
 ---
 
@@ -193,7 +206,9 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
 1. Abre **[la página](https://gonzaloprogame.github.io/Super-Mario-Galaxy-Web/)** en Chrome o Edge con WebGPU.
 2. Arrastra o elige tu archivo **`.rvz`**, y elige el idioma.
 3. Pulsa **▶ Arrancar el motor**. La página baja sola hasta la pantalla y el sonido se activa con ese clic.
-4. Usa **⛶ Pantalla completa** y el control de **🔊 volumen** si quieres.
+4. Espera a que acabe la **pantalla de carga**. La primera vez en un navegador no hay shaders guardados; desde la
+   segunda, verás la barra mientras se preparan los de sesiones anteriores.
+5. Usa **⛶ Pantalla completa** y el control de **🔊 volumen** si quieres.
 
 | Wiimote + Nunchuk | ⌨️ Teclado | 👆 Táctil / 🖱️ ratón |
 |---|---|---|
@@ -262,6 +277,31 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 
 ---
 
+## 🆕 Novedades desde la 0.1.1-experimental
+
+Publicado en la página, todavía sin número de versión:
+
+- 🎬 **Vídeos del juego:** los vídeos THP se reproducen con el decodificador de Nebula. En WebAssembly no existe su
+  instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
+  la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg
+  con fotogramas reales.
+- 🧊 **EggStarGalaxy ya no se cuelga:** el juego manda una tira de triángulos de 0 vértices, y Aurora reservaba unos
+  4 GB para ella (parche 0025).
+- 🎨 **Una advertencia en lugar de una parada:** una etapa de textura que lee coordenadas que nadie genera ya no
+  detiene el renderizador (parche 0022).
+- ⏳ **Pantalla de carga:** pasos reales del arranque y una barra de shaders. Mientras juegas se guarda la lista de
+  *pipelines* que usa el juego, y en la siguiente sesión se preparan antes de empezar: al entrar en una galaxia ya
+  conocida, se pasa de crear 62 en mitad del juego a 0. Una lista dañada se rechaza y nunca impide arrancar.
+- 🔎 **Registro de vigía:** si el juego se cuelga, sus informes siguen llegando a la página por memoria compartida, y
+  el aviso de bloqueo dice en qué servicio del motor está el juego, en qué orden gráfica está Aurora, cuántas veces
+  cambió de hilo y si espera algo o da vueltas en un bucle.
+- 📏 **Medidas:** cada carga de escenario dice cuánto tardó y cuánto fue disco y *pipelines*.
+- 🗺️ **Gira de galaxias** (`?tour=Galaxia:misión,…`): el motor cambia de galaxia solo, para buscar fallos galaxia a
+  galaxia sin jugar hasta cada una.
+- 📺 **Panel para directos:** [`overlay.html`](https://gonzaloprogame.github.io/Super-Mario-Galaxy-Web/overlay.html),
+  para Streamlabs u OBS, con el avance del port y la terminal de desarrollo en vivo
+  ([`docs/DIRECTO.md`](docs/DIRECTO.md)).
+
 ## 🆕 Novedades de la 0.1.1-experimental
 
 Una versión de mantenimiento, a partir de una auditoría del código con
@@ -289,10 +329,12 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 
 ## 🗺️ Próximos pasos
 
+- [ ] Encontrar y arreglar el cuelgue del libro del prólogo.
+- [ ] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare.
 - [ ] Oír y ajustar el sonido en dispositivos reales.
 - [ ] Más fotogramas por segundo en teléfonos.
-- [ ] Avanzar por el observatorio y las primeras galaxias, corrigiendo lo que aparezca.
 - [x] Vídeos THP.
+- [x] Pantalla de carga con los shaders guardados.
 - [ ] Mandos físicos (Gamepad API).
 - [ ] Versiones PAL y japonesa.
 
@@ -334,6 +376,7 @@ Versiones y dependencias en [`docs/ENTORNO.md`](docs/ENTORNO.md).
 | [`docs/ARCHIVOS_DEL_JUEGO.md`](docs/ARCHIVOS_DEL_JUEGO.md) | Cómo aportar legalmente los archivos del juego |
 | [`docs/ENTORNO.md`](docs/ENTORNO.md) | Herramientas e instalación |
 | [`docs/HOJA_DE_RUTA.md`](docs/HOJA_DE_RUTA.md) | Hitos y próximos pasos |
+| [`docs/DIRECTO.md`](docs/DIRECTO.md) | El panel para directos y la terminal en vivo |
 
 ## 🗂️ Estructura
 
