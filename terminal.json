@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:56:33+00:00",
-   "tipo": "bash",
-   "desc": "Pasar la caché al puente, publicar el progreso y enviar la lista a la página",
-   "cmd": "python3 - <<'EOF'  … (+60 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:56:44+00:00",
    "tipo": "bash",
    "desc": "Detectar bien el cambio de escenario al exportar",
@@ -279,8 +272,15 @@
    "desc": "",
    "cmd": "~/repo/docs/PROGRESO_AUTONOMO.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:43:54+00:00",
+   "tipo": "bash",
+   "desc": "Leer el arranque del driver como base de la herramienta",
+   "cmd": "S=$S; sed -n 1,40p $S/drive/driver.mjs | cut -c1-200",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:43:36+00:00"
+ "actualizado": "2026-11-03T19:43:54+00:00"
 }
