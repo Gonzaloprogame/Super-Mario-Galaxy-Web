@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T12:21:38+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la espera ociosa del sistema operativo del juego",
-   "cmd": "grep -n \"idle\" third_party/nebula/native/sdk/os/os_native.c | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T12:21:44+00:00",
-   "tipo": "bash",
-   "desc": "Buscar cómo espera el planificador cuando no hay hilos listos",
-   "cmd": "grep -n \"pthread_cond_wait\\|pthread_cond_timedwait\\|futex\\|no thread\\|nothing to run\\|SelectThread\\|wait_for_interrupt\\|deliver\" third_party/nebula/native/sdk/os/os_native.c | hea…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T12:22:22+00:00",
    "tipo": "bash",
    "desc": "Leer la espera ociosa y los avisos de interrupción del sistema del juego",
@@ -279,8 +265,22 @@
    "desc": "Preparar el parche 0024 con el progreso del procesador de órdenes",
    "cmd": "S=$S/p0024; rm -rf $S; mkdir -p $S/a/lib/gx $S/a/include/aurora; A=~/repo/build/all/aurora/aurora-patched; cp $A/lib/gx/command_processor.cpp $S/a/lib/gx/ && cp $A/include/aurora/…  … (+56 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:19:10+00:00",
+   "tipo": "bash",
+   "desc": "Corregir el espacio de nombres y añadir el parche 0024",
+   "cmd": "S=$S/p0024; cd $S && grep -n \"^namespace\\|^} // namespace\\|^}  // namespace\\|^ProcessResult process\" b/lib/gx/command_processor.cpp | tail -6 && sed -i 's/aurora::gx::sCp/aurora::…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T18:19:18+00:00",
+   "tipo": "bash",
+   "desc": "Leer la descripción del hilo de render en el puente",
+   "cmd": "sed -n \"$(grep -n 'extern \"C\" void smg_bridge_describe' web/host/aurora_bridge.cpp | cut -d: -f1),+12p\" web/host/aurora_bridge.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:18:59+00:00"
+ "actualizado": "2026-11-03T18:19:18+00:00"
 }
