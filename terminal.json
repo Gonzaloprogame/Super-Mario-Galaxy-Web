@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:06:52+00:00",
-   "tipo": "bash",
-   "desc": "Leer el archivo de progreso del panel",
-   "cmd": "cd ~/repo; ls docs/ | head -30; python3 -c \"import json;d=json.load(open('docs/progreso.json'));print(json.dumps(d,ensure_ascii=False)[:1500])\"",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T22:06:58+00:00",
-   "tipo": "bash",
-   "desc": "Actualizar el estado del panel de directo",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:07:02+00:00",
    "tipo": "bash",
    "desc": "Ver el formato original del archivo de progreso",
@@ -279,8 +265,22 @@
    "desc": "Anotar la tanda 03 y corregir la cuenta",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+33 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:37:11+00:00",
+   "tipo": "bash",
+   "desc": "Contar la advertencia de texcoord sin generador",
+   "cmd": "S=$S; grep -h \"no texgen makes it\" $S/tour/out_*/log_end.txt $S/tour/out_04/log_tail.txt 2>/dev/null | sort | uniq -c | cut -c1-220; grep -rn \"no texgen makes it\" web/aurora/patch…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T23:37:14+00:00",
+   "tipo": "bash",
+   "desc": "Leer el parche 0022",
+   "cmd": "cd ~/repo; sed -n 1,60p web/aurora/patches/0022*.patch",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T23:37:02+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T23:37:14+00:00"
 }
