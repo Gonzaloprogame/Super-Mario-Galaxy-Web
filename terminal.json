@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:05:13+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que termine la primera tanda de la gira",
-   "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*batch_00\" >/dev/null; do sleep 20; done; S=$S; cat $S/tour/out_00/tour.md; tail -3 $S/tour/run_00.log",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:05:20+00:00",
-   "tipo": "bash",
-   "desc": "Ver qué hace el host con los discos PAL y japonés",
-   "cmd": "cd ~/repo; grep -n \"RMGP01\\|RMGJ01\\|region\\|región\" web/host/headless_host.c | head; sed -n 150,170p web/host/headless_host.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:05:24+00:00",
-   "tipo": "bash",
-   "desc": "Ver por qué la página rechaza los discos PAL y japonés",
-   "cmd": "cd ~/repo; sed -n 220,256p web/shell/app.js; grep -rn \"RMGP01\\|PAL\" docs/*.md | head -15",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:05:28+00:00",
    "tipo": "bash",
    "desc": "Ver cómo se elige la versión del juego al compilar",
@@ -279,8 +258,29 @@
    "desc": "Leer la pila del fallo",
    "cmd": "S=$S; grep -n -A45 \"pila:\" $S/tour/out_seq5/log_end.txt | cut -c1-200 | head -60; python3 -c \"  … (+2 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:21+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar las funciones de la pila",
+   "cmd": "cd ~/repo; head -30 tools/wasm_symbols.py | grep -v \"^import\"; python3 tools/wasm_symbols.py build/site/smg_web.wasm 8808 17475 9401 9690 9512 9571 2>&1 | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:25+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar la pila con el mapa de símbolos",
+   "cmd": "cd ~/repo; S=$S; ls -la build/all/engine/smg_web.js.symbols build/all/engine/smg_web.wasm build/site/smg_web.wasm; cmp build/all/engine/smg_web.wasm build/site/smg_web.wasm && ech…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:31+00:00",
+   "tipo": "bash",
+   "desc": "Leer svc_game_stage",
+   "cmd": "cd ~/repo; grep -n \"svc_game_stage\" web/host/headless_host.c; n=$(grep -n \"^static void svc_game_stage\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+75))p\" web/host/he…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:46:14+00:00"
+ "actualizado": "2026-11-03T20:46:31+00:00"
 }
