@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:36:38+00:00",
-   "tipo": "bash",
-   "desc": "Ver desde qué hilos se llaman report y check_stall",
-   "cmd": "cd ~/repo; sed -n 255,270p web/host/headless_host.c; sed -n 870,900p web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:36:49+00:00",
    "tipo": "bash",
    "desc": "Anotar la causa y el arreglo en el registro",
@@ -279,8 +272,15 @@
    "desc": "Leer la función finish y el otro final",
    "cmd": "cd ~/repo; sed -n 375,398p web/shell/app.js; sed -n 505,520p web/shell/app.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:16:11+00:00",
+   "tipo": "bash",
+   "desc": "Depurar cuándo lee la página el registro de vigía",
+   "cmd": "cd ~/repo; S=$S; python3 - <<'EOF'  … (+16 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:15:50+00:00"
+ "actualizado": "2026-11-03T22:16:11+00:00"
 }
