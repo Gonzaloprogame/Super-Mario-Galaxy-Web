@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:46:45+00:00",
-   "tipo": "bash",
-   "desc": "Leer la exportación del parche 0026",
-   "cmd": "cd ~/repo; sed -n 30,200p web/aurora/patches/0026*.patch",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:46:53+00:00",
    "tipo": "bash",
    "desc": "Buscar los accesos a g_knownPipelines en Aurora",
@@ -279,8 +272,15 @@
    "desc": "Comprobar que la prueba nueva falla sin el arreglo",
    "cmd": "cd ~/repo; S=$S; cp $S/pipeline_cache.cpp.orig build/all/aurora/aurora-patched/lib/gfx/pipeline_cache.cpp; cp web/host/aurora_bridge.cpp $S/aurora_bridge.fixed.cpp; python3 - <<'E…  … (+12 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:30:18+00:00",
+   "tipo": "bash",
+   "desc": "Esperar la prueba del puente sin el arreglo",
+   "cmd": "until ! pgrep -f \"bridge_smoke.mjs\" >/dev/null; do sleep 10; done; S=$S; grep -c PASS $S/bridge_nofix.log; grep \"exportación\\|FAIL\" $S/bridge_nofix.log | cut -c1-250",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:21:02+00:00"
+ "actualizado": "2026-11-03T21:30:18+00:00"
 }
