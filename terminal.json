@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:19:34+00:00",
-   "tipo": "bash",
-   "desc": "Leer el modo de prueba y su test",
-   "cmd": "cd ~/repo; sed -n 1025,1060p web/host/headless_host.c; sed -n 135,185p web/tests/browser_smoke.mjs; grep -n \"hangtest\" web/shell/app.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:19:53+00:00",
    "tipo": "bash",
    "desc": "Añadir el modo de prueba de un fallo del motor y su test",
@@ -279,8 +272,15 @@
    "desc": "Relanzar la secuencia con el motor de diagnóstico",
    "cmd": "S=$S; rm -rf $S/tour/out_diag; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_diag --nand $S/drive/nand_RMGE01…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:53:15+00:00",
+   "tipo": "bash",
+   "desc": "Anotar el análisis del fallo en el registro",
+   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+21 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:53:01+00:00"
+ "actualizado": "2026-11-03T20:53:15+00:00"
 }
