@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:00:53+00:00",
-   "tipo": "bash",
-   "desc": "Ver núcleos y carga del contenedor",
-   "cmd": "nproc; uptime",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:01:16+00:00",
-   "tipo": "bash",
-   "desc": "Anotar el primer bloque en el registro de progreso",
-   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+25 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:02:47+00:00",
    "tipo": "bash",
    "desc": "Ver el avance de la primera tanda de la gira",
@@ -279,8 +265,22 @@
    "desc": "Leer el modo de prueba y su test",
    "cmd": "cd ~/repo; sed -n 1025,1060p web/host/headless_host.c; sed -n 135,185p web/tests/browser_smoke.mjs; grep -n \"hangtest\" web/shell/app.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:19:53+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el modo de prueba de un fallo del motor y su test",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+44 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:20:00+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance de la reproducción",
+   "cmd": "S=$S; cat $S/tour/out_cocoon/tour.md 2>/dev/null; grep -h \"tour:\\|load '\" $S/tour/out_cocoon/log_tail.txt 2>/dev/null | cut -c1-200; date",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:19:34+00:00"
+ "actualizado": "2026-11-03T20:20:00+00:00"
 }
