@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:08:11+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el detector de escrituras por puntero nulo",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+66 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:08:21+00:00",
    "tipo": "bash",
    "desc": "Hacer exacta la condición de los modos de cuelgue",
@@ -279,8 +272,15 @@
    "desc": "Comprobar que la gira cubrió la lista entera",
    "cmd": "S=$S; wc -l < $S/galaxies.txt; cat $S/tour/batch_0* | sort > $S/toured.txt; wc -l < $S/toured.txt; comm -23 <(sort $S/galaxies.txt) $S/toured.txt; echo ---; for o in out_00 out_se…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:55:34+00:00",
+   "tipo": "bash",
+   "desc": "Anotar y publicar el final de la gira",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+57 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:55:08+00:00"
+ "actualizado": "2026-11-03T23:55:34+00:00"
 }
