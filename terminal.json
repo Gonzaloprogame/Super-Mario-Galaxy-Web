@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:47:11+00:00",
-   "tipo": "bash",
-   "desc": "Ver las instrucciones alrededor del fallo",
-   "cmd": "S=$S; sed -n 3202380,3202445p $S/smg_web.dis",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:47:44+00:00",
-   "tipo": "bash",
-   "desc": "Ver el final del bucle y la definición de KnownPipeline",
-   "cmd": "S=$S; sed -n 3202445,3202475p $S/smg_web.dis; grep -n \"SavedPipelineConfig\\|^struct KnownPipeline\" -A9 ~/repo/build/all/aurora/aurora-patched/lib/gfx/pipeline_cache.cpp | sed -n 1…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:48:16+00:00",
    "tipo": "bash",
    "desc": "Leer dónde se vacía la caché y cómo se recuerda un pipeline",
@@ -279,8 +265,22 @@
    "desc": "Ver las últimas líneas del registro del puente",
    "cmd": "cd ~/repo; S=$S; sed -i \"s|console.log('bridge:', JSON.stringify(await page.evaluate(() => globalThis.bridge)).slice(0, 500));|const b = await page.evaluate(() => globalThis.bridg…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:32:55+00:00",
+   "tipo": "bash",
+   "desc": "Probar ?hostnew=1 sin el arreglo",
+   "cmd": "cd ~/repo; S=$S; sed -i \"s|console.log('result', JSON.stringify(b.result), 'fatal', b.fatal);|console.log('result', JSON.stringify(b.result).slice(0,80), 'fatal', b.fatal, 'hostne…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:33:14+00:00",
+   "tipo": "bash",
+   "desc": "Endurecer la prueba: memoria del host, no nula ni del juego",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+35 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:32:07+00:00"
+ "actualizado": "2026-11-03T21:33:14+00:00"
 }
