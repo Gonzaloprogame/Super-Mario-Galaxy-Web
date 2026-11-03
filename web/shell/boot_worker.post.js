@@ -44,7 +44,8 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
     } catch (error) {
       // exit() unwinds with an ExitStatus; onExit has reported it.
       if (!(error && error.name === 'ExitStatus')) {
-        post('error', { text: `Error en el motor: ${error}` });
+        // With its stack (wasm function indices: tools/wasm_symbols.py names them), so a crash says where it was
+        post('error', { text: `Error en el motor: ${error}`, stack: (error && error.stack) || '' });
       }
     }
   };

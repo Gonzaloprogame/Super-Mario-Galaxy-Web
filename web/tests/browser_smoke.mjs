@@ -174,6 +174,27 @@ await withServer('isolated', async (url) => {
     await browser.close();
   }
 
+  // The engine dying of a WebAssembly trap (?hangtest=trap: a call through a function pointer that is not in the table,
+  // as a corrupt object fails): the page stops with the error, and the log has its stack, to say where it was
+  {
+    const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(`${url}?hangtest=trap`);
+    await page.setInputFiles('#pak', join(fixtures, 'fixture_emptydol.pak'));
+    await page.selectOption('#mode', 'diagnostic');
+    await page.fill('#seconds', '60');
+    await page.click('#run');
+    await page.waitForFunction(() => document.body.dataset.state === 'error', null, { timeout: 90000 }).catch(() => {});
+    const trapLog = await page.textContent('#log');
+    const trapStatus = await page.textContent('#status');
+    check(/trap test: calling a function that does not exist/.test(trapLog) && /table index is out of bounds/.test(trapStatus),
+          `error del motor: la página se detiene y dice cuál ("${trapStatus.trim().slice(0, 70)}…")`);
+    check(/\[página\] Error en el motor: RuntimeError: table index is out of bounds; pila:\n[^\n]*\n\s*at /.test(trapLog) &&
+          /\.wasm/.test(trapLog.split('pila:')[1] || ''),
+          'error del motor: el registro tiene su pila, con las funciones de WebAssembly');
+    await browser.close();
+  }
+
   // The loading screen (web/shell/app.js, loading): shown at the start with the real steps, gone once the game runs.
   // With no list of shaders kept, it says so; a list it cannot read is rejected and the game still starts; a list whose
   // preload did not finish last time is dropped before the start (Aurora patch 0026).

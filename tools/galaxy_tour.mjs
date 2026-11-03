@@ -102,7 +102,7 @@ try {
       } else if ((m = /^\[host\] the game's stream resumed after (\d+) s/.exec(line)) && current) {
         const last = current.stalls[current.stalls.length - 1];
         if (last) last.resumed = Number(m[1]);
-      } else if (/\[aurora (ERROR|FATAL|WARNING)|^\[host\] the game stopped|^\[página\] el motor se detuvo/.test(line) && current) {
+      } else if (/\[aurora (ERROR|FATAL|WARNING)|^\[host\] the game stopped|^\[página\] (el motor se detuvo|Error en el motor|El motor abortó)/.test(line) && current) {
         current.problems.push(line.slice(0, 300));
       } else if ((m = /^\[host\] report: .* GX (\d+) bytes/.exec(line))) {
         lastGx = Number(m[1]);
@@ -125,6 +125,8 @@ try {
     }
     if (state === 'error' || state === 'done') {
       if (current) current.problems.push(`la página terminó en "${state}": ${(await page.textContent('#status')).trim()}`);
+      // The whole log, with the error's stack if there is one (game data: it stays in the output folder)
+      writeFileSync(join(args.out, 'log_end.txt'), lines.join('\n'));
       finishStop(state === 'error' ? 'error' : 'el motor terminó');
       end = end || `la página terminó (${state})`;
     }

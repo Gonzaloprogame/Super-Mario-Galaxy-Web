@@ -1029,6 +1029,14 @@ int main(int argc, char** argv) {
     if (pthread_create(&clock, NULL, clock_main, NULL) != 0) {
         die("the retrace clock cannot start");
     }
+    if (argc > 5 && strcmp(argv[5], "hangtest-trap") == 0) {
+        /* The page's ?hangtest=trap (web/tests/browser_smoke.mjs): a call through a function pointer that is not in the
+           table, the way a corrupt object or vtable fails in WebAssembly ("table index is out of bounds"). The page
+           must stop with that error and its stack in the log. */
+        fprintf(stderr, "[host] trap test: calling a function that does not exist\n");
+        void (*volatile missing)(void) = (void (*)(void))(uintptr_t)0x7FFFFFF0u;
+        missing();
+    }
     if (argc > 5 && strncmp(argv[5], "hangtest", 8) == 0) {
         const int yielding = strcmp(argv[5], "hangtest-yield") == 0;
         /* The page's ?hangtest=1 (web/tests/browser_smoke.mjs): as if the game had drawn and then hung inside a host

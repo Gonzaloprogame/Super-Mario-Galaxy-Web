@@ -64,3 +64,20 @@ las carpetas de idioma de cada una), pero el módulo de juego se compila solo pa
 los demás discos para no arrancar código de una región con los datos de otra. Petari tiene ramas por región
 (`VERSION`), pero compilarlas sin un disco PAL o japonés con el que probarlas sería código sin comprobar. Queda a la
 espera de que Nebula prepare esas regiones o de tener un disco de esas versiones para probar.
+
+### Bloque 2: primera tanda de la gira (2026-11-03)
+
+| Escenario | Carga | Resultado |
+|---|---|---|
+| BattleShipGalaxy | 5,6 s | cargó y dibujó 900 fotogramas de escena; una parada de 5 s que se recuperó |
+| BeltConveyerExGalaxy | 4,1 s | cargó y dibujó |
+| BreakDownPlanetGalaxy | 2,7 s | cargó y dibujó |
+| CannonFleetGalaxy | 7,6 s | cargó y dibujó |
+| CocoonExGalaxy | 4,2 s | **el motor murió** tras unos minutos dibujando: `RuntimeError: table index is out of bounds` |
+
+«Cargó y dibujó» no es «jugable»: nadie ha jugado esos escenarios. Ningún aviso de Aurora en las cuatro primeras.
+
+**El error del motor no traía su pila.** `boot_worker.post.js` mandaba a la página solo el mensaje
+(`Error en el motor: …`), así que ni la gira ni el registro que copia un usuario decían dónde fue. Ahora manda también
+`error.stack` y la página lo escribe en el registro (`[página] Error en el motor: …; pila:`), como ya hacía con los
+abortos. La gira guarda además el registro entero (`log_end.txt`) cuando la página acaba en error.
