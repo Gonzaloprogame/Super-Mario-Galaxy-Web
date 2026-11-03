@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:46:55+00:00",
-   "tipo": "bash",
-   "desc": "Esperar la compilación y la prueba del puente",
-   "cmd": "until ! pgrep -f \"build_web.sh|bridge_smoke.mjs\" >/dev/null; do sleep 15; done; cat $TMP",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:47:01+00:00",
    "tipo": "bash",
    "desc": "Ver el estado de la compilación y la prueba",
@@ -279,8 +272,15 @@
    "desc": "Buscar quién escribe la salida y llama al informe",
    "cmd": "cd ~/repo; grep -n \"atexit\\|exit %d\\|host_exit(\\|report();\" web/host/headless_host.c | head -20; sed -n 84,100p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:16:44+00:00",
+   "tipo": "bash",
+   "desc": "Ver quién toma el cerrojo del registro de vigía",
+   "cmd": "cd ~/repo; grep -n \"sWatchLock\\|smg_console_counters\" web/host/*.c | head; sed -n 255,270p web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:16:26+00:00"
+ "actualizado": "2026-11-03T22:16:44+00:00"
 }
