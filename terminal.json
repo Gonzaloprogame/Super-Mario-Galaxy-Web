@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:48:40+00:00",
-   "tipo": "bash",
-   "desc": "Ver el tamaño de las pilas de los hilos del juego",
-   "cmd": "cd ~/repo; grep -n \"stack\" web/platform/context_switch_wasm.c | head -30; grep -rn \"STACK_SIZE\\|stack-size\\|STACK_OVERFLOW\" web/CMakeLists.txt web/*/CMakeLists.txt | head",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:48:43+00:00",
-   "tipo": "bash",
-   "desc": "Leer cómo se reparte cada región de pila",
-   "cmd": "cd ~/repo; sed -n 25,80p web/platform/context_switch_wasm.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:48:52+00:00",
-   "tipo": "bash",
-   "desc": "Buscar el hilo de arranque y su pila",
-   "cmd": "cd ~/repo; grep -rn \"boot_thread\" --include=*.c --include=*.cpp web third_party/nebula/sdk third_party/nebula/native 2>/dev/null | grep -v \"^.*://\" | head -10",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:48:55+00:00",
    "tipo": "bash",
    "desc": "Ver el tamaño de la pila de arranque",
@@ -279,8 +258,29 @@
    "desc": "Probar la prueba endurecida sin el arreglo",
    "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all gx_bridge 2>&1 | tail -1 | cut -c1-120; cp build/all/bridge/gx_bridge.js build/all/bridge/gx…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:07+00:00",
+   "tipo": "bash",
+   "desc": "Probar la prueba con el arreglo",
+   "cmd": "cd ~/repo; S=$S; cp $S/aurora_bridge.fixed.cpp web/host/aurora_bridge.cpp; git diff --stat; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all gx_bridge 2>&1 | …",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:15+00:00",
+   "tipo": "bash",
+   "desc": "Compilar todo y ejecutar la prueba del puente",
+   "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; bash tools/build_web.sh > $S/build.log 2>&1; echo \"build $?\"; grep -c \"pipeline_cache.cpp\" $S/build.log; timeou…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:24+00:00",
+   "tipo": "bash",
+   "desc": "Buscar asignaciones en las funciones del puente que llama el juego",
+   "cmd": "cd ~/repo; grep -n \"smg_bridge_[a-z_]*(\" web/host/headless_host.c | grep -o \"smg_bridge_[a-z_]*\" | sort -u; for f in smg_bridge_submit smg_bridge_pe_marker smg_bridge_peek_efb smg…",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:34:40+00:00"
+ "actualizado": "2026-11-03T21:36:24+00:00"
 }
