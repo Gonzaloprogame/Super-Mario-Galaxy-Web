@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:14:53+00:00",
-   "tipo": "bash",
-   "desc": "Leer la lectura del registro de vigía y el final del motor",
-   "cmd": "cd ~/repo; sed -n 398,470p web/shell/app.js; grep -n \"case 'exit'\\|case 'error'\" -A4 web/shell/app.js | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:15:07+00:00",
    "tipo": "bash",
    "desc": "Leer el registro de vigía al parar el motor y probarlo",
@@ -279,8 +272,15 @@
    "desc": "Recorrer el prólogo pulsando A en modo diagnóstico",
    "cmd": "S=$S; timeout 900 $S/story/run.sh > $S/story/run.out 2>&1; tail -40 $S/story/run.out",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:59:08+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que empiecen las pulsaciones del prólogo",
+   "cmd": "S=$S; until grep -q \"presses from\" $S/story/run.out || ! pgrep -f story/run.sh >/dev/null; do sleep 3; done; cat $S/story/run.out; curl -s \"127.0.0.1:18777/log?tail=400\" | grep -E…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:58:29+00:00"
+ "actualizado": "2026-11-03T23:59:08+00:00"
 }
