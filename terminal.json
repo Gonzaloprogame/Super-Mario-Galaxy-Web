@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:09:59+00:00",
-   "tipo": "bash",
-   "desc": "Sumar bien los pipelines creados en la segunda sesión",
-   "cmd": "curl -s \"127.0.0.1:18777/log?tail=20000\" | sed 's/^\\[vigía\\] //' | grep -E \"pipelines in the last\" | awk '{s+=$8; ms+=$11} END {print \"segunda sesión: pipelines creados jugando:\",…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:10:19+00:00",
    "tipo": "bash",
    "desc": "Volcar la lista de 102 shaders y parar la segunda sesión",
@@ -279,8 +272,15 @@
    "desc": "Anotar el primer bloque en el registro de progreso",
    "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+25 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:02:47+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance de la primera tanda de la gira",
+   "cmd": "S=$S; cat $S/tour/out_00/tour.md 2>/dev/null; echo ---; tail -15 $S/tour/out_00/log_tail.txt 2>/dev/null | cut -c1-300; echo; cat $S/tour/batch_00; uptime",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:01:16+00:00"
+ "actualizado": "2026-11-03T20:02:47+00:00"
 }
