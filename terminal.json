@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:21:12+00:00",
-   "tipo": "bash",
-   "desc": "Pasar el título y entrar con el archivo 1 hasta la primera parada",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 30; curl -s \"127.0.0.1:18777/keys?down=Space,ShiftLeft&ms=1500\" >/dev/null; W 40; curl -s \"127.0.0.1:18777/tap?x=0.33…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:21:43+00:00",
    "tipo": "bash",
    "desc": "Detectar el cuelgue por el latido del hilo del juego",
@@ -279,8 +272,15 @@
    "desc": "Comprobar el estado del repositorio, el scratchpad y las herramientas",
    "cmd": "git log --oneline -1 && git status --short | head -5; S=$S; ls $S 2>/dev/null | head -20; ls -la $S/disc/smg.rvz 2>/dev/null | awk '{print $5}'; ls ~/tools/emsdk/emsdk_env.sh buil…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:21:24+00:00",
+   "tipo": "bash",
+   "desc": "Leer el cambio de contexto entre hilos del juego",
+   "cmd": "wc -l web/platform/context_switch_wasm.c && grep -n \"^[a-z].*(\\|^static\\|emscripten_fiber_swap\\|OSThread\" web/platform/context_switch_wasm.c | head -30",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:20:58+00:00"
+ "actualizado": "2026-11-03T12:21:24+00:00"
 }
