@@ -1,0 +1,36 @@
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-11-03 18:27:50.426489169 +0000
++++ b/lib/gx/command_processor.cpp	2026-11-03 18:27:50.440733426 +0000
+@@ -60,7 +60,9 @@
+       ++numIndices;
+     }
+   } else if (prim == GX_TRIANGLEFAN) {
+-    buf.reserve_extra(((u32(vtxCount) - 3) * 3 + 3) * sizeof(u16));
++    // Under 3 vertices there is no triangle: (vtxCount - 3) wrapped, asking for ~4 GB (a hang in the 32-bit browser
++    // build, where the size wrapped again)
++    buf.reserve_extra((vtxCount < 3 ? vtxCount : (u32(vtxCount) - 3) * 3 + 3) * sizeof(u16));
+     for (u16 v = 0; v < vtxCount; ++v) {
+       const u16 idx = vtxStart + v;
+       if (v < 3) {
+@@ -72,7 +74,7 @@
+       numIndices += 3;
+     }
+   } else if (prim == GX_TRIANGLESTRIP) {
+-    buf.reserve_extra(((static_cast<u32>(vtxCount) - 3) * 3 + 3) * sizeof(u16));
++    buf.reserve_extra((vtxCount < 3 ? vtxCount : (static_cast<u32>(vtxCount) - 3) * 3 + 3) * sizeof(u16));
+     for (u16 v = 0; v < vtxCount; ++v) {
+       const u16 idx = vtxStart + v;
+       if (v < 3) {
+@@ -714,6 +716,12 @@
+ static void draw_prim(GXPrimitive prim, GXVtxFmt fmt, u16 vtxCount, ByteReader& reader) noexcept {
+   if (g_debugFrameLog)
+     UNLIKELY { log_frame_draw(prim, vtxCount); }
++  if (vtxCount == 0)
++    UNLIKELY {
++      // A draw of no vertices (Super Mario Galaxy's EggStarGalaxy sends a triangle strip of 0): the console draws
++      // nothing, and there are no vertex bytes to read
++      return;
++    }
+   if (!sClearQuad.pending)
+     LIKELY {
+       draw_prim_as_written(prim, fmt, vtxCount, reader);

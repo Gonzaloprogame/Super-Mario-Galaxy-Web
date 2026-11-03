@@ -12,6 +12,8 @@
 // EFB copies, which Aurora still takes only through its own commands (docs/PUENTE_FIFO.md).
 #include "aurora_bridge.h"
 
+#include <cstring>
+#include <string>
 #include <aurora/aurora.h>
 #include <aurora/event.h>
 #include <aurora/gfx.h>
@@ -596,6 +598,15 @@ extern "C" void smg_bridge_describe(char* out, size_t size) {
            static_cast<unsigned long long>(g_markersDone.load(std::memory_order_relaxed)),
            g_frames.load(std::memory_order_relaxed),
            static_cast<unsigned long long>(g_beginRefused.load(std::memory_order_relaxed)));
+  // Aurora's command processor (patch 0024): whether it moves between two reports, and on what
+  uint64_t commands = 0;
+  uint32_t lastCommand = 0, lastVertices = 0, inDisplayList = 0;
+  aurora_cp_progress(&commands, &lastCommand, &lastVertices, &inDisplayList);
+  const size_t used = strlen(out);
+  snprintf(out + used, size - used, "; Aurora's command processor: %llu commands read, the last 0x%02X%s%s",
+           static_cast<unsigned long long>(commands), lastCommand,
+           lastCommand >= 0x80 ? (std::string(" (a draw of ") + std::to_string(lastVertices) + " vertices)").c_str() : "",
+           inDisplayList ? ", inside a display list" : "");
 }
 
 extern "C" void smg_bridge_buffer_peaks(char* out, size_t size) {

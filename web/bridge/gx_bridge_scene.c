@@ -74,6 +74,7 @@ int smg_bridge_fault_requested(void);
 int smg_bridge_arrays_requested(void);
 int smg_bridge_clear_quad_requested(void);
 int smg_bridge_untexgen_requested(void);
+int smg_bridge_zero_strip_requested(void);
 
 static u8 sFifo[256 * 1024] __attribute__((aligned(32)));
 
@@ -261,6 +262,22 @@ static void draw(void) {
     GXColor4u8(TRI_R, TRI_G, TRI_B, 255);
     GXEnd();
     GXSetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
+
+    /* Draws with too few vertices for a triangle: a strip and a fan of 0 (the game's EggStarGalaxy sends a strip of 0)
+       and a strip of 2. The console draws nothing for them. Aurora reserved (vertices - 3) * 3 + 3 indices, wrapped to
+       about 4 GB, and the render thread was lost (Aurora patch 0025). */
+    if (smg_bridge_zero_strip_requested()) {
+        GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 0);
+        GXEnd();
+        GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, 0);
+        GXEnd();
+        GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 2);
+        GXPosition3f32(-0.9f, 0.9f, -0.5f);
+        GXColor4u8(TRI_R, TRI_G, TRI_B, 255);
+        GXPosition3f32(-0.8f, 0.9f, -0.5f);
+        GXColor4u8(TRI_R, TRI_G, TRI_B, 255);
+        GXEnd();
+    }
 
     /* The display list's triangle, in the same vertex format. Right after the call the list's memory is overwritten
        with what Aurora read once from a list the game had reused (bytes ff f5 00 00 00 00 00 00 over and over, as the

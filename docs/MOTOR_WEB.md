@@ -438,14 +438,23 @@ Primera tanda, con el disco del usuario en el contenedor (sin GPU real, todo muc
 |---|---|
 | `HeavensDoorGalaxy` | Carga y se juega. Una parada de 9 s al entrar (el hilo de render empezando un fotograma mientras la GPU por software compila *pipelines*), y sigue. |
 | `AstroGalaxy` | Igual: paradas de 10 y 18 s al cargar, y sigue. |
-| `EggStarGalaxy` | **Se cuelga siempre** (tres de tres, también yendo directamente). |
+| `EggStarGalaxy` | Se colgaba siempre; **arreglado** con el parche de Aurora 0025 (abajo). Se juega: 4 min sin una parada. |
 
 El cuelgue de `EggStarGalaxy`, según el aviso de bloqueo: el hilo de render lleva todo el tiempo en
 `aurora::gx::fifo::drain()` (Aurora interpretando la GX del fotograma) sin avanzar; la cola hacia él se llena
 (16.384 de 16.384) y el hilo de audio del juego (`JASAudioThread` → `JASDSPChannel::updateProc`) espera sitio dentro
 de `gpu_coherent`. El perfilador del navegador confirma el hilo de audio, pero el hilo de render no le responde: está en
-un bucle de WebAssembly que no devuelve el control. **Siguiente paso:** medir dentro de `drain()` qué orden GX lo
-atrapa. De paso, el perfil muestra que el hilo de la NAND gasta el 100 % de su CPU esperando activamente.
+un bucle de WebAssembly que no devuelve el control. De paso, el perfil muestra que el hilo de la NAND gasta el 100 %
+de su CPU esperando activamente.
+
+**Causa (2026-11-03).** El parche de Aurora 0024 cuenta las órdenes que lee su procesador. En el aviso de bloqueo, dos
+informes separados 30 s dieron el mismo número y la misma última orden: `0x98`, una tira de triángulos de **0
+vértices**. Para tiras y abanicos, Aurora reservaba `(vértices - 3) * 3 + 3` índices sin comprobar que hubiera 3
+vértices: con 0, la resta sin signo da unos 4.000 millones y la reserva unos 4 GB, que en la compilación de 32 bits
+del navegador vuelve a desbordarse y deja al hilo de render perdido. La consola no dibuja nada para eso. El parche
+0025 reserva bien con menos de 3 vértices y salta los dibujos de 0. `bridge_smoke.mjs` (`?zerostrip=1`) dibuja con el
+SDK del juego una tira y un abanico de 0 vértices y una tira de 2: sin el parche el renderizador se para, con él
+sigue y el resto de la escena se ve igual.
 
 ## Rendimiento
 

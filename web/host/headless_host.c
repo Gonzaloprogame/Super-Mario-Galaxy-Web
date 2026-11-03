@@ -798,7 +798,7 @@ static void check_stall(uint64_t retrace) {
         return;
     }
     reported = stalled;
-    char bridge[320] = "no renderer";
+    char bridge[512] = "no renderer";
 #if defined(SMG_HOST_AURORA)
     smg_bridge_describe(bridge, sizeof(bridge));
 #endif

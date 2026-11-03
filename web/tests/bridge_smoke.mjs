@@ -165,6 +165,21 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   check(said.some((l) => /no texgen makes it/.test(l)), 'y el registro lo dice');
   await page.close();
 }
+// Draws under three vertices (?zerostrip=1, web/bridge/gx_bridge_scene.c): a strip and a fan of 0 vertices and a strip
+// of 2, which the console draws as nothing. Aurora reserved about 4 GB of indices for them and its render thread was
+// lost, as in the game's EggStarGalaxy (Aurora patch 0025): the frames must go on, the triangle still drawn.
+{
+  const page = await browser.newPage();
+  await page.goto(`http://127.0.0.1:${port}/gx_bridge.html?zerostrip=1`);
+  const painted = await page.waitForFunction(() => globalThis.smgPresenter && globalThis.smgPresenter.frames >= 5,
+    null, { timeout: 120000 }).then(() => true, () => false);
+  const fatal = await page.evaluate(() => (globalThis.bridge && globalThis.bridge.fatal) || '');
+  const triangle = painted ? await page.evaluate(() =>
+    Array.from(document.getElementById('screen').getContext('2d').getImageData(320, 272, 1, 1).data.slice(0, 3))) : [];
+  check(painted && !fatal, `dibujos de menos de tres vértices: el renderizador sigue dibujando (${fatal || (painted ? 'sigue' : 'parado')})`);
+  check(painted && near(triangle, [240, 176, 16]), `y el triángulo de la escena sigue ahí: ${triangle}`);
+  await page.close();
+}
 // An abort() in a thread of the engine (?abort=1, after the report): the page hears it, with its C stack
 {
   const aborting = await browser.newPage();

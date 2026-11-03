@@ -129,6 +129,15 @@ int smg_bridge_clear_quad_requested(void) {
     return requested;
 }
 
+/* The test of draws under three vertices (bridge_smoke.mjs, ?zerostrip=1, Aurora patch 0025) */
+int smg_bridge_zero_strip_requested(void) {
+    static int requested = -1;
+    if (requested < 0) {
+        requested = MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('zerostrip') === '1' ? 1 : 0; });
+    }
+    return requested;
+}
+
 /* The test of a TEV stage reading a texcoord no texgen makes (bridge_smoke.mjs, ?untexgen=1, Aurora patch 0022) */
 int smg_bridge_untexgen_requested(void) {
     static int requested = -1;

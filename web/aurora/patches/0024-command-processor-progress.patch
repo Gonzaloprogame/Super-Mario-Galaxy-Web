@@ -1,0 +1,64 @@
+diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+--- a/include/aurora/guest_memory.h	2026-11-03 18:18:59.800219809 +0000
++++ b/include/aurora/guest_memory.h	2026-11-03 18:18:59.818064972 +0000
+@@ -48,6 +48,9 @@
+ void aurora_set_debug_mask(uint32_t mask);
+ /* Pipelines created so far: their total and slowest time (ns), how many, and how many wait in the queue (patch 0023). */
+ void aurora_pipeline_build_times(uint64_t* totalNs, uint32_t* count, uint64_t* maxNs, uint32_t* queued);
++/* The command processor's progress: commands read so far, the last one, a draw's vertex count, inside a display list
++   (patch 0024), for the host's stall report. */
++void aurora_cp_progress(uint64_t* commands, uint32_t* lastCommand, uint32_t* lastVertices, uint32_t* inDisplayList);
+ void aurora_get_debug_stats(uint32_t out[AURORA_DEBUG_STAT_COUNT]);
+ /* The frame AURORA_DEBUG_LOG_FRAME recorded, one line per item, once it has ended: its length (0 when there is none);
+    copied to `out` and dropped when `size` holds it. */
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-11-03 18:18:59.798258679 +0000
++++ b/lib/gx/command_processor.cpp	2026-11-03 18:19:10.668408860 +0000
+@@ -233,6 +233,12 @@
+ static void handle_draw(u8 cmd, ByteReader& reader) noexcept;
+ static void handle_aurora(ByteReader& reader) noexcept;
+ 
++// Progress of the command processor, for the web host's stall report (aurora_cp_progress, patch 0024): the commands
++// read so far, the last one, a draw's vertex count, and whether it runs inside a display list. One writer (the thread
++// processing the stream), plain relaxed stores; read from another thread.
++static uint64_t sCpCommands = 0;
++static uint32_t sCpLastCommand = 0, sCpLastVertices = 0, sCpInDisplayList = 0;
++
+ ProcessResult process(const u8* data, u32 size) noexcept {
+   ZoneScoped;
+   ByteReader reader{{data, size}};
+@@ -240,6 +246,12 @@
+   while (!reader.empty()) {
+     const u8 cmd = reader.read<u8>();
+     u8 opcode = cmd & CP_OPCODE_MASK;
++    __atomic_store_n(&sCpCommands, sCpCommands + 1, __ATOMIC_RELAXED);
++    __atomic_store_n(&sCpLastCommand, cmd, __ATOMIC_RELAXED);
++    if (cmd >= 0x80 && reader.offset() + 2 <= size) {
++      const u8* count = data + reader.offset();
++      __atomic_store_n(&sCpLastVertices, static_cast<u32>(count[0]) << 8 | count[1], __ATOMIC_RELAXED);
++    }
+ 
+     switch (opcode) {
+     case CP_CMD_NOP:
+@@ -316,7 +328,9 @@
+         Log.error("Ignoring GX_CMD_CALL_DL to 0x{:08X}: {} bytes, {} in guest memory", address, listSize, available);
+       } else {
+         sInDisplayList = true;
++        __atomic_store_n(&sCpInDisplayList, 1u, __ATOMIC_RELAXED);
+         process(list, listSize);
++        __atomic_store_n(&sCpInDisplayList, 0u, __ATOMIC_RELAXED);
+         sInDisplayList = false;
+       }
+       break;
+@@ -1015,3 +1029,11 @@
+ }
+ 
+ } // namespace aurora::gx::fifo
++
++extern "C" void aurora_cp_progress(uint64_t* commands, uint32_t* lastCommand, uint32_t* lastVertices,
++                                   uint32_t* inDisplayList) {
++  *commands = __atomic_load_n(&aurora::gx::fifo::sCpCommands, __ATOMIC_RELAXED);
++  *lastCommand = __atomic_load_n(&aurora::gx::fifo::sCpLastCommand, __ATOMIC_RELAXED);
++  *lastVertices = __atomic_load_n(&aurora::gx::fifo::sCpLastVertices, __ATOMIC_RELAXED);
++  *inDisplayList = __atomic_load_n(&aurora::gx::fifo::sCpInDisplayList, __ATOMIC_RELAXED);
++}
