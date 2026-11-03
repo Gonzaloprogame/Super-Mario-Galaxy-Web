@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:24:45+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el motor con el parche 0024",
-   "cmd": "sed -i 's/    char bridge\\[320\\] = \"no renderer\";/    char bridge[512] = \"no renderer\";/' web/host/headless_host.c && sed -i '0,/^#include </s//#include <cstring>\\n#include <strin…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:26:21+00:00",
    "tipo": "bash",
    "desc": "Reproducir el cuelgue de EggStarGalaxy y leer el progreso de Aurora",
@@ -279,8 +272,15 @@
    "desc": "Leer la caché guardada y pasarla al motor desde la página",
    "cmd": "python3 - <<'EOF'  … (+30 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:58:25+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el objeto que gobierna la pantalla de carga",
+   "cmd": "python3 - <<'EOF'  … (+107 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:58:02+00:00"
+ "actualizado": "2026-11-03T18:58:25+00:00"
 }
