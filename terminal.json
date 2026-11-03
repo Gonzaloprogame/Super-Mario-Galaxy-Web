@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:05:38+00:00",
-   "tipo": "bash",
-   "desc": "Leer la selección de región de Nebula",
-   "cmd": "cd ~/repo; grep -n \"RMG\\|VERSION\" third_party/nebula/native/CMakeLists.txt | head -30; ls web/game",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:05:46+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar el soporte de regiones en Nebula y Petari",
-   "cmd": "cd ~/repo; sed -n 1,20p third_party/nebula/native/CMakeLists.txt; grep -rn \"VERSION == 2\\|VERSION==2\\|RMGP01\" third_party/petari/src 2>/dev/null | wc -l",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:05:54+00:00",
    "tipo": "bash",
    "desc": "Anotar la NAND y las regiones en el registro",
@@ -279,8 +265,22 @@
    "desc": "Leer la exportación del parche 0026",
    "cmd": "cd ~/repo; sed -n 30,200p web/aurora/patches/0026*.patch",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:53+00:00",
+   "tipo": "bash",
+   "desc": "Buscar los accesos a g_knownPipelines en Aurora",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; f=$(grep -rln \"g_knownPipelines\" lib | head -3); echo $f; grep -n \"g_knownPipelines\\|g_pipelineMutex\\|struct KnownPipeline\" -B2 -A2 $f |…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:58+00:00",
+   "tipo": "bash",
+   "desc": "Buscar un desensamblador de wasm",
+   "cmd": "cd ~/repo; ls ~/tools/emsdk/upstream/bin | grep -i \"objdump\\|wasm-dis\\|wasm-opt\" | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:46:45+00:00"
+ "actualizado": "2026-11-03T20:46:58+00:00"
 }
