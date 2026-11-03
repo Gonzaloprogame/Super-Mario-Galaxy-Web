@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T12:32:13+00:00",
-   "tipo": "bash",
-   "desc": "Corregir los atómicos, compilar y repetir la prueba",
-   "cmd": "sed -i 's/^static _Atomic uint64_t sSwitches;$/static uint64_t sSwitches;/; s/^static _Atomic uintptr_t sRunningEntry, sRunningArg;$/static uintptr_t sRunningEntry, sRunningArg;/'…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T12:32:50+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar, subir y publicar la sonda, y guardar los símbolos de esta versión",
-   "cmd": "python3 - <<'EOF'  … (+48 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T17:54:38+00:00",
    "tipo": "bash",
    "desc": "Ver qué guarda la caché de pipelines de Aurora y por qué no está en el navegador",
@@ -279,8 +265,22 @@
    "desc": "Leer handle_draw y la conversión de primitivas",
    "cmd": "A=build/all/aurora/aurora-patched; sed -n 800,860p $A/lib/gx/command_processor.cpp; sed -n 595,625p $A/lib/gx/command_processor.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:26:50+00:00",
+   "tipo": "bash",
+   "desc": "Localizar la conversión de tiras de triángulos",
+   "cmd": "A=build/all/aurora/aurora-patched; grep -n \"void draw_prim\\|GX_TRIANGLESTRIP\\|num_indices\\|numIndices =\" $A/lib/gx/command_processor.cpp $A/lib/gx/*.hpp $A/lib/gx/gx.cpp | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T18:26:56+00:00",
+   "tipo": "bash",
+   "desc": "Leer prepare_idx_buffer, que genera los índices de cada primitiva",
+   "cmd": "A=build/all/aurora/aurora-patched; sed -n 30,100p $A/lib/gx/command_processor.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:26:41+00:00"
+ "actualizado": "2026-11-03T18:26:56+00:00"
 }
