@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:06:32+00:00",
-   "tipo": "bash",
-   "desc": "Volcar la lista guardada y anotar las cifras de la primera sesión",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 60; curl -s \"127.0.0.1:18777/pipelines\"; echo; curl -s \"127.0.0.1:18777/log?tail=12000\" | sed 's/^\\[vigía\\] //' | gre…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:07:03+00:00",
    "tipo": "bash",
    "desc": "Segunda sesión: ver la barra de shaders con la lista guardada",
@@ -279,8 +272,15 @@
    "desc": "Probar la expresión del aviso de bloqueo contra la línea real",
    "cmd": "S=$S; sed -n 9p $S/tour/out_00/log_tail.txt | head -c 120 | od -c | head -3; node -e \"  … (+2 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:00:07+00:00",
+   "tipo": "bash",
+   "desc": "Leer el informe actual de la gira",
+   "cmd": "S=$S; python3 -c \"  … (+2 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:59:58+00:00"
+ "actualizado": "2026-11-03T20:00:07+00:00"
 }
