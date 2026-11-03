@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:48:01+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar el puerto de depuración y perfiladores colgados",
-   "cmd": "curl -s -m 5 http://127.0.0.1:19222/json/version | head -3; curl -s -m 5 http://127.0.0.1:19222/json/list | grep -c '\"type\"'; ps -eo pid,etimes,cmd | grep \"prof.mjs\" | grep -v grep",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:48:09+00:00",
    "tipo": "bash",
    "desc": "Leer el perfilador de workers",
@@ -279,8 +272,15 @@
    "desc": "Compilar con el parche 0023 y ejecutar las pruebas del sitio y del puente",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_pipe.log 2>&1; echo \"compilación: $?\"; grep -m5 \"error:\" $S/build_pipe.log; timeout 1800 node we…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:07:52+00:00",
+   "tipo": "bash",
+   "desc": "Arrancar el juego con gira a HeavensDoorGalaxy para medir",
+   "cmd": "S=$S; cd $S/drive && TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run43 graphics $S/drive/nand_RMGE01.bin > $S/drive/run43.out 2>&1",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:07:40+00:00"
+ "actualizado": "2026-11-03T18:07:52+00:00"
 }
