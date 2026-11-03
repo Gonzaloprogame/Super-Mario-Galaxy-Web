@@ -176,7 +176,7 @@ se compiló a mitad). Once de once cargaron y dibujaron 900 fotogramas de escena
 
 \* Coincidieron con compilaciones en el contenedor (4 núcleos): su carga no es representativa.
 
-Llevamos 20 escenarios de la gira, más los 4 comprobados antes: 24 de 44. Ninguno jugado.
+Llevamos 16 escenarios de la gira, más los 4 comprobados antes: 20 de 44 (corregido: aquí ponía 24). Ninguno jugado.
 
 ### Bloque 6: tanda 02 de la gira, con la alarma de puntero nulo (2026-11-03)
 
@@ -194,5 +194,22 @@ bloque 4: en 161 informes del host, **ninguna alarma de memoria** (nada escribi�
 | OceanFloaterLandGalaxy | 7,9 s | 0 |
 | OceanPhantomCaveGalaxy | 11,6 s | 0 |
 
-Llevamos 32 de 44 (28 de la gira y 4 de antes). Ninguno jugado. Las tandas 03 y 04 van encadenadas
+Llevamos 28 de 44 (24 de la gira y 4 de antes; corregido: aquí ponía 32). Ninguno jugado. Las tandas 03 y 04 van encadenadas
 (`$S/tour/out_03`, `out_04`).
+
+### Bloque 7: tanda 03 de la gira (2026-11-03)
+
+Ocho de ocho cargaron y dibujaron, sin avisos de Aurora ni alarmas de memoria (150 informes).
+
+| Escenario | Carga | Paradas del juego |
+|---|---|---|
+| OceanRingGalaxy | 6,5 s | 1, recuperada |
+| PeachCastleFinalGalaxy | 4,9 s | 0 |
+| PhantomGalaxy | 10,2 s | 0 |
+| ReverseKingdomGalaxy | 9,6 s | 0 |
+| SandClockGalaxy | 8 s | 0 |
+| SkullSharkGalaxy | 5,3 s | 0 |
+| SnowCapsuleGalaxy | 3,4 s | 0 |
+| StarDustGalaxy | 6,7 s | 0 |
+
+Llevamos 36 de 44 (32 de la gira y 4 de antes). Ninguno jugado. Falta la tanda 04, en curso.
