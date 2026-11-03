@@ -88,6 +88,32 @@
 
   /* The screen */
   #screen-card[hidden] { display: none; }
+  /* The loading screen over the canvas, until the game starts */
+  #loading { position: absolute; inset: 6px; display: grid; place-items: center; border-radius: 10px; z-index: 2;
+             background: radial-gradient(120% 90% at 50% 0%, rgba(123, 140, 255, .22), transparent 60%),
+                         linear-gradient(180deg, #0f1430, #070912); }
+  #loading[hidden] { display: none; }
+  .loading-box { width: min(420px, 86%); }
+  .loading-title { font-weight: 800; font-size: 1.25rem; letter-spacing: .02em; margin-bottom: .9rem;
+                   background: linear-gradient(90deg, var(--gold), #ff9d3a 45%, var(--accent)); -webkit-background-clip: text;
+                   background-clip: text; color: transparent; }
+  .loading-steps { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .45rem; font-size: .95rem; }
+  .loading-steps li { display: flex; align-items: center; gap: .6rem; color: var(--muted); }
+  .loading-steps li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; flex: none;
+                              border: 2px solid var(--border); }
+  .loading-steps li[data-state="doing"] { color: var(--fg); }
+  .loading-steps li[data-state="doing"]::before { border-color: var(--accent); border-top-color: transparent;
+                                                  animation: loading-spin .8s linear infinite; }
+  .loading-steps li[data-state="done"] { color: var(--fg); }
+  .loading-steps li[data-state="done"]::before { background: var(--ok); border-color: var(--ok); }
+  .loading-steps li[data-state="skip"]::before { border-style: dashed; }
+  .loading-bar { height: 10px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden;
+                 border: 1px solid var(--border); }
+  .loading-bar > span { display: block; height: 100%; width: 0; border-radius: 999px;
+                        background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .25s ease; }
+  .loading-note { margin: .7rem 0 0; color: var(--muted); font-size: .85rem; min-height: 1.3em; }
+  @keyframes loading-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .loading-steps li[data-state="doing"]::before { animation: none; } }
   .screen-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
                 margin-bottom: 10px; }
   .screen-bar h2 { margin: 0; }
@@ -221,7 +247,23 @@
         <button id="fullscreen" type="button">⛶ Pantalla completa</button>
       </div>
     </div>
-    <div class="frame"><canvas id="screen" width="640" height="480"></canvas></div>
+    <div class="frame"><canvas id="screen" width="640" height="480"></canvas>
+      <!-- Before the game starts (web/shell/app.js, loading): the real steps of the engine's start, and the bar of the
+           shaders kept from earlier sessions, built before the game (Aurora patch 0026). Nothing here is simulated. -->
+      <div id="loading" hidden aria-live="polite">
+        <div class="loading-box">
+          <div class="loading-title">Preparando el juego</div>
+          <ol class="loading-steps">
+            <li id="step-engine">Cargando el motor</li>
+            <li id="step-disc">Abriendo el disco</li>
+            <li id="step-renderer">Iniciando el renderizador</li>
+            <li id="step-shaders">Preparando shaders guardados</li>
+          </ol>
+          <div class="loading-bar" id="shader-bar-box"><span id="shader-bar"></span></div>
+          <p class="loading-note" id="loading-note"></p>
+        </div>
+      </div>
+    </div>
     <p class="muted" id="screen-info">Ningún fotograma recibido del motor.</p>
     <div id="pad"></div>
     <p class="muted" id="pad-help">Toca la pantalla para apuntar con el puntero. Teclado: espacio A, Mayús B, Z, C, Q
