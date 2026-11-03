@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:03:21+00:00",
-   "tipo": "bash",
-   "desc": "Esperar el resultado del diagnóstico",
-   "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*out_diag\" >/dev/null; do sleep 15; done; cat $TMP | cut -c1-600",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:03:26+00:00",
    "tipo": "bash",
    "desc": "Ver el avance del diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ejecutar la prueba de la página con la prueba del fallo",
    "cmd": "cd ~/repo; S=$S; timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_fix.log 2>&1; echo \"salida $?\"; grep -c PASS $S/smoke_fix.log; grep \"FAIL\\|error del motor\" $S/smoke_fix.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:49:24+00:00",
+   "tipo": "bash",
+   "desc": "Repetir la secuencia de cinco escenarios con el arreglo",
+   "cmd": "S=$S; rm -rf $S/tour/out_fix; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_fix --nand $S/drive/nand_RMGE01.b…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:49:17+00:00"
+ "actualizado": "2026-11-03T21:49:24+00:00"
 }
