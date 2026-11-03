@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:22:12+00:00",
-   "tipo": "bash",
-   "desc": "Leer el inicio de fotograma del puente y de Aurora",
-   "cmd": "sed -n 470,500p web/host/aurora_bridge.cpp; A=build/all/aurora/aurora-patched; grep -n \"bool aurora_begin_frame\\|begin_frame()\" $A/lib/*.cpp $A/lib/*/*.cpp | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:22:15+00:00",
    "tipo": "bash",
    "desc": "Leer gfx::begin_frame de Aurora",
@@ -279,8 +272,15 @@
    "desc": "Leer la espera ociosa y los avisos de interrupción del sistema del juego",
    "cmd": "sed -n 200,262p third_party/nebula/native/sdk/os/os_native.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:22:45+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar las funciones de Emscripten para enviar la sonda",
+   "cmd": "ls ~/tools/emsdk/upstream/emscripten/system/include/emscripten/proxying.h && grep -n \"emscripten_proxy_async\\b\\|emscripten_proxy_get_system_queue\\|emscripten_main_runtime_thread_i…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:22:22+00:00"
+ "actualizado": "2026-11-03T12:22:45+00:00"
 }
