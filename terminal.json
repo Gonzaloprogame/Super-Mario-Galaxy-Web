@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:36:49+00:00",
-   "tipo": "bash",
-   "desc": "Anotar la causa y el arreglo en el registro",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+18 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:46:55+00:00",
    "tipo": "bash",
    "desc": "Esperar la compilación y la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Depurar cuándo lee la página el registro de vigía",
    "cmd": "cd ~/repo; S=$S; python3 - <<'EOF'  … (+16 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:16:26+00:00",
+   "tipo": "bash",
+   "desc": "Buscar quién escribe la salida y llama al informe",
+   "cmd": "cd ~/repo; grep -n \"atexit\\|exit %d\\|host_exit(\\|report();\" web/host/headless_host.c | head -20; sed -n 84,100p web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:16:11+00:00"
+ "actualizado": "2026-11-03T22:16:26+00:00"
 }
