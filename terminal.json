@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:05:54+00:00",
-   "tipo": "bash",
-   "desc": "Anotar la NAND y las regiones en el registro",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:06:32+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir la gira y la documentación",
@@ -279,8 +272,15 @@
    "desc": "Buscar un desensamblador de wasm",
    "cmd": "cd ~/repo; ls ~/tools/emsdk/upstream/bin | grep -i \"objdump\\|wasm-dis\\|wasm-opt\" | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:47:08+00:00",
+   "tipo": "bash",
+   "desc": "Desensamblar el motor y buscar la instrucción del fallo",
+   "cmd": "cd ~/repo; S=$S; ~/tools/emsdk/upstream/bin/llvm-objdump -d build/site/smg_web.wasm 2>/dev/null > $S/smg_web.dis; grep -n \"^ *625723:\\|^ *62571\\|^ *62572\" $S/smg_web.dis | head; w…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:46:58+00:00"
+ "actualizado": "2026-11-03T20:47:08+00:00"
 }
