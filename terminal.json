@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:06:20+00:00",
-   "tipo": "bash",
-   "desc": "Lanzar la siguiente tanda de la gira (11 escenarios)",
-   "cmd": "S=$S; cd ~/repo && timeout 3500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:06:27+00:00",
    "tipo": "bash",
    "desc": "Buscar dónde añadir el arreglo en el README",
@@ -279,8 +272,15 @@
    "desc": "Encadenar las tandas 03 y 04 tras la 02",
    "cmd": "S=$S; until ! pgrep -f \"galaxy_tour.mjs.*batch_02\" >/dev/null; do sleep 15; done; cd ~/repo; for b in 03 04; do timeout 3500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --st…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:09:01+00:00",
+   "tipo": "bash",
+   "desc": "Ver el final de la tanda 02 y que arrancó la 03",
+   "cmd": "S=$S; tail -12 $TMP | cut -c1-250; grep -c \"memory error\" $S/tour/out_02/log_end.txt; grep -c \"check_low\\|report:\" $S/tour/out_02/log_end.txt; sleep 20; pgrep -f \"batch_03\" >/dev/…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T23:06:54+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T23:09:01+00:00"
 }
