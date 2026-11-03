@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:53:53+00:00",
-   "tipo": "bash",
-   "desc": "Preparar el parche 0026 con la caché de pipelines para el navegador",
-   "cmd": "S=$S/p0026; rm -rf $S; mkdir -p $S/a/lib/gfx $S/a/include/aurora; A=~/repo/build/all/aurora/aurora-patched; cp $A/lib/gfx/pipeline_cache.cpp $S/a/lib/gfx/ && cp $A/include/aurora/…  … (+175 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T18:55:29+00:00",
-   "tipo": "bash",
-   "desc": "Generar el parche 0026 y comprobar que Aurora compila",
-   "cmd": "S=$S/p0026; cd $S && sed -i 's/^#include <variant>$/#include <cstring>\\n#include <variant>\\n#include <vector>/' b/lib/gfx/pipeline_cache.cpp && diff -ruN a b > 0026.patch; cp 0026…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:55:41+00:00",
    "tipo": "bash",
    "desc": "Localizar dónde el hilo de render se declara listo",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "$S/edit_readme.py",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:37:29+00:00",
+   "tipo": "bash",
+   "desc": "Aplicar la actualización del README",
+   "cmd": "S=$S; sed -i 's/| Resto de galaxias (41) | ⏳ |/| Resto de escenarios (40 de 44) | ⏳ |/; s/Recorrer las 44 galaxias con la gira/Recorrer los 44 escenarios con la gira/; s/entrar en…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T19:37:39+00:00",
+   "tipo": "bash",
+   "desc": "Corregir el aviso y revisar el resultado",
+   "cmd": "python3 - <<'EOF'  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:37:14+00:00"
+ "actualizado": "2026-11-03T19:37:39+00:00"
 }
