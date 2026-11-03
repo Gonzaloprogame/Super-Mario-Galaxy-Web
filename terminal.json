@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:07:48+00:00",
-   "tipo": "bash",
-   "desc": "Ver dónde empiezan los datos del binario",
-   "cmd": "cd ~/repo; sed -n 692,700p web/host/headless_host.c; grep -n \"GLOBAL_BASE\\|global-base\" web/cmake/SmgGame.cmake web/engine/CMakeLists.txt web/game/CMakeLists.txt; ~/tools/emsdk/up…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:08:11+00:00",
    "tipo": "bash",
    "desc": "Añadir el detector de escrituras por puntero nulo",
@@ -279,8 +272,15 @@
    "desc": "Ver el resultado de la tanda 04",
    "cmd": "S=$S; cat $S/tour/out_04/tour.md | cut -c1-330; grep -c \"memory error\" $S/tour/out_04/log_end.txt; grep -c \"report:\" $S/tour/out_04/log_end.txt; grep \"aurora WARNING\\|aurora ERROR…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:55:08+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar que la gira cubrió la lista entera",
+   "cmd": "S=$S; wc -l < $S/galaxies.txt; cat $S/tour/batch_0* | sort > $S/toured.txt; wc -l < $S/toured.txt; comm -23 <(sort $S/galaxies.txt) $S/toured.txt; echo ---; for o in out_00 out_se…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:55:00+00:00"
+ "actualizado": "2026-11-03T23:55:08+00:00"
 }
