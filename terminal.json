@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:28:19+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la prueba de dibujos con menos de tres vértices",
-   "cmd": "python3 - <<'EOF'  … (+59 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:28:26+00:00",
    "tipo": "bash",
    "desc": "Buscar las coordenadas del triángulo en la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Primera sesión: comprobar la pantalla de carga y el guardado de la lista",
    "cmd": "S=$S; cd $S/drive && (TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 timeout 1500 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run47 graphics $S/drive/nand_RMGE01.bin > $S/drive/ru…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:06:32+00:00",
+   "tipo": "bash",
+   "desc": "Volcar la lista guardada y anotar las cifras de la primera sesión",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; W 60; curl -s \"127.0.0.1:18777/pipelines\"; echo; curl -s \"127.0.0.1:18777/log?tail=12000\" | sed 's/^\\[vigía\\] //' | gre…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:05:18+00:00"
+ "actualizado": "2026-11-03T19:06:32+00:00"
 }
