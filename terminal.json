@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:50:01+00:00",
-   "tipo": "bash",
-   "desc": "Esperar el resultado de la secuencia con el arreglo",
-   "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*out_fix\" >/dev/null; do sleep 15; done; S=$S; cat $S/tour/out_fix/tour.md | cut -c1-250; python3 -c \"  … (+2 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:05:15+00:00",
    "tipo": "bash",
    "desc": "Leer el resultado de la secuencia con el arreglo",
@@ -279,8 +272,15 @@
    "desc": "Anotar cómo seguir la gira",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:36:30+00:00",
+   "tipo": "bash",
+   "desc": "Esperar la tanda 01 y lanzar la 02 con el motor nuevo",
+   "cmd": "S=$S; until ! pgrep -f \"galaxy_tour.mjs.*next_01\" >/dev/null; do sleep 15; done; echo \"== tanda 01\"; cat $S/tour/out_01/tour.md | cut -c1-250; cd ~/repo && cat $S/tour/batch_02 &&…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T22:33:18+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T22:36:30+00:00"
 }
