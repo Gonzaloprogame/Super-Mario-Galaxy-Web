@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:02:47+00:00",
-   "tipo": "bash",
-   "desc": "Ver el avance de la primera tanda de la gira",
-   "cmd": "S=$S; cat $S/tour/out_00/tour.md 2>/dev/null; echo ---; tail -15 $S/tour/out_00/log_tail.txt 2>/dev/null | cut -c1-300; echo; cat $S/tour/batch_00; uptime",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:02:54+00:00",
    "tipo": "bash",
    "desc": "Ver el estado de la parada y el código de la gira",
@@ -279,8 +272,15 @@
    "desc": "Ver el avance de la reproducción",
    "cmd": "S=$S; cat $S/tour/out_cocoon/tour.md 2>/dev/null; grep -h \"tour:\\|load '\" $S/tour/out_cocoon/log_tail.txt 2>/dev/null | cut -c1-200; date",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:30:05+00:00",
+   "tipo": "bash",
+   "desc": "Esperar hasta 10 minutos a que falle o acabe",
+   "cmd": "S=$S; for i in $(seq 1 50); do grep -q \"Fin: en curso\" $S/tour/out_cocoon/tour.md || break; sleep 12; done; cat $S/tour/out_cocoon/tour.md | tail -2; date",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:20:00+00:00"
+ "actualizado": "2026-11-03T20:30:05+00:00"
 }
