@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:09:01+00:00",
-   "tipo": "bash",
-   "desc": "Buscar el operator new global y malloc",
-   "cmd": "cd ~/repo; grep -n \"operator new(unsigned long)\\|operator new\\[\\]\\|:malloc\\b\\|malloc\" build/site_diag/smg_web.js.symbols | head -20; grep -rn \"operator new(size_t\\|operator new(st…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:09:05+00:00",
    "tipo": "bash",
    "desc": "Ver el operator new de JKRHeap y cómo se enlaza",
@@ -279,8 +272,15 @@
    "desc": "Publicar el motor arreglado en la página",
    "cmd": "S=$S; B=~/repo/build/site; cd $S/gh-pages && cp $B/app.js $B/smg_web.js $B/smg_web.wasm $B/smg_headless_web.js $B/smg_headless_web.wasm . && cp $B/bridge/gx_bridge.js $B/bridge/gx…  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:05:57+00:00",
+   "tipo": "bash",
+   "desc": "Actualizar el registro y preparar la siguiente tanda",
+   "cmd": "cd ~/repo; S=$S; python3 - <<'EOF'  … (+21 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:05:43+00:00"
+ "actualizado": "2026-11-03T22:05:57+00:00"
 }
