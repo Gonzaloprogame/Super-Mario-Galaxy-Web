@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:06:36+00:00",
-   "tipo": "bash",
-   "desc": "Actualizar el estado del port en el README",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+19 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:06:47+00:00",
    "tipo": "bash",
    "desc": "Corregir y subir el README",
@@ -279,8 +272,15 @@
    "desc": "Anotar la tanda 02 en el registro",
    "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+25 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:33:56+00:00",
+   "tipo": "bash",
+   "desc": "Ver el resultado de la tanda 03",
+   "cmd": "S=$S; cat $S/tour/out_03/tour.md | cut -c1-250; grep -c \"memory error\" $S/tour/out_03/log_end.txt; grep -c \"report:\" $S/tour/out_03/log_end.txt; cat $S/tour/batch_04",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T23:09:22+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T23:33:56+00:00"
 }
