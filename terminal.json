@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:19:09+00:00",
-   "tipo": "bash",
-   "desc": "Guardar el registro al fallar y recompilar la página",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:19:16+00:00",
    "tipo": "bash",
    "desc": "Reproducir el fallo de CocoonExGalaxy sola",
@@ -279,8 +272,15 @@
    "desc": "Compilar el motor de diagnóstico",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched; sed -i 's|^#include <algorithm>$|#include <algorithm>\\n#include <cstdio>|' lib/gfx/pipeline_cache.cpp; cd ~/repo; source ~/tools/emsdk/e…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:52:36+00:00",
+   "tipo": "bash",
+   "desc": "Preparar el sitio de diagnóstico",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+11 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:52:26+00:00"
+ "actualizado": "2026-11-03T20:52:36+00:00"
 }
