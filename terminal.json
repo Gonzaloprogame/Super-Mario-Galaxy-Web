@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:04:46+00:00",
-   "tipo": "bash",
-   "desc": "Esperar el resultado de la segunda parada",
-   "cmd": "S=$S; until ! pgrep -f \"until grep -q BeltConveyer\" >/dev/null && [ -s $TMP ]; do sleep 10; done; cat $TMP",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:04:51+00:00",
    "tipo": "bash",
    "desc": "Ver cómo se ejecuta la prueba del mando",
@@ -279,8 +272,15 @@
    "desc": "Confirmar y subir el informe de la pila",
    "cmd": "cd ~/repo; git add -A web/shell/app.js web/shell/boot_worker.post.js web/host/headless_host.c web/tests/browser_smoke.mjs tools/galaxy_tour.mjs docs/PROGRESO_AUTONOMO.md && git co…  … (+17 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:44:11+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance de la secuencia de cinco escenarios",
+   "cmd": "S=$S; cat $S/tour/out_seq5/tour.md; date",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T20:33:53+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T20:44:11+00:00"
 }
