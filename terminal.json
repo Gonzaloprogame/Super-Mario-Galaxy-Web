@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:56:44+00:00",
-   "tipo": "bash",
-   "desc": "Detectar bien el cambio de escenario al exportar",
-   "cmd": "python3 - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:56:51+00:00",
    "tipo": "bash",
    "desc": "Ver cómo guarda la página la partida en IndexedDB",
@@ -279,8 +272,15 @@
    "desc": "Leer el arranque del driver como base de la herramienta",
    "cmd": "S=$S; sed -n 1,40p $S/drive/driver.mjs | cut -c1-200",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:44:23+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/tools/galaxy_tour.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:43:54+00:00"
+ "actualizado": "2026-11-03T19:44:23+00:00"
 }
