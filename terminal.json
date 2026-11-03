@@ -1,125 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:10:19+00:00",
-   "tipo": "bash",
-   "desc": "Volcar la lista de 102 shaders y parar la segunda sesión",
-   "cmd": "S=$S; curl -s \"127.0.0.1:18777/pipelines\"; echo; cp $S/drive/run48/pipelines_RMGE01.bin $S/drive/pipelines_session2.bin; ls -la $S/drive/pipelines_session2.bin | awk '{print $5, \"…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:10:36+00:00",
-   "tipo": "bash",
-   "desc": "Leer el valor final de la barra al empezar el juego",
-   "cmd": "cat > $S/edit_loading2.py <<'EOF'  … (+51 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:12:56+00:00",
-   "tipo": "bash",
-   "desc": "Tercera sesión con 102 shaders: medir los creados al jugar",
-   "cmd": "cp web/shell/app.js build/site/app.js && S=$S; cd $S/drive && (PIPELINES_IN=$S/drive/pipelines_session2.bin TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 timeout 1500 node driver.mjs…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:13:23+00:00",
-   "tipo": "bash",
-   "desc": "Añadir pruebas automáticas de la pantalla de carga",
-   "cmd": "cat > $S/edit_smoke_loading.py <<'EOF'  … (+52 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:15:02+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar la prueba del sitio con las comprobaciones de la pantalla de carga",
-   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && cmp web/shell/index.html build/site/index.html …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:15:44+00:00",
-   "tipo": "bash",
-   "desc": "Probar el puente y documentar la pantalla de carga",
-   "cmd": "timeout 900 node web/tests/bridge_smoke.mjs build/site/bridge 2>&1 | grep -E \"^FAIL|pasaron|fallaron\"; python3 - <<'EOF'  … (+52 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:17:29+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar en español, subir y publicar la pantalla de carga",
-   "cmd": "git add web/aurora/patches/0026-web-pipeline-cache.patch web/host/aurora_bridge.cpp web/host/aurora_bridge.h web/host/headless_host.c web/shell/app.js web/shell/index.html web/she…  … (+35 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:17:37+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar los archivos incluidos en el commit",
-   "cmd": "git show --stat --format=%h HEAD | tail -14; git status --short | head -3",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:36:14+00:00",
-   "tipo": "bash",
-   "desc": "Ver la estructura del README actual",
-   "cmd": "wc -l README.md && grep -n \"^#\\|^| \" README.md | head -80",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:37:14+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "$S/edit_readme.py",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:37:29+00:00",
-   "tipo": "bash",
-   "desc": "Aplicar la actualización del README",
-   "cmd": "S=$S; sed -i 's/| Resto de galaxias (41) | ⏳ |/| Resto de escenarios (40 de 44) | ⏳ |/; s/Recorrer las 44 galaxias con la gira/Recorrer los 44 escenarios con la gira/; s/entrar en…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:37:39+00:00",
-   "tipo": "bash",
-   "desc": "Corregir el aviso y revisar el resultado",
-   "cmd": "python3 - <<'EOF'  … (+10 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:38:19+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar en español y subir el README actualizado",
-   "cmd": "sed -i 's/hay una gira de prueba para recorrerlas (`?tour=`)/hay una gira de prueba para recorrerlos (`?tour=`)/' README.md && grep -c \"recorrerlos\" README.md && git add README.md…  … (+15 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:43:02+00:00",
-   "tipo": "bash",
-   "desc": "Ver el estado del repositorio y el hilo de la NAND",
-   "cmd": "git status --short | head; git log --oneline -8; ls web/aurora/patches | wc -l; ls web/tests; grep -n \"nand_main\" -A 30 web/host/console_services.c | head -50",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:43:36+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:43:54+00:00",
-   "tipo": "bash",
-   "desc": "Leer el arranque del driver como base de la herramienta",
-   "cmd": "S=$S; sed -n 1,40p $S/drive/driver.mjs | cut -c1-200",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:44:23+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/tools/galaxy_tour.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:44:35+00:00",
    "tipo": "bash",
    "desc": "Preparar las tandas de escenarios de la gira",
@@ -279,8 +160,127 @@
    "desc": "Ver el avance de la primera tanda de la gira",
    "cmd": "S=$S; cat $S/tour/out_00/tour.md 2>/dev/null; echo ---; tail -15 $S/tour/out_00/log_tail.txt 2>/dev/null | cut -c1-300; echo; cat $S/tour/batch_00; uptime",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:02:54+00:00",
+   "tipo": "bash",
+   "desc": "Ver el estado de la parada y el código de la gira",
+   "cmd": "S=$S; cat $S/tour/out_00/tour.json | head -40; grep -n \"tour\" web/host/headless_host.c | head -40",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:02:58+00:00",
+   "tipo": "bash",
+   "desc": "Leer la lógica de la gira en el host",
+   "cmd": "cd ~/repo; sed -n 405,500p web/host/headless_host.c; S=$S; echo $(( ($(date +%s%3N) - 1793736059513)/1000 )) s since stop",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:04+00:00",
+   "tipo": "bash",
+   "desc": "Buscar las líneas de la gira en el registro",
+   "cmd": "S=$S; grep -h \"tour\\|load '\" $S/tour/out_00/log_tail.txt | cut -c1-200; date",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:07+00:00",
+   "tipo": "bash",
+   "desc": "Buscar la afirmación sobre la NAND en MOTOR_WEB.md",
+   "cmd": "cd ~/repo; grep -n \"NAND\\|100 %\" docs/MOTOR_WEB.md | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:10+00:00",
+   "tipo": "bash",
+   "desc": "Leer el párrafo de la NAND en MOTOR_WEB.md",
+   "cmd": "cd ~/repo; sed -n 470,482p docs/MOTOR_WEB.md",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:16+00:00",
+   "tipo": "bash",
+   "desc": "Corregir el dato de la NAND en MOTOR_WEB.md",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:19+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar cómo espera el hilo de la NAND",
+   "cmd": "cd ~/repo; grep -n \"nand_main\\|sNandWake\\|sNandRoom\\|cond_wait\\|cond_timedwait\" web/host/console_services.c | sed -n 1,30p",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:31+00:00",
+   "tipo": "bash",
+   "desc": "Revisar los cambios pendientes de los mandos",
+   "cmd": "cd ~/repo; git status --short; git diff web/shell/controls.js | head -200",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:03:39+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a la segunda parada de la gira",
+   "cmd": "S=$S; until grep -q \"BeltConveyerExGalaxy\\|Fin: [^e]\" $S/tour/out_00/tour.md 2>/dev/null || ! pgrep -f \"galaxy_tour.mjs.*batch_00\" >/dev/null; do sleep 15; done; cat $S/tour/out_0…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:04:46+00:00",
+   "tipo": "bash",
+   "desc": "Esperar el resultado de la segunda parada",
+   "cmd": "S=$S; until ! pgrep -f \"until grep -q BeltConveyer\" >/dev/null && [ -s $TMP ]; do sleep 10; done; cat $TMP",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:04:51+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo se ejecuta la prueba del mando",
+   "cmd": "cd ~/repo; grep -n \"gamepad\\|getGamepads\\|^const only\\|process.argv\\|ONLY\" web/tests/browser_smoke.mjs | head -30; wc -l web/tests/browser_smoke.mjs",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:04:54+00:00",
+   "tipo": "bash",
+   "desc": "Leer la estructura de browser_smoke.mjs",
+   "cmd": "cd ~/repo; sed -n 1,40p web/tests/browser_smoke.mjs; sed -n 200,300p web/tests/browser_smoke.mjs",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:05:07+00:00",
+   "tipo": "bash",
+   "desc": "Buscar dependencias de la versión norteamericana",
+   "cmd": "cd ~/repo; grep -rn \"RMGE01\\|RMGE\\b\\|RMG[EPJK]\" web --include=*.js --include=*.c --include=*.cpp --include=*.h --include=*.html --include=*.mjs | grep -v \"^web/tests\" | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:05:13+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que termine la primera tanda de la gira",
+   "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*batch_00\" >/dev/null; do sleep 20; done; S=$S; cat $S/tour/out_00/tour.md; tail -3 $S/tour/run_00.log",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:05:20+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué hace el host con los discos PAL y japonés",
+   "cmd": "cd ~/repo; grep -n \"RMGP01\\|RMGJ01\\|region\\|región\" web/host/headless_host.c | head; sed -n 150,170p web/host/headless_host.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:05:24+00:00",
+   "tipo": "bash",
+   "desc": "Ver por qué la página rechaza los discos PAL y japonés",
+   "cmd": "cd ~/repo; sed -n 220,256p web/shell/app.js; grep -rn \"RMGP01\\|PAL\" docs/*.md | head -15",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:05:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo se elige la versión del juego al compilar",
+   "cmd": "cd ~/repo; sed -n 5,20p docs/ARCHIVOS_DEL_JUEGO.md; grep -n \"VERSION\" web/game/CMakeLists.txt | head; grep -rn \"VERSION\" third_party/nebula/CMakeLists.txt 2>/dev/null | head -5; l…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:02:47+00:00"
+ "actualizado": "2026-11-03T20:05:28+00:00"
 }
