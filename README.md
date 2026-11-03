@@ -152,13 +152,15 @@ de esta tabla: 3 de noviembre de 2026*):
 | Arranque y pantalla de título | ✅ | Comprobado con un disco real, en escritorio y Android |
 | Pantalla de carga | ✅ | Pasos reales del arranque y barra de shaders guardados (desde la segunda sesión) |
 | Elegir archivo y crear partida | ✅ | Las partidas se guardan y se recuperan |
-| Prólogo (el libro de cuentos) | 🧪 | Avanza con A; **en un PC se colgó en la segunda página** (sin causa todavía) |
+| Prólogo (el libro de cuentos) | 🧪 | Avanza con A; **en un PC se colgó en la segunda página**; quizá por el fallo de memoria ya arreglado, sin comprobar |
 | Vídeos (THP) | ✅ | Los dos vídeos del prólogo, completos: 12.667 fotogramas, ninguno rechazado, ~3,5 ms cada uno |
 | Jardín del castillo (primer nivel) | ✅ | Escenario, Mario, cielo, efectos y HUD |
 | Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
 | Observatorio (*AstroGalaxy*) | 🧪 | Carga y se mueve; sin jugar a fondo |
 | *EggStarGalaxy* | ✅ | Se colgaba siempre; **arreglado** (parche 0025) y comprobado 4 minutos con el disco |
-| Resto de escenarios (40 de 44) | ⏳ | Sin probar; hay una gira de prueba para recorrerlos (`?tour=`) |
+| Gira automática (5 escenarios más) | 🧪 | *BattleShip*, *BeltConveyerEx*, *BreakDownPlanet*, *CannonFleet* y *CocoonEx* cargan y dibujan sin errores; **sin jugar** |
+| *CocoonExGalaxy* | 🧪 | El motor moría allí tras varias galaxias: **arreglado** (el host pisaba memoria del motor) y comprobado con la gira; sin jugar |
+| Resto de escenarios | ⏳ | La gira sigue recorriéndolos (`?tour=`); cargar y dibujar no es lo mismo que poder jugarlos |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
 | Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; sin confirmar en un teléfono |
 | Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras posteriores sin medir allí |
@@ -287,6 +289,12 @@ Publicado en la página, todavía sin número de versión:
   instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
   la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg
   con fotogramas reales.
+- 💥 **El motor ya no muere tras varias galaxias:** la lista de *shaders* que se guarda para la pantalla de carga se
+  creaba en el hilo del juego con su propio gestor de memoria, que a veces devolvía la dirección 0: la lista se
+  escribía encima de datos del motor, y tras unas cuantas galaxias el motor moría (`table index is out of bounds`,
+  en *CocoonExGalaxy*). Ahora usa la memoria del host; una prueba nueva lo comprueba.
+- 🧾 **Los errores del motor traen su pila** en el registro, para saber dónde fue.
+- 🎮 **Mandos físicos** (Gamepad API, distribución estándar); probados con un mando simulado, falta uno real.
 - 🧊 **EggStarGalaxy ya no se cuelga:** el juego manda una tira de triángulos de 0 vértices, y Aurora reservaba unos
   4 GB para ella (parche 0025).
 - 🎨 **Una advertencia en lugar de una parada:** una etapa de textura que lee coordenadas que nadie genera ya no
