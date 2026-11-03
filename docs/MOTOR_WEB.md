@@ -472,8 +472,10 @@ El cuelgue de `EggStarGalaxy`, según el aviso de bloqueo: el hilo de render lle
 `aurora::gx::fifo::drain()` (Aurora interpretando la GX del fotograma) sin avanzar; la cola hacia él se llena
 (16.384 de 16.384) y el hilo de audio del juego (`JASAudioThread` → `JASDSPChannel::updateProc`) espera sitio dentro
 de `gpu_coherent`. El perfilador del navegador confirma el hilo de audio, pero el hilo de render no le responde: está en
-un bucle de WebAssembly que no devuelve el control. De paso, el perfil muestra que el hilo de la NAND gasta el 100 %
-de su CPU esperando activamente.
+un bucle de WebAssembly que no devuelve el control. (El perfil también daba un 100 % al hilo de la NAND, pero **no es
+una espera activa**: ese hilo duerme en `pthread_cond_wait`, `web/host/console_services.c`, y el perfilador da el
+mismo 100 % a los hilos del reloj dormidos en `_do_futex_wait`. Cuenta como ocupado un hilo bloqueado. Corregido el
+2026-11-03, ver `docs/PROGRESO_AUTONOMO.md`.)
 
 **Causa (2026-11-03).** El parche de Aurora 0024 cuenta las órdenes que lee su procesador. En el aviso de bloqueo, dos
 informes separados 30 s dieron el mismo número y la misma última orden: `0x98`, una tira de triángulos de **0
