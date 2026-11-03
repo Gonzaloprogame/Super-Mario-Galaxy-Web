@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:57:25+00:00",
-   "tipo": "bash",
-   "desc": "Ver las variables de color y el estilo del marco de la pantalla",
-   "cmd": "sed -n 8,30p web/shell/index.html | grep -n \"\\-\\-\" | head -20; grep -n \"^  \\.frame\\|\\.frame {\" web/shell/index.html",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:57:42+00:00",
    "tipo": "bash",
    "desc": "Añadir la pantalla de carga a la página",
@@ -279,8 +272,15 @@
    "desc": "Leer el módulo de controles de la página",
    "cmd": "wc -l web/shell/controls.js && sed -n 1,110p web/shell/controls.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:45:14+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resto de los controles y la ayuda de la página",
+   "cmd": "sed -n 110,188p web/shell/controls.js; grep -n \"pad-help\" -A 8 web/shell/index.html | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:44:56+00:00"
+ "actualizado": "2026-11-03T19:45:14+00:00"
 }
