@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:33:04+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el host con el modo de prueba nuevo",
-   "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; nice -n 10 ninja -C build/all smg_headless_web 2>&1 | tail -3",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:33:10+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que acabe la secuencia de cinco escenarios",
-   "cmd": "S=$S; until ! pgrep -f \"galaxy_tour.mjs.*seq5\" >/dev/null; do sleep 15; done; cat $TMP | cut -c1-400",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:33:47+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir el informe de la pila",
@@ -279,8 +265,22 @@
    "desc": "Leer cómo se separa el operator new del juego",
    "cmd": "cd ~/repo; sed -n 45,70p web/cmake/SmgGame.cmake; cat web/platform/operator_new_wasm.cpp | head -80",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:33+00:00",
+   "tipo": "bash",
+   "desc": "Buscar otras asignaciones con new en el hilo del juego",
+   "cmd": "cd ~/repo; grep -n \"std::vector\\|std::string\\|new \\|make_unique\\|make_shared\\|std::map\\|unordered\" web/host/thp_video.cpp web/host/aurora_bridge.cpp | head -30; grep -n \"nebula_we…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:09:38+00:00",
+   "tipo": "bash",
+   "desc": "Ver en qué hilo se usan los vectores del puente",
+   "cmd": "cd ~/repo; sed -n 198,206p web/host/aurora_bridge.cpp; sed -n 346,358p web/host/aurora_bridge.cpp; grep -n \"g_trace\\b\\|g_trace\\.\\|log_text\\|present_text\" web/host/aurora_bridge.cp…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:09:09+00:00"
+ "actualizado": "2026-11-03T21:09:38+00:00"
 }
