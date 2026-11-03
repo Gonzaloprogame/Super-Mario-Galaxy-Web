@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:47:01+00:00",
-   "tipo": "bash",
-   "desc": "Ver el estado de la compilación y la prueba",
-   "cmd": "S=$S; tail -2 $S/build.log | cut -c1-150; cat $S/bridge_fix.log 2>/dev/null | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:47:06+00:00",
    "tipo": "bash",
    "desc": "Leer el principio de la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Ver quién toma el cerrojo del registro de vigía",
    "cmd": "cd ~/repo; grep -n \"sWatchLock\\|smg_console_counters\" web/host/*.c | head; sed -n 255,270p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:17:03+00:00",
+   "tipo": "bash",
+   "desc": "Mandar el informe final del error por stderr",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+21 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:16:44+00:00"
+ "actualizado": "2026-11-03T22:17:03+00:00"
 }
