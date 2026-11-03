@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:15:44+00:00",
-   "tipo": "bash",
-   "desc": "Leer el manejo de errores del worker",
-   "cmd": "cd ~/repo; sed -n 30,60p web/shell/boot_worker.post.js; sed -n 485,500p web/shell/app.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:15:53+00:00",
    "tipo": "bash",
    "desc": "Pasar la pila del error del motor al registro",
@@ -279,8 +272,15 @@
    "desc": "Leer la colocación de la pila de arranque",
    "cmd": "cd ~/repo; sed -n 805,830p third_party/nebula/native/sdk/os/os_native.c; sed -n 940,960p third_party/nebula/native/sdk/os/os_native.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:49:29+00:00",
+   "tipo": "bash",
+   "desc": "Añadir comprobaciones de diagnóstico locales a la exportación",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; cp lib/gfx/pipeline_cache.cpp $S/pipeline_cache.cpp.orig; python3 - <<'EOF'  … (+53 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:49:00+00:00"
+ "actualizado": "2026-11-03T20:49:29+00:00"
 }
