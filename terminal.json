@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:29:47+00:00",
-   "tipo": "bash",
-   "desc": "Ver el avance de la gira",
-   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | grep -E \"tour|stage:|FATAL|ERROR|WARNING|stall|resumed|Aborted\" | sed 's/^\\[vigía\\] //' | cut -c1-200 | tail -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:29:53+00:00",
    "tipo": "bash",
    "desc": "Leer el informe completo del cuelgue en EggStarGalaxy",
@@ -279,8 +272,15 @@
    "desc": "Añadir la variante de bloqueo que cede y sus comprobaciones",
    "cmd": "python3 - <<'EOF'  … (+48 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:26:43+00:00",
+   "tipo": "bash",
+   "desc": "Compilar y probar la sonda en las dos variantes de bloqueo",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_probe.log 2>&1; echo \"compilación: $?\"; grep -m5 -E \" error|error:\" $S/build_probe.log; timeout …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:23:35+00:00"
+ "actualizado": "2026-11-03T12:26:43+00:00"
 }
