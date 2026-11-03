@@ -263,6 +263,9 @@ static void report(void);
 static void svc_fatal(void* user, const char* text) {
     (void)user;
     fprintf(stderr, "[host] the game stopped: %s\n", text);
+    /* The final report through stderr, in order with these lines: the game's own thread is here (it does not hang), and
+       through the watch log the page could see the engine's exit before the report (browser_smoke.mjs) */
+    atomic_store(&sWatchReader, 0);
     report();
     host_exit(3);
 }
@@ -689,7 +692,48 @@ static uint32_t svc_sc_get(void* user, uint32_t item) {
 
 static double sSeconds = 10.0;
 
+/* ---- writes through a null pointer ----
+   WebAssembly memory below 1024 holds nothing: Emscripten's data starts there (its GLOBAL_BASE), no game address maps
+   there (the arena is at 512 MB), and unlike a console or a PC, wasm does not stop a write through a null pointer.
+   What it writes there is harmless, but a write that size (an array, a vector) goes on over the binary's static data:
+   function pointers and vtables, which fail later, anywhere (CocoonExGalaxy's "table index is out of bounds",
+   docs/PROGRESO_AUTONOMO.md). The report checks it and says so, once per change. */
+#if defined(__EMSCRIPTEN__)
+static volatile uintptr_t sLowBase; /* 0, opaque to the compiler, for which a null dereference would be undefined */
+static uint32_t sLowSum;
+
+static void check_low_memory(void) {
+    const volatile uint8_t* const low = (const volatile uint8_t*)sLowBase;
+    uint32_t sum = 0;
+    int first = -1, count = 0;
+    for (int i = 0; i < 1024; i++) {
+        const uint8_t b = low[i];
+        if (b != 0) {
+            if (first < 0) {
+                first = i;
+            }
+            count++;
+        }
+        sum = sum * 31u + b;
+    }
+    if (count > 0 && sum != sLowSum) {
+        char bytes[3 * 16 + 1] = "";
+        for (int i = 0; i < 16 && first + i < 1024; i++) {
+            snprintf(bytes + 3 * i, sizeof(bytes) - 3 * (size_t)i, " %02x", low[first + i]);
+        }
+        host_log("[host] memory error: %d bytes below address 1024 have been written, the first at %d (%s): a write "
+                 "through a null pointer, which wasm does not stop; a larger one goes on over the binary's data, and "
+                 "the engine can fail anywhere after it\n",
+                 count, first, bytes + 1);
+    }
+    sLowSum = sum;
+}
+#endif
+
 static void report(void) {
+#if defined(__EMSCRIPTEN__)
+    check_low_memory();
+#endif
     SmgConsoleCounters console;
     smg_console_counters(&console);
     host_log(
@@ -1029,6 +1073,17 @@ int main(int argc, char** argv) {
     if (pthread_create(&clock, NULL, clock_main, NULL) != 0) {
         die("the retrace clock cannot start");
     }
+#if defined(__EMSCRIPTEN__)
+    if (argc > 5 && strcmp(argv[5], "hangtest-nullwrite") == 0) {
+        /* The page's ?hangtest=nullwrite (web/tests/browser_smoke.mjs): a write through a null pointer, as the pipeline
+           export made before its fix; the game then runs as usual, and the next report must say it */
+        fprintf(stderr, "[host] null write test: writing 32 bytes at address 64\n");
+        volatile uint8_t* const low = (volatile uint8_t*)sLowBase;
+        for (int i = 0; i < 32; i++) {
+            low[64 + i] = (uint8_t)(0xA0 + i);
+        }
+    }
+#endif
     if (argc > 5 && strcmp(argv[5], "hangtest-trap") == 0) {
         /* The page's ?hangtest=trap (web/tests/browser_smoke.mjs): a call through a function pointer that is not in the
            table, the way a corrupt object or vtable fails in WebAssembly ("table index is out of bounds"). The page
@@ -1037,7 +1092,7 @@ int main(int argc, char** argv) {
         void (*volatile missing)(void) = (void (*)(void))(uintptr_t)0x7FFFFFF0u;
         missing();
     }
-    if (argc > 5 && strncmp(argv[5], "hangtest", 8) == 0) {
+    if (argc > 5 && (strcmp(argv[5], "hangtest") == 0 || strcmp(argv[5], "hangtest-yield") == 0)) {
         const int yielding = strcmp(argv[5], "hangtest-yield") == 0;
         /* The page's ?hangtest=1 (web/tests/browser_smoke.mjs): as if the game had drawn and then hung inside a host
            service, its thread spins without yielding while the clock thread goes on. The reports and the stall report

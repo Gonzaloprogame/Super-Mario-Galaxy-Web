@@ -102,7 +102,7 @@ try {
       } else if ((m = /^\[host\] the game's stream resumed after (\d+) s/.exec(line)) && current) {
         const last = current.stalls[current.stalls.length - 1];
         if (last) last.resumed = Number(m[1]);
-      } else if (/\[aurora (ERROR|FATAL|WARNING)|^\[host\] the game stopped|^\[página\] (el motor se detuvo|Error en el motor|El motor abortó)/.test(line) && current) {
+      } else if (/\[aurora (ERROR|FATAL|WARNING)|^\[host\] the game stopped|^\[host\] memory error|^\[página\] (el motor se detuvo|Error en el motor|El motor abortó)/.test(line) && current) {
         current.problems.push(line.slice(0, 300));
       } else if ((m = /^\[host\] report: .* GX (\d+) bytes/.exec(line))) {
         lastGx = Number(m[1]);

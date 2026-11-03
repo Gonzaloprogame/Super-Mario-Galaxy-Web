@@ -16,7 +16,8 @@ import { readFileSync, existsSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const site = join(root, "build", "site");
+// SMG_SITE: another copy of the site (to test a build while build/site is in use)
+const site = process.env.SMG_SITE || join(root, "build", "site");
 const fixtures = mkdtempSync(join(tmpdir(), 'smg-fixtures-'));
 execFileSync('python3', ['-I', join(root, 'web/tests/make_fixture.py'), fixtures]);
 
@@ -108,6 +109,8 @@ await withServer('isolated', async (url) => {
   check(/cStoryProgressTable .* is not in the disc's main\.dol/.test(r.log),
         'el módulo de juego (wasm) ejecutó su cargador de datos del DOL y explicó el fallo');
   check(/código 3/.test(r.status), `la interfaz muestra el código de salida real del motor: "${r.status.trim()}"`);
+  check(/\[host\] report:/.test(r.log) && !/memory error/.test(r.log),
+        'un arranque normal no escribe por debajo de la dirección 1024 (ninguna escritura por puntero nulo)');
   check(r.consoleErrors.length === 0, `sin excepciones de página (${r.consoleErrors.join('; ')})`);
   console.log('--- registro del motor (aislado) ---\n' + r.log.trim());
 
@@ -192,6 +195,25 @@ await withServer('isolated', async (url) => {
     check(/\[página\] Error en el motor: RuntimeError: table index is out of bounds; pila:\n[^\n]*\n\s*at /.test(trapLog) &&
           /\.wasm/.test(trapLog.split('pila:')[1] || ''),
           'error del motor: el registro tiene su pila, con las funciones de WebAssembly');
+    await browser.close();
+  }
+
+  // A write through a null pointer (?hangtest=nullwrite, web/host/headless_host.c), which wasm does not stop: the host's
+  // report must say it, as it would have said the pipeline export's writes at address 0 (CocoonExGalaxy's crash)
+  {
+    const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu'] });
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(`${url}?hangtest=nullwrite`);
+    await page.setInputFiles('#pak', join(fixtures, 'fixture_emptydol.pak'));
+    await page.selectOption('#mode', 'diagnostic');
+    await page.fill('#seconds', '60');
+    await page.click('#run');
+    await page.waitForFunction(() => ['done', 'error'].includes(document.body.dataset.state), null, { timeout: 90000 })
+      .catch(() => {});
+    const nullLog = await page.textContent('#log');
+    check(/null write test: writing 32 bytes at address 64/.test(nullLog) &&
+          /\[host\] memory error: 32 bytes below address 1024 have been written, the first at 64 \(a0 a1 a2 /.test(nullLog),
+          'una escritura por puntero nulo: el informe del host la detecta y dice dónde');
     await browser.close();
   }
 

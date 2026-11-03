@@ -136,3 +136,19 @@ abortos. La gira guarda además el registro entero (`log_end.txt`) cuando la pá
 - **Posible relación con el cuelgue del libro:** el fallo escribía sobre datos estáticos del motor a cada cambio de
   escenario y cada 600 escenas, así que pudo también colgar el juego en cualquier sitio. Sin comprobar: hay que
   repetir el prólogo en el PC del usuario con esta versión.
+
+### Bloque 4: detector de escrituras por puntero nulo (2026-11-03)
+
+- **Por qué:** el fallo de CocoonExGalaxy era una escritura en la dirección 0, que WebAssembly no detiene (en una
+  consola o un PC habría parado en el acto). Cualquier otra del mismo tipo puede romper el motor más tarde y en otro
+  sitio, o colgarlo, como quizá el libro del prólogo.
+- **Qué:** por debajo de 1024 la memoria de wasm no contiene nada (los datos de Emscripten empiezan ahí, `GLOBAL_BASE`;
+  la arena del juego está en 512 MB). El informe del host (cada 10 s y al parar el juego) la revisa y, si ha cambiado,
+  escribe `[host] memory error: N bytes below address 1024 have been written, the first at X (bytes…)`. La gira lo
+  anota como problema de la parada.
+- **Fallo encontrado de paso:** cuando el juego paraba (`svc_fatal`), su informe final iba por el registro de vigía y
+  la página podía ver la salida del motor antes que él: se perdía justo el informe que importa. Ahora va por `stderr`,
+  en orden (el hilo del juego es el que está ahí: no está colgado).
+- **Pruebas:** `browser_smoke.mjs`: `?hangtest=nullwrite` (el host escribe 32 bytes en la dirección 64) debe dar la
+  alarma con esos bytes; un arranque normal no debe darla. 48 PASS, 0 FAIL (con `SMG_SITE`, una copia del sitio,
+  porque la gira usaba `build/site`).

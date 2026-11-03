@@ -396,7 +396,8 @@ async function start() {
       $('run').disabled = false;
     }, 1500);
   };
-  presenter.onExit = finish;
+  // Before the end: the host's last lines (its final report) are still in the watch log
+  presenter.onExit = (code) => { readWatch(); finish(code); };
   // The watch log (web/host/headless_host.c, host_log): the host's reports come through a ring in the engine's shared
   // memory, read here every second, not through the engine's stderr: that goes through the game's thread, and when the
   // game hangs it holds the log back (the reports with it). The ring also holds the game's thread's heartbeat; when it
@@ -490,6 +491,7 @@ async function start() {
         break;
       case 'error':
         loading.stop();
+        readWatch(); // the host's last lines, before the error
         if (data.stack) log(`[página] ${data.text}; pila:\n${data.stack}`);
         setStatus(data.text, 'error');
         document.body.dataset.state = 'error';
@@ -497,6 +499,7 @@ async function start() {
         break;
       case 'exit':
         loading.stop();
+        readWatch(); // the host's last lines (its final report), before the end
         finish(data.code);
         break;
     }
@@ -579,9 +582,10 @@ async function start() {
   }
   // ?hangtest=1 (web/tests/browser_smoke.mjs): the host hangs the game's thread on purpose, to test the watch log
   // (?hangtest=yield: the thread waits yielding instead, as Nebula's scheduler sleeping for work; ?hangtest=trap: the
-  // host calls a function that does not exist, to test that the error's stack reaches the log)
+  // host calls a function that does not exist, to test that the error's stack reaches the log; ?hangtest=nullwrite: it
+  // writes through a null pointer, to test that the report says it)
   const hangtestParam = new URLSearchParams(location.search).get('hangtest');
-  const hangtest = { 1: 'hangtest', yield: 'hangtest-yield', trap: 'hangtest-trap' }[hangtestParam] || '';
+  const hangtest = { 1: 'hangtest', yield: 'hangtest-yield', trap: 'hangtest-trap', nullwrite: 'hangtest-nullwrite' }[hangtestParam] || '';
   // ?tour=Stage:scenario,...&tourframes=N: the galaxy tour (web/host/headless_host.c), every N scene frames
   const tour = new URLSearchParams(location.search).get('tour') || '';
   const tourFrames = Number(new URLSearchParams(location.search).get('tourframes')) || 0;
