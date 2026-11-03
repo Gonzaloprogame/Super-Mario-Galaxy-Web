@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:46:25+00:00",
-   "tipo": "bash",
-   "desc": "Nombrar la pila con el mapa de símbolos",
-   "cmd": "cd ~/repo; S=$S; ls -la build/all/engine/smg_web.js.symbols build/all/engine/smg_web.wasm build/site/smg_web.wasm; cmp build/all/engine/smg_web.wasm build/site/smg_web.wasm && ech…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:46:31+00:00",
-   "tipo": "bash",
-   "desc": "Leer svc_game_stage",
-   "cmd": "cd ~/repo; grep -n \"svc_game_stage\" web/host/headless_host.c; n=$(grep -n \"^static void svc_game_stage\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+75))p\" web/host/he…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:46:39+00:00",
    "tipo": "bash",
    "desc": "Leer la exportación de la caché en el puente",
@@ -279,8 +265,22 @@
    "desc": "Ver las opciones de prueba del puente",
    "cmd": "cd ~/repo; grep -n \"zerostrip\\|untexgen\\|nebula_arena_base\\|in_game_context\\|int main\\|gameMain\\|static void scene\\|OSInit\\|nebula_game\" web/bridge/bridge_main.c | head -30; grep …",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:10:21+00:00",
+   "tipo": "bash",
+   "desc": "Leer el principio del binario de prueba y su informe",
+   "cmd": "cd ~/repo; sed -n 1,59p web/bridge/bridge_main.c; grep -n \"bridge_report\\|\\[bridge\\] report\\|report\" web/tests/bridge_smoke.mjs | head -10",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T21:10:21+00:00",
+   "tipo": "bash",
+   "desc": "Leer el flujo del binario de prueba del puente",
+   "cmd": "cd ~/repo; sed -n 60,131p web/bridge/bridge_main.c; sed -n 195,260p web/bridge/bridge_main.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:10:17+00:00"
+ "actualizado": "2026-11-03T21:10:21+00:00"
 }
