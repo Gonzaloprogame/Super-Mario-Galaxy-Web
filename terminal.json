@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:46:46+00:00",
-   "tipo": "bash",
-   "desc": "Guardar la cola del registro en cada lectura de la gira",
-   "cmd": "python3 - <<'EOF'  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:46:53+00:00",
    "tipo": "bash",
    "desc": "Leer el texto de ayuda de los controles",
@@ -279,8 +272,15 @@
    "desc": "Ejecutar la prueba de la página con el mando simulado",
    "cmd": "cd ~/repo; cp web/shell/index.html web/shell/controls.js build/site/ && S=$S && timeout 1500 node web/tests/browser_smoke.mjs > $S/smoke_pad.log 2>&1; echo \"salida $?\"; grep -c PA…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:09:26+00:00",
+   "tipo": "bash",
+   "desc": "Revisar los cambios del README y la página",
+   "cmd": "cd ~/repo; git diff README.md web/shell/index.html",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:09:22+00:00"
+ "actualizado": "2026-11-03T20:09:26+00:00"
 }
