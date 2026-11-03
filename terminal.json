@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:05:28+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo se elige la versión del juego al compilar",
-   "cmd": "cd ~/repo; sed -n 5,20p docs/ARCHIVOS_DEL_JUEGO.md; grep -n \"VERSION\" web/game/CMakeLists.txt | head; grep -rn \"VERSION\" third_party/nebula/CMakeLists.txt 2>/dev/null | head -5; l…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:05:31+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo Nebula compila cada región",
-   "cmd": "cd ~/repo; grep -n \"VERSION\\|RMG\" web/game/CMakeLists.txt | head -20; grep -rn \"RMGP01\\|SMG_VERSION\\|NEBULA_VERSION\\|GAME_VERSION\" third_party/nebula/CMakeLists.txt third_party/ne…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:05:36+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la selección de región en Nebula",
-   "cmd": "cd ~/repo; grep -rln \"RMGP01\" third_party/nebula --include=CMakeLists.txt --include=*.cmake --include=*.py 2>/dev/null | head; grep -rn \"VERSION=\\|-DVERSION\" web/game third_party/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:05:38+00:00",
    "tipo": "bash",
    "desc": "Leer la selección de región de Nebula",
@@ -279,8 +258,29 @@
    "desc": "Leer svc_game_stage",
    "cmd": "cd ~/repo; grep -n \"svc_game_stage\" web/host/headless_host.c; n=$(grep -n \"^static void svc_game_stage\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+75))p\" web/host/he…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:39+00:00",
+   "tipo": "bash",
+   "desc": "Leer la exportación de la caché en el puente",
+   "cmd": "cd ~/repo; grep -n \"pipeline_cache_export\\|pipeline_cache_count\" -A30 web/host/aurora_bridge.cpp | head -60",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:42+00:00",
+   "tipo": "bash",
+   "desc": "Buscar el bloqueo en la exportación del parche 0026",
+   "cmd": "cd ~/repo; grep -n \"^+\" web/aurora/patches/0026*.patch | grep -n \"aurora_pipeline_cache_export\\|aurora_pipeline_cache_count\\|lock\\|mutex\\|g_cacheBlob\\|std::vector\" | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:46:45+00:00",
+   "tipo": "bash",
+   "desc": "Leer la exportación del parche 0026",
+   "cmd": "cd ~/repo; sed -n 30,200p web/aurora/patches/0026*.patch",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:46:31+00:00"
+ "actualizado": "2026-11-03T20:46:45+00:00"
 }
