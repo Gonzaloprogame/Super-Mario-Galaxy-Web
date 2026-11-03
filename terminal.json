@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:59:58+00:00",
-   "tipo": "bash",
-   "desc": "Ver los comandos HTTP del driver",
-   "cmd": "S=$S; grep -n \"url.pathname ===\\|if (url.pathname\\|nandStore.put('RMGE01'\" $S/drive/driver.mjs | head -12",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:00:05+00:00",
    "tipo": "bash",
    "desc": "Leer el comando /nand y la inyección de la partida en el driver",
@@ -279,8 +272,15 @@
    "desc": "Ver el avance de la gira",
    "cmd": "S=$S; cat $S/tour/out_00/tour.md; date +%T",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:57:37+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a la primera parada de la gira",
+   "cmd": "S=$S; for i in $(seq 1 60); do grep -q \"Galaxy:\" $S/tour/out_00/tour.md 2>/dev/null && break; sleep 10; done; date +%T; cat $S/tour/out_00/tour.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:47:16+00:00"
+ "actualizado": "2026-11-03T19:57:37+00:00"
 }
