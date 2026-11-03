@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:52:39+00:00",
-   "tipo": "bash",
-   "desc": "Leer el procesado por fotograma y resolve_pipeline",
-   "cmd": "A=build/all/aurora/aurora-patched/lib/gfx; sed -n 1214,1240p $A/pipeline_cache.cpp; sed -n 540,570p $A/pipeline_cache.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:53:11+00:00",
    "tipo": "bash",
    "desc": "Leer los tipos de configuración de pipelines de Aurora",
@@ -279,8 +272,15 @@
    "desc": "Comprobar los archivos incluidos en el commit",
    "cmd": "git show --stat --format=%h HEAD | tail -14; git status --short | head -3",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:36:14+00:00",
+   "tipo": "bash",
+   "desc": "Ver la estructura del README actual",
+   "cmd": "wc -l README.md && grep -n \"^#\\|^| \" README.md | head -80",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T19:17:58+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T19:36:14+00:00"
 }
