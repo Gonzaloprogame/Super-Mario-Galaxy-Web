@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:12:41+00:00",
-   "tipo": "bash",
-   "desc": "Añadir las pruebas y compilar sin tocar el sitio",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+30 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:14:28+00:00",
    "tipo": "bash",
    "desc": "Probar el detector con una copia del sitio",
@@ -279,8 +272,15 @@
    "desc": "Leer el guion que llevaba el juego al prólogo",
    "cmd": "S=$S; cat $S/drive/to_play.sh | head -40; ls $S/drive/run16 | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T23:57:49+00:00",
+   "tipo": "bash",
+   "desc": "Recompilar el sitio y compararlo con el probado",
+   "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; bash tools/build_web.sh > $S/build.log 2>&1; echo \"build $?\"; for f in app.js smg_web.wasm smg_headless_web.was…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T23:55:45+00:00"
+ "actualizado": "2026-11-03T23:57:49+00:00"
 }
