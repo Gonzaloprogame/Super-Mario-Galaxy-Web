@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:29:53+00:00",
-   "tipo": "bash",
-   "desc": "Leer el informe completo del cuelgue en EggStarGalaxy",
-   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | grep -E \"stall: no GX from the game for (35|95|125|155) s\" | tail -1 | sed 's/; /;\\n  /g'",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:30:08+00:00",
    "tipo": "bash",
    "desc": "Ver qué pasó justo antes del cuelgue y cómo espera el hilo del juego",
@@ -279,8 +272,15 @@
    "desc": "Compilar y probar la sonda en las dos variantes de bloqueo",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_probe.log 2>&1; echo \"compilación: $?\"; grep -m5 -E \" error|error:\" $S/build_probe.log; timeout …",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:32:13+00:00",
+   "tipo": "bash",
+   "desc": "Corregir los atómicos, compilar y repetir la prueba",
+   "cmd": "sed -i 's/^static _Atomic uint64_t sSwitches;$/static uint64_t sSwitches;/; s/^static _Atomic uintptr_t sRunningEntry, sRunningArg;$/static uintptr_t sRunningEntry, sRunningArg;/'…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:26:43+00:00"
+ "actualizado": "2026-11-03T12:32:13+00:00"
 }
