@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:48:09+00:00",
-   "tipo": "bash",
-   "desc": "Leer el perfilador de workers",
-   "cmd": "S=$S; wc -l $S/drive/prof.mjs; sed -n 5,60p $S/drive/prof.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:52:04+00:00",
    "tipo": "bash",
    "desc": "Perfilar con plazo máximo por hilo",
@@ -279,8 +272,15 @@
    "desc": "Arrancar el juego con gira a HeavensDoorGalaxy para medir",
    "cmd": "S=$S; cd $S/drive && TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run43 graphics $S/drive/nand_RMGE01.bin > $S/drive/run43.out 2>&1",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:09:40+00:00",
+   "tipo": "bash",
+   "desc": "Esperar las líneas de medida de pipelines",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 90); do …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:07:52+00:00"
+ "actualizado": "2026-11-03T18:09:40+00:00"
 }
