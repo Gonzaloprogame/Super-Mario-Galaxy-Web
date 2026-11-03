@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:27:50+00:00",
-   "tipo": "bash",
-   "desc": "Preparar el parche 0025 para dibujos con menos de tres vértices",
-   "cmd": "S=$S/p0025; rm -rf $S; mkdir -p $S/a/lib/gx; cp ~/repo/build/all/aurora/aurora-patched/lib/gx/command_processor.cpp $S/a/lib/gx/ && cp -r $S/a $S/b && cd $S && python3 - <<'EOF'  … (+24 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:28:01+00:00",
    "tipo": "bash",
    "desc": "Leer cómo dibuja la escena su primer triángulo",
@@ -279,8 +272,15 @@
    "desc": "Añadir al driver el volcado y la inyección de la lista de shaders",
    "cmd": "S=$S; python3 - <<EOF  … (+26 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:04:29+00:00",
+   "tipo": "bash",
+   "desc": "Compilar el motor con la pantalla de carga",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:00:20+00:00"
+ "actualizado": "2026-11-03T19:04:29+00:00"
 }
