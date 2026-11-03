@@ -158,9 +158,9 @@ de esta tabla: 3 de noviembre de 2026*):
 | Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
 | Observatorio (*AstroGalaxy*) | 🧪 | Carga y se mueve; sin jugar a fondo |
 | *EggStarGalaxy* | ✅ | Se colgaba siempre; **arreglado** (parche 0025) y comprobado 4 minutos con el disco |
-| Gira automática (5 escenarios más) | 🧪 | *BattleShip*, *BeltConveyerEx*, *BreakDownPlanet*, *CannonFleet* y *CocoonEx* cargan y dibujan sin errores; **sin jugar** |
+| Gira automática: los 40 escenarios restantes | 🧪 | **Los 40 cargan y dibujan** (900 fotogramas cada uno, sin errores ni alarmas de memoria); **ninguno jugado**. Un aviso conocido en *SurfingLv1* (parche 0022) |
 | *CocoonExGalaxy* | 🧪 | El motor moría allí tras varias galaxias: **arreglado** (el host pisaba memoria del motor) y comprobado con la gira; sin jugar |
-| Resto de escenarios | ⏳ | La gira sigue recorriéndolos (`?tour=`); cargar y dibujar no es lo mismo que poder jugarlos |
+| Jugar cada galaxia | ⏳ | Cargar y dibujar no es poder jugarla: falta recorrerlas jugando, con sus jefes y sus misiones |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
 | Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; sin confirmar en un teléfono |
 | Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras posteriores sin medir allí |
@@ -340,7 +340,8 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 ## 🗺️ Próximos pasos
 
 - [ ] Encontrar y arreglar el cuelgue del libro del prólogo.
-- [ ] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare.
+- [x] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare (los 44 cargan y dibujan).
+- [ ] Jugar cada galaxia de principio a fin.
 - [ ] Oír y ajustar el sonido en dispositivos reales.
 - [ ] Más fotogramas por segundo en teléfonos.
 - [x] Vídeos THP.

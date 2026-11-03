@@ -3,9 +3,9 @@
   "actualizado": "2026-11-03",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
-    "etiqueta": "En curso · Hito 7",
-    "titulo": "Gira por las galaxias",
-    "detalle": "El motor recorre los escenarios solo y apunta lo que falla. Encontrado y arreglado: el motor moría tras varias galaxias (CocoonExGalaxy) porque el host escribía sobre su memoria."
+    "etiqueta": "Hecho · Hito 7",
+    "titulo": "Gira por las 44 galaxias",
+    "detalle": "Los 44 escenarios cargan y dibujan sin errores. Encontrado y arreglado por el camino: el motor moría tras varias galaxias. Falta jugarlas."
   },
   "comprobaciones": [
     {
@@ -46,6 +46,11 @@
     {
       "texto": "CocoonExGalaxy sin fallos",
       "detalle": "Arreglado y comprobado con la gira de cinco galaxias",
+      "estado": "hecho"
+    },
+    {
+      "texto": "Los 44 escenarios cargan y dibujan",
+      "detalle": "Gira automática, 900 fotogramas cada uno; sin jugar",
       "estado": "hecho"
     }
   ],
@@ -90,7 +95,7 @@
       "n": 7,
       "nombre": "Jugable de principio a fin",
       "estado": "encurso",
-      "pct": 20
+      "pct": 35
     },
     {
       "n": 8,

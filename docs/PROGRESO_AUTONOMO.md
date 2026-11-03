@@ -23,7 +23,7 @@ hilo bloqueado en una espera.
 
 | # | Tarea | Estado |
 |---|---|---|
-| 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | en curso |
+| 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | hecho: 44 de 44 cargan y dibujan (sin jugar) |
 | 2 | Mandos físicos (Gamepad API) | hecho con mando simulado; falta un mando real |
 | 3 | Cuelgue del libro del prólogo | bloqueado: no se reproduce aquí; falta el registro `[vigía]` del PC del usuario |
 | 4 | Arreglar lo que encuentre la gira | CocoonExGalaxy arreglada (bloque 3); sigue la gira |
@@ -33,13 +33,9 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** gira, tandas 03 y 04 encadenadas (`--site build/site_next`). Hechas: 00, 01, 02 y, antes, los 3 de la
-  tanda 00 que no llegaron a correr (CosmosGarden, CubeBubbleExLv1, CubeBubbleExLv2): `$S/tour/next_01` los junta con
-  la tanda 01. Comando: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out
-  $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`.
-- **Luego:** tandas 02 a 04 de la gira (`$S/tour/batch_02` … `batch_04`), arreglando lo que se pare, con el motor
-  nuevo (alarma de puntero nulo): `--site build/site_next` mientras `build/site` no se recompile
-  (`tools/build_web.sh` borra `build/site`: nunca con una gira en marcha).
+- **Siguiente:** recompilar `build/site` (`tools/build_web.sh`, ya sin gira en marcha) y probar el libro del prólogo
+  en modo diagnóstico (el juego a toda velocidad, sin renderizador), pulsando A como una persona, por si el cuelgue del
+  PC del usuario se reproduce aquí; después, medidas de rendimiento.
 - **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario; puede ser el mismo fallo de
   memoria arreglado en el bloque 3, sin comprobar); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
@@ -218,3 +214,23 @@ Llevamos 36 de 44 (32 de la gira y 4 de antes). Ninguno jugado. Falta la tanda 0
 texgen makes it (texgen source 21, type 1)`. Es el caso ya tratado (una etapa TEV que lee una coordenada que el juego no
 genera, indefinido en la consola; aquí coordenadas 0, en lugar de parar). Se avisa al crear el pipeline, como mucho 8
 veces por sesión. Puede ser una diferencia visual pequeña en algún efecto de ese nivel: **pendiente de mirar jugando**.
+
+### Bloque 8: tanda 04 y fin de la gira (2026-11-03)
+
+| Escenario | Carga | Paradas del juego |
+|---|---|---|
+| SurfingLv1Galaxy | 4 s | 0 (aviso del parche 0022, arriba) |
+| SurfingLv2Galaxy | 4,4 s | 0 |
+| TamakoroExLv1Galaxy | 3,1 s | 0 |
+| TamakoroExLv2Galaxy | 4,1 s | 0 |
+| TearDropGalaxy | 4 s | 0 |
+| TeresaMario2DGalaxy | 4 s | 0 |
+| TransformationExGalaxy | 5,1 s | 1, recuperada |
+| TriLegLv1Galaxy | 6,6 s | 0 |
+
+Sin alarmas de memoria (127 informes).
+
+**Resultado de la gira (comprobado contra la lista de 44):** los 40 escenarios de la gira terminaron «cargó y dibujó»
+(CocoonExGalaxy, tras el arreglo del bloque 3) y los otros 4 se comprobaron antes: **44 de 44 cargan y dibujan**.
+Encontrado y arreglado por el camino: el fallo de memoria de la exportación de pipelines. Queda un aviso conocido
+(SurfingLv1). **Ninguno se ha jugado**: el hito «jugable de principio a fin» sigue abierto.
