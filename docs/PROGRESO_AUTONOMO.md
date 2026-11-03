@@ -213,3 +213,8 @@ Ocho de ocho cargaron y dibujaron, sin avisos de Aurora ni alarmas de memoria (1
 | StarDustGalaxy | 6,7 s | 0 |
 
 Llevamos 36 de 44 (32 de la gira y 4 de antes). Ninguno jugado. Falta la tanda 04, en curso.
+
+**Tanda 04, SurfingLv1Galaxy:** cargó (4 s) y dibujó, con el aviso del parche 0022: `a stage reads texcoord 1, but no
+texgen makes it (texgen source 21, type 1)`. Es el caso ya tratado (una etapa TEV que lee una coordenada que el juego no
+genera, indefinido en la consola; aquí coordenadas 0, en lugar de parar). Se avisa al crear el pipeline, como mucho 8
+veces por sesión. Puede ser una diferencia visual pequeña en algún efecto de ese nivel: **pendiente de mirar jugando**.
