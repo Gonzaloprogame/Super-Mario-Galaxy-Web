@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:30:50+00:00",
-   "tipo": "bash",
-   "desc": "Leer la implementación de sched_yield en Emscripten",
-   "cmd": "E=~/tools/emsdk/upstream/emscripten/system/lib; grep -rn \"sched_yield\" $E/libc/musl/src/sched/sched_yield.c $E/pthread/*.c 2>/dev/null | head -5; grep -n \"void _emscripten_yield\" …",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:30:54+00:00",
    "tipo": "bash",
    "desc": "Leer el resto de _emscripten_yield y sched_yield",
@@ -279,8 +272,15 @@
    "desc": "Ver qué estadísticas de pipelines expone Aurora",
    "cmd": "A=build/all/aurora/aurora-patched; grep -n \"struct AuroraStats\" -A 22 $A/include/aurora/aurora.h | head -30; grep -rn \"queuedPipelines\\|createdPipelines\" $A/lib/gfx/*.cpp | head -6",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T17:55:15+00:00",
+   "tipo": "bash",
+   "desc": "Ver si el navegador crea los pipelines de forma síncrona o en cola",
+   "cmd": "A=build/all/aurora/aurora-patched; sed -n 380,430p $A/lib/gfx/pipeline_cache.cpp | grep -v \"^\\s*//\" | head -50; grep -n \"CreateRenderPipelineAsync\\|CreateRenderPipeline(\" $A/lib/g…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T17:55:06+00:00"
+ "actualizado": "2026-11-03T17:55:15+00:00"
 }
