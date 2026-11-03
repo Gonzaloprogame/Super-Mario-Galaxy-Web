@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:30:18+00:00",
-   "tipo": "bash",
-   "desc": "Esperar la prueba del puente sin el arreglo",
-   "cmd": "until ! pgrep -f \"bridge_smoke.mjs\" >/dev/null; do sleep 10; done; S=$S; grep -c PASS $S/bridge_nofix.log; grep \"exportación\\|FAIL\" $S/bridge_nofix.log | cut -c1-250",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:30:28+00:00",
    "tipo": "bash",
    "desc": "Ver el principio del registro de la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Leer el ayudante run de la prueba",
    "cmd": "cd ~/repo; sed -n 59,110p web/tests/browser_smoke.mjs; sed -n 178,200p web/tests/browser_smoke.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:12:41+00:00",
+   "tipo": "bash",
+   "desc": "Añadir las pruebas y compilar sin tocar el sitio",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+30 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:08:24+00:00"
+ "actualizado": "2026-11-03T22:12:41+00:00"
 }
