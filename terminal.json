@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:07:40+00:00",
-   "tipo": "bash",
-   "desc": "Compilar con el parche 0023 y ejecutar las pruebas del sitio y del puente",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_pipe.log 2>&1; echo \"compilación: $?\"; grep -m5 \"error:\" $S/build_pipe.log; timeout 1800 node we…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:07:52+00:00",
    "tipo": "bash",
    "desc": "Arrancar el juego con gira a HeavensDoorGalaxy para medir",
@@ -279,8 +272,15 @@
    "desc": "Comprobar que el juego dibuja en EggStarGalaxy y hacer una captura",
    "cmd": "curl -s \"127.0.0.1:18777/log?tail=12000\" | sed 's/^\\[vigía\\] //' | grep -E \"^\\[host\\] report:\" | tail -3 | grep -o \"retraces [0-9]*, frames [0-9]*, GX [0-9]* bytes\\|Wii Remote rep…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:44:25+00:00",
+   "tipo": "bash",
+   "desc": "Ejecutar las pruebas del sitio y del puente con el motor completo",
+   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && timeout 1800 node web/tests/browser_smoke.mjs 2…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:42:24+00:00"
+ "actualizado": "2026-11-03T18:44:25+00:00"
 }
