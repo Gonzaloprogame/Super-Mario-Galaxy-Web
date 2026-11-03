@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:09:39+00:00",
-   "tipo": "bash",
-   "desc": "Medir los pipelines creados al jugar en la segunda sesión",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 120); do curl -s \"127.0.0.1:18777/log?tail=8000\" | grep -q \"load 'FileSelect' -> 'HeavensDoorGalaxy'\" …",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:09:47+00:00",
    "tipo": "bash",
    "desc": "Sumar los pipelines creados durante la segunda sesión",
@@ -279,8 +272,15 @@
    "desc": "Lanzar de nuevo la primera tanda de la gira con la herramienta corregida",
    "cmd": "S=$S; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/batch_00 --out $S/tour/out_00 --nand $S/drive/nand_RMGE01.bin --frames 900 --han…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:00:53+00:00",
+   "tipo": "bash",
+   "desc": "Ver núcleos y carga del contenedor",
+   "cmd": "nproc; uptime",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:00:33+00:00"
+ "actualizado": "2026-11-03T20:00:53+00:00"
 }
