@@ -33,7 +33,7 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** gira, tanda 02 (`$S/tour/batch_02`, `--site build/site_next`). Hecho: la 01 y, antes, los 3 de la
+- **En curso:** gira, tandas 03 y 04 encadenadas (`--site build/site_next`). Hechas: 00, 01, 02 y, antes, los 3 de la
   tanda 00 que no llegaron a correr (CosmosGarden, CubeBubbleExLv1, CubeBubbleExLv2): `$S/tour/next_01` los junta con
   la tanda 01. Comando: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out
   $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`.
@@ -177,3 +177,22 @@ se compiló a mitad). Once de once cargaron y dibujaron 900 fotogramas de escena
 \* Coincidieron con compilaciones en el contenedor (4 núcleos): su carga no es representativa.
 
 Llevamos 20 escenarios de la gira, más los 4 comprobados antes: 24 de 44. Ninguno jugado.
+
+### Bloque 6: tanda 02 de la gira, con la alarma de puntero nulo (2026-11-03)
+
+Ocho de ocho cargaron y dibujaron 900 fotogramas de escena, sin avisos de Aurora. Primera tanda con el motor del
+bloque 4: en 161 informes del host, **ninguna alarma de memoria** (nada escribió por debajo de la dirección 1024).
+
+| Escenario | Carga | Paradas del juego |
+|---|---|---|
+| HoneyBeeKingdomGalaxy | 9,4 s | 1, recuperada |
+| IceVolcanoGalaxy | 9,2 s | 0 |
+| KoopaBattleVs1Galaxy | 6,8 s | 0 |
+| KoopaBattleVs2Galaxy | 7,6 s | 0 |
+| KoopaBattleVs3Galaxy | 10,8 s | 0 |
+| KoopaJrShipLv1Galaxy | 8,1 s | 0 |
+| OceanFloaterLandGalaxy | 7,9 s | 0 |
+| OceanPhantomCaveGalaxy | 11,6 s | 0 |
+
+Llevamos 32 de 44 (28 de la gira y 4 de antes). Ninguno jugado. Las tandas 03 y 04 van encadenadas
+(`$S/tour/out_03`, `out_04`).
