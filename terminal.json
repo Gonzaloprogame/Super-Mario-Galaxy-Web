@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:08:47+00:00",
-   "tipo": "bash",
-   "desc": "Leer host_log y la configuración de Asyncify",
-   "cmd": "cd ~/repo; n=$(grep -n \"^static void host_log\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+40))p\" web/host/headless_host.c; grep -n \"ASYNCIFY\" web/engine/CMakeLists.t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:08:57+00:00",
    "tipo": "bash",
    "desc": "Buscar qué operator new tiene el motor",
@@ -279,8 +272,15 @@
    "desc": "Esperar el resultado de la secuencia con el arreglo",
    "cmd": "until ! pgrep -f \"galaxy_tour.mjs.*out_fix\" >/dev/null; do sleep 15; done; S=$S; cat $S/tour/out_fix/tour.md | cut -c1-250; python3 -c \"  … (+2 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:05:15+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resultado de la secuencia con el arreglo",
+   "cmd": "S=$S; cat $S/tour/out_fix/tour.md | cut -c1-250; python3 -c \"  … (+2 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-03T21:50:10+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-03T22:05:15+00:00"
 }
