@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:19:10+00:00",
-   "tipo": "bash",
-   "desc": "Corregir el espacio de nombres y añadir el parche 0024",
-   "cmd": "S=$S/p0024; cd $S && grep -n \"^namespace\\|^} // namespace\\|^}  // namespace\\|^ProcessResult process\" b/lib/gx/command_processor.cpp | tail -6 && sed -i 's/aurora::gx::sCp/aurora::…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:19:18+00:00",
    "tipo": "bash",
    "desc": "Leer la descripción del hilo de render en el puente",
@@ -279,8 +272,15 @@
    "desc": "Localizar la zona de pantalla en la página",
    "cmd": "grep -n \"screen-card\\|id=\\\"screen\\\"\\|class=\\\"screen-wrap\\|screen-frame\\|<canvas\" web/shell/index.html | head; grep -n \"\\.screen-frame\\|#screen {\\|#screen{\\|\\.screen-wrap\" web/shel…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:57:25+00:00",
+   "tipo": "bash",
+   "desc": "Ver las variables de color y el estilo del marco de la pantalla",
+   "cmd": "sed -n 8,30p web/shell/index.html | grep -n \"\\-\\-\" | head -20; grep -n \"^  \\.frame\\|\\.frame {\" web/shell/index.html",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:57:12+00:00"
+ "actualizado": "2026-11-03T18:57:25+00:00"
 }
