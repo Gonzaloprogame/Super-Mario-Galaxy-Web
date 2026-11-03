@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:28:39+00:00",
-   "tipo": "bash",
-   "desc": "Leer los puntos esperados del lienzo",
-   "cmd": "sed -n 100,112p web/tests/bridge_smoke.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:31:59+00:00",
    "tipo": "bash",
    "desc": "Probar el puente sin el parche 0025 para ver fallar la prueba",
@@ -279,8 +272,15 @@
    "desc": "Ver si la precarga avanza o está atascada",
    "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for k in 1 2 3 4; do W 15; curl -s \"127.0.0.1:18777/loading\" | python3 -c \"import json,sys; d=json.load(sys.stdin); pri…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:09:39+00:00",
+   "tipo": "bash",
+   "desc": "Medir los pipelines creados al jugar en la segunda sesión",
+   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 120); do curl -s \"127.0.0.1:18777/log?tail=8000\" | grep -q \"load 'FileSelect' -> 'HeavensDoorGalaxy'\" …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:08:25+00:00"
+ "actualizado": "2026-11-03T19:09:39+00:00"
 }
