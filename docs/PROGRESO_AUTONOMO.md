@@ -37,7 +37,9 @@ disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca)
   tanda 00 que no llegaron a correr (CosmosGarden, CubeBubbleExLv1, CubeBubbleExLv2): `$S/tour/next_01` los junta con
   la tanda 01. Comando: `node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/next_01 --out
   $S/tour/out_01 --nand $S/drive/nand_RMGE01.bin --frames 900 --hang 180`.
-- **Luego:** tandas 02 a 04 de la gira (`$S/tour/batch_02` … `batch_04`), arreglando lo que se pare.
+- **Luego:** tandas 02 a 04 de la gira (`$S/tour/batch_02` … `batch_04`), arreglando lo que se pare, con el motor
+  nuevo (alarma de puntero nulo): `--site build/site_next` mientras `build/site` no se recompile
+  (`tools/build_web.sh` borra `build/site`: nunca con una gira en marcha).
 - **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario; puede ser el mismo fallo de
   memoria arreglado en el bloque 3, sin comprobar); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
