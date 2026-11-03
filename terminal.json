@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:00:20+00:00",
-   "tipo": "bash",
-   "desc": "Añadir al driver el volcado y la inyección de la lista de shaders",
-   "cmd": "S=$S; python3 - <<EOF  … (+26 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:04:29+00:00",
    "tipo": "bash",
    "desc": "Compilar el motor con la pantalla de carga",
@@ -279,8 +272,15 @@
    "desc": "Relanzar la gira y ver la cola del registro",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|galaxy_tour\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; S=$S; cd ~/repo && (timeout 3300 node tools/gala…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:59:31+00:00",
+   "tipo": "bash",
+   "desc": "Buscar las líneas de la gira en el registro",
+   "cmd": "S=$S; grep -E \"tour|stage|load '|página\\]|stall\" $S/tour/out_00/log_tail.txt | cut -c1-180 | head; cat $S/tour/out_00/tour.md | tail -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:59:21+00:00"
+ "actualizado": "2026-11-03T19:59:31+00:00"
 }
