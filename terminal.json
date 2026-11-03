@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:58:12+00:00",
-   "tipo": "bash",
-   "desc": "Llevar el juego a EggStarGalaxy y esperar el cuelgue otra vez",
-   "cmd": "W() { timeout $1 bash -c 'while true; do sleep 1; done'; }; for i in $(seq 1 60); do curl -s \"127.0.0.1:18777/state\" >/dev/null 2>&1 && break; W 2; done; for i in $(seq 1 60); do …",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:59:01+00:00",
    "tipo": "bash",
    "desc": "Perfilar todos los hilos durante el cuelgue",
@@ -279,8 +272,15 @@
    "desc": "Repetir la prueba del sitio con la medida de cargas",
    "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && timeout 1800 node web/tests/browser_smoke.mjs 2…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:17:13+00:00",
+   "tipo": "bash",
+   "desc": "Documentar, confirmar en español, subir y publicar la medida de cargas",
+   "cmd": "python3 - <<'EOF'  … (+49 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:15:57+00:00"
+ "actualizado": "2026-11-03T18:17:13+00:00"
 }
