@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T18:44:25+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar las pruebas del sitio y del puente con el motor completo",
-   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; cd ~/repo && timeout 1800 node web/tests/browser_smoke.mjs 2…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T18:45:40+00:00",
    "tipo": "bash",
    "desc": "Documentar, confirmar en español, subir y publicar el arreglo de EggStarGalaxy",
@@ -279,8 +272,15 @@
    "desc": "Leer el valor final de la barra al empezar el juego",
    "cmd": "cat > $S/edit_loading2.py <<'EOF'  … (+51 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T19:12:56+00:00",
+   "tipo": "bash",
+   "desc": "Tercera sesión con 102 shaders: medir los creados al jugar",
+   "cmd": "cp web/shell/app.js build/site/app.js && S=$S; cd $S/drive && (PIPELINES_IN=$S/drive/pipelines_session2.bin TOUR=\"HeavensDoorGalaxy:1\" TOURFRAMES=6000 timeout 1500 node driver.mjs…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T19:10:36+00:00"
+ "actualizado": "2026-11-03T19:12:56+00:00"
 }
