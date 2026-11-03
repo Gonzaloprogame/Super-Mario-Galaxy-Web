@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T12:23:35+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la variante de bloqueo que cede y sus comprobaciones",
-   "cmd": "python3 - <<'EOF'  … (+48 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T12:26:43+00:00",
-   "tipo": "bash",
-   "desc": "Compilar y probar la sonda en las dos variantes de bloqueo",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/build_web.sh > $S/build_probe.log 2>&1; echo \"compilación: $?\"; grep -m5 -E \" error|error:\" $S/build_probe.log; timeout …",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T12:32:13+00:00",
    "tipo": "bash",
    "desc": "Corregir los atómicos, compilar y repetir la prueba",
@@ -279,8 +265,22 @@
    "desc": "Reproducir el cuelgue de EggStarGalaxy y leer el progreso de Aurora",
    "cmd": "S=$S; cd $S/drive && (TOUR=\"EggStarGalaxy:1\" TOURFRAMES=6000 timeout 1500 node driver.mjs ~/repo $S/disc/smg.rvz $S/drive/run45 graphics $S/drive/nand_RMGE01.bin > $S/drive/run45.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:26:34+00:00",
+   "tipo": "bash",
+   "desc": "Buscar en Aurora el cálculo de vértices menos dos sin guarda",
+   "cmd": "A=build/all/aurora/aurora-patched; grep -n \"void handle_draw\\|vtxCount - 2\\|vtxCount - 1\\|- 2u\\|vtxCount <\\|vtxCount ==\\|vertexCount - 2\" $A/lib/gx/command_processor.cpp $A/lib/gx…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T18:26:41+00:00",
+   "tipo": "bash",
+   "desc": "Leer handle_draw y la conversión de primitivas",
+   "cmd": "A=build/all/aurora/aurora-patched; sed -n 800,860p $A/lib/gx/command_processor.cpp; sed -n 595,625p $A/lib/gx/command_processor.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:26:21+00:00"
+ "actualizado": "2026-11-03T18:26:41+00:00"
 }
