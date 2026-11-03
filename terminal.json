@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-02T20:30:08+00:00",
-   "tipo": "bash",
-   "desc": "Ver qué pasó justo antes del cuelgue y cómo espera el hilo del juego",
-   "cmd": "curl -s -m 5 \"127.0.0.1:18777/log?tail=40000\" | sed 's/^\\[vigía\\] //' | awk '/tour: stop 3 of 6/{f=1} f' | grep -v \"^\\[host\\] \\(report\\|Aurora\\|render thread\\|audio\\|movies\\|wasm\\…",
-   "ok": true
-  },
-  {
    "t": "2026-11-02T20:30:22+00:00",
    "tipo": "bash",
    "desc": "Leer la espera de push() y buscar cómo atender llamadas pendientes",
@@ -279,8 +272,15 @@
    "desc": "Corregir los atómicos, compilar y repetir la prueba",
    "cmd": "sed -i 's/^static _Atomic uint64_t sSwitches;$/static uint64_t sSwitches;/; s/^static _Atomic uintptr_t sRunningEntry, sRunningArg;$/static uintptr_t sRunningEntry, sRunningArg;/'…",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T12:32:50+00:00",
+   "tipo": "bash",
+   "desc": "Confirmar, subir y publicar la sonda, y guardar los símbolos de esta versión",
+   "cmd": "python3 - <<'EOF'  … (+48 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T12:32:13+00:00"
+ "actualizado": "2026-11-03T12:32:50+00:00"
 }
