@@ -1,11 +1,11 @@
 {
   "version": "0.1.1-experimental",
-  "actualizado": "2026-11-02",
+  "actualizado": "2026-11-03",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
     "etiqueta": "En curso · Hito 7",
-    "titulo": "Gira de galaxias",
-    "detalle": "Galaxia a galaxia con el disco real: HeavensDoor y Astro cargan; EggStar se cuelga en el renderizador (drain de Aurora). Buscando la orden GX que lo atrapa."
+    "titulo": "Cuelgues",
+    "detalle": "Arreglado el cuelgue de EggStarGalaxy (una tira de 0 vértices que Aurora no esperaba). Queda el del libro del prólogo, pendiente del registro del directo."
   },
   "comprobaciones": [
     {
