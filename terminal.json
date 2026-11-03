@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:36:29+00:00",
-   "tipo": "bash",
-   "desc": "Revisar el resto de funciones del puente",
-   "cmd": "cd ~/repo; for f in smg_bridge_coherent smg_bridge_buffer_peaks smg_bridge_debug_stats smg_bridge_phase_times smg_bridge_render_debug smg_bridge_set_debug_copies smg_bridge_frames…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:36:34+00:00",
    "tipo": "bash",
    "desc": "Ver en qué hilo se describe el puente",
@@ -279,8 +272,15 @@
    "desc": "Ver si el informe final llega más tarde",
    "cmd": "cd ~/repo; S=$S; sed -i \"s|.catch(() => {});\\nconsole|X|\" $S/null_probe.mjs; python3 - <<'EOF'  … (+6 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:15:47+00:00",
+   "tipo": "bash",
+   "desc": "Buscar todos los caminos que terminan la ejecución",
+   "cmd": "cd ~/repo; grep -n \"finish(\\|const finish\\|function finish\\|ended = \" web/shell/app.js | head; diff <(sed -n 1,5p web/shell/app.js) <(sed -n 1,5p build/site_next/app.js) && grep -…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:15:35+00:00"
+ "actualizado": "2026-11-03T22:15:47+00:00"
 }
