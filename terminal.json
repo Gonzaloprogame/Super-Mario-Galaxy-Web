@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:32:07+00:00",
-   "tipo": "bash",
-   "desc": "Ver las últimas líneas del registro del puente",
-   "cmd": "cd ~/repo; S=$S; sed -i \"s|console.log('bridge:', JSON.stringify(await page.evaluate(() => globalThis.bridge)).slice(0, 500));|const b = await page.evaluate(() => globalThis.bridg…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:32:55+00:00",
    "tipo": "bash",
    "desc": "Probar ?hostnew=1 sin el arreglo",
@@ -279,8 +272,15 @@
    "desc": "Ver el registro del modo de prueba del puntero nulo",
    "cmd": "cd ~/repo; S=$S; cat > $S/null_probe.mjs <<'EOF'  … (+19 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:14:50+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo lee la página el registro de vigía",
+   "cmd": "cd ~/repo; grep -n \"watch\" web/shell/app.js | head -30",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:14:39+00:00"
+ "actualizado": "2026-11-03T22:14:50+00:00"
 }
