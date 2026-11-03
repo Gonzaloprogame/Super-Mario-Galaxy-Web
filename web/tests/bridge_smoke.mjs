@@ -180,6 +180,20 @@ if (process.env.SMG_SCREENSHOT && shown && shown.frames > 0) {
   check(painted && near(triangle, [240, 176, 16]), `y el triángulo de la escena sigue ahí: ${triangle}`);
   await page.close();
 }
+// The export of Aurora's pipelines on the game's thread (?hostnew=1, web/bridge/bridge_main.c), as the host makes it at
+// each stage change: its buffer is the host's memory. With the game's operator new (JKRHeap) on that thread it was the
+// game's memory, or address 0 when its heap gave none: the export wrote there, over the binary's static data
+// (CocoonExGalaxy's crash, "table index is out of bounds").
+{
+  const page = await browser.newPage();
+  await page.goto(`http://127.0.0.1:${port}/gx_bridge.html?hostnew=1`);
+  const result = await page.waitForFunction(() => globalThis.bridge && globalThis.bridge.hostnew, null,
+    { timeout: 120000 }).then((h) => h.jsonValue(), () => null);
+  check(result && result.gameThread === 1, `exportación de pipelines: llamada desde el hilo del juego (${JSON.stringify(result)})`);
+  check(result && result.size >= 12 && result.hostMemory === 1,
+        `exportación de pipelines: su memoria es del host, ni del montón del juego ni la dirección 0 (${result && result.address})`);
+  await page.close();
+}
 // An abort() in a thread of the engine (?abort=1, after the report): the page hears it, with its C stack
 {
   const aborting = await browser.newPage();

@@ -8,7 +8,11 @@
 //
 // - new: the game's (JKRHeap) on the game's simulation thread once it has booted; malloc everywhere else (Aurora on
 //   its render thread, static constructors, the host). Host callbacks the game makes on the simulation thread must
-//   not allocate with new (web/host keeps them to C and fixed queues).
+//   not allocate with new (web/host keeps them to C and fixed queues), except inside a host-allocation scope
+//   (nebula_web_host_allocations): C++ host code the simulation thread has to run, as the export of Aurora's
+//   pipelines (web/host/aurora_bridge.cpp), whose vectors must not take the game's heap. Without the scope they did,
+//   and JKRHeap returns null when its current heap has no room: the vector then wrote its data at address 0, over
+//   the binary's static data (CocoonExGalaxy's crash, "table index is out of bounds", docs/PROGRESO_AUTONOMO.md).
 // - delete: by address. JKRHeap memory is always inside the game's arena and malloc memory never is.
 // C headers: this file is built with the game's options, against the game's C++ library (MSL), which has no <cstdint>.
 #include <stddef.h>
@@ -45,11 +49,23 @@ static void* host_new(size_t size) {
     return p;
 }
 
+// Open host-allocation scopes on the simulation thread (only that thread changes it, and it only matters there: every
+// other thread takes malloc anyway). The thread does not switch inside one: malloc does not call the game's scheduler.
+static int sHostScopes;
+
+void nebula_web_host_allocations(int enter) {
+    sHostScopes += enter ? 1 : -1;
+}
+
+static int game_new(void) {
+    return sHostScopes == 0 && nebula_web_in_game_context();
+}
+
 void* __wrap__Znwm(size_t size) {
-    return nebula_web_in_game_context() ? __real__Znwm(size) : host_new(size);
+    return game_new() ? __real__Znwm(size) : host_new(size);
 }
 void* __wrap__Znam(size_t size) {
-    return nebula_web_in_game_context() ? __real__Znam(size) : host_new(size);
+    return game_new() ? __real__Znam(size) : host_new(size);
 }
 void __wrap__ZdlPv(void* p) {
     if (in_arena(p)) {

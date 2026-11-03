@@ -607,8 +607,20 @@ extern "C" uint32_t* smg_bridge_preload_progress(void) { return g_preload; }
 
 extern "C" uint32_t smg_bridge_pipeline_cache_count(void) { return aurora_pipeline_cache_count(); }
 
+// web/platform/operator_new_wasm.cpp: while a scope is open, new on the game's simulation thread takes the host's
+// memory, not the game's heap. Weak: a binary without the game (gx_replay) has no game heap and no scope.
+extern "C" __attribute__((weak)) void nebula_web_host_allocations(int enter);
+
+// Called on the game's simulation thread (the host's svc_game_stage): the export builds vectors, and there `new` is the
+// game's (JKRHeap) unless a host-allocation scope is open. The blob it returns stays the host's until the next export.
 extern "C" void smg_bridge_pipeline_cache_export(const uint8_t** data, size_t* size) {
+  if (nebula_web_host_allocations) {
+    nebula_web_host_allocations(1);
+  }
   aurora_pipeline_cache_export(data, size);
+  if (nebula_web_host_allocations) {
+    nebula_web_host_allocations(0);
+  }
 }
 
 extern "C" int smg_bridge_start(int headless) {

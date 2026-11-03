@@ -54,9 +54,39 @@ static uint32_t svc_gx_peek_efb(void* user, uint16_t x, uint16_t y, uint32_t typ
     return smg_bridge_peek_efb(x, y, type, token);
 }
 
+/* The test of the pipeline export on the game's thread (bridge_smoke.mjs, ?hostnew=1): the host calls it there (at each
+   stage change), and its buffer must be the host's memory, outside the game's arena, not the game's heap (JKRHeap, the
+   game's operator new on that thread: web/platform/operator_new_wasm.cpp) */
+uint8_t* nebula_arena_base(void);           /* sdk/memory.c */
+int nebula_web_in_game_context(void);       /* web/platform/context_switch_wasm.c */
+static void host_new_test(void) {
+    static int done;
+    if (done) {
+        return;
+    }
+    done = 1;
+    if (!MAIN_THREAD_EM_ASM_INT({ return new URLSearchParams(location.search).get('hostnew') === '1' ? 1 : 0; })) {
+        return;
+    }
+    const int gameThread = nebula_web_in_game_context();
+    const uint8_t* blob = NULL;
+    size_t size = 0;
+    smg_bridge_pipeline_cache_export(&blob, &size);
+    const uintptr_t arena = (uintptr_t)nebula_arena_base();
+    /* The game's heap hands out memory inside its arena, or address 0 when it has none to give (JKRHeap returns null,
+       and the vector then writes at address 0, over the binary's static data) */
+    const int inArena = blob != NULL && (uintptr_t)blob - arena < 0x20000000u;
+    const int hostMemory = blob != NULL && !inArena;
+    printf("[bridge] pipeline export on the game's thread (%s): %zu bytes at %p, %s\n", gameThread ? "yes" : "no", size,
+           (const void*)blob, hostMemory ? "the host's memory" : inArena ? "inside the game's arena" : "at address 0");
+    MAIN_THREAD_ASYNC_EM_ASM({ globalThis.bridge.hostnew = ({gameThread : $0, size : $1, hostMemory : $2, address : $3}); },
+                             gameThread, (int)size, hostMemory, (int)(uintptr_t)blob);
+}
+
 static void svc_vi_frame(void* user, uint32_t xfb, int black, uint32_t retrace) {
     (void)user;
     (void)retrace;
+    host_new_test();
     smg_bridge_vi_frame(xfb, black);
 }
 

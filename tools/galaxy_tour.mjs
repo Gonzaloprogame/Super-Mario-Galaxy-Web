@@ -8,7 +8,7 @@
 // job. The screenshots are the game's images: they stay in the output folder, which must not be committed or shared.
 //
 //   node tools/galaxy_tour.mjs --disc <your .rvz> --stages <file> --out <folder> [--nand <file>] [--frames 900]
-//        [--hang 180] [--port 18790]
+//        [--hang 180] [--port 18790] [--site build/site]
 // The stages file: one "Stage" or "Stage:scenario" per line (the names of the folders under /StageData of the disc).
 // Needs tools/build_web.sh first, and Playwright's Chromium (preinstalled here).
 import { spawn } from 'node:child_process';
@@ -35,7 +35,7 @@ const stops = readFileSync(args.stages, 'utf8').split('\n').map((l) => l.trim())
 mkdirSync(join(args.out, 'shots'), { recursive: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const server = spawn('python3', [join(root, 'tools/serve.py'), String(port), join(root, 'build/site')],
+const server = spawn('python3', [join(root, 'tools/serve.py'), String(port), args.site || join(root, 'build/site')],
                      { stdio: ['ignore', 'pipe', 'ignore'] });
 await new Promise((r) => server.stdout.once('data', r));
 const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan'] });
@@ -125,13 +125,15 @@ try {
     }
     if (state === 'error' || state === 'done') {
       if (current) current.problems.push(`la página terminó en "${state}": ${(await page.textContent('#status')).trim()}`);
-      // The whole log, with the error's stack if there is one (game data: it stays in the output folder)
-      writeFileSync(join(args.out, 'log_end.txt'), lines.join('\n'));
       finishStop(state === 'error' ? 'error' : 'el motor terminó');
       end = end || `la página terminó (${state})`;
     }
     writeReport(end || 'en curso');
-    if (end) break;
+    if (end) {
+      // The whole log at the end, however it ended (game data: it stays in the output folder)
+      writeFileSync(join(args.out, 'log_end.txt'), lines.join('\n'));
+      break;
+    }
   }
   console.log(`${end}: ${join(args.out, 'tour.md')}`);
 } finally {
