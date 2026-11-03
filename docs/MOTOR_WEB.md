@@ -408,6 +408,22 @@ uno de ellos da vueltas sin ceder. El aviso de bloqueo lo distingue ahora con do
 `browser_smoke.mjs` comprueba los dos casos (`?hangtest=1`, un bucle sin ceder: la sonda no se ejecuta;
 `?hangtest=yield`, una espera que cede: sí).
 
+## Qué cuesta cargar un escenario (2026-11-03)
+
+Para decidir si merece la pena precargar algo antes de jugar, el registro mide ahora cada carga:
+
+- `[host] load 'A' -> 'B': X s from the last scene to the first; disc N reads in Y ms; pipelines n created in z ms`:
+  el tiempo desde la última escena del escenario anterior hasta la primera del nuevo, y lo que fue disco y creación
+  de *pipelines* (parche de Aurora 0023). El resto es trabajo del propio juego (descomprimir sus archivos y montar la
+  escena) y esperas al renderizador.
+- `[host] pipelines in the last 10 s: …`: los *pipelines* creados, su tiempo, los que esperan en cola y el más lento.
+
+En el contenedor (sin GPU real, CPU lenta), del título a `HeavensDoorGalaxy`: 6,3 s de carga, de ellos 0,4 s de disco
+y 0 ms de *pipelines*. Crear un *pipeline* cuesta poco en la CPU (62 en 14 ms al entrar en la galaxia); el navegador
+compila el *shader* después, en la GPU, y eso aparece como espera al empezar los fotogramas siguientes. Precargar
+todo el disco no es posible (el juego solo tiene los 88 MB de la consola y decide qué carga) y el disco ya es rápido.
+**Pendiente:** las cifras del PC del usuario, que dirán si una caché persistente de *pipelines* compensa.
+
 ## Gira de galaxias (2026-11-02)
 
 `?tour=Galaxia:misión,Galaxia:misión,…&tourframes=N` hace que el host cambie de galaxia cada N fotogramas de escena

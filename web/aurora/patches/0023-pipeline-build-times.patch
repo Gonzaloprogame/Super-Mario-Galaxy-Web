@@ -1,0 +1,86 @@
+diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+--- a/include/aurora/guest_memory.h	2026-11-03 17:59:09.990785626 +0000
++++ b/include/aurora/guest_memory.h	2026-11-03 17:59:10.006843467 +0000
+@@ -46,6 +46,8 @@
+   AURORA_DEBUG_STAT_COUNT
+ };
+ void aurora_set_debug_mask(uint32_t mask);
++/* Pipelines created so far: their total and slowest time (ns), how many, and how many wait in the queue (patch 0023). */
++void aurora_pipeline_build_times(uint64_t* totalNs, uint32_t* count, uint64_t* maxNs, uint32_t* queued);
+ void aurora_get_debug_stats(uint32_t out[AURORA_DEBUG_STAT_COUNT]);
+ /* The frame AURORA_DEBUG_LOG_FRAME recorded, one line per item, once it has ended: its length (0 when there is none);
+    copied to `out` and dropped when `size` holds it. */
+diff -ruN a/lib/gfx/pipeline_cache.cpp b/lib/gfx/pipeline_cache.cpp
+--- a/lib/gfx/pipeline_cache.cpp	2026-11-03 17:59:09.988256371 +0000
++++ b/lib/gfx/pipeline_cache.cpp	2026-11-03 17:59:29.474236381 +0000
+@@ -14,6 +14,7 @@
+ 
+ #include <algorithm>
+ #include <atomic>
++#include <chrono>
+ #include <condition_variable>
+ #include <deque>
+ #include <filesystem>
+@@ -81,6 +82,24 @@
+ constexpr size_t BuildPipelinesPerFrame = 1;
+ #endif
+ static std::thread g_pipelineThread;
++
++// The time spent creating pipelines (web: aurora_pipeline_build_times, for the host's report). In the browser build
++// there is no pipeline thread: each is created on the render thread, a frame waits for it.
++static std::atomic<uint64_t> g_buildNs{0}, g_buildMaxNs{0};
++static std::atomic<uint32_t> g_buildCount{0};
++template <typename Fn>
++static auto timed_build(Fn&& fn) {
++  const auto start = std::chrono::steady_clock::now();
++  auto result = fn();
++  const auto ns = static_cast<uint64_t>(
++      std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - start).count());
++  g_buildNs.fetch_add(ns, std::memory_order_relaxed);
++  g_buildCount.fetch_add(1, std::memory_order_relaxed);
++  uint64_t max = g_buildMaxNs.load(std::memory_order_relaxed);
++  while (ns > max && !g_buildMaxNs.compare_exchange_weak(max, ns, std::memory_order_relaxed)) {
++  }
++  return result;
++}
+ static std::atomic_bool g_pipelineThreadEnd = false;
+ static std::condition_variable g_pipelineQueueCv;
+ static std::condition_variable g_pipelineReadyCv;
+@@ -469,7 +488,7 @@
+       if (blocking && !g_hasPipelineThread) {
+         auto pending = take_pending_pipeline(runtimeKey);
+         if (pending) {
+-          auto result = pending->create();
++          auto result = timed_build([&] { return pending->create(); });
+           pipelineCount = result.pipeline_count();
+           g_pipelines.try_emplace(runtimeKey, std::move(result));
+           pipelineReady = true;
+@@ -482,7 +501,7 @@
+         notifyWorker = priority != PipelinePriority::Background;
+       }
+     } else if (!g_hasPipelineThread && (blocking || g_pipelinesPerFrame < BuildPipelinesPerFrame)) {
+-      auto result = cb();
++      auto result = timed_build([&] { return cb(); });
+       pipelineCount = result.pipeline_count();
+       g_pipelines.try_emplace(runtimeKey, std::move(result));
+       pipelineReady = true;
+@@ -988,7 +1007,7 @@
+       pending = std::move(source.front());
+       source.pop_front();
+     }
+-    auto result = pending.create();
++    auto result = timed_build([&] { return pending.create(); });
+     const auto pipelineCount = result.pipeline_count();
+     {
+       std::lock_guard lock{g_pipelineMutex};
+@@ -1218,3 +1237,10 @@
+ }
+ 
+ } // namespace aurora::gfx
++
++extern "C" void aurora_pipeline_build_times(uint64_t* totalNs, uint32_t* count, uint64_t* maxNs, uint32_t* queued) {
++  *totalNs = aurora::gfx::g_buildNs.load(std::memory_order_relaxed);
++  *count = aurora::gfx::g_buildCount.load(std::memory_order_relaxed);
++  *maxNs = aurora::gfx::g_buildMaxNs.load(std::memory_order_relaxed);
++  *queued = __atomic_load_n(&aurora::gfx::detail::resources().stats.queuedPipelines, __ATOMIC_RELAXED);
++}

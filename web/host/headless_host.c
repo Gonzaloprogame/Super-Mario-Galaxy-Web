@@ -482,14 +482,65 @@ static int svc_test_scene_frame(void* user, NebulaTestAction* action) {
 }
 
 /* The game names its stage often (each scene step): logged when it changes */
+#if defined(SMG_HOST_AURORA)
+/* Aurora's pipelines (patch 0023): the time creating them, all of it on the render thread in the browser build (a
+   frame waits for each), and how many wait in its queue (their draws are skipped until they are made). */
+void aurora_pipeline_build_times(uint64_t* totalNs, uint32_t* count, uint64_t* maxNs, uint32_t* queued);
+
+/* "N created in X ms (the slowest Y ms)" since the previous call with the same `last` */
+static void pipeline_times_since(uint64_t last[2], char* out, size_t size) {
+    uint64_t total = 0, slowest = 0;
+    uint32_t count = 0, queued = 0;
+    aurora_pipeline_build_times(&total, &count, &slowest, &queued);
+    snprintf(out, size, "%" PRIu64 " created in %.0f ms; %u in the queue; slowest so far %.1f ms",
+             (uint64_t)count - last[1], (double)(total - last[0]) / 1e6, queued, (double)slowest / 1e6);
+    last[0] = total;
+    last[1] = count;
+}
+#endif
+
+/* The game names its stage before each 3D scene (each frame while it plays). A change follows the load: the time from
+   the old stage's last scene to the new one's first, and of it the disc's and the pipelines' share, said in the log
+   (what the rest is: the game's own work, decompressing and building the scene, and waiting for the renderer). */
 static void svc_game_stage(void* user, const char* name) {
     (void)user;
+    static uint64_t lastSceneMicros, discMicrosAtLast, discReadsAtLast;
+#if defined(SMG_HOST_AURORA)
+    static uint64_t pipelinesAtLast[2], pipelineCountAtLast;
+#endif
     char stage[sizeof(sStage)];
     snprintf(stage, sizeof(stage), "%s", name != NULL ? name : "");
+    const uint64_t now = now_micros();
     if (strcmp(stage, sStage) != 0) {
+        if (sStage[0] != '\0' && lastSceneMicros != 0) {
+            char pipelines[160] = "";
+#if defined(SMG_HOST_AURORA)
+            uint64_t total = 0, slowest = 0;
+            uint32_t count = 0, queued = 0;
+            aurora_pipeline_build_times(&total, &count, &slowest, &queued);
+            snprintf(pipelines, sizeof(pipelines), "; pipelines %" PRIu64 " created in %.0f ms",
+                     (uint64_t)count - pipelineCountAtLast, (double)(total - pipelinesAtLast[0]) / 1e6);
+#endif
+            host_log("[host] load '%s' -> '%s': %.1f s from the last scene to the first; disc %" PRIu64
+                     " reads in %.0f ms%s\n",
+                     sStage, stage, (double)(now - lastSceneMicros) / 1e6, atomic_load(&sDiscReads) - discReadsAtLast,
+                     (double)(atomic_load(&sDiscMicros) - discMicrosAtLast) / 1e3, pipelines);
+        }
         memcpy(sStage, stage, sizeof(sStage));
         fprintf(stderr, "[host] stage: %s\n", sStage);
     }
+    lastSceneMicros = now;
+    discMicrosAtLast = atomic_load(&sDiscMicros);
+    discReadsAtLast = atomic_load(&sDiscReads);
+#if defined(SMG_HOST_AURORA)
+    {
+        uint64_t total = 0, slowest = 0;
+        uint32_t count = 0, queued = 0;
+        aurora_pipeline_build_times(&total, &count, &slowest, &queued);
+        pipelinesAtLast[0] = total;
+        pipelineCountAtLast = count;
+    }
+#endif
 }
 
 /* ---- the NAND between sessions ----
@@ -636,6 +687,10 @@ static void report(void) {
     char audio[320];
     smg_audio_stats(audio, sizeof(audio));
     host_log( "[host] audio: %s\n", audio);
+    static uint64_t sinceReport[2];
+    char pipelines[160];
+    pipeline_times_since(sinceReport, pipelines, sizeof(pipelines));
+    host_log("[host] pipelines in the last 10 s: %s\n", pipelines);
     uint64_t movieDecoded = 0, movieRefused = 0, movieNs = 0;
     smg_thp_stats(&movieDecoded, &movieRefused, &movieNs);
     if (movieDecoded + movieRefused != 0) {
