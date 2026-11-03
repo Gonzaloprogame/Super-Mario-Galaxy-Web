@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T21:34:40+00:00",
-   "tipo": "bash",
-   "desc": "Probar la prueba endurecida sin el arreglo",
-   "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all gx_bridge 2>&1 | tail -1 | cut -c1-120; cp build/all/bridge/gx_bridge.js build/all/bridge/gx…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T21:36:07+00:00",
-   "tipo": "bash",
-   "desc": "Probar la prueba con el arreglo",
-   "cmd": "cd ~/repo; S=$S; cp $S/aurora_bridge.fixed.cpp web/host/aurora_bridge.cpp; git diff --stat; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all gx_bridge 2>&1 | …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T21:36:15+00:00",
-   "tipo": "bash",
-   "desc": "Compilar todo y ejecutar la prueba del puente",
-   "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; bash tools/build_web.sh > $S/build.log 2>&1; echo \"build $?\"; grep -c \"pipeline_cache.cpp\" $S/build.log; timeou…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T21:36:24+00:00",
    "tipo": "bash",
    "desc": "Buscar asignaciones en las funciones del puente que llama el juego",
@@ -279,8 +258,29 @@
    "desc": "Leer el registro de vigía al parar el motor y probarlo",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+18 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T22:15:15+00:00",
+   "tipo": "bash",
+   "desc": "Ver el camino de salida y el lector del registro de vigía",
+   "cmd": "cd ~/repo; grep -n \"the game stopped\" web/host/*.c; grep -n \"sWatchReader\" web/host/headless_host.c | head; grep -n \"^static void host_exit\" -A15 web/host/headless_host.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T22:15:21+00:00",
+   "tipo": "bash",
+   "desc": "Ver el resto del montaje del registro de vigía",
+   "cmd": "cd ~/repo; sed -n 1020,1040p web/host/headless_host.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T22:15:21+00:00",
+   "tipo": "bash",
+   "desc": "Ver dónde se activa el lector y qué servicio de error se usa",
+   "cmd": "cd ~/repo; sed -n 1000,1020p web/host/headless_host.c; sed -n 10,20p web/host/host_services.c; grep -n \"services.fatal\\|\\.fatal = \" web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T22:15:07+00:00"
+ "actualizado": "2026-11-03T22:15:21+00:00"
 }
