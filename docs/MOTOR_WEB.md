@@ -424,6 +424,34 @@ compila el *shader* después, en la GPU, y eso aparece como espera al empezar lo
 todo el disco no es posible (el juego solo tiene los 88 MB de la consola y decide qué carga) y el disco ya es rápido.
 **Pendiente:** las cifras del PC del usuario, que dirán si una caché persistente de *pipelines* compensa.
 
+## Pantalla de carga y shaders guardados (2026-11-03)
+
+Antes de que empiece el juego, la página muestra una pantalla de carga con los pasos reales del arranque (motor,
+disco, renderizador) y una barra de **shaders preparados**. Nada avanza por tiempo: cada paso cambia cuando el motor
+lo dice, y la barra es la cuenta del hilo de render en la memoria compartida.
+
+- Mientras se juega, el host manda a la página la lista de *pipelines* que conoce Aurora (parche 0026, al cambiar de
+  escenario y cada ~600 fotogramas si ha crecido) y la página la guarda en IndexedDB junto a la partida
+  (`RMGE01.pipelines`).
+- En el siguiente arranque, el hilo de render importa esa lista y crea cada *pipeline* **antes** de que empiece el
+  juego. En el navegador cada dibujo espera a su *pipeline*, así que cada uno que faltaba era una pausa en mitad del
+  juego.
+- Seguridad: un registro cuyo tipo, tamaño o versión no coincide con este Aurora se descarta; una lista ilegible se
+  rechaza entera y el juego arranca igual; si una precarga no termina (la página se cierra o un *pipeline* no se puede
+  crear), queda una marca y el siguiente arranque descarta la lista antes de empezar.
+- Texturas: no se precargan. El juego decide qué carga en su memoria y cuándo, y decodificarlas cuesta poco; una
+  barra de «texturas» sería inventada.
+
+**Comprobado** con el disco del usuario en el contenedor, entrando en `HeavensDoorGalaxy`:
+
+| Sesión | Antes de jugar | *Pipelines* creados al entrar en la galaxia |
+|---|---|---|
+| 1 (sin lista) | — | 62, en mitad del juego |
+| 3 (lista de 102 de la sesión anterior) | 102 creados en 109 ms en la pantalla de carga | **0** |
+
+`browser_smoke.mjs` comprueba que la pantalla aparece y se va al empezar el juego, que sin lista lo dice, que una
+lista ilegible se rechaza sin impedir el arranque y que una precarga sin terminar hace que se descarte la lista.
+
 ## Gira de galaxias (2026-11-02)
 
 `?tour=Galaxia:misión,Galaxia:misión,…&tourframes=N` hace que el host cambie de galaxia cada N fotogramas de escena

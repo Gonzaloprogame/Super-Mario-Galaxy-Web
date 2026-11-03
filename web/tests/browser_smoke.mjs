@@ -174,6 +174,44 @@ await withServer('isolated', async (url) => {
     await browser.close();
   }
 
+  // The loading screen (web/shell/app.js, loading): shown at the start with the real steps, gone once the game runs.
+  // With no list of shaders kept, it says so; a list it cannot read is rejected and the game still starts; a list whose
+  // preload did not finish last time is dropped before the start (Aurora patch 0026).
+  {
+    const first = await run(url, join(fixtures, 'fixture_emptydol.pak'), 180000, 'graphics', {}, {
+      before: async (page) => {
+        await page.evaluate(() => {
+          new MutationObserver(() => {
+            if (!document.getElementById('loading').hidden) globalThis.loadingSeen = true;
+          }).observe(document.getElementById('loading'), { attributes: true });
+        });
+      },
+      after: async (page) => page.evaluate(() => ({ seen: globalThis.loadingSeen === true, state: globalThis.smgLoading,
+        hidden: document.getElementById('loading').hidden, note: document.getElementById('loading-note').textContent })),
+    });
+    const f = first.after;
+    check(f.seen && f.hidden && f.state && f.state.shown === false,
+          `pantalla de carga: aparece al arrancar y se va cuando empieza el juego (${JSON.stringify({ seen: f.seen, hidden: f.hidden })})`);
+    check(/Primera vez en este navegador/.test(f.note) && f.state.steps['step-shaders'] === 'Sin shaders guardados todavía',
+          `pantalla de carga sin lista guardada: lo dice ("${f.state.steps['step-shaders']}")`);
+    const corrupt = await run(url, join(fixtures, 'fixture_emptydol.pak'), 180000, 'graphics', {}, {
+      before: async (page) => page.evaluate(() => nandStore.put('RMGE01.pipelines', new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]))),
+    });
+    check(/pipelines kept from earlier sessions: 0 accepted \(1 rejected\)/.test(corrupt.log) && /running the game/.test(corrupt.log),
+          'una lista de shaders ilegible se rechaza y el juego arranca igual');
+    const interrupted = await run(url, join(fixtures, 'fixture_emptydol.pak'), 180000, 'graphics', {}, {
+      before: async (page) => page.evaluate(async () => {
+        await nandStore.put('RMGE01.pipelines', new Uint8Array([1, 2, 3]));
+        localStorage.setItem('smg-preload-pending-RMGE01', '1');
+      }),
+      after: async (page) => page.evaluate(async () => ({ kept: await nandStore.get('RMGE01.pipelines'),
+        mark: localStorage.getItem('smg-preload-pending-RMGE01') })),
+    });
+    check(/la precarga de shaders anterior no terminó: se descarta/.test(interrupted.log) &&
+          !/pipelines kept by the page/.test(interrupted.log) && !interrupted.after.kept && !interrupted.after.mark,
+          'una precarga que no terminó: la lista se descarta antes de arrancar y la marca se borra');
+  }
+
   // The controls: the engine gives the page its control words (in its shared memory, marked "SMGI" by the host);
   // the keyboard and the touch controls write them as web/host/console_services.h says
   const c = await run(url, join(fixtures, 'fixture_emptydol.pak'), 120000, 'graphics', {}, {

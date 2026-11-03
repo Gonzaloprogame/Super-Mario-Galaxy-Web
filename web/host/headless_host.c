@@ -529,6 +529,33 @@ static void svc_game_stage(void* user, const char* name) {
         memcpy(sStage, stage, sizeof(sStage));
         fprintf(stderr, "[host] stage: %s\n", sStage);
     }
+#if defined(SMG_HOST_AURORA) && defined(__EMSCRIPTEN__)
+    /* The pipelines known now, for the page to keep (IndexedDB) for the next session's loading screen: at each stage
+       change and every ~10 s of scenes, when there are new ones */
+    {
+        static uint32_t scenes, keptCount;
+        static char exportedStage[sizeof(sStage)];
+        const int changed = strcmp(stage, exportedStage) != 0;
+        if (++scenes >= 600 || changed) {
+            scenes = 0;
+            snprintf(exportedStage, sizeof(exportedStage), "%s", stage);
+            const uint32_t count = smg_bridge_pipeline_cache_count();
+            if (count != keptCount) {
+                keptCount = count;
+                const uint8_t* blob = NULL;
+                size_t size = 0;
+                smg_bridge_pipeline_cache_export(&blob, &size);
+                EM_ASM(
+                    {
+                        if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                            postMessage({type : 'pipelines', data : HEAPU8.slice($0, $0 + $1), count : $2});
+                        }
+                    },
+                    blob, size, count);
+            }
+        }
+    }
+#endif
     lastSceneMicros = now;
     discMicrosAtLast = atomic_load(&sDiscMicros);
     discReadsAtLast = atomic_load(&sDiscReads);
@@ -969,6 +996,30 @@ int main(int argc, char** argv) {
         die("the game module refused the host's services (API %u)", NEBULA_GAME_API_VERSION);
     }
 #if defined(SMG_HOST_AURORA)
+    /* The pipelines the page kept from earlier sessions (argument 8, web/shell/boot_worker.post.js): built by the
+       render thread before the game starts, their progress shown by the page's loading screen */
+    if (argc > 8 && argv[8][0] != '\0') {
+        FILE* file = fopen(argv[8], "rb");
+        long size = 0;
+        uint8_t* blob = NULL;
+        if (file != NULL && fseek(file, 0, SEEK_END) == 0 && (size = ftell(file)) > 0 && fseek(file, 0, SEEK_SET) == 0 &&
+            (blob = malloc((size_t)size)) != NULL && fread(blob, 1, (size_t)size, file) == (size_t)size) {
+            smg_bridge_set_pipeline_cache(blob, (size_t)size);
+            fprintf(stderr, "[host] pipelines kept by the page: %ld bytes\n", size);
+        }
+        if (file != NULL) {
+            fclose(file);
+        }
+    }
+#if defined(__EMSCRIPTEN__)
+    EM_ASM(
+        {
+            if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                postMessage({type : 'preload', buffer : HEAPU8.buffer, address : $0});
+            }
+        },
+        smg_bridge_preload_progress());
+#endif
     if (!smg_bridge_start(1)) {
         die("Aurora did not start on this browser's WebGPU");
     }

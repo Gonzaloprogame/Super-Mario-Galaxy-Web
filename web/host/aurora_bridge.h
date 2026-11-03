@@ -11,6 +11,13 @@ extern "C" {
 /* Starts the render thread: it owns the WebGPU device and Aurora (WebGPU objects belong to the thread that made
    them). Returns 1 once Aurora is ready, 0 if it could not start. headless: render the EFB offscreen (tests). */
 int smg_bridge_start(int headless);
+/* The pipelines the page kept from earlier sessions (Aurora patch 0026): set before smg_bridge_start, which builds them
+   before it returns; their progress {phase 0 none / 1 building / 2 done, done, total, rejected} in shared memory; and
+   the blob of the pipelines known now, for the page to keep. */
+void smg_bridge_set_pipeline_cache(const uint8_t* data, size_t size);
+uint32_t* smg_bridge_preload_progress(void);
+uint32_t smg_bridge_pipeline_cache_count(void);
+void smg_bridge_pipeline_cache_export(const uint8_t** data, size_t* size);
 
 /* Before the process exits (any thread but the render thread): the render thread ends its frame, shuts Aurora down
    and returns; then exit() can run the C++ static destructors (with Aurora alive one of them waits forever). */

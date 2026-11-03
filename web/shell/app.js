@@ -15,7 +15,118 @@ function setStatus(text, kind = 'info') {
 function log(text) {
   logEl.textContent += text + '\n';
   logEl.scrollTop = logEl.scrollHeight;
+  loading.line(text);
 }
+
+// The loading screen (web/shell/index.html, #loading) until the game starts. Each step changes when the engine says so
+// (its status, its log, the renderer's progress in shared memory): nothing advances on a timer. The shaders' bar is
+// the count of pipelines the render thread has built from the list kept by earlier sessions (Aurora patch 0026).
+// globalThis.smgLoading: the bar's last reading and the steps' final texts, for the tests.
+const loading = {
+  el: null, progress: null, frame: 0, pendingKey: '', withRenderer: false, done: true,
+  step(id, state, text) {
+    const item = document.getElementById(id);
+    if (!item) return;
+    item.dataset.state = state;
+    if (text !== undefined) item.textContent = text;
+  },
+  note(text) {
+    const note = document.getElementById('loading-note');
+    if (note) note.textContent = text;
+  },
+  bar(fraction) {
+    const bar = document.getElementById('shader-bar');
+    if (bar) bar.style.width = `${Math.round(fraction * 100)}%`;
+  },
+  start(label, hasList, pendingKey) {
+    this.el = document.getElementById('loading');
+    if (!this.el) return;
+    this.done = false;
+    this.pendingKey = pendingKey;
+    this.withRenderer = /Aurora|gráficos/i.test(label);
+    this.el.hidden = false;
+    this.step('step-engine', 'doing', 'Cargando el motor');
+    this.step('step-disc', 'wait', 'Abriendo el disco');
+    this.step('step-renderer', this.withRenderer ? 'wait' : 'skip',
+              this.withRenderer ? 'Iniciando el renderizador' : 'Sin renderizador (modo diagnóstico)');
+    this.step('step-shaders', this.withRenderer ? 'wait' : 'skip',
+              this.withRenderer ? 'Preparando shaders guardados' : 'Sin shaders (modo diagnóstico)');
+    this.bar(0);
+    this.note(hasList || !this.withRenderer ? '' :
+              'Primera vez en este navegador: no hay shaders guardados. Se guardan mientras juegas y la próxima vez ' +
+              'se preparan aquí, antes de empezar.');
+    globalThis.smgLoading = { steps: {}, shaders: null, shown: true };
+  },
+  line(text) {
+    if (this.done) return;
+    // The host has read the disc's partition (web/host/headless_host.c)
+    if (/^\[host\] .*: RMGE01, \d+ bytes, main\.dol/.test(text)) {
+      this.step('step-engine', 'done');
+      this.step('step-disc', 'done');
+      if (this.withRenderer) this.step('step-renderer', 'doing');
+    }
+    if (/^\[host\] running the game/.test(text)) this.finish();
+  },
+  status(text) {
+    if (this.done) return;
+    if (/^Motor en marcha/.test(text)) {
+      this.step('step-engine', 'done');
+      this.step('step-disc', 'doing');
+    }
+  },
+  attach(buffer, address) {
+    // {phase 0 none / 1 building / 2 done, built, total, rejected} (web/host/aurora_bridge.cpp, g_preload)
+    this.progress = new Uint32Array(buffer, address, 4);
+    this.step('step-renderer', 'done');
+    this.step('step-shaders', 'doing');
+    const tick = () => {
+      if (this.done || !this.progress) return;
+      this.update();
+      this.frame = requestAnimationFrame(tick);
+    };
+    this.frame = requestAnimationFrame(tick);
+  },
+  // One reading of the render thread's count (also the last one, as the game starts)
+  update() {
+    if (!this.progress) return;
+    {
+      const phase = Atomics.load(this.progress, 0), built = Atomics.load(this.progress, 1);
+      const total = Atomics.load(this.progress, 2), rejected = Atomics.load(this.progress, 3);
+      globalThis.smgLoading.shaders = { phase, built, total, rejected };
+      if (phase === 1) {
+        // A start whose preload never ends leaves this mark: the next start drops the list
+        try { if (this.pendingKey) localStorage.setItem(this.pendingKey, '1'); } catch { /* no storage */ }
+        this.step('step-shaders', 'doing', `Preparando shaders guardados: ${built} de ${total}`);
+        this.bar(total ? built / total : 0);
+      } else if (phase === 2) {
+        try { if (this.pendingKey) localStorage.removeItem(this.pendingKey); } catch { /* no storage */ }
+        this.step('step-shaders', 'done', total ? `Shaders preparados: ${total}` + (rejected ? ` (${rejected} descartados)` : '')
+                                               : 'Sin shaders guardados todavía');
+        this.bar(1);
+      }
+    }
+  },
+  finish() {
+    if (this.done) return;
+    this.update();
+    this.done = true;
+    cancelAnimationFrame(this.frame);
+    for (const id of ['step-engine', 'step-disc', 'step-renderer', 'step-shaders']) {
+      const item = document.getElementById(id);
+      if (item && item.dataset.state !== 'skip') item.dataset.state = 'done';
+      if (globalThis.smgLoading) globalThis.smgLoading.steps[id] = item ? item.textContent : '';
+    }
+    if (globalThis.smgLoading) globalThis.smgLoading.shown = false;
+    if (this.el) this.el.hidden = true;
+  },
+  stop() {
+    // The engine stopped before the game started: the screen goes, the status says why
+    this.done = true;
+    cancelAnimationFrame(this.frame);
+    if (globalThis.smgLoading) globalThis.smgLoading.shown = false;
+    if (this.el) this.el.hidden = true;
+  },
+};
 
 // What the engine cannot run without, checked before anything is loaded.
 function requirements() {
@@ -355,6 +466,18 @@ async function start() {
         // The engine's ring of samples (web/host/audio_output.h), in its shared memory
         attachAudio(data.buffer, data.address);
         break;
+      case 'preload':
+        // Where the render thread counts the shaders it builds before the game (web/host/aurora_bridge.cpp)
+        loading.attach(data.buffer, data.address);
+        break;
+      case 'pipelines':
+        // The pipelines known now: kept for the next session's loading screen
+        if (cacheKey && data.count !== keptShaders) {
+          keptShaders = data.count;
+          nandStore.put(cacheKey, data.data);
+          log(`[página] shaders guardados para la próxima vez: ${data.count}`);
+        }
+        break;
       case 'renderdebug':
         // The renderer's diagnostic mask (Aurora patch 0017): smgRenderDebug[0] = mask, read at each frame's start
         globalThis.smgRenderDebug = new Int32Array(data.buffer, data.address, 1);
@@ -363,13 +486,16 @@ async function start() {
         if (!rendererFailed) {
           setStatus(data.text); // after a renderer failure, its error stays the status
         }
+        loading.status(data.text);
         break;
       case 'error':
+        loading.stop();
         setStatus(data.text, 'error');
         document.body.dataset.state = 'error';
         $('run').disabled = false;
         break;
       case 'exit':
+        loading.stop();
         finish(data.code);
         break;
     }
@@ -416,6 +542,24 @@ async function start() {
     await nandStore.put(`${disc.id}.anterior`, nand);
   }
   presenter.onNand = (id, data) => nandStore.put(id, data);
+  // The shaders (pipelines) this browser kept for this disc from earlier sessions (Aurora patch 0026): built before
+  // the game starts, with the loading screen's bar. A start whose preload did not finish (the page closed, or a
+  // pipeline the renderer cannot build) leaves its mark: then the list is dropped, so it can never block the start.
+  const cacheKey = disc.id ? `${disc.id}.pipelines` : '';
+  const pendingKey = disc.id ? `smg-preload-pending-${disc.id}` : '';
+  let pipelines = cacheKey ? await nandStore.get(cacheKey) : null;
+  let preloadInterrupted = false;
+  try { preloadInterrupted = !!pendingKey && localStorage.getItem(pendingKey) === '1'; } catch { /* no storage */ }
+  if (pipelines && preloadInterrupted) {
+    log('[página] la precarga de shaders anterior no terminó: se descarta la lista guardada y se rehará jugando');
+    pipelines = null;
+    await nandStore.put(cacheKey, null);
+  }
+  try { if (pendingKey) localStorage.removeItem(pendingKey); } catch { /* no storage */ }
+  if (pipelines) {
+    log(`[página] shaders guardados de sesiones anteriores: ${pipelines.length} bytes`);
+  }
+  let keptShaders = 0;
   // ?debug=1: a second canvas with the game's largest copy of each frame, as Aurora made it (web/host/aurora_bridge.cpp)
   const debug = new URLSearchParams(location.search).get('debug') === '1';
   if (debug) {
@@ -440,7 +584,8 @@ async function start() {
   const tour = new URLSearchParams(location.search).get('tour') || '';
   const tourFrames = Number(new URLSearchParams(location.search).get('tourframes')) || 0;
   worker.postMessage({ file, seconds, language: Number($('language').value), label: engine.label, nand, debug, hangtest,
-                       tour, tourFrames });
+                       tour, tourFrames, pipelines });
+  loading.start(engine.label, !!pipelines, pendingKey);
 }
 
 const missing = requirements();

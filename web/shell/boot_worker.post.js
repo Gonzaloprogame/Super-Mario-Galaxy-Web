@@ -9,7 +9,7 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
   const post = (type, data) => self.postMessage(Object.assign({ type }, data));
 
   self.onmessage = async (event) => {
-    const { file, seconds, language, label, nand, debug, hangtest, tour, tourFrames } = event.data;
+    const { file, seconds, language, label, nand, debug, hangtest, tour, tourFrames, pipelines } = event.data;
     post('status', { text: 'Compilando e instanciando el módulo WebAssembly…' });
     let module;
     try {
@@ -33,8 +33,14 @@ if (globalThis.WorkerGlobalScope && globalThis.name !== 'em-pthread') {
         module.FS.writeFile('/nand.bin', nand);
         nandPath = '/nand.bin';
       }
+      // The shaders the page kept from earlier sessions (Aurora patch 0026), as a file for the host: argument 8
+      let pipelinePath = '';
+      if (pipelines && pipelines.length) {
+        module.FS.writeFile('/pipelines.bin', pipelines);
+        pipelinePath = '/pipelines.bin';
+      }
       module.callMain([`/game/${file.name}`, String(seconds), String(language), nandPath,
-                      debug ? 'debug' : hangtest || '', tour || '', String(tourFrames || '')]);
+                      debug ? 'debug' : hangtest || '', tour || '', String(tourFrames || ''), pipelinePath]);
     } catch (error) {
       // exit() unwinds with an ExitStatus; onExit has reported it.
       if (!(error && error.name === 'ExitStatus')) {

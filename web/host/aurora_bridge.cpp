@@ -55,6 +55,18 @@ std::atomic<uint32_t> g_head{0}; // next item to read (render thread)
 std::atomic<uint32_t> g_tail{0}; // next item to write (simulation thread)
 
 std::atomic<int> g_state{0}; // 0 starting, 1 ready, -1 failed
+
+// The pipelines the page kept from earlier sessions (Aurora patch 0026), built before the game starts (render_main).
+// Their progress, for the page's loading screen (web/shell/app.js): {phase, done, total, rejected}, phase 0 none,
+// 1 building, 2 done. Written by the render thread, read by the page from the shared memory.
+const uint8_t* g_cacheData = nullptr;
+size_t g_cacheSize = 0;
+uint32_t g_preload[4] __attribute__((aligned(16))) = {0, 0, 0, 0};
+
+void preload_progress(uint32_t done, uint32_t total, void*) {
+  __atomic_store_n(&g_preload[2], total, __ATOMIC_RELAXED);
+  __atomic_store_n(&g_preload[1], done, __ATOMIC_RELEASE);
+}
 std::atomic<int> g_stop{0};  // the host is ending the process: the render thread shuts Aurora down and returns
 pthread_t g_renderThread;
 std::atomic<uint32_t> g_frames{0};
@@ -466,6 +478,20 @@ void* render_main(void*) {
   const AuroraReadbackStream xfbStream = AuroraReadbackCreateStream();
   const AuroraReadbackStream presentStream = AuroraReadbackCreateStream();
   const AuroraReadbackStream debugStream = AuroraReadbackCreateStream();
+  // Before the game starts: the pipelines it used in earlier sessions, each built now rather than in the middle of a
+  // frame (where each one is a pause: draws wait for their pipeline)
+  if (g_cacheData != nullptr && g_cacheSize != 0) {
+    uint32_t rejected = 0;
+    const uint32_t accepted = aurora_pipeline_cache_import(g_cacheData, g_cacheSize, &rejected);
+    __atomic_store_n(&g_preload[3], rejected, __ATOMIC_RELAXED);
+    __atomic_store_n(&g_preload[0], 1u, __ATOMIC_RELEASE);
+    const int64_t start = now_ms();
+    aurora_pipeline_cache_prebuild(&preload_progress, nullptr);
+    std::fprintf(stderr, "[bridge] pipelines kept from earlier sessions: %u accepted (%u rejected), %u built in %lld ms\n",
+                 accepted, rejected, __atomic_load_n(&g_preload[2], __ATOMIC_RELAXED),
+                 static_cast<long long>(now_ms() - start));
+  }
+  __atomic_store_n(&g_preload[0], 2u, __ATOMIC_RELEASE);
   g_state.store(1, std::memory_order_release);
 
   bool frameOpen = false;
@@ -571,6 +597,19 @@ void* render_main(void*) {
 }
 
 } // namespace
+
+extern "C" void smg_bridge_set_pipeline_cache(const uint8_t* data, size_t size) {
+  g_cacheData = data;
+  g_cacheSize = size;
+}
+
+extern "C" uint32_t* smg_bridge_preload_progress(void) { return g_preload; }
+
+extern "C" uint32_t smg_bridge_pipeline_cache_count(void) { return aurora_pipeline_cache_count(); }
+
+extern "C" void smg_bridge_pipeline_cache_export(const uint8_t** data, size_t* size) {
+  aurora_pipeline_cache_export(data, size);
+}
 
 extern "C" int smg_bridge_start(int headless) {
   g_headless = headless;

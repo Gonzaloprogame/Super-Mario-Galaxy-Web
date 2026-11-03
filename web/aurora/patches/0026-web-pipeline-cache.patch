@@ -1,0 +1,192 @@
+diff -ruN a/include/aurora/guest_memory.h b/include/aurora/guest_memory.h
+--- a/include/aurora/guest_memory.h	2026-11-03 18:53:53.301835261 +0000
++++ b/include/aurora/guest_memory.h	2026-11-03 18:53:53.315378340 +0000
+@@ -51,6 +51,12 @@
+ /* The command processor's progress: commands read so far, the last one, a draw's vertex count, inside a display list
+    (patch 0024), for the host's stall report. */
+ void aurora_cp_progress(uint64_t* commands, uint32_t* lastCommand, uint32_t* lastVertices, uint32_t* inDisplayList);
++/* The known pipelines between sessions (patch 0026): how many; the blob the page keeps (valid until the next export);
++   importing one (the records accepted, and the rejected ones); building every known pipeline now, with progress. */
++uint32_t aurora_pipeline_cache_count(void);
++void aurora_pipeline_cache_export(const uint8_t** data, size_t* size);
++uint32_t aurora_pipeline_cache_import(const uint8_t* data, size_t size, uint32_t* rejected);
++void aurora_pipeline_cache_prebuild(void (*progress)(uint32_t done, uint32_t total, void* user), void* user);
+ void aurora_get_debug_stats(uint32_t out[AURORA_DEBUG_STAT_COUNT]);
+ /* The frame AURORA_DEBUG_LOG_FRAME recorded, one line per item, once it has ended: its length (0 when there is none);
+    copied to `out` and dropped when `size` holds it. */
+diff -ruN a/lib/gfx/pipeline_cache.cpp b/lib/gfx/pipeline_cache.cpp
+--- a/lib/gfx/pipeline_cache.cpp	2026-11-03 18:53:53.299920120 +0000
++++ b/lib/gfx/pipeline_cache.cpp	2026-11-03 18:54:06.430833159 +0000
+@@ -23,7 +23,9 @@
+ #include <mutex>
+ #include <optional>
+ #include <ranges>
++#include <cstring>
+ #include <variant>
++#include <vector>
+ #include <thread>
+ 
+ #include <SDL3/SDL_iostream.h>
+@@ -1236,6 +1238,147 @@
+   return true;
+ }
+ 
++// ---- Web: the known pipelines kept by the page between sessions (patch 0026) ----
++// The browser build has no persistent cache (no SQLite file, no writer thread). The page keeps this blob instead
++// (IndexedDB): what remember_pipeline_config learned, in the order the game first used it. At the next start the
++// render thread imports it and builds every pipeline before the game starts (its loading screen shows the count),
++// so they are not created in the middle of the game's frames. Records whose type, size or version do not match this
++// Aurora are dropped.
++namespace {
++constexpr uint32_t kWebCacheMagic = 0x504D4753; // "SMGP"
++constexpr uint32_t kWebCacheFormat = 1;
++std::vector<uint8_t> g_webCacheBlob;
++
++template <typename T>
++void put(std::vector<uint8_t>& out, T value) {
++  const auto* bytes = reinterpret_cast<const uint8_t*>(&value);
++  out.insert(out.end(), bytes, bytes + sizeof(T));
++}
++
++template <typename T>
++bool get(const uint8_t*& p, const uint8_t* end, T& value) {
++  if (static_cast<size_t>(end - p) < sizeof(T)) {
++    return false;
++  }
++  std::memcpy(&value, p, sizeof(T));
++  p += sizeof(T);
++  return true;
++}
++
++std::vector<KnownPipeline> known_by_first_use() {
++  std::vector<KnownPipeline> known;
++  {
++    std::lock_guard lock{g_pipelineMutex};
++    known.reserve(g_knownPipelines.size());
++    for (const auto& pipeline : g_knownPipelines | std::views::values) {
++      if (pipeline.type != ShaderType::Rml) {
++        known.push_back(pipeline);
++      }
++    }
++  }
++  std::ranges::sort(known, {}, &KnownPipeline::firstFrameUsed);
++  return known;
++}
++} // namespace
++
++uint32_t web_pipeline_cache_count() {
++  std::lock_guard lock{g_pipelineMutex};
++  return static_cast<uint32_t>(g_knownPipelines.size());
++}
++
++void web_pipeline_cache_export(const uint8_t** data, size_t* size) {
++  const auto known = known_by_first_use();
++  g_webCacheBlob.clear();
++  put(g_webCacheBlob, kWebCacheMagic);
++  put(g_webCacheBlob, kWebCacheFormat);
++  put(g_webCacheBlob, static_cast<uint32_t>(known.size()));
++  for (const auto& pipeline : known) {
++    std::visit(
++        [&](const auto& config) {
++          put(g_webCacheBlob, static_cast<uint8_t>(pipeline.type));
++          put(g_webCacheBlob, static_cast<uint32_t>(config.version));
++          put(g_webCacheBlob, pipeline.firstFrameUsed);
++          put(g_webCacheBlob, static_cast<uint32_t>(sizeof(config)));
++          const auto* bytes = reinterpret_cast<const uint8_t*>(&config);
++          g_webCacheBlob.insert(g_webCacheBlob.end(), bytes, bytes + sizeof(config));
++        },
++        pipeline.config);
++  }
++  *data = g_webCacheBlob.data();
++  *size = g_webCacheBlob.size();
++}
++
++uint32_t web_pipeline_cache_import(const uint8_t* data, size_t size, uint32_t* rejected) {
++  *rejected = 0;
++  const uint8_t* p = data;
++  const uint8_t* const end = data + size;
++  uint32_t magic = 0, format = 0, count = 0;
++  if (!get(p, end, magic) || !get(p, end, format) || !get(p, end, count) || magic != kWebCacheMagic ||
++      format != kWebCacheFormat) {
++    *rejected = 1;
++    return 0;
++  }
++  uint32_t accepted = 0;
++  for (uint32_t i = 0; i < count; ++i) {
++    uint8_t type = 0;
++    uint32_t version = 0, firstFrame = 0, configSize = 0;
++    if (!get(p, end, type) || !get(p, end, version) || !get(p, end, firstFrame) || !get(p, end, configSize) ||
++        static_cast<size_t>(end - p) < configSize) {
++      ++*rejected;
++      break;
++    }
++    const uint8_t* const bytes = p;
++    p += configSize;
++    if (type == static_cast<uint8_t>(ShaderType::GX) && configSize == sizeof(gx::PipelineConfig) &&
++        version == gx::GXPipelineConfigVersion) {
++      gx::PipelineConfig config;
++      std::memcpy(&config, bytes, sizeof(config));
++      if (config.version == version) {
++        remember_pipeline_config(ShaderType::GX, config, firstFrame, false);
++        ++accepted;
++        continue;
++      }
++    } else if (type == static_cast<uint8_t>(ShaderType::Clear) && configSize == sizeof(clear::PipelineConfig) &&
++               version == clear::ClearPipelineConfigVersion) {
++      clear::PipelineConfig config;
++      std::memcpy(&config, bytes, sizeof(config));
++      if (config.version == version) {
++        remember_pipeline_config(ShaderType::Clear, config, firstFrame, false);
++        ++accepted;
++        continue;
++      }
++    }
++    ++*rejected;
++  }
++  return accepted;
++}
++
++void web_pipeline_cache_prebuild(void (*progress)(uint32_t done, uint32_t total, void* user), void* user) {
++  const auto scene = scene_render_target_layout();
++  auto offscreen = scene;
++  offscreen.colorAttachmentCount = 1;
++  offscreen.sampleCount = 1;
++  detail::finalize_render_target_layout(offscreen);
++  const auto known = known_by_first_use();
++  const uint32_t perConfig = offscreen.key != scene.key ? 2 : 1;
++  const uint32_t total = static_cast<uint32_t>(known.size()) * perConfig;
++  uint32_t done = 0;
++  progress(done, total, user);
++  for (const auto& pipeline : known) {
++    std::visit(
++        [&](const auto& config) {
++          resolve_pipeline(pipeline.type, config, scene, PipelinePriority::Blocking);
++          if (perConfig == 2) {
++            resolve_pipeline(pipeline.type, config, offscreen, PipelinePriority::Blocking);
++          }
++        },
++        pipeline.config);
++    done += perConfig;
++    progress(done, total, user);
++  }
++  g_pipelineLayoutKey = scene.key;
++}
++
+ } // namespace aurora::gfx
+ 
+ extern "C" void aurora_pipeline_build_times(uint64_t* totalNs, uint32_t* count, uint64_t* maxNs, uint32_t* queued) {
+@@ -1244,3 +1387,14 @@
+   *maxNs = aurora::gfx::g_buildMaxNs.load(std::memory_order_relaxed);
+   *queued = __atomic_load_n(&aurora::gfx::detail::resources().stats.queuedPipelines, __ATOMIC_RELAXED);
+ }
++
++extern "C" uint32_t aurora_pipeline_cache_count(void) { return aurora::gfx::web_pipeline_cache_count(); }
++extern "C" void aurora_pipeline_cache_export(const uint8_t** data, size_t* size) {
++  aurora::gfx::web_pipeline_cache_export(data, size);
++}
++extern "C" uint32_t aurora_pipeline_cache_import(const uint8_t* data, size_t size, uint32_t* rejected) {
++  return aurora::gfx::web_pipeline_cache_import(data, size, rejected);
++}
++extern "C" void aurora_pipeline_cache_prebuild(void (*progress)(uint32_t done, uint32_t total, void* user), void* user) {
++  aurora::gfx::web_pipeline_cache_prebuild(progress, user);
++}
