@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T19:57:37+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a la primera parada de la gira",
-   "cmd": "S=$S; for i in $(seq 1 60); do grep -q \"Galaxy:\" $S/tour/out_00/tour.md 2>/dev/null && break; sleep 10; done; date +%T; cat $S/tour/out_00/tour.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:59:21+00:00",
-   "tipo": "bash",
-   "desc": "Relanzar la gira y ver la cola del registro",
-   "cmd": "ps -eo pid,cmd | grep -E \"chrom|serve.py|driver.mjs|galaxy_tour\" | grep -v grep | awk '{print $1}' | xargs -r kill -9 2>/dev/null; S=$S; cd ~/repo && (timeout 3300 node tools/gala…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T19:59:31+00:00",
-   "tipo": "bash",
-   "desc": "Buscar las líneas de la gira en el registro",
-   "cmd": "S=$S; grep -E \"tour|stage|load '|página\\]|stall\" $S/tour/out_00/log_tail.txt | cut -c1-180 | head; cat $S/tour/out_00/tour.md | tail -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T19:59:44+00:00",
    "tipo": "bash",
    "desc": "Ver el detalle de la parada en el informe de la gira",
@@ -279,8 +258,29 @@
    "desc": "Ver el resultado final de la primera tanda",
    "cmd": "S=$S; cat $TMP cat $S/tour/out_00/tour.md; tail -5 $S/tour/run_00.log; tail -20 $S/tour/out_00/log_tail.txt | cut -c1-250",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:15:40+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo se informa de un error del motor",
+   "cmd": "cd ~/repo; grep -n \"stack\\|'error'\\|onerror\\|RuntimeError\" web/shell/boot_worker.post.js web/shell/app.js | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:15:44+00:00",
+   "tipo": "bash",
+   "desc": "Leer el manejo de errores del worker",
+   "cmd": "cd ~/repo; sed -n 30,60p web/shell/boot_worker.post.js; sed -n 485,500p web/shell/app.js",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:15:53+00:00",
+   "tipo": "bash",
+   "desc": "Pasar la pila del error del motor al registro",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:15:32+00:00"
+ "actualizado": "2026-11-03T20:15:53+00:00"
 }
