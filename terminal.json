@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:46:58+00:00",
-   "tipo": "bash",
-   "desc": "Buscar un desensamblador de wasm",
-   "cmd": "cd ~/repo; ls ~/tools/emsdk/upstream/bin | grep -i \"objdump\\|wasm-dis\\|wasm-opt\" | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:47:08+00:00",
    "tipo": "bash",
    "desc": "Desensamblar el motor y buscar la instrucción del fallo",
@@ -279,8 +272,15 @@
    "desc": "Ver el principio del registro de la prueba del puente",
    "cmd": "S=$S; head -30 $S/bridge_nofix.log | cut -c1-300",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:31:21+00:00",
+   "tipo": "bash",
+   "desc": "Leer la consola de la página del puente",
+   "cmd": "cd ~/repo; S=$S; cat > $S/bridge_console.mjs <<'EOF'  … (+16 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:30:28+00:00"
+ "actualizado": "2026-11-03T21:31:21+00:00"
 }
