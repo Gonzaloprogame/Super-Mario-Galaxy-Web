@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T12:22:22+00:00",
-   "tipo": "bash",
-   "desc": "Leer la espera ociosa y los avisos de interrupción del sistema del juego",
-   "cmd": "sed -n 200,262p third_party/nebula/native/sdk/os/os_native.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T12:22:45+00:00",
    "tipo": "bash",
    "desc": "Comprobar las funciones de Emscripten para enviar la sonda",
@@ -279,8 +272,15 @@
    "desc": "Leer la descripción del hilo de render en el puente",
    "cmd": "sed -n \"$(grep -n 'extern \"C\" void smg_bridge_describe' web/host/aurora_bridge.cpp | cut -d: -f1),+12p\" web/host/aurora_bridge.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T18:19:29+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el progreso del procesador a la descripción del render",
+   "cmd": "python3 - <<'EOF'  … (+20 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T18:19:18+00:00"
+ "actualizado": "2026-11-03T18:19:29+00:00"
 }
