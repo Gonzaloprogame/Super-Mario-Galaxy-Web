@@ -238,6 +238,24 @@ await withServer('isolated', async (url) => {
       const screen = await page.locator('#screen').boundingBox();
       await page.mouse.move(screen.x + screen.width * 0.75, screen.y + screen.height * 0.25);
       results.pointer = await words();
+      // A gamepad in the standard mapping (the Gamepad API, stubbed): A and LT held, the left stick up and to the right,
+      // the right stick to the left for a while; then all released
+      await page.evaluate(() => {
+        const button = (pressed) => ({ pressed, value: pressed ? 1 : 0 });
+        globalThis.fakePad = { id: 'prueba', index: 0, connected: true, mapping: 'standard',
+          buttons: Array.from({ length: 17 }, (_, i) => button(i === 0 || i === 6)), axes: [0.7, -0.7, -1, 0] };
+        navigator.getGamepads = () => [globalThis.fakePad];
+        dispatchEvent(new Event('gamepadconnected'));
+      });
+      await page.waitForTimeout(400);
+      results.pad = await words();
+      await page.evaluate(() => {
+        globalThis.fakePad.buttons.forEach((b) => { b.pressed = false; b.value = 0; });
+        globalThis.fakePad.axes = [0, 0, 0, 0];
+      });
+      await page.waitForTimeout(200);
+      results.padReleased = await words();
+      results.padCount = await page.evaluate(() => smgControls.pads.connected);
       await page.evaluate(() => smgControls.detach());
       return results;
     },
@@ -250,6 +268,12 @@ await withServer('isolated', async (url) => {
   check(k.touchB[0] === 0x0400, `controles: el botón B de la pantalla pulsa B (${k.touchB[0]})`);
   check(k.pointer[3] === 1 && Math.abs(k.pointer[4] - 5000) < 100 && Math.abs(k.pointer[5] + 5000) < 100,
         `controles: el puntero sigue al ratón sobre la pantalla (${k.pointer.slice(3, 6)})`);
+  check(k.padCount === 1 && k.pad[0] === (0x0800 | 0x2000) && k.pad[1] > 40 && k.pad[2] > 40,
+        `mando: A y LT pulsan A y Z, la palanca izquierda mueve la del Nunchuk (${k.pad.slice(0, 3)})`);
+  check(k.pad[3] === 1 && k.pad[4] < k.pointer[4] - 1000,
+        `mando: la palanca derecha mueve el puntero (de ${k.pointer[4]} a ${k.pad[4]})`);
+  check(k.padReleased[0] === 0 && k.padReleased[1] === 0 && k.padReleased[2] === 0,
+        `mando: al soltarlo, nada pulsado y la palanca al centro (${k.padReleased.slice(0, 3)})`);
 
   // The NAND kept between sessions (IndexedDB): a copy kept for the disc reaches the engine when it starts, and a copy
   // the engine hands over (on the presenter's channel) is kept

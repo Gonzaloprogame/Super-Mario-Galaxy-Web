@@ -210,14 +210,14 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
    segunda, verás la barra mientras se preparan los de sesiones anteriores.
 5. Usa **⛶ Pantalla completa** y el control de **🔊 volumen** si quieres.
 
-| Wiimote + Nunchuk | ⌨️ Teclado | 👆 Táctil / 🖱️ ratón |
-|---|---|---|
-| **A** / **B** | Espacio / Mayús | Botones A y B · clic / clic derecho |
-| **Palanca** | W A S D | Palanca de la pantalla |
-| **Z** / **C** | Z / C | Botones Z y C |
-| **Agitar** (el giro) | Q o E | Botón «Agitar» |
-| **Puntero** | — | Tocar la pantalla o mover el ratón sobre ella |
-| Cruceta, **+**, **−**, **HOME**, **1**, **2** | Flechas, P, M, H, 1, 2 | Botones de la pantalla |
+| Wiimote + Nunchuk | ⌨️ Teclado | 👆 Táctil / 🖱️ ratón | 🎮 Mando (Xbox, PlayStation…) |
+|---|---|---|---|
+| **A** / **B** | Espacio / Mayús | Botones A y B · clic / clic derecho | A / ✕ · B / ○ |
+| **Palanca** | W A S D | Palanca de la pantalla | Palanca izquierda |
+| **Z** / **C** | Z / C | Botones Z y C | LT / L2 · LB / L1 |
+| **Agitar** (el giro) | Q o E | Botón «Agitar» | X, Y, RB / R1 |
+| **Puntero** | — | Tocar la pantalla o mover el ratón sobre ella | Palanca derecha |
+| Cruceta, **+**, **−**, **HOME**, **1**, **2** | Flechas, P, M, H, 1, 2 | Botones de la pantalla | Cruceta, Start, Select, Guía, clic de las palancas |
 
 ### 💿 Tu copia del juego
 
@@ -266,7 +266,9 @@ contarnos qué pasa.
 <details>
 <summary><b>¿Puedo usar un mando?</b></summary>
 
-Aún no hay soporte para mandos físicos; está en la lista. De momento: táctil, teclado y ratón.
+Sí, en principio: los mandos que el navegador reconoce con la distribución estándar (Xbox, PlayStation y la mayoría
+de los Bluetooth). Conéctalo y pulsa un botón; la tabla de controles dice qué hace cada uno. Está comprobado con un
+mando simulado en Chromium, **todavía no con uno real**: si el tuyo no responde, cuéntanos cuál es y en qué navegador.
 </details>
 
 <details>
@@ -335,7 +337,7 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 - [ ] Más fotogramas por segundo en teléfonos.
 - [x] Vídeos THP.
 - [x] Pantalla de carga con los shaders guardados.
-- [ ] Mandos físicos (Gamepad API).
+- [x] Mandos físicos (Gamepad API); falta probarlos con un mando real.
 - [ ] Versiones PAL y japonesa.
 
 La hoja de ruta completa está en [`docs/HOJA_DE_RUTA.md`](docs/HOJA_DE_RUTA.md).

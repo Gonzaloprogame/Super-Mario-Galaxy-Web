@@ -24,7 +24,7 @@ hilo bloqueado en una espera.
 | # | Tarea | Estado |
 |---|---|---|
 | 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | en curso |
-| 2 | Mandos físicos (Gamepad API) | pendiente |
+| 2 | Mandos físicos (Gamepad API) | hecho con mando simulado; falta un mando real |
 | 3 | Cuelgue del libro del prólogo | bloqueado: no se reproduce aquí; falta el registro `[vigía]` del PC del usuario |
 | 4 | Arreglar lo que encuentre la gira | pendiente |
 
@@ -52,8 +52,8 @@ escenario fue. No dice que un escenario sea jugable: eso hay que comprobarlo jug
 la mayoría de los Bluetooth), leída en cada fotograma mientras el motor corre. Palanca izquierda = Nunchuk; A/✕ = A;
 B/○ = B; X, Y y RB = agitar; LT = Z; LB = C; cruceta; Start = +; Select = −; Guía = HOME; clic de las palancas = 1 y 2;
 palanca derecha = puntero. Zona muerta 0,18. Prueba nueva en `browser_smoke.mjs` con un mando simulado
-(`navigator.getGamepads`): A y LT, la palanca, el puntero y soltarlo todo. **Pendiente de ejecutar** (la gira ocupa
-los 4 núcleos del contenedor).
+(`navigator.getGamepads`): A y LT, la palanca, el puntero y soltarlo todo. **Ejecutada: 44 PASS, 0 FAIL** en
+`browser_smoke.mjs` (A+LT = 10240, palanca 63/63, puntero de 5000 a -3000, al soltar 0/0/0). Falta un mando real.
 
 **Dato de la NAND corregido** en `docs/MOTOR_WEB.md` (ver arriba): el hilo duerme en `pthread_cond_wait`
 (`web/host/console_services.c`, `nand_main`), no espera activamente.

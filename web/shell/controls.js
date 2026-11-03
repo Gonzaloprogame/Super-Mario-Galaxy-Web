@@ -1,4 +1,5 @@
-// The controls: one Wii Remote with a Nunchuk, from the screen's touch controls, the keyboard and the mouse. Their
+// The controls: one Wii Remote with a Nunchuk, from the screen's touch controls, the keyboard, the mouse and physical
+// gamepads (the Gamepad API's standard mapping: Xbox, PlayStation and most Bluetooth pads in Chrome and Android). Their
 // state goes straight into the engine's shared memory, in the words the host reads for each Wii Remote report
 // (web/host/console_services.h, SMG_INPUT_*): the engine's thread builds the reports from them every 10 ms.
 // Keyboard and mouse as Nebula's defaults (third_party/nebula/docs/KEYBOARD_CONTROLS.md).
@@ -23,12 +24,24 @@
     Digit1: { button: 'ONE' }, Numpad1: { button: 'ONE' }, Digit2: { button: 'TWO' }, Numpad2: { button: 'TWO' },
     KeyW: { stick: [0, 1] }, KeyS: { stick: [0, -1] }, KeyA: { stick: [-1, 0] }, KeyD: { stick: [1, 0] },
   };
+  // A gamepad in the standard mapping (w3c.github.io/gamepad, "Standard Gamepad"): its button index -> the Wii Remote's
+  // and the Nunchuk's. The left stick is the Nunchuk's stick, the right stick moves the pointer.
+  const PAD = {
+    0: { button: 'A' }, 1: { button: 'B' }, 2: { shake: 1 }, 3: { shake: 1 },
+    4: { button: 'C' }, 5: { shake: 1 }, 6: { button: 'Z' }, 7: { shake: 1 },
+    8: { button: 'MINUS' }, 9: { button: 'PLUS' }, 10: { button: 'ONE' }, 11: { button: 'TWO' },
+    12: { button: 'UP' }, 13: { button: 'DOWN' }, 14: { button: 'LEFT' }, 15: { button: 'RIGHT' }, 16: { button: 'HOME' },
+  };
+  const DEADZONE = 0.18;
+  // A stick's axis beyond its dead zone, rescaled to start at 0 there
+  const axis = (value) => (Math.abs(value) < DEADZONE ? 0 : Math.sign(value) * (Math.abs(value) - DEADZONE) / (1 - DEADZONE));
 
   globalThis.smgAttachControls = (panel, canvas) => {
     let view = null;
     const held = new Map(); // source (a key, a touch) -> {buttons, shake}
     const keyStick = new Set();
     let touchStick = null; // [x, y] while the touch stick is held
+    let padStick = null; // [x, y] while a gamepad's left stick is out of its dead zone
     const pointer = { on: false, x: 0, y: 0 };
 
     const write = () => {
@@ -39,8 +52,8 @@
         buttons |= h.buttons;
         shake |= h.shake;
       }
-      let [x, y] = touchStick || [0, 0];
-      if (!touchStick) {
+      let [x, y] = touchStick || padStick || [0, 0];
+      if (!touchStick && !padStick) {
         for (const code of keyStick) {
           x += KEYS[code].stick[0];
           y += KEYS[code].stick[1];
@@ -175,10 +188,79 @@
     stick.addEventListener('pointerup', stickUp);
     stick.addEventListener('pointercancel', stickUp);
 
+    // Gamepads: read at each animation frame while the engine runs (the Gamepad API has no events for buttons). Each
+    // pad's buttons are their own sources, so they combine with the keyboard and the screen's buttons.
+    const padHeld = new Set();
+    let padFrame = 0, padTime = 0;
+    const pads = { connected: 0, last: '' }; // for the tests and the page's help
+    const pollPads = (time) => {
+      padFrame = 0;
+      if (!view) return;
+      const dt = padTime ? Math.min(0.1, (time - padTime) / 1000) : 0;
+      padTime = time;
+      const list = (navigator.getGamepads ? Array.from(navigator.getGamepads()) : []).filter((p) => p && p.connected);
+      pads.connected = list.length;
+      let stickX = 0, stickY = 0, aimX = 0, aimY = 0;
+      const now = new Set();
+      for (const pad of list) {
+        pads.last = pad.id;
+        if (pad.mapping !== 'standard') continue; // unknown layouts: their buttons mean nothing certain
+        pad.buttons.forEach((b, index) => {
+          if (PAD[index] && (b.pressed || b.value > 0.5)) now.add(`pad:${pad.index}:${index}`);
+        });
+        stickX += axis(pad.axes[0] || 0);
+        stickY -= axis(pad.axes[1] || 0); // the pad's up is negative
+        aimX += axis(pad.axes[2] || 0);
+        aimY += axis(pad.axes[3] || 0);
+      }
+      let changed = false;
+      for (const source of now) {
+        if (!padHeld.has(source)) {
+          const key = PAD[Number(source.split(':')[2])];
+          held.set(source, { buttons: key.button ? BUTTON[key.button] : 0, shake: key.shake || 0 });
+          padHeld.add(source);
+          changed = true;
+        }
+      }
+      for (const source of [...padHeld]) {
+        if (!now.has(source)) {
+          held.delete(source);
+          padHeld.delete(source);
+          changed = true;
+        }
+      }
+      const length = Math.hypot(stickX, stickY);
+      const next = length > 0 ? (length > 1 ? [stickX / length, stickY / length] : [stickX, stickY]) : null;
+      if (String(next) !== String(padStick)) {
+        padStick = next;
+        changed = true;
+      }
+      if (aimX !== 0 || aimY !== 0) {
+        // The right stick moves the pointer across the screen in about a second at full tilt
+        pointer.x = Math.min(1, Math.max(-1, pointer.x + aimX * dt * 2));
+        pointer.y = Math.min(1, Math.max(-1, pointer.y + aimY * dt * 2));
+        pointer.on = true;
+        changed = true;
+      }
+      if (changed) write();
+      padFrame = requestAnimationFrame(pollPads);
+    };
+    const startPads = () => { if (!padFrame && view) padFrame = requestAnimationFrame(pollPads); };
+    addEventListener('gamepadconnected', startPads);
+
     const controls = {
-      attach(words) { view = words; controls.words = words; write(); },
+      attach(words) { view = words; controls.words = words; write(); startPads(); },
       words: null, // the engine's words last attached (its last word: the host's mark, "SMGI")
-      detach() { view = null; },
+      detach() {
+        view = null;
+        for (const source of padHeld) held.delete(source);
+        padHeld.clear();
+        padStick = null;
+        cancelAnimationFrame(padFrame);
+        padFrame = 0;
+        padTime = 0;
+      },
+      pads,
       get attached() { return view !== null; },
       pointer,
     };
