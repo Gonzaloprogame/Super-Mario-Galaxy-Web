@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:19:16+00:00",
-   "tipo": "bash",
-   "desc": "Reproducir el fallo de CocoonExGalaxy sola",
-   "cmd": "S=$S; echo CocoonExGalaxy > $S/tour/cocoon; cd ~/repo && timeout 3000 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/cocoon --out $S/tour/out_cocoon --nand $S/…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T20:19:25+00:00",
-   "tipo": "bash",
-   "desc": "Anotar la primera tanda y el error en el registro",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+19 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:19:31+00:00",
    "tipo": "bash",
    "desc": "Ver el modo de prueba de cuelgues del host",
@@ -279,8 +265,22 @@
    "desc": "Preparar el sitio de diagnóstico",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+11 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T20:52:43+00:00",
+   "tipo": "bash",
+   "desc": "Ejecutar la secuencia con el motor de diagnóstico",
+   "cmd": "S=$S; cd ~/repo && timeout 3300 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq5 --out $S/tour/out_diag --nand $S/drive/nand_RMGE01.bin --frames 900 --hang …",
+   "ok": true
+  },
+  {
+   "t": "2026-11-03T20:52:54+00:00",
+   "tipo": "bash",
+   "desc": "Guardar siempre el registro completo al terminar la gira",
+   "cmd": "pkill -f \"galaxy_tour.mjs.*out_diag\"; sleep 2; cd ~/repo; python3 - <<'EOF'  … (+18 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T20:52:36+00:00"
+ "actualizado": "2026-11-03T20:52:54+00:00"
 }
