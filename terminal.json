@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T20:52:26+00:00",
-   "tipo": "bash",
-   "desc": "Compilar el motor de diagnóstico",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; sed -i 's|^#include <algorithm>$|#include <algorithm>\\n#include <cstdio>|' lib/gfx/pipeline_cache.cpp; cd ~/repo; source ~/tools/emsdk/e…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T20:52:36+00:00",
    "tipo": "bash",
    "desc": "Preparar el sitio de diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ver desde qué hilos se llaman report y check_stall",
    "cmd": "cd ~/repo; sed -n 255,270p web/host/headless_host.c; sed -n 870,900p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-03T21:36:49+00:00",
+   "tipo": "bash",
+   "desc": "Anotar la causa y el arreglo en el registro",
+   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+18 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-03T21:36:38+00:00"
+ "actualizado": "2026-11-03T21:36:49+00:00"
 }
