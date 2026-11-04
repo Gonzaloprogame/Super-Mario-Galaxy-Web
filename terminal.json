@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:36:54+00:00",
-   "tipo": "bash",
-   "desc": "Find SDK missing call sites and TODO markers in fork",
-   "cmd": "cd ~/repo/third_party; grep -rIn \"nebula_sdk_missing\" nebula/native --include=*.c --include=*.cpp --include=*.h | head -20; ls nebula/native/sdk; echo ---; grep -rIn -i -E \"unimpl…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:58+00:00",
    "tipo": "bash",
    "desc": "Inspect NameObjFactoryStubs and SDK stubs",
@@ -279,8 +272,15 @@
    "desc": "Read movie and stage logging details",
    "cmd": "sed -n 455,470p web/host/headless_host.c; grep -n '\"\\[host\\] stage:' web/host/*.c | head -3",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:53:00+00:00",
+   "tipo": "bash",
+   "desc": "Teach galaxy_tour settings, events, scenes and movies",
+   "cmd": "python3 - <<'EOF'  … (+61 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:52:39+00:00"
+ "actualizado": "2026-11-04T18:53:00+00:00"
 }
