@@ -209,7 +209,9 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
 3. Pulsa **▶ Arrancar el motor**. La página baja sola hasta la pantalla y el sonido se activa con ese clic.
 4. Espera a que acabe la **pantalla de carga**. La primera vez en un navegador no hay shaders guardados; desde la
    segunda, verás la barra mientras se preparan los de sesiones anteriores.
-5. Usa **⛶ Pantalla completa** y el control de **🔊 volumen** si quieres.
+5. Usa **⛶ Pantalla completa** y el control de **🔊 volumen** si quieres. En la esquina de la pantalla verás los
+   **fotogramas por segundo** (verde 50 o más, ámbar desde 28, rojo por debajo) con una gráfica de los últimos
+   segundos; **📈 FPS** lo oculta o lo vuelve a mostrar.
 
 | Wiimote + Nunchuk | ⌨️ Teclado | 👆 Táctil / 🖱️ ratón | 🎮 Mando (Xbox, PlayStation…) |
 |---|---|---|---|
@@ -284,6 +286,9 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 
 Publicado en la página, todavía sin número de versión:
 
+- 📈 **Contador de fps nuevo:** una placa sobre la esquina de la pantalla, también en pantalla completa, con los
+  fotogramas que la página pinta de verdad en el último segundo, en verde, ámbar o rojo según la velocidad, y una
+  gráfica de los últimos 24 segundos. Se oculta con su botón y la página lo recuerda.
 - 🎬 **Vídeos del juego:** los vídeos THP se reproducen con el decodificador de Nebula. En WebAssembly no existe su
   instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
   la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg

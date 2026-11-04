@@ -440,3 +440,19 @@ mientras Aurora aún los lee: no se hace. Cada ms que se quita al hilo de render
   causa fuera el reloj, pero no lo demuestra; si vuelve a salir, el aviso de bloqueo y «Copiar el registro» dicen dónde.
 - **Fps en el teléfono:** sin medir. El usuario no tiene el teléfono a mano y calcula unos 30–40 fps, pero es una
   estimación, no una medida: la última medida sigue siendo ~27 fps (antes de la presentación por memoria compartida).
+
+### Bloque 15: contador de fps (2026-11-04)
+
+- **Pedido por el usuario:** un indicador de fps más bonito. La página no tenía contador propio (solo la línea de
+  fotogramas recibidos bajo la pantalla).
+- **Hecho:** `web/shell/fps.js` y su placa en `index.html`. Mide los fotogramas que la página pinta de verdad
+  (`presenter.frames`, contados en `present.js` en cada fotograma puesto en el lienzo) sobre el último segundo, cada
+  250 ms; con 0 fotogramas da 0, nada estimado. Colores: verde 50 o más, ámbar desde 28, rojo por debajo; gráfica de
+  48 puntos (24 s) con marcas en 30 y 60. Sobre la esquina del lienzo, sin recibir toques (`pointer-events: none`),
+  también en pantalla completa; más pequeña en móviles. Botón «📈 FPS» para ocultarla (se recuerda con
+  `localStorage`, con `try` por si no hay almacenamiento).
+- **Pruebas (`browser_smoke.mjs`):** con ~30 fotogramas por segundo enviados durante 1,6 s, la placa se ve y su número
+  queda a 8 o menos del ritmo enviado; su color corresponde al número; el botón la oculta y la vuelve a mostrar.
+- **Vista previa** con una imagen sintética (degradado, nada del juego) en escritorio y móvil: `$S/fpsprev`.
+- **Resultado:** `browser_smoke.mjs` 57 de 57 con la copia al día del sitio (`SMG_SITE=$S/site2`; `build/site` tenía un
+  `present.js` anterior a la memoria compartida y falló por eso, no por el contador).

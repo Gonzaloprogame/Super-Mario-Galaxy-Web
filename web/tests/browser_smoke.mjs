@@ -383,7 +383,26 @@ await withServer('isolated', async (url) => {
       const painted = { frames: p.frames, shared: p.sharedFrames, size: `${canvas.width}x${canvas.height}` };
       channel.postMessage({ type: 'frame', width: 8, height: 4, black: 0, slot: 1, sequence: 8 });
       await new Promise((r) => setTimeout(r, 300));
-      return { engine, marked, before, pixel, painted, after: { frames: p.frames, dropped: p.dropped } };
+      const after = { frames: p.frames, dropped: p.dropped };
+      // The frame-rate badge (web/shell/fps.js): about 30 frames a second posted for 1.6 s, read while they arrive
+      const badge = document.getElementById('fps');
+      const pixels = new Uint8Array(8 * 4 * 4).fill(90);
+      const start = performance.now();
+      let posted = 0;
+      while (performance.now() - start < 1600) {
+        channel.postMessage({ width: 8, height: 4, black: 0, pixels: pixels.slice().buffer });
+        posted++;
+        await new Promise((r) => setTimeout(r, 33));
+      }
+      const elapsed = performance.now() - start;
+      const fps = { shown: badge.hidden === false, value: Number(badge.querySelector('.fps-value').textContent),
+                    tier: badge.dataset.tier, rate: Math.round((posted * 1000) / elapsed),
+                    points: globalThis.smgFps.history.length };
+      document.getElementById('fps-toggle').click();
+      fps.toggled = { hidden: badge.hidden, pressed: document.getElementById('fps-toggle').getAttribute('aria-pressed') };
+      document.getElementById('fps-toggle').click();
+      fps.back = badge.hidden === false;
+      return { engine, marked, before, pixel, painted, after, fps };
     }),
   });
   check(f.after && f.after.engine && f.after.engine.shared && f.after.engine.marked === 1,
@@ -394,6 +413,13 @@ await withServer('isolated', async (url) => {
         `fotogramas en memoria compartida: uno anunciado por su hueco se pinta desde allí (${JSON.stringify(f.after && { pixel: f.after.pixel, painted: f.after.painted })})`);
   check(f.after && f.after.after.frames === f.after.painted.frames && f.after.after.dropped === f.after.before.dropped + 1,
         `fotogramas en memoria compartida: uno cuyo hueco se reescribió se descarta (${JSON.stringify(f.after && f.after.after)})`);
+  const rate = f.after && f.after.fps;
+  check(rate && rate.shown && rate.value > 0 && Math.abs(rate.value - rate.rate) <= 8 && rate.points > 0,
+        `contador de fps: se ve y da los fotogramas pintados por segundo (${JSON.stringify(rate)})`);
+  check(rate && rate.tier === (rate.value >= 50 ? 'good' : rate.value >= 28 ? 'fair' : 'low'),
+        `contador de fps: color según la velocidad (${rate && rate.value} fps → ${rate && rate.tier})`);
+  check(rate && rate.toggled.hidden === true && rate.toggled.pressed === 'false' && rate.back,
+        `contador de fps: su botón lo oculta y lo vuelve a mostrar (${JSON.stringify(rate && rate.toggled)})`);
 
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak

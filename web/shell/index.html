@@ -127,6 +127,32 @@
   #screen { display: block; width: 100%; aspect-ratio: 4 / 3; background: #000; border-radius: 10px;
             image-rendering: auto; touch-action: none; }
   #screen-info { margin: 8px 0 0; font-size: .82rem; }
+  /* The frame-rate badge (web/shell/fps.js): over the screen's corner, glass and a colour per tier */
+  #fps { position: absolute; top: 14px; right: 14px; z-index: 1; display: flex; align-items: center; gap: 8px;
+         padding: 6px 10px 6px 9px; border-radius: 12px; pointer-events: none; user-select: none;
+         --fps-color: var(--ok); color: var(--fg);
+         background: linear-gradient(135deg, rgba(14, 18, 40, .78), rgba(26, 18, 52, .72));
+         border: 1px solid color-mix(in srgb, var(--fps-color) 45%, transparent);
+         box-shadow: 0 6px 18px rgba(0, 0, 0, .45), 0 0 14px color-mix(in srgb, var(--fps-color) 22%, transparent),
+                     inset 0 1px 0 rgba(255, 255, 255, .08);
+         backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: border-color .4s, box-shadow .4s; }
+  #fps[hidden] { display: none; }
+  #fps[data-tier=fair] { --fps-color: var(--gold); }
+  #fps[data-tier=low] { --fps-color: var(--err); }
+  .fps-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--fps-color);
+             box-shadow: 0 0 8px var(--fps-color); transition: background .4s, box-shadow .4s; }
+  .fps-read { display: flex; flex-direction: column; align-items: center; line-height: 1; min-width: 2.2em; }
+  .fps-value { font-weight: 800; font-size: 1.3rem; font-variant-numeric: tabular-nums; color: var(--fps-color);
+               text-shadow: 0 0 10px color-mix(in srgb, var(--fps-color) 55%, transparent); transition: color .4s; }
+  .fps-unit { margin-top: 2px; font-size: .58rem; font-weight: 700; letter-spacing: .14em; color: var(--muted); }
+  .fps-graph { width: 64px; height: 24px; display: block; }
+  #fps-toggle[aria-pressed=false] { opacity: .6; }
+  @media (max-width: 520px) {
+    #fps { top: 10px; right: 10px; gap: 6px; padding: 4px 8px 4px 7px; border-radius: 10px; }
+    .fps-value { font-size: 1.05rem; }
+    .fps-graph { width: 44px; height: 20px; }
+  }
+  #screen-card:fullscreen #fps { top: 16px; right: 16px; }
   #screen-card:fullscreen { background: #000; padding: 0; border: 0; border-radius: 0; display: flex;
                             flex-direction: column; justify-content: center; }
   #screen-card:fullscreen .frame { padding: 0; background: none; }
@@ -244,10 +270,13 @@
       <h2><span class="step">3</span> Pantalla</h2>
       <div class="screen-tools">
         <label class="volume" for="volume" style="margin: 0">🔊 <input id="volume" type="range" min="0" max="100" value="80"></label>
+        <button id="fps-toggle" type="button" aria-pressed="true" title="Mostrar u ocultar el contador de fotogramas por segundo">📈 FPS</button>
         <button id="fullscreen" type="button">⛶ Pantalla completa</button>
       </div>
     </div>
     <div class="frame"><canvas id="screen" width="640" height="480"></canvas>
+      <!-- Frames per second really painted on the page (web/shell/fps.js) -->
+      <div id="fps" hidden role="img" aria-label="Fotogramas por segundo"></div>
       <!-- Before the game starts (web/shell/app.js, loading): the real steps of the engine's start, and the bar of the
            shaders kept from earlier sessions, built before the game (Aurora patch 0026). Nothing here is simulated. -->
       <div id="loading" hidden aria-live="polite">
@@ -287,6 +316,7 @@
   </footer>
 </main>
 <script src="present.js"></script>
+<script src="fps.js"></script>
 <script src="controls.js"></script>
 <script src="app.js"></script>
 </body>
