@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:03:36+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el modo de juego a ciegas a la gira",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+33 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T02:03:42+00:00",
-   "tipo": "bash",
-   "desc": "Anotar el modo y la semilla en la cabecera",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:03:49+00:00",
    "tipo": "bash",
    "desc": "Corregir el comentario de --play",
@@ -279,8 +265,22 @@
    "desc": "Leer el cálculo del intervalo de vídeo en JUTVideo",
    "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 25,75p $P/src/JSystem/JUtility/JUTVideo.cpp; grep -rn \"sVideoInterval\\|sVideoLastTick\" $P/src $P/include 2>/dev/null | grep -…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:11:12+00:00",
+   "tipo": "bash",
+   "desc": "Buscar dónde se usa el intervalo de vídeo",
+   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; grep -rn \"sVideoInterval\\|getVideoInterval\" $P/src $P/include 2>/dev/null | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T04:11:18+00:00",
+   "tipo": "bash",
+   "desc": "Leer el bucle que usa el intervalo de vídeo",
+   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 385,425p $P/src/Game/System/MainLoopFramework.cpp; cd third_party/nebula && git log --oneline -1 2>/dev/null; git -C native/p…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:11:03+00:00"
+ "actualizado": "2026-11-04T04:11:18+00:00"
 }
