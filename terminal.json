@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:19:14+00:00",
-   "tipo": "bash",
-   "desc": "Read save storage code in app.js",
-   "cmd": "grep -n \"nandStore\\|anterior\\|RMGE01\" web/shell/app.js | head -30; sed -n 150,200p web/shell/app.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:19:19+00:00",
    "tipo": "bash",
    "desc": "Read NAND restore format in host",
@@ -279,8 +272,15 @@
    "desc": "Add abrupt-close session trace to the page",
    "cmd": "python3 - <<'EOF'  … (+105 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:36:55+00:00",
+   "tipo": "bash",
+   "desc": "Avoid temporal dead zone in log() call",
+   "cmd": "sed -i 's/^  sessionTrace.line(text);$/  globalThis.smgSessionTrace?.line(text); \\/\\/ defined below (a log before it is not traced)/' web/shell/app.js && grep -n \"smgSessionTrace?…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:36:49+00:00"
+ "actualizado": "2026-11-04T20:36:55+00:00"
 }
