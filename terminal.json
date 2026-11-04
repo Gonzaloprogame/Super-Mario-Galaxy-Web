@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:32:08+00:00",
-   "tipo": "bash",
-   "desc": "Read trail declarations and stall uses",
-   "cmd": "cd ~/repo; sed -n 186,200p web/host/headless_host.c; sed -n 245,262p web/host/headless_host.c; sed -n 978,986p web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:32:20+00:00",
    "tipo": "bash",
    "desc": "Use the retrace count for the service trail",
@@ -279,8 +272,15 @@
    "desc": "Read halfway results",
    "cmd": "cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:24:27+00:00",
+   "tipo": "bash",
+   "desc": "Wait for both tours to finish",
+   "cmd": "S=$S; until { [ -s $S/long1/run.out ] || ! pgrep -f \"long1/run.sh\" >/dev/null; } && ! pgrep -f \"gfx44/out\" >/dev/null; do sleep 30; done; cat $S/long1/run.out; for t in long1/out_…",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T08:24:19+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T08:24:32+00:00"
 }
