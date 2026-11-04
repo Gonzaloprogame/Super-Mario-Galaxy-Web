@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:28:27+00:00",
-   "tipo": "bash",
-   "desc": "Check smoke test result",
-   "cmd": "F=$TMP cat $F; S=$S; grep -v \"GET /\" $S/smoke_fps.log | tail -15",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:28:34+00:00",
    "tipo": "bash",
    "desc": "Compare site copies with the source shell",
@@ -279,8 +272,15 @@
    "desc": "Read the draw path in the command processor",
    "cmd": "sed -n 520,830p lib/gx/command_processor.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:44:09+00:00",
+   "tipo": "bash",
+   "desc": "Find the previous profiling run setup",
+   "cmd": "S=$S; ls $S/perf5 $S/perf2 2>/dev/null | head; cat $S/perf5/*.sh 2>/dev/null | head -40; grep -l \"remote-debugging-port\\|9333\" $S/*.sh $S/*/*.sh 2>/dev/null | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:43:55+00:00"
+ "actualizado": "2026-11-04T15:44:09+00:00"
 }
