@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:56:37+00:00",
-   "tipo": "bash",
-   "desc": "Read the blind-play tour results",
-   "cmd": "S=$S; tail -60 $S/catch4/run.out; ls $S/catch4",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:56:40+00:00",
    "tipo": "bash",
    "desc": "Check tour summaries and errors",
@@ -279,8 +272,15 @@
    "desc": "Wait until the tour is in the level",
    "cmd": "S=$S; until grep -q \"tour: stop 1\" $S/perf1/out/log_tail.txt 2>/dev/null || ! pgrep -f \"perf1/stages\" >/dev/null; do sleep 5; done; n=$(grep -c \"render thread\" $S/perf1/out/log_ta…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:02:57+00:00",
+   "tipo": "bash",
+   "desc": "Profile the engine workers in the level for 20 s",
+   "cmd": "S=$S; until [ $(grep -c \"render thread\" $S/perf1/out/log_tail.txt) -ge 8 ] || ! pgrep -f \"perf1/stages\" >/dev/null; do sleep 5; done; grep \"render thread\\|draws in\" $S/perf1/out/l…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:01:36+00:00"
+ "actualizado": "2026-11-04T06:02:57+00:00"
 }
