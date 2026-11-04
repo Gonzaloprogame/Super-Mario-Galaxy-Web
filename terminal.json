@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:45:30+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:53:37+00:00",
    "tipo": "bash",
    "desc": "Check scratch state and build after restart",
@@ -279,8 +272,15 @@
    "desc": "Check smoke test progress",
    "cmd": "S=$S; for f in smoke bridge; do echo \"$f: $(grep -c '^PASS' $S/p27/$f.log 2>/dev/null) PASS, $(grep -c '^FAIL' $S/p27/$f.log 2>/dev/null) FAIL, $(grep '^exit' $S/p27/$f.log 2>/dev…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:55:50+00:00",
+   "tipo": "bash",
+   "desc": "Read final smoke test results",
+   "cmd": "S=$S; for f in smoke bridge; do echo \"$f: $(grep -c '^PASS' $S/p27/$f.log) PASS, $(grep -c '^FAIL' $S/p27/$f.log) FAIL, $(grep '^exit' $S/p27/$f.log)\"; grep '^FAIL' $S/p27/$f.log …",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T16:54:15+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T16:55:50+00:00"
 }
