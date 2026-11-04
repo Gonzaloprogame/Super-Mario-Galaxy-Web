@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:35:58+00:00",
-   "tipo": "bash",
-   "desc": "Ver el rastro en un aviso real del juego",
-   "cmd": "S=$S; echo BattleShipGalaxy > $S/tour/battleship; cd ~/repo; timeout 900 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/battleship --out $S/tour/out_trail --na…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T01:40:50+00:00",
-   "tipo": "bash",
-   "desc": "Rastro sin repetidos: compilar y verlo en el juego",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+72 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:45:42+00:00",
    "tipo": "bash",
    "desc": "Ampliar los nombres del rastro, recompilar y probar",
@@ -279,8 +265,22 @@
    "desc": "Buscar la cabecera de función cerca del desplazamiento",
    "cmd": "S=$S; awk '/^[0-9a-f]+ <>:/{print NR\": \"$1}' $S/headless.dis | awk -F': ' '{a=strtonum(\"0x\"$2); if (a>=0x30ef00 && a<=0x30f200) print}'",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T04:09:44+00:00",
+   "tipo": "bash",
+   "desc": "Localizar la función que contiene el desplazamiento",
+   "cmd": "S=$S; python3 -I - <<'EOF'  … (+14 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T04:09:55+00:00",
+   "tipo": "bash",
+   "desc": "Buscar los bucles sin llamadas en nebula_game_main",
+   "cmd": "S=$S; sed -n 1568427,1582709p $S/headless.dis > $S/game_main.dis; python3 -I - <<'EOF'  … (+24 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:09:35+00:00"
+ "actualizado": "2026-11-04T04:09:55+00:00"
 }
