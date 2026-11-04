@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:11:43+00:00",
-   "tipo": "bash",
-   "desc": "Read Nebula arena reservation code",
-   "cmd": "sed -n 70,130p third_party/nebula/native/sdk/memory.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T20:11:50+00:00",
-   "tipo": "bash",
-   "desc": "Check baseline memory samples so far",
-   "cmd": "S=$S; cat $S/mem/base.rss | tail -5; grep -c . $S/mem/base.rss; grep -E \"^\\[host\\] (stage|tour)\" $S/mem/base/log_tail.txt 2>/dev/null | tail -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:12:12+00:00",
    "tipo": "bash",
    "desc": "Stash the unmeasured memory fix",
@@ -279,8 +265,22 @@
    "desc": "Locate the path-to-entry lookup in SDK or web layer",
    "cmd": "grep -rn \"DVDConvertPathToEntrynum\\|ConvertPathToEntrynum\" third_party/nebula/native/sdk third_party/nebula/native/petari/src/RVL_SDK 2>/dev/null | grep -v \"^.*://\" | head -5; gre…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:41:58+00:00",
+   "tipo": "bash",
+   "desc": "Read existing linker wrap setup",
+   "cmd": "sed -n 55,80p web/cmake/SmgGame.cmake; grep -rn \"__wrap_\\w*(\" web/platform/*.c web/host/*.c | head -8",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T23:42:08+00:00",
+   "tipo": "bash",
+   "desc": "Read FileRipper loadToMainRAM opening code",
+   "cmd": "sed -n 37,50p third_party/nebula/native/petari/src/Game/System/FileRipper.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:41:51+00:00"
+ "actualizado": "2026-11-04T23:42:08+00:00"
 }
