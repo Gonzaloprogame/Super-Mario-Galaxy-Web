@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:55:17+00:00",
-   "tipo": "bash",
-   "desc": "Read how CMake applies Aurora patches",
-   "cmd": "grep -n \"patch\" web/aurora/CMakeLists.txt | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:55:25+00:00",
-   "tipo": "bash",
-   "desc": "Make before/after copies of patched Aurora sources",
-   "cmd": "S=$S; rm -rf $S/p27 && mkdir -p $S/p27/a $S/p27/b && cd ~/repo/build/all/aurora/aurora-patched && cp -r lib include $S/p27/a/ && cp -r lib include $S/p27/b/ && ls $S/p27/b; cat $S…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:55:40+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Verify gh-pages engine matches the previous site copy",
    "cmd": "S=$S; G=$S/gh-pages; for f in smg_web.js smg_web.wasm smg_headless_web.js smg_headless_web.wasm gx/gx_demo.js gx/gx_demo.wasm bridge/gx_bridge.js bridge/gx_bridge.wasm bridge/gx_r…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:57:42+00:00",
+   "tipo": "bash",
+   "desc": "Update progress log and README for publication",
+   "cmd": "S=$S; cd ~/repo && python3 - <<'EOF'  … (+17 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T17:57:45+00:00",
+   "tipo": "bash",
+   "desc": "Find where to add the index writer note in MOTOR_WEB",
+   "cmd": "sed -n 489,530p docs/MOTOR_WEB.md | grep -n \"Presentación sin copias\\|^###\\|^- \\*\\*\" | head -12",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T17:57:32+00:00"
+ "actualizado": "2026-11-04T17:57:45+00:00"
 }
