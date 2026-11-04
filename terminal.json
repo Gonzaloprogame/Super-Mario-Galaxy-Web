@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:02:19+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar que la comprobación detecta el conjunto de 4",
-   "cmd": "cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all smg_headless_web 2>&1 | grep -E \" error\" ; rm -rf build/site_next; cp -r build/site build/si…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:05:19+00:00",
    "tipo": "bash",
    "desc": "Subir el conjunto de hilos a 6 y comprobarlo",
@@ -279,8 +272,15 @@
    "desc": "Esperar a que se cuelgue en la secuencia",
    "cmd": "S=$S; until grep -q \"stall: no GX from the game for [2-9][0-9] s\" $S/tour/out_seq32/log_tail.txt 2>/dev/null || ! pgrep -f \"out_seq32\" >/dev/null; do sleep 3; done; date +%T; grep…",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T00:53:16+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo terminó la secuencia",
+   "cmd": "S=$S; head -1 $S/tour/out_seq32/tour.md; tail -2 $S/tour/out_seq32/tour.md | cut -c1-200; tail -3 $S/tour/run_seq32.log",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:53:12+00:00"
+ "actualizado": "2026-11-04T00:53:16+00:00"
 }
