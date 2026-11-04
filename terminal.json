@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:35:36+00:00",
-   "tipo": "bash",
-   "desc": "Check available C++ code-analysis tools",
-   "cmd": "which clangd clang-tidy ctags 2>&1 | head; ls ~/tools/emsdk/upstream/bin | grep -i -E \"clangd|tidy|query\" | head; ls ~/repo/build/all/compile_commands.json 2>&1",
-   "ok": false
-  },
-  {
-   "t": "2026-11-04T18:35:53+00:00",
-   "tipo": "bash",
-   "desc": "List repo structure and doc sizes",
-   "cmd": "cd ~/repo; ls; ls docs tools web third_party; wc -l docs/*.md README.md; git log --oneline | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:35:57+00:00",
    "tipo": "bash",
    "desc": "Show progress JSON and README headings",
@@ -279,8 +265,22 @@
    "desc": "List clangd error lines unfiltered",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && timeout 300 ~/tools/emsdk/upstream/bin/clangd --compile-commands-dir=build/all/clangd --check=web/host/headless_host.c 2>&1 | …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:03+00:00",
+   "tipo": "editar",
+   "desc": "",
+   "cmd": "~/repo/tools/code_index.sh",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:09+00:00",
+   "tipo": "bash",
+   "desc": "Recheck and confirm clangd reports real errors",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && timeout 300 tools/code_index.sh check web/host/headless_host.c; printf 'int main(void){ int x = undefined_thing; return x; }\\n…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:49:55+00:00"
+ "actualizado": "2026-11-04T18:50:09+00:00"
 }
