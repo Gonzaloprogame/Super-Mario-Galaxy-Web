@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:38:04+00:00",
-   "tipo": "bash",
-   "desc": "Search known bugs and scenario coverage",
-   "cmd": "cd ~/repo; grep -n -i -E \"SurfingLv1|StarDust|aviso conocido|0022|escenario 1|misión 1|:1\\b|scenario 1|misiones|Grand|jefe|Bowser|Koopa\" docs/PROGRESO_AUTONOMO.md | head -30; grep…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:38:08+00:00",
    "tipo": "bash",
    "desc": "Read SurfingLv1 note and Nebula host test hooks",
@@ -279,8 +272,15 @@
    "desc": "Search Nebula docs for grand star and ending test notes",
    "cmd": "cd ~/repo/third_party/nebula && grep -rn -i \"grand star\\|grandstar\\|GALAXY_TEST_GRAND\\|ending\\|KoopaBattleVs3\\|route\" docs/*.md | head -30; cat $S/galaxies.txt | tr '\\n' ' '",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:02:35+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test progress",
+   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke.log) PASS $(grep -c '^FAIL' $S/b1_smoke.log) FAIL $(grep '^exit' $S/b1_smoke.log)\"; grep -E \"^(FAIL|PASS gira)\" $S/b1_smoke.log; e…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:02:16+00:00"
+ "actualizado": "2026-11-04T19:02:35+00:00"
 }
