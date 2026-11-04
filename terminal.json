@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:40:27+00:00",
-   "tipo": "bash",
-   "desc": "Look for clock reads in the audio mix",
-   "cmd": "cd ~/repo; grep -n \"clock\\|now()\\|steady\\|chrono\\|emscripten_get_now\\|performance\" web/host/audio_output.cpp | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:41:29+00:00",
    "tipo": "bash",
    "desc": "Search the JAudio mixer for clock reads",
@@ -279,8 +272,15 @@
    "desc": "Long blind play on the remaining 7 stages",
    "cmd": "S=$S; cd ~/repo; timeout 3500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/long1/rest.txt --out $S/long1/out_9b --nand $S/drive/nand_RMGE01.bin --…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:52:04+00:00",
+   "tipo": "bash",
+   "desc": "Commit the tour length fix",
+   "cmd": "cd ~/repo; git commit -qam \"Gira: la duración del modo diagnóstico sale de las paradas y sus fotogramas (una hora fija cortó una gira larga en la parada 38)  … (+3 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T08:51:56+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T08:52:11+00:00"
 }
