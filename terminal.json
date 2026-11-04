@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:44:09+00:00",
-   "tipo": "bash",
-   "desc": "Find the previous profiling run setup",
-   "cmd": "S=$S; ls $S/perf5 $S/perf2 2>/dev/null | head; cat $S/perf5/*.sh 2>/dev/null | head -40; grep -l \"remote-debugging-port\\|9333\" $S/*.sh $S/*/*.sh 2>/dev/null | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:44:15+00:00",
    "tipo": "bash",
    "desc": "Recover the exact profiling command used before",
@@ -279,8 +272,15 @@
    "desc": "Compare index buffer sizes and ending times",
    "cmd": "S=$S; for r in perf6 perf7; do echo \"== $r\"; grep -o \"indices [0-9]* KB of [0-9]*\\|draws in the last frame [0-9]*\" $S/$r/out/log_tail.txt | sort | uniq -c | sort -rn | head -6; gr…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:26:35+00:00",
+   "tipo": "bash",
+   "desc": "Repeat baseline and patched profiles alternately",
+   "cmd": "S=$S; $S/perfrun.sh perf6b $S/site2 $S/perf6_symbols > $S/perf6b.summary 2>&1; echo \"exit $?\" >> $S/perf6b.summary; $S/perfrun.sh perf7b $S/site3 $S/perf7_symbols > $S/perf7b.summ…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:26:22+00:00"
+ "actualizado": "2026-11-04T16:26:35+00:00"
 }
