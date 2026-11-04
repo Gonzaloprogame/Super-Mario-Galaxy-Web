@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:10:48+00:00",
-   "tipo": "bash",
-   "desc": "Nombrar la función y buscar la constante 670000",
-   "cmd": "cd ~/repo; grep \"^12773:\" build/all/game/smg_headless_web.js.symbols; P=third_party/nebula/native/petari; grep -rn \"670000\" $P/src $P/libs 2>/dev/null | head -5",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:10:58+00:00",
-   "tipo": "bash",
-   "desc": "Buscar quién guarda diferencias de OSGetTick",
-   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; grep -rn \"OSGetTick() -\\|OSGetTick()-\\|= OSGetTick();\" $P/src $P/libs 2>/dev/null | grep -v \"^.*://\" | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:11:03+00:00",
    "tipo": "bash",
    "desc": "Leer el cálculo del intervalo de vídeo en JUTVideo",
@@ -279,8 +265,22 @@
    "desc": "Play blind four more tours (seeds 5-8)",
    "cmd": "S=$S; timeout 7100 $S/catch5/run.sh 8 5 > $S/catch5/run.out 2>&1",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:58:10+00:00",
+   "tipo": "bash",
+   "desc": "Record the in-game proof in the progress doc",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+29 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:58:13+00:00",
+   "tipo": "bash",
+   "desc": "Read README hang-related sections",
+   "cmd": "cd ~/repo; sed -n 36,42p README.md; sed -n 168,180p README.md; sed -n 290,300p README.md; sed -n 345,352p README.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:57:59+00:00"
+ "actualizado": "2026-11-04T05:58:13+00:00"
 }
