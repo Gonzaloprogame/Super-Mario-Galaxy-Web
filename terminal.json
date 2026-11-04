@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:19:30+00:00",
-   "tipo": "bash",
-   "desc": "Find the place for save buttons in the page",
-   "cmd": "grep -n \"options\\|id=\\\"run\\\"\\|class=\\\"actions\\\"\\|<section class=\\\"card\\\"\" web/shell/index.html | head; sed -n \"$(grep -n 'class=\"actions\"' web/shell/index.html | head -1 | cut -d:…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T19:19:57+00:00",
-   "tipo": "bash",
-   "desc": "Add save download and load to the page",
-   "cmd": "python3 - <<'EOF'  … (+98 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:20:22+00:00",
    "tipo": "bash",
    "desc": "Add save export/import checks to smoke test",
@@ -279,8 +265,22 @@
    "desc": "Run save and crash-trace checks standalone",
    "cmd": "S=$S; R=~/repo; rm -rf $S/site7 && cp -r $S/site6 $S/site7 && cp $R/web/shell/index.html $R/web/shell/app.js $S/site7/ && python3 - \"$R/web/tests/browser_smoke.mjs\" \"$S/savetest.m…  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:37:38+00:00",
+   "tipo": "bash",
+   "desc": "Commit the session trace feature",
+   "cmd": "git add web/shell/app.js web/shell/index.html web/tests/browser_smoke.mjs && git commit -q -m \"Página: aviso de la sesión que el navegador cerró de golpe, con lo que pasó  … (+8 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T20:37:42+00:00",
+   "tipo": "bash",
+   "desc": "Compare memory samples with and without fix",
+   "cmd": "S=$S; tail -3 $S/mem/fix.rss; echo \"base:\"; sed -n 3,6p $S/mem/base.rss",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:37:28+00:00"
+ "actualizado": "2026-11-04T20:37:42+00:00"
 }
