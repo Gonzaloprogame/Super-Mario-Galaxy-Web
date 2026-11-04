@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T10:24:37+00:00",
-   "tipo": "bash",
-   "desc": "Check working tree and running tours",
-   "cmd": "git status --short | head; git log --oneline -1; ps aux | grep -c \"[g]alaxy_tour\"",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:20:04+00:00",
-   "tipo": "bash",
-   "desc": "Find prologue and phone fps mentions in docs",
-   "cmd": "grep -n -i \"libro\\|Para reanudar\\|teléfono\\|fps\" docs/PROGRESO_AUTONOMO.md | tail -30; grep -n -i \"libro\\|teléfono\\|fps\" docs/progreso.json README.md | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:20:08+00:00",
    "tipo": "bash",
    "desc": "Read the relevant doc sections",
@@ -279,8 +265,22 @@
    "desc": "Keep screen buttons on one line on phones and recheck",
    "cmd": "python3 - <<'EOF'  … (+14 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:23:42+00:00",
+   "tipo": "bash",
+   "desc": "Add phone-width button layout check",
+   "cmd": "python3 - <<'EOF'  … (+28 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T14:23:46+00:00",
+   "tipo": "bash",
+   "desc": "Check how chromium is imported in the smoke test",
+   "cmd": "grep -n \"chromium\" web/tests/browser_smoke.mjs | head -3; sed -n 12,20p web/tests/browser_smoke.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:23:29+00:00"
+ "actualizado": "2026-11-04T14:23:46+00:00"
 }
