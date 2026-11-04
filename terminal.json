@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:41:23+00:00",
-   "tipo": "bash",
-   "desc": "Ver el final de la tanda 01 y que la 02 arrancó",
-   "cmd": "S=$S; cat $S/tour/out_01/tour.md | cut -c1-250; grep -c \"memory error\" $S/tour/out_01/log_end.txt; pgrep -fa \"galaxy_tour\" | cut -c1-150",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:41:34+00:00",
    "tipo": "bash",
    "desc": "Comprobar que arrancó la tanda 02",
@@ -279,8 +272,15 @@
    "desc": "Crear partida nueva y recorrer el prólogo en modo diagnóstico",
    "cmd": "pkill -f story/run.sh; pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; sleep 2; S=$S; cat > $S/story/new.sh <<'EOF'  … (+26 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:15:15+00:00",
+   "tipo": "bash",
+   "desc": "Anotar el fallo del conjunto de hilos",
+   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+18 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:15:04+00:00"
+ "actualizado": "2026-11-04T00:15:15+00:00"
 }
