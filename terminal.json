@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:39:20+00:00",
-   "tipo": "bash",
-   "desc": "Read push_verts, push_indices and helpers",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -n \"Range push_verts\\|Range push_indices\\|^Range push(\\|static Range push(\\|get_last_draw_command\" gfx/*.cpp gfx/*.hpp | head; …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:39:50+00:00",
    "tipo": "bash",
    "desc": "Read the game's GX pacing layer",
@@ -279,8 +272,15 @@
    "desc": "Regenerate patch, verify, and rebuild",
    "cmd": "S=$S; cd $S/patch27; for f in texture.cpp texture.hpp command_processor.cpp; do cp ~/repo/build/all/aurora/aurora-patched/lib/gx/$f b/lib/gx/; done; diff -ruN a b > 0027.patch; cp…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:09:55+00:00",
+   "tipo": "bash",
+   "desc": "Measure again with counters and a profile",
+   "cmd": "S=$S; cd ~/repo; B=build/all; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S/site2/; cp $B/bridge/gx_bridge.js $B/brid…  … (+1 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:07:35+00:00"
+ "actualizado": "2026-11-04T07:09:55+00:00"
 }
