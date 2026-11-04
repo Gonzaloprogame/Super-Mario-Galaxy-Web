@@ -501,6 +501,34 @@ await withServer('isolated', async (url) => {
           `partida: con el motor en marcha no se carga ninguna ("${running}")`);
   }
 
+  // The last session's trace (web/shell/app.js, sessionTrace): a session the browser closed while the game ran is
+  // said on the next visit, until dismissed; while the engine runs the trace is kept unclean, and a normal close
+  // (pagehide) marks it clean
+  {
+    const browser = await chromium.launch();
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(url);
+    await page.evaluate(() => localStorage.setItem('smg-ultima-sesion', JSON.stringify({
+      at: Date.now() - 120000, clean: false, scene: 'EscenaDePrueba', memory: '512 MB', fps: 24, log: '[host] línea de prueba' })));
+    await page.reload();
+    const shown = await page.evaluate(() => ({ visible: !document.getElementById('crash-note').hidden,
+                                               text: document.getElementById('crash-text').textContent }));
+    await page.click('#crash-dismiss');
+    await page.reload();
+    const afterDismiss = await page.evaluate(() => !document.getElementById('crash-note').hidden);
+    await page.evaluate(() => { document.body.dataset.state = 'running'; });
+    await page.waitForTimeout(5600);
+    const whileRunning = await page.evaluate(() => JSON.parse(localStorage.getItem('smg-ultima-sesion')).clean);
+    await page.evaluate(() => dispatchEvent(new Event('pagehide')));
+    const afterClose = await page.evaluate(() => JSON.parse(localStorage.getItem('smg-ultima-sesion')).clean);
+    await browser.close();
+    check(shown.visible && /se cerró de golpe/.test(shown.text) && /EscenaDePrueba/.test(shown.text) && /512 MB/.test(shown.text),
+          `cierre de golpe: la visita siguiente lo dice, con la escena y la memoria ("${shown.text.slice(0, 120)}…")`);
+    check(!afterDismiss, 'cierre de golpe: «Descartar» lo quita y no vuelve a salir');
+    check(whileRunning === false && afterClose === true,
+          `cierre de golpe: en marcha se guarda como no limpio y un cierre normal lo marca limpio (${whileRunning}, ${afterClose})`);
+  }
+
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak
   const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');
