@@ -3,13 +3,6 @@
   {
    "t": "2026-11-04T06:31:55+00:00",
    "tipo": "bash",
-   "desc": "Play blind tours with seeds 6-8",
-   "cmd": "S=$S; mv $S/catch5/run.out $S/catch5/run_first.out; mv $S/catch5/out_6 $S/catch5/out_6_cortada; timeout 7100 $S/catch5/run.sh 8 6 > $S/catch5/run.out 2>&1",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:31:55+00:00",
-   "tipo": "bash",
    "desc": "Review pending changes",
    "cmd": "cd ~/repo; git status --short; git diff --stat",
    "ok": true
@@ -279,8 +272,15 @@
    "desc": "Read the stats report and texture stats",
    "cmd": "cd ~/repo; grep -n \"smg_bridge_debug_stats\" -A 25 web/host/aurora_bridge.cpp | head -40; grep -n \"struct TextureStats\" -A 25 build/all/aurora/aurora-patched/lib/gx/texture.hpp | h…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:42:43+00:00",
+   "tipo": "bash",
+   "desc": "Add the per-frame guest texture cache",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+86 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:42:23+00:00"
+ "actualizado": "2026-11-04T06:42:43+00:00"
 }
