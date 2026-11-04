@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:22:45+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar el arreglo del reloj y preparar la comprobación",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+47 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:23:07+00:00",
    "tipo": "bash",
    "desc": "Jugar a ciegas cuatro giras con el arreglo del reloj",
@@ -279,8 +272,15 @@
    "desc": "Run the castle garden in graphics mode for profiling",
    "cmd": "S=$S; cd ~/repo; timeout 1500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf1/out --nand $S/drive/nand_RMGE01.bin --frames 3000 --han…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:01:19+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the level to load and render reports",
+   "cmd": "S=$S; until grep -q \"render thread\" $S/perf1/out/log_tail.txt 2>/dev/null && [ $(grep -c \"render thread\" $S/perf1/out/log_tail.txt) -ge 3 ] || ! pgrep -f \"perf1/stages\" >/dev/null…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:00:41+00:00"
+ "actualizado": "2026-11-04T06:01:19+00:00"
 }
