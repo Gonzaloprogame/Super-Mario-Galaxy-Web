@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:02+00:00",
-   "tipo": "bash",
-   "desc": "Name the hot wasm functions",
-   "cmd": "cd ~/repo; for i in 3100 3701 1640 6941 16768 16683 996 9693 9404 3705 1141 8784 1868 1212; do echo \"$i $(grep \"^$i:\" build/all/engine/smg_web.js.symbols | cut -c1-150)\"; done; S=…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:14+00:00",
    "tipo": "bash",
    "desc": "Summarize profiles by named function without waits",
@@ -279,8 +272,15 @@
    "desc": "Run the page tests on the new build",
    "cmd": "S=$S; cd ~/repo; sed -n 36,40p tools/build_web.sh; cp web/shell/present.js $S/site2/bridge/present.js; SMG_SITE=$S/site2 timeout 1500 node web/tests/browser_smoke.mjs > $S/site2/b…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:18:22+00:00",
+   "tipo": "bash",
+   "desc": "Run the bridge tests on the new build",
+   "cmd": "S=$S; cd ~/repo; timeout 1500 node web/tests/bridge_smoke.mjs $S/site2/bridge > $S/site2/bridge.out 2>&1; echo exit $?; grep -c \"^PASS\" $S/site2/bridge.out; grep \"^FAIL\" $S/site2/…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:17:46+00:00"
+ "actualizado": "2026-11-04T06:18:22+00:00"
 }
