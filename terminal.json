@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:36:04+00:00",
-   "tipo": "bash",
-   "desc": "Search docs for key terms",
-   "cmd": "cd ~/repo; grep -n -i -E \"ciegas|hito 7|jugable|tour|stub|sin implementar|no decompil|unimplement|nonmatching|placeholder|sin resolver|missing|falta\" docs/PROGRESO_AUTONOMO.md doc…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:36:13+00:00",
-   "tipo": "bash",
-   "desc": "List third-party trees and policy files",
-   "cmd": "cd ~/repo/third_party; ls petari nebula; ls nebula/native; find petari nebula -maxdepth 2 -iname \"*contrib*\" -o -maxdepth 2 -iname \"README*\" -o -maxdepth 2 -iname \"*AI*.md\" -o -ma…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:17+00:00",
    "tipo": "bash",
    "desc": "Search contribution AI policy lines",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "~/repo/CLAUDE.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:39+00:00",
+   "tipo": "bash",
+   "desc": "Commit Part A tools and push",
+   "cmd": "git status --short && git add CLAUDE.md tools/code_index.sh && git commit -q -m \"Herramientas: CLAUDE.md (reglas, rutas, comandos y trampas) y análisis C/C++ local con clangd como…  … (+7 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:47+00:00",
+   "tipo": "bash",
+   "desc": "Read Nebula host test hook implementation",
+   "cmd": "cd ~/repo/third_party/nebula/native/host && awk 'NR>=2800 && NR<=2990' host_main.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:50:31+00:00"
+ "actualizado": "2026-11-04T18:50:47+00:00"
 }
