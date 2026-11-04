@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:50:09+00:00",
-   "tipo": "bash",
-   "desc": "Recheck and confirm clangd reports real errors",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && timeout 300 tools/code_index.sh check web/host/headless_host.c; printf 'int main(void){ int x = undefined_thing; return x; }\\n…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:50:31+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Rerun segment 6 and run graphics ending segment",
    "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route2 --nand $S/drive/nand_RMGE01.bin --site $S/site4 --only 6,12 …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:18:24+00:00",
+   "tipo": "bash",
+   "desc": "Commit the graphics ending segment",
+   "cmd": "git add tools/routes/historia.txt && git commit -q -m \"Ruta: la batalla final también con gráficos, para los vídeos del final  … (+6 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T19:18:16+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T19:18:34+00:00"
 }
