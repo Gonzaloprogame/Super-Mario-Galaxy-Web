@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:25:44+00:00",
-   "tipo": "bash",
-   "desc": "Commit, push and publish the phone fixes",
-   "cmd": "S=$S; cd ~/repo && sed -i 's|  Comprobación nueva en `browser_smoke.mjs` (360 px: una línea por botón, sin desbordar).|  Comprobación nueva en `browser_smoke.mjs` (360 px: una lín…  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:43:43+00:00",
    "tipo": "bash",
    "desc": "Read milestone percentages",
@@ -279,8 +272,15 @@
    "desc": "Find GXPrimitive definition and ByteBuffer resize",
    "cmd": "grep -rn \"GX_TRIANGLESTRIP *=\" include | head -3; grep -rn \"void resize\" lib/internal.hpp; sed -n \"$(grep -n 'void resize' lib/internal.hpp | cut -d: -f1),+20p\" lib/internal.hpp; …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:55:07+00:00",
+   "tipo": "bash",
+   "desc": "Check patch format and how patches are applied",
+   "cmd": "cd ~/repo && head -12 web/aurora/patches/0025-draws-under-three-vertices.patch; grep -rn \"aurora-patched\\|patches\" CMakeLists.txt web/CMakeLists.txt tools/*.sh 2>/dev/null | head …",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:54:42+00:00"
+ "actualizado": "2026-11-04T15:55:07+00:00"
 }
