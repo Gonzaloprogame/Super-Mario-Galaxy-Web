@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T16:07:58+00:00",
-   "tipo": "bash",
-   "desc": "Check build progress and patched tree",
-   "cmd": "S=$S; tail -3 $S/p27/build.log; grep -c \"0027\" ~/repo/build/all/aurora/aurora-patched/.web-patches; ls ~/repo/build/all/aurora/aurora-patched/lib/gx/index_writer.hpp",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T16:08:04+00:00",
-   "tipo": "bash",
-   "desc": "Park patch outside the tree during build",
-   "cmd": "S=$S; cd ~/repo && cmp web/aurora/patches/0027-index-writer-in-place.patch $S/p27/pending/0027-index-writer-in-place.patch && rm web/aurora/patches/0027-index-writer-in-place.patc…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T16:12:44+00:00",
-   "tipo": "bash",
-   "desc": "Check build result and patched tree match",
-   "cmd": "S=$S; grep -E \"error|warning|^exit|^real|FAILED\" $S/p27/build.log | head; cd ~/repo && diff -r build/all/aurora/aurora-patched/lib $S/p27/b/lib && echo \"patched tree = p27/b\"; ls …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T16:12:48+00:00",
    "tipo": "bash",
    "desc": "Read build_web.sh copy layout",
@@ -279,8 +258,29 @@
    "desc": "Read Nebula known issues and contributing",
    "cmd": "cd ~/repo/third_party/nebula; grep -n -E \"^#\" README.md; awk '/^## Known issues/,/^## [^K]/' README.md | head -50; grep -n -i -A6 \"contribut\" README.md | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:31+00:00",
+   "tipo": "bash",
+   "desc": "List web directory contents",
+   "cmd": "cd ~/repo/web; ls game platform cmake host bridge engine shell tests; wc -l CMakeLists.txt game/* cmake/* 2>/dev/null | tail -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:36+00:00",
+   "tipo": "bash",
+   "desc": "Show game build CMake files",
+   "cmd": "cd ~/repo/web; cat game/CMakeLists.txt cmake/SmgGame.cmake",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:44+00:00",
+   "tipo": "bash",
+   "desc": "Search Nebula native for stubs and nonmatching",
+   "cmd": "cd ~/repo/third_party/nebula/native; grep -rIl -i -E \"\\bstub\" --include=*.c --include=*.cpp --include=*.h --include=*.txt --include=*.md . | head -30; echo ---; grep -rIn -i -E \"u…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:36:26+00:00"
+ "actualizado": "2026-11-04T18:36:44+00:00"
 }
