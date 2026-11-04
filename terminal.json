@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T16:54:01+00:00",
-   "tipo": "bash",
-   "desc": "Document block 18 in progress log",
-   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+39 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T16:54:11+00:00",
-   "tipo": "bash",
-   "desc": "Check smoke test progress",
-   "cmd": "S=$S; for f in smoke bridge; do echo \"$f: $(grep -c '^PASS' $S/p27/$f.log 2>/dev/null) PASS, $(grep -c '^FAIL' $S/p27/$f.log 2>/dev/null) FAIL, $(grep '^exit' $S/p27/$f.log 2>/dev…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T16:55:50+00:00",
    "tipo": "bash",
    "desc": "Read final smoke test results",
@@ -279,8 +265,22 @@
    "desc": "Search headless host for test hooks",
    "cmd": "cd ~/repo; grep -n -E \"GALAXY_TEST|getenv|tour|teleport|TELEPORT|EVENTS|scenario|save|nand\" web/host/headless_host.c | head -60; wc -l web/host/headless_host.c tools/galaxy_tour.m…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:37:47+00:00",
+   "tipo": "bash",
+   "desc": "Check test action kinds and page URL params",
+   "cmd": "cd ~/repo; grep -n -E \"NEBULA_TEST_|NebulaTestAction|test_scene_frame\" third_party/nebula/native/include/nebula_game_api.h | head -30; grep -rn \"NEBULA_TEST_\" web/host | head; gre…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:37:51+00:00",
+   "tipo": "bash",
+   "desc": "Check save import UI and controls API",
+   "cmd": "cd ~/repo; grep -n -i -E \"export|import|descarg|subir|backup|copia\" web/shell/index.html | head; grep -n -E \"globalThis|window\\.|smg[A-Z]|export |function \" web/shell/controls.js …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:37:36+00:00"
+ "actualizado": "2026-11-04T18:37:51+00:00"
 }
