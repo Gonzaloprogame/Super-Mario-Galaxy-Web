@@ -152,7 +152,7 @@ de esta tabla: 3 de noviembre de 2026*):
 | Arranque y pantalla de título | ✅ | Comprobado con un disco real, en escritorio y Android |
 | Pantalla de carga | ✅ | Pasos reales del arranque y barra de shaders guardados (desde la segunda sesión) |
 | Elegir archivo y crear partida | ✅ | Las partidas se guardan y se recuperan |
-| Prólogo (el libro de cuentos) | 🧪 | Avanza con A; **en un PC se colgó en la segunda página**; quizá por el fallo de memoria ya arreglado, sin comprobar |
+| Prólogo (el libro de cuentos) | ✅ | Avanza con A; se colgaba en la segunda página en un PC y, con el reloj arreglado, en ese PC ya pasa entero (un intento) |
 | Vídeos (THP) | ✅ | Los dos vídeos del prólogo, completos: 12.667 fotogramas, ninguno rechazado, ~3,5 ms cada uno |
 | Jardín del castillo (primer nivel) | ✅ | Escenario, Mario, cielo, efectos y HUD |
 | Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
@@ -170,10 +170,9 @@ de esta tabla: 3 de noviembre de 2026*):
 
 ### 🐞 Fallos conocidos
 
-- 🧊 **Cuelgue del libro del prólogo, probablemente arreglado:** en un PC el juego se paró en la segunda página del
-  libro. Tenía la misma firma que el cuelgue a toda velocidad arreglado en esta versión (el reloj, ver «Novedades»),
-  pero no se ha comprobado en ese PC. Si vuelve a pasar, el aviso de bloqueo dice lo último que hizo el juego: copia
-  el registro con «Copiar el registro».
+- 🧊 **Cuelgue del libro del prólogo, arreglado en la prueba hecha:** en un PC el juego se paraba en la segunda página
+  del libro; con el reloj arreglado (ver «Novedades») ese PC ya lo pasa entero, en un primer intento. Si vuelve a
+  pasar, el aviso de bloqueo dice lo último que hizo el juego: copia el registro con «Copiar el registro».
 - 🐢 **Velocidad:** en teléfonos va por debajo de 30 fps; en escritorio con GPU por software es mucho más lento.
 - ⏸️ **Pausas la primera vez:** cada combinación de efectos nueva crea un *pipeline* gráfico en mitad del juego (una
   pausa pequeña). Desde la segunda sesión en el mismo navegador se preparan antes de jugar, en la pantalla de carga.
@@ -359,7 +358,7 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 
 ## 🗺️ Próximos pasos
 
-- [ ] Comprobar en el PC del usuario que el cuelgue del libro del prólogo ya no sale (probable causa arreglada: el reloj).
+- [x] Comprobar en el PC del usuario que el cuelgue del libro del prólogo ya no sale (pasa entero en un primer intento).
 - [x] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare (los 44 cargan y dibujan).
 - [ ] Jugar cada galaxia de principio a fin.
 - [ ] Oír y ajustar el sonido en dispositivos reales.

@@ -25,7 +25,7 @@ hilo bloqueado en una espera.
 |---|---|---|
 | 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | hecho: 44 de 44 cargan y dibujan (sin jugar) |
 | 2 | Mandos físicos (Gamepad API) | hecho con mando simulado; falta un mando real |
-| 3 | Cuelgue del libro del prólogo | probable causa arreglada (bloque 12, reloj); falta que el usuario lo pruebe |
+| 3 | Cuelgue del libro del prólogo | el usuario lo probó con lo publicado (bloque 14): pasó entero al primer intento; un solo intento |
 | 4 | Arreglar lo que encuentre la gira | CocoonExGalaxy arreglada (bloque 3); sigue la gira |
 
 ## Para reanudar
@@ -37,14 +37,15 @@ disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca)
   memoria compartida, rastro de diagnóstico sin leer el reloj; 44/44 con gráficos y 44/44 jugando a ciegas 90 s. Todo
   publicado (gh-pages `1bb6016` y siguientes). Copia del sitio con lo publicado: `$S/site2` (para giras sin tocar
   `build/site`; montarla: `ninja -C build/all <objetivos>` y copiar como en `tools/build_web.sh`).
-- **Siguiente:** que el usuario pruebe el libro del prólogo y mida fps en su teléfono con lo publicado.
+- **Hecho (bloque 14):** el usuario probó el libro del prólogo con lo publicado y pasó entero (un intento).
+- **Siguiente:** fps en el teléfono del usuario con lo publicado (sin medir: no tiene el teléfono a mano); mientras,
+  rendimiento del hilo de render.
 - **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
   `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
   mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
 - **Ojo:** las tareas de fondo se cortan a los 30 min si no se les da `timeout` (hasta 2 h); las giras de 44 paradas
   tardan más de 1 h.
-- **Bloqueados:** cuelgue del libro del prólogo (pendiente de que el usuario lo pruebe con la versión publicada; tiene
-  la firma del cuelgue del reloj arreglado en el bloque 12, sin comprobar que sea el mismo); PAL y japonesa (Nebula solo
+- **Bloqueados:** fps en el teléfono (necesita el teléfono del usuario); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
 
 ## Bloques de trabajo
@@ -431,3 +432,11 @@ fotograma el juego espera a que la GPU acabe ese fotograma (`MainLoopFramework::
 → `GXDrawDone`), como en la consola; durante la lógica del fotograma siguiente no sale GX y el hilo de render espera.
 Solaparlos pediría contestar el fin de dibujo antes de tiempo, y el juego reescribiría vértices, matrices y listas
 mientras Aurora aún los lee: no se hace. Cada ms que se quita al hilo de render es un ms menos por fotograma.
+
+### Bloque 14: prueba del usuario (2026-11-04)
+
+- **Libro del prólogo:** el usuario lo probó con la versión publicada (gh-pages con el reloj del bloque 12) y pasó
+  entero, en su primer intento. Antes se colgaba en la segunda página en su PC. Es un solo intento: encaja con que la
+  causa fuera el reloj, pero no lo demuestra; si vuelve a salir, el aviso de bloqueo y «Copiar el registro» dicen dónde.
+- **Fps en el teléfono:** sin medir. El usuario no tiene el teléfono a mano y calcula unos 30–40 fps, pero es una
+  estimación, no una medida: la última medida sigue siendo ~27 fps (antes de la presentación por memoria compartida).
