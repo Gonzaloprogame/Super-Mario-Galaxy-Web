@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T21:25:08+00:00",
-   "tipo": "bash",
-   "desc": "Check full epilogue segment progress",
-   "cmd": "S=$S; tail -2 $S/route3.log; grep -E \"^\\[host\\] (stage|tour)\" $S/route3/13/out/log_tail.txt | tail -3; grep -o \"movies: [0-9]* frames decoded\" $S/route3/13/out/log_tail.txt | tail…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T21:54:43+00:00",
    "tipo": "bash",
    "desc": "Inspect what the killed epilogue run observed",
@@ -279,8 +272,15 @@
    "desc": "Commit the tour crash-capture change",
    "cmd": "git status --short && git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: si la página muere (page crash) lo apunta con lo último que leyó, y guarda el registro de Chromium  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:57:46+00:00",
+   "tipo": "bash",
+   "desc": "Read Chromium log and last page log lines",
+   "cmd": "S=$S; wc -l $S/missions/m23/browser.log; grep -iE \"crash|oom|memory|killed|signal|fatal|check failed|error\" $S/missions/m23/browser.log | head -15 | cut -c1-250; echo ---; tail -8…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T23:57:01+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T23:57:46+00:00"
 }
