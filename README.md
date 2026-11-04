@@ -36,8 +36,8 @@
 > ### 🚧 Versión experimental: todavía no se puede jugar de principio a fin
 > Tiene **fallos conocidos y por descubrir**. Hoy se puede llegar a la pantalla de título, elegir un archivo, ver el
 > prólogo con sus vídeos, **jugar el jardín del castillo** y entrar en las **primeras galaxias** (comprobados el observatorio y
-> dos galaxias), pero **el juego no se puede completar**: hay un cuelgue conocido en el libro del prólogo, el resto
-> de galaxias está sin probar y puede haber errores gráficos, sonidos que fallen o partes que vayan lentas.
+> dos galaxias), pero **el juego no se puede completar**: los 44 escenarios cargan y dibujan, pero las galaxias no se
+> han jugado de principio a fin, y puede haber errores gráficos, sonidos que fallen o partes que vayan lentas.
 >
 > **Aun así, es un buen comienzo.** Que el código original del juego arranque, dibuje un nivel completo, suene,
 > responda a los controles y guarde la partida dentro de una pestaña del navegador era el paso más difícil. Lo que
@@ -170,10 +170,10 @@ de esta tabla: 3 de noviembre de 2026*):
 
 ### 🐞 Fallos conocidos
 
-- 🧊 **Cuelgues raros a toda velocidad:** en un PC el juego se paró en la segunda página del libro del prólogo, y en el
-  entorno de desarrollo una vez en *StarDustGalaxy* (en unas 350 cargas): el hilo principal del juego da vueltas en su
-  propio código. Puede que el fallo de memoria ya arreglado fuera la causa del primero; si vuelve a pasar, el aviso de
-  bloqueo dice ahora lo último que hizo el juego: copia el registro con «Copiar el registro».
+- 🧊 **Cuelgue del libro del prólogo, probablemente arreglado:** en un PC el juego se paró en la segunda página del
+  libro. Tenía la misma firma que el cuelgue a toda velocidad arreglado en esta versión (el reloj, ver «Novedades»),
+  pero no se ha comprobado en ese PC. Si vuelve a pasar, el aviso de bloqueo dice lo último que hizo el juego: copia
+  el registro con «Copiar el registro».
 - 🐢 **Velocidad:** en teléfonos va por debajo de 30 fps; en escritorio con GPU por software es mucho más lento.
 - ⏸️ **Pausas la primera vez:** cada combinación de efectos nueva crea un *pipeline* gráfico en mitad del juego (una
   pausa pequeña). Desde la segunda sesión en el mismo navegador se preparan antes de jugar, en la pantalla de carga.
@@ -289,6 +289,13 @@ Publicado en la página, todavía sin número de versión:
   instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
   la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg
   con fotogramas reales.
+- ⏱️ **Arreglado el cuelgue a toda velocidad:** el juego calcula cuánto tarda cada fotograma con el tiempo entre dos
+  retrazados de la pantalla. El motor entregaba seguidos los que se acumulaban mientras el juego estaba ocupado, y el
+  reloj del navegador, de microsegundos, daba el mismo instante a los dos: el intervalo salía 0 y el bucle principal
+  del juego (`MainLoopFramework::calcCombinationRatio`) no acababa nunca. Ahora el reloj del motor no repite nunca un
+  valor, como el de la consola, sin tocar el código del juego. Jugando a ciegas, antes se colgaban 3 de 6 giras por
+  los 44 escenarios; con el arreglo, 0 de 4. Una prueba nueva lee el reloj un millón de veces: sin el arreglo, 396.780
+  lecturas repetían valor; con él, ninguna.
 - 💥 **El motor ya no muere tras varias galaxias:** la lista de *shaders* que se guarda para la pantalla de carga se
   creaba en el hilo del juego con su propio gestor de memoria, que a veces devolvía la dirección 0: la lista se
   escribía encima de datos del motor, y tras unas cuantas galaxias el motor moría (`table index is out of bounds`,
@@ -347,7 +354,7 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 
 ## 🗺️ Próximos pasos
 
-- [ ] Encontrar y arreglar el cuelgue del libro del prólogo.
+- [ ] Comprobar en el PC del usuario que el cuelgue del libro del prólogo ya no sale (probable causa arreglada: el reloj).
 - [x] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare (los 44 cargan y dibujan).
 - [ ] Jugar cada galaxia de principio a fin.
 - [ ] Oír y ajustar el sonido en dispositivos reales.

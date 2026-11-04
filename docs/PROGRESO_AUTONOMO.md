@@ -25,7 +25,7 @@ hilo bloqueado en una espera.
 |---|---|---|
 | 1 | Gira automática de los 44 escenarios (herramienta en el repositorio) | hecho: 44 de 44 cargan y dibujan (sin jugar) |
 | 2 | Mandos físicos (Gamepad API) | hecho con mando simulado; falta un mando real |
-| 3 | Cuelgue del libro del prólogo | bloqueado: no se reproduce aquí; falta el registro `[vigía]` del PC del usuario |
+| 3 | Cuelgue del libro del prólogo | probable causa arreglada (bloque 12, reloj); falta que el usuario lo pruebe |
 | 4 | Arreglar lo que encuentre la gira | CocoonExGalaxy arreglada (bloque 3); sigue la gira |
 
 ## Para reanudar
@@ -33,14 +33,14 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** cazar el cuelgue raro a toda velocidad (`$S/catch2/run.sh 10`: giras de diagnóstico de los 40
-  escenarios con el perfilador; si se cuelga, `prof_N.txt` y `hang_log_N.txt` en `$S/catch2`, con el rastro de las
-  últimas llamadas). Mapa de símbolos: `build/all/game/smg_headless_web.js.symbols`; índices de tabla:
-  `$S/tools/table_index.py`.
+- **En curso:** confirmar el arreglo del reloj (bloque 12) con más giras jugando a ciegas:
+  `timeout 7100 $S/catch5/run.sh 8 5 > $S/catch5/run.out 2>&1` (semillas 5 a 8; si se cuelga, `prof_N.txt`,
+  `dump_N/` y `hang_log_N.txt` en `$S/catch5`). Mapa de símbolos: `build/all/game/smg_headless_web.js.symbols`;
+  índices de tabla: `$S/tools/table_index.py`.
 - **Después:** rendimiento (medidas en el PC/móvil del usuario: `[host] load …`, `render thread … per frame`),
   y jugar galaxias (lo que la gira no comprueba).
-- **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario; puede ser el mismo fallo de
-  memoria arreglado en el bloque 3, sin comprobar); PAL y japonesa (Nebula solo
+- **Bloqueados:** cuelgue del libro del prólogo (pendiente de que el usuario lo pruebe con la versión publicada; tiene
+  la firma del cuelgue del reloj arreglado en el bloque 12, sin comprobar que sea el mismo); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
 
 ## Bloques de trabajo
@@ -328,5 +328,13 @@ consola, que nunca se repite.
 
 **Pruebas:** `web/tests/monotonic_clock_test.c` en `run_os_tests.sh`, un millón de lecturas seguidas de `OSGetTick`:
 sin el arreglo **396.780 iguales a la anterior**; con él, 0 (PASS). Todas las pruebas del SO pasan; `browser_smoke`
-51 PASS, `bridge_smoke` 56 PASS. **Pendiente:** la prueba en el juego (jugar a ciegas sin cuelgues, cuando antes salía
-en la mitad de las giras).
+51 PASS, `bridge_smoke` 56 PASS.
+
+**Prueba en el juego** (`$S/catch4/run.sh 4`: giras de diagnóstico de los 44 escenarios jugando a ciegas, 1800
+fotogramas de escena cada parada, con el perfilador a la espera). Antes del arreglo, **3 cuelgues en 6 giras** (bloque
+11 con la semilla 1; `$S/catch3/first` con la semilla 1; `$S/catch3` con las semillas 1 a 4, cuelgue en la 4). Con el
+arreglo, semillas 1 a 4: **0 cuelgues en 4 giras, 176 de 176 paradas cargan y dibujan, ninguna con problemas**. Es una
+prueba fuerte pero no definitiva: con la frecuencia de antes, 4 giras limpias saldrían por azar un 6 % de las veces.
+En curso, 4 giras más con las semillas 5 a 8 (`$S/catch5/run.sh 8 5`).
+
+Publicado en gh-pages (`f977c04`: `smg_web.wasm`, `smg_headless_web.wasm`, `bridge/gx_bridge.wasm`).
