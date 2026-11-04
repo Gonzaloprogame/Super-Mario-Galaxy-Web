@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:25+00:00",
-   "tipo": "bash",
-   "desc": "Locate block 12 and resume section",
-   "cmd": "cd ~/repo; grep -n '^## \\|^### \\|Pendiente' docs/PROGRESO_AUTONOMO.md | tail -30; wc -l docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:57:27+00:00",
-   "tipo": "bash",
-   "desc": "Read doc header, resume section, blocks 11-12",
-   "cmd": "cd ~/repo; sed -n 1,46p docs/PROGRESO_AUTONOMO.md; sed -n 293,332p docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:31+00:00",
    "tipo": "bash",
    "desc": "Read the pre-fix catcher outcome for comparison",
@@ -279,8 +265,22 @@
    "desc": "Disassemble the engine wasm",
    "cmd": "~/tools/emsdk/upstream/bin/wasm-dis ~/repo/build/site/smg_web.wasm -o $S/perf1/smg_web.wat",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:56+00:00",
+   "tipo": "bash",
+   "desc": "Extract nand_main and list its calls and waits",
+   "cmd": "cd $S/perf1; a=$(grep -n '^ (func \\$9405 \\|^ (func \\$9405$' smg_web.wat | cut -d: -f1); grep -n '^ (func ' smg_web.wat | head -2; echo start $a; b=$(awk -v a=$a 'NR>a && /^ \\(func…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:02+00:00",
+   "tipo": "bash",
+   "desc": "Inspect nand_main disassembly",
+   "cmd": "cd $S/perf1; head -5 nand_main.wat; grep -c \"\" nand_main.wat; grep -o \"call \\$[a-z0-9_]*\\|memory.atomic[a-z.0-9]*\\|i32.atomic[a-z.0-9_]*\" nand_main.wat | sort | uniq -c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:03:50+00:00"
+ "actualizado": "2026-11-04T06:04:02+00:00"
 }
