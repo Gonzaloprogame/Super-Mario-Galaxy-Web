@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:55+00:00",
-   "tipo": "bash",
-   "desc": "Note the retrace analysis; check machine load",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:59:59+00:00",
-   "tipo": "bash",
-   "desc": "Check catch5 progress",
-   "cmd": "S=$S; cat $S/catch5/run.out; tail -3 $S/catch5/tour_5.log; grep -c 'cargó' $S/catch5/out_5/tour.md 2>/dev/null; tail -2 $S/catch5/out_5/log_tail.txt",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:06+00:00",
    "tipo": "bash",
    "desc": "Review earlier performance measurements",
@@ -279,8 +265,22 @@
    "desc": "Read the presentation API and its callers",
    "cmd": "cd ~/repo; sed -n 52,66p web/host/aurora_bridge.h; sed -n 1125,1150p web/host/headless_host.c; grep -n \"smg_bridge_presented\\|g_presented\\|present(\" web/host/aurora_bridge.cpp | h…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:07:39+00:00",
+   "tipo": "bash",
+   "desc": "See how browser_smoke checks presentation",
+   "cmd": "cd ~/repo; grep -n \"smgPresenter\\|frames\\b\\|presenter\" web/tests/browser_smoke.mjs | head -20; grep -n \"disc\\|rvz\\|SMG_DISC\" web/tests/browser_smoke.mjs | head -8",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:07:43+00:00",
+   "tipo": "bash",
+   "desc": "Learn what game data browser_smoke runs",
+   "cmd": "cd ~/repo; sed -n 1,60p web/tests/browser_smoke.mjs | grep -n \"fixture\\|pak\\|const\\|//\" | head -30; ls build/fixtures | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:07:13+00:00"
+ "actualizado": "2026-11-04T06:07:43+00:00"
 }
