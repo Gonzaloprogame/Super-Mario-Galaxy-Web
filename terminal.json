@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T09:03:43+00:00",
-   "tipo": "bash",
-   "desc": "Record the long play and commit",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+21 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T10:24:37+00:00",
    "tipo": "bash",
    "desc": "Check working tree and running tours",
@@ -279,8 +272,15 @@
    "desc": "Check code that depends on button text",
    "cmd": "grep -n \"fullscreen').textContent\\|fps-toggle').textContent\\|#fullscreen\\|'fullscreen'\" web/shell/app.js web/tests/*.mjs tools/*.mjs | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:23:29+00:00",
+   "tipo": "bash",
+   "desc": "Keep screen buttons on one line on phones and recheck",
+   "cmd": "python3 - <<'EOF'  … (+14 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:23:19+00:00"
+ "actualizado": "2026-11-04T14:23:29+00:00"
 }
