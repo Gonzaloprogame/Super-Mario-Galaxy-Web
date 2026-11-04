@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:28:06+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado del cazador y el perfil",
-   "cmd": "S=$S; cat $S/catch/run.out; ls $S/catch/; head -60 $S/catch/prof_*.txt 2>/dev/null | cut -c1-150",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:28:19+00:00",
    "tipo": "bash",
    "desc": "Leer el servicio de nombres de objetos",
@@ -279,8 +272,15 @@
    "desc": "Guardar el perfil en bruto al cazar el cuelgue",
    "cmd": "S=$S; grep -n \"Profiler.stop\\|writeFileSync\\|import \" $S/drive/prof.mjs | head; python3 - <<'EOF'  … (+8 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:44:54+00:00",
+   "tipo": "bash",
+   "desc": "Leer y descodificar el rastro del segundo cuelgue",
+   "cmd": "S=$S; grep \"stall:\" $S/catch3/hang_log_1.txt | head -1 | grep -o \"the game's last calls.*\" | sed 's/; /;\\n  /g' | cut -c1-200 | python3 -I -c \"  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:44:45+00:00"
+ "actualizado": "2026-11-04T02:44:54+00:00"
 }
