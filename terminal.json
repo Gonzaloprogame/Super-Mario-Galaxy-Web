@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:43:27+00:00",
-   "tipo": "bash",
-   "desc": "Verify the patch series applies cleanly",
-   "cmd": "S=$S; cd ~/repo; cp $S/patch27/0027.patch web/aurora/patches/0027-guest-textures-hashed-once-per-frame.patch; T=$S/patch27/clean; mkdir -p $T; cp -r third_party/aurora/lib third_p…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:49:06+00:00",
    "tipo": "bash",
    "desc": "Build with Aurora patch 0027",
@@ -279,8 +272,15 @@
    "desc": "Read the mixer's timing code",
    "cmd": "cd ~/repo; sed -n 210,232p third_party/nebula/runtime/src/jaudio_host_mixer.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:41:53+00:00",
+   "tipo": "bash",
+   "desc": "Commit the trail fix and list files to publish",
+   "cmd": "S=$S; cd ~/repo; python3 - <<'EOF'  … (+31 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:41:33+00:00"
+ "actualizado": "2026-11-04T07:41:53+00:00"
 }
