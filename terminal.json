@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:42:11+00:00",
-   "tipo": "bash",
-   "desc": "Check frame counter, TLUT struct, includes",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; grep -n \"s_frameCount\" lib/gx/texture.cpp | head -5; grep -rn \"texture::end_frame()\" lib | head -3; grep -n \"struct GXTlutObj_\" -A 12 li…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:42:16+00:00",
    "tipo": "bash",
    "desc": "Find where the texture frame counter advances",
@@ -279,8 +272,15 @@
    "desc": "Read trail declarations and stall uses",
    "cmd": "cd ~/repo; sed -n 186,200p web/host/headless_host.c; sed -n 245,262p web/host/headless_host.c; sed -n 978,986p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:32:20+00:00",
+   "tipo": "bash",
+   "desc": "Use the retrace count for the service trail",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+39 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:32:08+00:00"
+ "actualizado": "2026-11-04T07:32:20+00:00"
 }
