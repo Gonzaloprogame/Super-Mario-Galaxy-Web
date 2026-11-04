@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:41:33+00:00",
-   "tipo": "bash",
-   "desc": "Read the texture binding path and caches",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 825,875p texture.cpp; sed -n 200,262p texture.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:41:51+00:00",
    "tipo": "bash",
    "desc": "Back up files and check patch format",
@@ -279,8 +272,15 @@
    "desc": "Read the service trail recording code",
    "cmd": "cd ~/repo; grep -n \"SERVICE_ENTER\\|define SERVICE\\|trail_note\\|static void trail\" web/host/headless_host.c | head -20; n=$(grep -n \"define SERVICE_ENTER\" web/host/headless_host.c …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:31:50+00:00",
+   "tipo": "bash",
+   "desc": "Measure host-service overhead on the game thread",
+   "cmd": "S=$S; SYM=$S/perf4_symbols; G=$S/perf4/dump/worker_0.cpuprofile; node $S/tools/prof_total.mjs $G $SYM 400 | grep -E \"work samples|svc_gpu_coherent|svc_audio_dsp|nebula_gpu_coheren…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:31:43+00:00"
+ "actualizado": "2026-11-04T07:31:50+00:00"
 }
