@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:36:20+00:00",
-   "tipo": "bash",
-   "desc": "Read AI policy sections",
-   "cmd": "cd ~/repo/third_party; sed -n 160,185p petari/CONTRIBUTING.md; echo ----; sed -n 1,60p nebula/README.md; echo ----; grep -n -i -E \"AI|Claude|agent|petari|upstream|contribut\" nebul…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:36:26+00:00",
-   "tipo": "bash",
-   "desc": "Read Nebula known issues and contributing",
-   "cmd": "cd ~/repo/third_party/nebula; grep -n -E \"^#\" README.md; awk '/^## Known issues/,/^## [^K]/' README.md | head -50; grep -n -i -A6 \"contribut\" README.md | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:31+00:00",
    "tipo": "bash",
    "desc": "List web directory contents",
@@ -279,8 +265,22 @@
    "desc": "Trace tour parameter from page to host",
    "cmd": "cd ~/repo && grep -n \"tour\" web/shell/app.js | head -20; grep -n \"tour_parse\\|getenv\\|SMG_TOUR\\|tourframes\\|\\\"tour\\\"\" web/host/headless_host.c web/shell/boot_worker.post.js | head…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:55+00:00",
+   "tipo": "bash",
+   "desc": "Read argv handling in host and worker",
+   "cmd": "sed -n 1090,1112p web/host/headless_host.c; grep -n \"tour\" web/shell/boot_worker.post.js web/shell/*.js | grep -v \"^web/shell/app.js\" | head; grep -n \"argv\\|arguments\" web/shell/b…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:51:07+00:00",
+   "tipo": "bash",
+   "desc": "Inspect galaxy_tour stage parsing and log matching",
+   "cmd": "grep -n \"stages\\|tour=\\|tour:\\|stop \\|encodeURI\\|URLSearchParams\\|split(\" tools/galaxy_tour.mjs | head -40; wc -l tools/galaxy_tour.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:50:52+00:00"
+ "actualizado": "2026-11-04T18:51:07+00:00"
 }
