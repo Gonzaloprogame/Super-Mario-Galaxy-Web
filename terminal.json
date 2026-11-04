@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:41:20+00:00",
-   "tipo": "bash",
-   "desc": "Medir las cargas de las 40 galaxias en modo diagnóstico",
-   "cmd": "S=$S; cd ~/repo; timeout 2400 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/all40 --out $S/tour/out_diag40 --nand $S/drive/nand_RMGE01.bin --frames 300 --hang…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:41:50+00:00",
    "tipo": "bash",
    "desc": "Ver las primeras cargas en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ver el rastro en un aviso real del juego",
    "cmd": "S=$S; echo BattleShipGalaxy > $S/tour/battleship; cd ~/repo; timeout 900 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/battleship --out $S/tour/out_trail --na…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:40:50+00:00",
+   "tipo": "bash",
+   "desc": "Rastro sin repetidos: compilar y verlo en el juego",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+72 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:35:58+00:00"
+ "actualizado": "2026-11-04T01:40:50+00:00"
 }
