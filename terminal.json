@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:58:24+00:00",
-   "tipo": "bash",
-   "desc": "Update README with the clock fix",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+30 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:58:29+00:00",
    "tipo": "bash",
    "desc": "Update the live progress panel data",
@@ -279,8 +272,15 @@
    "desc": "Read the XFB present path",
    "cmd": "cd ~/repo; sed -n 135,175p web/host/aurora_bridge.cpp; sed -n 300,360p web/host/aurora_bridge.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:05:24+00:00",
+   "tipo": "bash",
+   "desc": "Show who calls the present EM_ASM",
+   "cmd": "S=$S; cat > $S/tools/prof_callers.mjs <<'EOF'  … (+20 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:04:58+00:00"
+ "actualizado": "2026-11-04T06:05:24+00:00"
 }
