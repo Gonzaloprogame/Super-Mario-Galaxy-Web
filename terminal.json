@@ -3,13 +3,6 @@
   {
    "t": "2026-11-04T00:53:40+00:00",
    "tipo": "bash",
-   "desc": "Ver qué imprime el perfilador",
-   "cmd": "S=$S; sed -n 30,120p $S/drive/prof.mjs | grep -n \"functionName\\|console.log\\|url\" | head -12",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:53:40+00:00",
-   "tipo": "bash",
    "desc": "Repetir la gira de diagnóstico hasta cazar el cuelgue",
    "cmd": "S=$S; mkdir -p $S/catch; cat > $S/catch/run.sh <<'EOF'  … (+25 líneas)",
    "ok": true
@@ -279,8 +272,15 @@
    "desc": "Confirmar y subir la opción de juego a ciegas",
    "cmd": "cd ~/repo; git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: --play <semilla>, jugar a ciegas durante cada parada (palanca y botones al azar, reproducible)  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:33:38+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resultado del cazador",
+   "cmd": "S=$S; cat $S/catch2/run.out; ls $S/catch2/ | grep -E \"prof|hang\"",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T02:04:18+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T02:33:38+00:00"
 }
