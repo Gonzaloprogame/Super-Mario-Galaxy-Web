@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:08:13+00:00",
-   "tipo": "bash",
-   "desc": "Read the Aurora report line",
-   "cmd": "cd ~/repo; sed -n 838,846p web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:08:18+00:00",
    "tipo": "bash",
    "desc": "Report shared-memory frames in the host log",
@@ -279,8 +272,15 @@
    "desc": "Read guest array uploads and storage users",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 480,530p gx/command_processor.cpp; grep -rn \"push_storage(\" --include=*.cpp . | grep -v \"^./gfx/common.cpp\" | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:39:20+00:00",
+   "tipo": "bash",
+   "desc": "Read push_verts, push_indices and helpers",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -n \"Range push_verts\\|Range push_indices\\|^Range push(\\|static Range push(\\|get_last_draw_command\" gfx/*.cpp gfx/*.hpp | head; …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:39:00+00:00"
+ "actualizado": "2026-11-04T06:39:20+00:00"
 }
