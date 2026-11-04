@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:29:12+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el rastro de las últimas llamadas del juego",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+102 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:29:17+00:00",
    "tipo": "bash",
    "desc": "Generar el texto del rastro en el informe",
@@ -279,8 +272,15 @@
    "desc": "Ver si se guardó el perfil en bruto",
    "cmd": "S=$S; cat $S/catch3/run.out; ls -la $S/catch3/dump_* 2>/dev/null | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:09:13+00:00",
+   "tipo": "bash",
+   "desc": "Extraer los desplazamientos de las muestras del hilo del juego",
+   "cmd": "S=$S; python3 -I - <<'EOF'  … (+14 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:09:06+00:00"
+ "actualizado": "2026-11-04T04:09:13+00:00"
 }
