@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:57:16+00:00",
-   "tipo": "bash",
-   "desc": "Use in-place index writer at both call sites",
-   "cmd": "S=$S; cd $S/p27/b && python3 - <<'EOF'  … (+72 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:57:28+00:00",
    "tipo": "bash",
    "desc": "Check baseline profile progress",
@@ -279,8 +272,15 @@
    "desc": "Check available C++ code-analysis tools",
    "cmd": "which clangd clang-tidy ctags 2>&1 | head; ls ~/tools/emsdk/upstream/bin | grep -i -E \"clangd|tidy|query\" | head; ls ~/repo/build/all/compile_commands.json 2>&1",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T18:35:53+00:00",
+   "tipo": "bash",
+   "desc": "List repo structure and doc sizes",
+   "cmd": "cd ~/repo; ls; ls docs tools web third_party; wc -l docs/*.md README.md; git log --oneline | head -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:35:36+00:00"
+ "actualizado": "2026-11-04T18:35:53+00:00"
 }
