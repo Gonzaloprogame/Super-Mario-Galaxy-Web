@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:11:18+00:00",
-   "tipo": "bash",
-   "desc": "Leer el bucle que usa el intervalo de vídeo",
-   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 385,425p $P/src/Game/System/MainLoopFramework.cpp; cd third_party/nebula && git log --oneline -1 2>/dev/null; git -C native/p…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:11:28+00:00",
    "tipo": "bash",
    "desc": "Ver cómo modifica el proyecto el código de Nebula",
@@ -279,8 +272,15 @@
    "desc": "Update the live progress panel data",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+8 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:58:41+00:00",
+   "tipo": "bash",
+   "desc": "Commit docs and publish the panel",
+   "cmd": "S=$S; cd ~/repo; git add README.md docs/PROGRESO_AUTONOMO.md docs/progreso.json; git commit -q -m \"Progreso: el arreglo del reloj, comprobado jugando a ciegas (0 cuelgues en 4 gir…  … (+8 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:58:29+00:00"
+ "actualizado": "2026-11-04T05:58:41+00:00"
 }
