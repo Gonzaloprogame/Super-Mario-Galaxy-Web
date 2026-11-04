@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:38:28+00:00",
-   "tipo": "bash",
-   "desc": "Read the frame-end staging write",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 55,80p gfx/frame.cpp; sed -n 720,770p gfx/frame.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:38:42+00:00",
    "tipo": "bash",
    "desc": "Aggregate warnings from tour logs",
@@ -279,8 +272,15 @@
    "desc": "Wait for the timing comparison",
    "cmd": "until [ -s $TMP ]; do sleep 15; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:00:13+00:00",
+   "tipo": "bash",
+   "desc": "Make texture counters cumulative and thread-safe",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+41 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:00:02+00:00"
+ "actualizado": "2026-11-04T07:00:13+00:00"
 }
