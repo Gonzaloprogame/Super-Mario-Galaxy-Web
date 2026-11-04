@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:06:36+00:00",
-   "tipo": "bash",
-   "desc": "Read smoke rerun results",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke2.log) PASS $(grep -c '^FAIL' $S/b1_smoke2.log) FAIL $(grep '^exit' $S/b1_smoke2.log)\"; grep -E \"^FAIL|gira de prueba\" $S/b1_smoke2…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:06:46+00:00",
    "tipo": "bash",
    "desc": "Commit and push hooks and route tooling",
@@ -279,8 +272,15 @@
    "desc": "Write a memory sampler for Chromium processes",
    "cmd": "S=$S; mkdir -p $S/mem && cat > $S/mem/sample.sh <<'EOF'  … (+14 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:11:21+00:00",
+   "tipo": "bash",
+   "desc": "Measure baseline memory of a garden run",
+   "cmd": "S=$S; cat > $S/mem/sample.sh <<'EOF'  … (+15 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:11:07+00:00"
+ "actualizado": "2026-11-04T20:11:21+00:00"
 }
