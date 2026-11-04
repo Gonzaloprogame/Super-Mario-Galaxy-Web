@@ -299,7 +299,7 @@ Publicado en la página, todavía sin número de versión:
   reloj del navegador, de microsegundos, daba el mismo instante a los dos: el intervalo salía 0 y el bucle principal
   del juego (`MainLoopFramework::calcCombinationRatio`) no acababa nunca. Ahora el reloj del motor no repite nunca un
   valor, como el de la consola, sin tocar el código del juego. Jugando a ciegas, antes se colgaban 3 de 6 giras por
-  los 44 escenarios; con el arreglo, 0 de 4. Una prueba nueva lee el reloj un millón de veces: sin el arreglo, 396.780
+  los 44 escenarios; con el arreglo, 0 de 8 (352 paradas). Una prueba nueva lee el reloj un millón de veces: sin el arreglo, 396.780
   lecturas repetían valor; con él, ninguna.
 - 💥 **El motor ya no muere tras varias galaxias:** la lista de *shaders* que se guarda para la pantalla de carga se
   creaba en el hilo del juego con su propio gestor de memoria, que a veces devolvía la dirección 0: la lista se

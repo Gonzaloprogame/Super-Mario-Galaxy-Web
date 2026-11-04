@@ -33,10 +33,10 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** confirmar el arreglo del reloj (bloque 12) con más giras jugando a ciegas:
-  `timeout 7100 $S/catch5/run.sh 8 5 > $S/catch5/run.out 2>&1` (semillas 5 a 8; si se cuelga, `prof_N.txt`,
-  `dump_N/` y `hang_log_N.txt` en `$S/catch5`). Mapa de símbolos: `build/all/game/smg_headless_web.js.symbols`;
-  índices de tabla: `$S/tools/table_index.py`.
+- **En curso:** jugar a ciegas más tiempo (5400 fotogramas por parada, unos 90 s de juego, los 44 escenarios, con lo
+  publicado en `$S/site2`): `timeout 7100 $S/long1/run.sh 9 > $S/long1/run.out 2>&1` (tarea de fondo con `timeout`
+  de 2 h). Si se cuelga: `prof_N.txt`, `dump_N/` y `hang_log_N.txt` en `$S/long1`. Mapa de símbolos:
+  `build/all/game/smg_headless_web.js.symbols`; índices de tabla: `$S/tools/table_index.py`.
 - **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
   `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
   mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
@@ -338,7 +338,9 @@ fotogramas de escena cada parada, con el perfilador a la espera). Antes del arre
 11 con la semilla 1; `$S/catch3/first` con la semilla 1; `$S/catch3` con las semillas 1 a 4, cuelgue en la 4). Con el
 arreglo, semillas 1 a 4: **0 cuelgues en 4 giras, 176 de 176 paradas cargan y dibujan, ninguna con problemas**. Es una
 prueba fuerte pero no definitiva: con la frecuencia de antes, 4 giras limpias saldrían por azar un 6 % de las veces.
-En curso, 4 giras más con las semillas 5 a 8 (`$S/catch5/run.sh 8 5`).
+Con las semillas 5 a 8 (`$S/catch5`): **otras 4 giras completas, 176 de 176 paradas limpias**. En total, con el
+arreglo, **8 giras, 352 de 352 paradas, 0 cuelgues** (antes, 3 en 6; con aquella frecuencia, 8 limpias saldrían por
+azar un 0,4 % de las veces).
 
 De dónde salen los retrazados seguidos: la interrupción pendiente ya es un solo bit, como en la consola
 (`os_native.c`, `sPending`); es el reloj del host (`clock_main`, `headless_host.c`), que va por plazos absolutos y, si

@@ -5,7 +5,7 @@
   "ahora": {
     "etiqueta": "Arreglado",
     "titulo": "El cuelgue a toda velocidad",
-    "detalle": "El reloj del navegador podía dar el mismo instante a dos retrazados seguidos y el bucle principal no acababa. Jugando a ciegas: antes 3 de 6 giras colgadas, ahora 0 de 4."
+    "detalle": "El reloj del navegador podía dar el mismo instante a dos retrazados seguidos y el bucle principal no acababa. Jugando a ciegas: antes 3 de 6 giras colgadas, ahora 0 de 8."
   },
   "comprobaciones": [
     {
@@ -55,7 +55,7 @@
     },
     {
       "texto": "Jugar a ciegas sin cuelgues",
-      "detalle": "4 giras por los 44 escenarios con el reloj arreglado, 176 de 176 paradas limpias",
+      "detalle": "8 giras por los 44 escenarios con el reloj arreglado, 352 de 352 paradas limpias",
       "estado": "hecho"
     }
   ],
