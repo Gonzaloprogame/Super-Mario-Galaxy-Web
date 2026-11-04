@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:54:57+00:00",
-   "tipo": "bash",
-   "desc": "Check epilogue and memory run status",
-   "cmd": "S=$S; tail -2 $S/route3.log; grep -E \"^\\[host\\] (stage|tour)\" $S/route3/13/out/log_tail.txt | tail -3; grep -o \"movies: [0-9]* frames decoded\" $S/route3/13/out/log_tail.txt | tail…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:56:42+00:00",
    "tipo": "bash",
    "desc": "Restore fix, run smoke and diagnostic route on it",
@@ -279,8 +272,15 @@
    "desc": "Inspect why the missions tour ended early",
    "cmd": "S=$S; cat $S/missions/m23.log | tail -15; ls $S/missions/m23/; grep -E \"^\\[host\\] (  |disc paths|the game stopped|stage|tour)|^\\[página\\]\" $S/missions/m23/log_tail.txt | tail -15 …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:55:07+00:00",
+   "tipo": "bash",
+   "desc": "Read the last log lines before the page crash",
+   "cmd": "S=$S; tail -12 $S/missions/m23/log_full.txt | cut -c1-260; grep -o \"wasm memory [0-9]* MB\" $S/missions/m23/log_full.txt | uniq -c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:54:57+00:00"
+ "actualizado": "2026-11-04T23:55:07+00:00"
 }
