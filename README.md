@@ -223,6 +223,24 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
 | **Puntero** | — | Tocar la pantalla o mover el ratón sobre ella | Palanca derecha |
 | Cruceta, **+**, **−**, **HOME**, **1**, **2** | Flechas, P, M, H, 1, 2 | Botones de la pantalla | Cruceta, Start, Select, Guía, clic de las palancas |
 
+### 💻 En tu ordenador, sin depender de la página
+
+**Para jugar o probar lo publicado** (no hace falta compilar; solo Python 3 y Chrome o Edge con WebGPU):
+
+1. Descarga el sitio publicado:
+   [gh-pages.zip](https://github.com/gonzaloprogame/Super-Mario-Galaxy-Web/archive/refs/heads/gh-pages.zip) (~40 MB,
+   solo el motor y la página: ningún archivo del juego).
+2. Descomprímelo y, dentro de la carpeta, ejecuta `python3 servir.py` (en Windows, `py servir.py`). Abre el navegador
+   en `http://127.0.0.1:8080`; solo escucha en tu ordenador.
+3. Elige tu `.rvz` como en la página. Tu disco no se copia a ningún sitio: la página lo lee desde donde está.
+
+Las partidas guardadas y los shaders se guardan por dirección: los de `127.0.0.1:8080` son distintos de los de la
+página publicada.
+
+**Para cambiar el código y compilarlo:** clona la rama de desarrollo
+(`git clone -b ccr-8700b376-tetafz https://github.com/gonzaloprogame/Super-Mario-Galaxy-Web.git`) y sigue la
+sección «🛠️ Compilar desde el código», más abajo.
+
 ### 💿 Tu copia del juego
 
 Necesitas una copia de seguridad de **tu** disco de *Super Mario Galaxy* **(Norteamérica, RMGE01)** en formato

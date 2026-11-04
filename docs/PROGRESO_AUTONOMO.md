@@ -483,3 +483,17 @@ guardan en el repositorio). Del registro, por informe de 10 s (600 retrazados) e
   dos líneas (57 px de alto en 360 y 412 px de ancho, reproducido aquí). Ahora no se parten; en pantallas de 520 px o
   menos el de pantalla completa muestra solo su icono (el nombre sigue para lectores de pantalla y en `title`).
   Comprobación nueva en `browser_smoke.mjs` (360 px: una línea por botón, sin desbordar); 58 de 58.
+
+### Bloque 17: descargarlo para usarlo en local (2026-11-04)
+
+- **Pedido por el usuario:** poder descargarlo todo y seguir en su ordenador.
+- **Hecho:** `web/shell/servir.py` (se copia al sitio con `tools/build_web.sh` y está publicado en gh-pages): sirve la
+  carpeta donde está, solo en `127.0.0.1`, con COOP/COEP, y abre el navegador (`--sin-navegador` para no abrirlo).
+  `LEEME.md` de gh-pages, que estaba desfasado (hablaba de `game.pak` y de un commit viejo), explica cómo usarlo.
+  README: sección «En tu ordenador, sin depender de la página» (zip de gh-pages o clonar la rama de desarrollo).
+- **Comprobado:** el zip real de GitHub (`archive/refs/heads/gh-pages.zip`, 12 MB) descargado aquí, descomprimido y
+  servido con `servir.py`: la página queda aislada (`crossOriginIsolated`), lista para elegir el juego y con el
+  contador de fps. No comprobado aquí: Windows (`py servir.py`) ni macOS.
+- **Para que Claude pruebe en el ordenador del usuario:** hace falta una sesión que corra allí (la app de escritorio
+  de Claude o `claude remote-control` en la carpeta clonada) o que el usuario comparta la carpeta en la app de
+  escritorio (Ajustes, Claude Code, Remote Control) para que esta sesión pueda pedirla.
