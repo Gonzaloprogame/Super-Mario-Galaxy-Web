@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:27:33+00:00",
-   "tipo": "bash",
-   "desc": "Retry preview screenshots using require for playwright",
-   "cmd": "S=$S; cd $S/fpsprev && sed -i \"s#^import { chromium } from 'playwright';#import { createRequire } from 'node:module';\\nconst { chromium } = createRequire(import.meta.url)('playwri…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:27:44+00:00",
    "tipo": "bash",
    "desc": "Check smoke test progress",
@@ -279,8 +272,15 @@
    "desc": "Save profiling tools into the repository",
    "cmd": "S=$S; cd ~/repo && mkdir -p tools/perf && cp $S/drive/prof.mjs $S/tools/prof_named.mjs $S/tools/prof_total.mjs $S/tools/prof_callees.mjs $S/tools/prof_callers.mjs $S/tools/prof_js…  … (+22 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:08:17+00:00",
+   "tipo": "bash",
+   "desc": "Update resume section and push",
+   "cmd": "python3 - <<'EOF'  … (+42 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T15:07:59+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T15:08:27+00:00"
 }
