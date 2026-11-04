@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:09:28+00:00",
-   "tipo": "bash",
-   "desc": "Ver el formato de las direcciones del desensamblado",
-   "cmd": "S=$S; grep -n \"<>:\" $S/headless.dis | awk -F: '{print $2}' | head -3; grep -n \"^0030e[f]\" $S/headless.dis | head -3; grep -n \" 30ef8[0-9a-f]:\" $S/headless.dis | head -3",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:09:35+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la cabecera de función cerca del desplazamiento",
-   "cmd": "S=$S; awk '/^[0-9a-f]+ <>:/{print NR\": \"$1}' $S/headless.dis | awk -F': ' '{a=strtonum(\"0x\"$2); if (a>=0x30ef00 && a<=0x30f200) print}'",
-   "ok": false
-  },
-  {
-   "t": "2026-11-04T04:09:44+00:00",
-   "tipo": "bash",
-   "desc": "Localizar la función que contiene el desplazamiento",
-   "cmd": "S=$S; python3 -I - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:09:55+00:00",
    "tipo": "bash",
    "desc": "Buscar los bucles sin llamadas en nebula_game_main",
@@ -279,8 +258,29 @@
    "desc": "Verify the site build includes the clock fix",
    "cmd": "cd ~/repo; git log -1 --format=%cd 1db2ac5; grep -c wrap_clock_gettime build/all/engine/smg_web.js.symbols build/all/game/smg_headless_web.js.symbols; cmp build/all/engine/smg_web…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:21+00:00",
+   "tipo": "bash",
+   "desc": "Publish the fixed engine to gh-pages",
+   "cmd": "S=$S; cd ~/repo; cp build/site/smg_web.wasm build/site/smg_headless_web.wasm $S/gh-pages/; cp build/site/bridge/gx_bridge.wasm $S/gh-pages/bridge/; cd $S/gh-pages; git add -A; git…  … (+5 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:25+00:00",
+   "tipo": "bash",
+   "desc": "Locate block 12 and resume section",
+   "cmd": "cd ~/repo; grep -n '^## \\|^### \\|Pendiente' docs/PROGRESO_AUTONOMO.md | tail -30; wc -l docs/PROGRESO_AUTONOMO.md",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:27+00:00",
+   "tipo": "bash",
+   "desc": "Read doc header, resume section, blocks 11-12",
+   "cmd": "cd ~/repo; sed -n 1,46p docs/PROGRESO_AUTONOMO.md; sed -n 293,332p docs/PROGRESO_AUTONOMO.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:57:07+00:00"
+ "actualizado": "2026-11-04T05:57:27+00:00"
 }
