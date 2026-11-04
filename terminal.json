@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:04:02+00:00",
-   "tipo": "bash",
-   "desc": "Inspect nand_main disassembly",
-   "cmd": "cd $S/perf1; head -5 nand_main.wat; grep -c \"\" nand_main.wat; grep -o \"call \\$[a-z0-9_]*\\|memory.atomic[a-z.0-9]*\\|i32.atomic[a-z.0-9_]*\" nand_main.wat | sort | uniq -c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:04:08+00:00",
    "tipo": "bash",
    "desc": "Count imports and find atomic waits",
@@ -279,8 +272,15 @@
    "desc": "Inspect leftover catch5 processes",
    "cmd": "ps -o pid,etime,cmd -p $(pgrep -d, -f \"catch5\") 2>/dev/null | cut -c1-200",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:31+00:00",
+   "tipo": "bash",
+   "desc": "Read the render-time comparison",
+   "cmd": "cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:31:27+00:00"
+ "actualizado": "2026-11-04T06:31:31+00:00"
 }
