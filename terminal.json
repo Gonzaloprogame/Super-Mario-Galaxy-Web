@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:35:57+00:00",
-   "tipo": "bash",
-   "desc": "Show progress JSON and README headings",
-   "cmd": "cd ~/repo; cat docs/progreso.json | head -150; grep -n \"^#\" README.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:04+00:00",
    "tipo": "bash",
    "desc": "Search docs for key terms",
@@ -279,8 +272,15 @@
    "desc": "Recheck and confirm clangd reports real errors",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && timeout 300 tools/code_index.sh check web/host/headless_host.c; printf 'int main(void){ int x = undefined_thing; return x; }\\n…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:50:31+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/CLAUDE.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:50:09+00:00"
+ "actualizado": "2026-11-04T18:50:31+00:00"
 }
