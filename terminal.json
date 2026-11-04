@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:15:04+00:00",
-   "tipo": "bash",
-   "desc": "Crear partida nueva y recorrer el prólogo en modo diagnóstico",
-   "cmd": "pkill -f story/run.sh; pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; sleep 2; S=$S; cat > $S/story/new.sh <<'EOF'  … (+26 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:15:15+00:00",
    "tipo": "bash",
    "desc": "Anotar el fallo del conjunto de hilos",
@@ -279,8 +272,15 @@
    "desc": "Esperar a que el cazador termine",
    "cmd": "S=$S; until grep -q \"^caught\\|not caught\" $S/catch/run.out 2>/dev/null || ! pgrep -f catch/run.sh >/dev/null; do sleep 10; done; cat $S/catch/run.out",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:58:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo entrega Nebula las interrupciones al hilo del juego",
+   "cmd": "cd ~/repo; grep -n \"signal\\|preempt\\|interrupt_pending\\|__OSDispatch\\|deliver\\|safe point\\|nebula_poll\" third_party/nebula/native/sdk/os/os_native.c | head -30; ls web/platform/",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:58:17+00:00"
+ "actualizado": "2026-11-04T00:58:28+00:00"
 }
