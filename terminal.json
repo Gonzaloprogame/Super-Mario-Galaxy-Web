@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T21:10:04+00:00",
-   "tipo": "bash",
-   "desc": "Commit memory fix, publish engine and page",
-   "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $R && git stash pop >/dev/null && head -1 $S/route4/route.md && sed -i 's|^\\*\\*Falta:\\*\\* confirmar en el dispositivo del usuario que los cierres…  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T21:25:08+00:00",
    "tipo": "bash",
    "desc": "Check full epilogue segment progress",
@@ -279,8 +272,15 @@
    "desc": "Relaunch missions 2-3 tour with crash capture and sampler",
    "cmd": "S=$S; cd ~/repo && mv $S/missions/m23 $S/missions/m23_crash1 && rm -f $S/missions/m23.log $S/missions/m23.rss && (timeout 7000 node tools/galaxy_tour.mjs --site $S/site8 --disc $S…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:56:56+00:00",
+   "tipo": "bash",
+   "desc": "Commit the tour crash-capture change",
+   "cmd": "git status --short && git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: si la página muere (page crash) lo apunta con lo último que leyó, y guarda el registro de Chromium  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "en espera",
- "actualizado": "2026-11-04T23:56:47+00:00"
+ "actualizado": "2026-11-04T23:57:01+00:00"
 }
