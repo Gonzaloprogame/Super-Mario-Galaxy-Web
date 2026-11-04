@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:36:31+00:00",
-   "tipo": "bash",
-   "desc": "List web directory contents",
-   "cmd": "cd ~/repo/web; ls game platform cmake host bridge engine shell tests; wc -l CMakeLists.txt game/* cmake/* 2>/dev/null | tail -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:36+00:00",
    "tipo": "bash",
    "desc": "Show game build CMake files",
@@ -279,8 +272,15 @@
    "desc": "Inspect galaxy_tour stage parsing and log matching",
    "cmd": "grep -n \"stages\\|tour=\\|tour:\\|stop \\|encodeURI\\|URLSearchParams\\|split(\" tools/galaxy_tour.mjs | head -40; wc -l tools/galaxy_tour.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:52:17+00:00",
+   "tipo": "bash",
+   "desc": "Implement tour test events and run settings in host",
+   "cmd": "python3 - <<'EOF'  … (+265 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:51:07+00:00"
+ "actualizado": "2026-11-04T18:52:17+00:00"
 }
