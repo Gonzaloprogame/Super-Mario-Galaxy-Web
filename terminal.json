@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:41:14+00:00",
-   "tipo": "bash",
-   "desc": "Añadir el modo diagnóstico a la gira",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:41:20+00:00",
    "tipo": "bash",
    "desc": "Medir las cargas de las 40 galaxias en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ejecutar la prueba de la página con el rastro",
    "cmd": "cd ~/repo; S=$S; timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_trail.log 2>&1; echo \"salida $?\"; grep -c PASS $S/smoke_trail.log; grep \"FAIL\\|últimas llamadas\" $S/smoke…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:35:58+00:00",
+   "tipo": "bash",
+   "desc": "Ver el rastro en un aviso real del juego",
+   "cmd": "S=$S; echo BattleShipGalaxy > $S/tour/battleship; cd ~/repo; timeout 900 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/battleship --out $S/tour/out_trail --na…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:34:09+00:00"
+ "actualizado": "2026-11-04T01:35:58+00:00"
 }
