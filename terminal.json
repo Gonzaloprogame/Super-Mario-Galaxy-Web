@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:58:04+00:00",
-   "tipo": "bash",
-   "desc": "Add tour syntax checks to browser smoke test",
-   "cmd": "python3 - <<'EOF'  … (+24 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T19:01:14+00:00",
-   "tipo": "bash",
-   "desc": "Wait for engine rebuild to finish",
-   "cmd": "S=$S; until grep -q \"^exit\" $S/b1_build2.log 2>/dev/null; do sleep 5; done; tail -2 $S/b1_build2.log; grep -E \" error\" $S/b1_build2.log | head -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:02:03+00:00",
    "tipo": "bash",
    "desc": "Rerun garden hooks test after log fix",
@@ -279,8 +265,22 @@
    "desc": "Read ending segment result",
    "cmd": "S=$S; tail -3 $S/route2.log; cat $S/route2/route.md; grep -E \"^\\[host\\] (test|stage|tour|the game|memory)|^\\[página\\] (el motor|Error)|aurora (ERROR|FATAL)\" $S/route2/12/out/log_e…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:52:10+00:00",
+   "tipo": "bash",
+   "desc": "Run full page test with the save feature",
+   "cmd": "S=$S; R=~/repo; cp $R/web/shell/index.html $R/web/shell/app.js $S/site5/ && cd $R && SMG_SITE=$S/site5 timeout 1700 node web/tests/browser_smoke.mjs > $S/b4_smoke.log 2>&1; echo \"…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:52:16+00:00",
+   "tipo": "bash",
+   "desc": "Record ending result in progress docs",
+   "cmd": "python3 - <<'EOF'  … (+16 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:51:57+00:00"
+ "actualizado": "2026-11-04T19:52:16+00:00"
 }
