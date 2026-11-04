@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:49:47+00:00",
-   "tipo": "bash",
-   "desc": "Rebuild the wasm-faithful database and recheck",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/code_index.sh index && timeout 300 tools/code_index.sh check web/host/headless_host.c | tail -6; ls ~/tools/emsdk/upstre…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:49:55+00:00",
    "tipo": "bash",
    "desc": "List clangd error lines unfiltered",
@@ -279,8 +272,15 @@
    "desc": "Inspect segment 8 details",
    "cmd": "S=$S; sed -n 5,6p $S/route1/08/out/tour.md; grep -E \"^\\[host\\] (test|stage|movie)\" $S/route1/08/out/log_end.txt",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:18:04+00:00",
+   "tipo": "bash",
+   "desc": "Read route summary and final segment log",
+   "cmd": "S=$S; tail -4 $S/route1.log; cat $S/route1/route.md; grep -E \"^\\[host\\] (test|stage|movie|the game)|^\\[página\\]\" $S/route1/11/out/log_end.txt | head -30",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:15:03+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:18:04+00:00"
 }
