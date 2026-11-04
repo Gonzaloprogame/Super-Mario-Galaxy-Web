@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:11:28+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo modifica el proyecto el código de Nebula",
-   "cmd": "cd ~/repo; ls web; ls web/game; grep -rn \"patch\\|REPLACES\" web/game/CMakeLists.txt | head -10; ls web/platform; grep -rn \"petari.*patch\\|nebula.*patch\" tools/fetch_sources.sh | he…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:11:44+00:00",
-   "tipo": "bash",
-   "desc": "Buscar la implementación del reloj del SO de Nebula",
-   "cmd": "cd ~/repo; grep -rn \"OSGetTick\\|OSGetTime\\|now_ticks\\|time_init\" third_party/nebula/native/sdk/os/*.c | grep -v \"^.*://\" | head -15",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:11:48+00:00",
    "tipo": "bash",
    "desc": "Leer el reloj del SO de Nebula",
@@ -279,8 +265,22 @@
    "desc": "Commit docs and publish the panel",
    "cmd": "S=$S; cd ~/repo; git add README.md docs/PROGRESO_AUTONOMO.md docs/progreso.json; git commit -q -m \"Progreso: el arreglo del reloj, comprobado jugando a ciegas (0 cuelgues en 4 gir…  … (+8 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:04+00:00",
+   "tipo": "bash",
+   "desc": "Find calcCombinationRatio source",
+   "cmd": "cd ~/repo; grep -rn \"calcCombinationRatio\" --include=*.cpp --include=*.hpp --include=*.h . 2>/dev/null | grep -v build/ | head;",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:07+00:00",
+   "tipo": "bash",
+   "desc": "Read calcCombinationRatio and its caller",
+   "cmd": "cd ~/repo/third_party/nebula/native/petari/src/Game/System; sed -n 260,300p MainLoopFramework.cpp; sed -n 390,430p MainLoopFramework.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:58:41+00:00"
+ "actualizado": "2026-11-04T05:59:07+00:00"
 }
