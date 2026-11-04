@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:09:06+00:00",
-   "tipo": "bash",
-   "desc": "Ver si se guardó el perfil en bruto",
-   "cmd": "S=$S; cat $S/catch3/run.out; ls -la $S/catch3/dump_* 2>/dev/null | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:09:13+00:00",
    "tipo": "bash",
    "desc": "Extraer los desplazamientos de las muestras del hilo del juego",
@@ -279,8 +272,15 @@
    "desc": "Find any non-clean stops per tour",
    "cmd": "S=$S; for i in 1 2 3 4; do echo \"== $i: $(grep -c '| cargó y dibujó |' $S/catch4/out_$i/tour.md) cargó y dibujó de $(grep -c '^| [A-Z].*Galaxy' $S/catch4/out_$i/tour.md)\"; grep '^…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:56:55+00:00",
+   "tipo": "bash",
+   "desc": "Check repo and gh-pages worktree state",
+   "cmd": "S=$S; cd ~/repo; git status --short | head; git log --oneline -3; ls -la build/site/*.wasm build/site/engine 2>/dev/null | head; cd $S/gh-pages && git status --short | head && git…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:56:49+00:00"
+ "actualizado": "2026-11-04T05:56:55+00:00"
 }
