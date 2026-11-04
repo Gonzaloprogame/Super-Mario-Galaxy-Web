@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:03:49+00:00",
-   "tipo": "bash",
-   "desc": "Record user confirmation of local setup",
-   "cmd": "python3 - <<'EOF'  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:07:39+00:00",
    "tipo": "bash",
    "desc": "Check scratch tools and the resume section",
@@ -279,8 +272,15 @@
    "desc": "Read baseline profile summary",
    "cmd": "cat $S/perf6.summary",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:07:41+00:00",
+   "tipo": "bash",
+   "desc": "Build engine with patch 0027",
+   "cmd": "S=$S; cd ~/repo && cp $S/p27/pending/0027-index-writer-in-place.patch web/aurora/patches/ && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && (time ninja -C build/all smg_head…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:07:32+00:00"
+ "actualizado": "2026-11-04T16:07:41+00:00"
 }
