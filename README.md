@@ -305,6 +305,10 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 
 Publicado en la página, todavía sin número de versión:
 
+- 🏎️ **Dibujar es más rápido:** los índices de cada primitiva (el juego manda unas 39 000 por fotograma) se escriben
+  directamente en su sitio en vez de construirse aparte y copiarse. Procesar el flujo de dibujo bajó de 17,4 a 14,8 ms
+  por fotograma en el jardín del castillo (−15 %), comprobado con una prueba que lo compara con el método anterior en
+  21 490 casos y con los 44 escenarios. Sin medir todavía en un teléfono.
 - 📈 **Contador de fps nuevo:** una placa sobre la esquina de la pantalla, también en pantalla completa, con los
   fotogramas que la página pinta de verdad en el último segundo, en verde, ámbar o rojo según la velocidad, y una
   gráfica de los últimos 24 segundos. Se oculta con su botón y la página lo recuerda. En los móviles, los botones de

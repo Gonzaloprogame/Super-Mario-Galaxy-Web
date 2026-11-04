@@ -42,8 +42,8 @@ del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión n
   (borra y monta `build/site`; para giras largas, monta otra copia y pásala con `SMG_SITE=<carpeta>`). Pruebas:
   `node web/tests/browser_smoke.mjs` (58 de 58 el 2026-11-04). Con el disco real hace falta que el usuario vuelva a
   dar su `.rvz` (no se guarda en ningún sitio del repositorio).
-- **En curso (bloque 18):** parche 0027 (índices escritos en su sitio): procesar el flujo −15 % en el jardín; pruebas
-  58/58 y 56/56; falta la gira con gráficos de los 44 escenarios y publicarlo.
+- **Hecho (bloque 18):** parche 0027 (índices escritos en su sitio): procesar el flujo −15 % en el jardín; pruebas
+  58/58 y 56/56; 44/44 con gráficos; publicado. Falta que el usuario mida fps en su teléfono.
 - **Siguiente:** más rendimiento del hilo de render. En el teléfono, procesar el flujo GX costaba 16–22 ms por
   fotograma, más de la mitad (bloque 16); aquí es el 59 % de su trabajo (bloque 13). Perfil con `tools/perf/` (ver su
   `LEEME.md`), con el mapa de símbolos del mismo binario. Ideas ya medidas y descartadas o pendientes: bloque 13.
@@ -542,4 +542,7 @@ las primitivas, de 0 a 300 vértices, recuentos grandes y 10 comienzos, incluido
   terminar, el total baja de 26,6 a 24,8 ms (−7 %).
 - Sin medir en el teléfono: allí procesar costaba 16–22 ms, y la proporción de índices debería ser parecida.
 - **Pruebas:** `browser_smoke.mjs` 58 de 58 y `bridge_smoke.mjs` 56 de 56 con el motor nuevo (`SMG_SITE=$S/site3`).
-- **Pendiente antes de publicar:** gira con gráficos de los 44 escenarios con el motor nuevo.
+- **Gira con gráficos con el motor nuevo** (`$S/gfx44b`, 300 fotogramas por parada): **44 de 44 cargan, dibujan y se
+  ven** (de 311 a 468 fotogramas pintados), sin errores nuevos; solo el aviso conocido de SurfingLv1. Capturas
+  comparadas con la gira anterior (`$S/gfx44`): la misma proporción de negro en las 37 comunes (no falta geometría);
+  la más distinta, revisada a ojo, es el mismo escenario en otro momento de su presentación. Publicado en gh-pages.

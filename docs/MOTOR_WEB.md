@@ -527,6 +527,14 @@ antigua, o las del puente, siguen con los píxeles en el mensaje.
 - **Comprobado con el disco (contenedor):** terminar el fotograma pasó de unos 15,2 ms a 9,8 ms; la imagen es la misma.
   `browser_smoke.mjs` (54) y `bridge_smoke.mjs` (56) pasan. Sin medir en el teléfono.
 
+**Índices escritos en su sitio (parche 0027):** los índices de cada primitiva se añadían uno a uno a un búfer aparte y
+luego se copiaban al del fotograma (12,6 % del hilo de render). Ahora `write_idx_buffer` (`lib/gx/index_writer.hpp`)
+los escribe en el sitio que reserva `gfx::map_indices`, con los mismos valores y cuentas
+(`web/tests/run_index_writer_test.sh`, 21 490 casos contra el original).
+- **Comprobado con el disco (contenedor):** procesar el flujo pasó de 17,4 a 14,8 ms por fotograma en el jardín (dos
+  tandas por versión); 44 de 44 escenarios con gráficos; `browser_smoke.mjs` (58) y `bridge_smoke.mjs` (56) pasan.
+  Sin medir en el teléfono.
+
 **Arranque lento en el teléfono:** más de un minuto hasta la pantalla de archivos, con pausas de 6 a 24 s.
 - El informe mide ahora el tiempo de las lecturas del disco (`disc reads N (bytes, X ms)`) y, en cada pausa, la
   lectura en curso. En el teléfono, las 1166 lecturas del arranque y el primer nivel (30 MB) sumaban 85 s, unos 73 ms
