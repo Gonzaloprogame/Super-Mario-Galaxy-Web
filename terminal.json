@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:41:33+00:00",
-   "tipo": "bash",
-   "desc": "Read the mixer's timing code",
-   "cmd": "cd ~/repo; sed -n 210,232p third_party/nebula/runtime/src/jaudio_host_mixer.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:41:53+00:00",
    "tipo": "bash",
    "desc": "Commit the trail fix and list files to publish",
@@ -279,8 +272,15 @@
    "desc": "Read the graphics tour results",
    "cmd": "S=$S; t=gfx44/out; head -1 $S/$t/tour.md; echo \"$(grep -c '| cargó y dibujó |' $S/$t/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/$t/tour.md)\"; grep '^| [A-Z].*Galaxy' $S/$t/tour.m…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:55:50+00:00",
+   "tipo": "bash",
+   "desc": "List graphics tour screenshots",
+   "cmd": "S=$S; ls $S/gfx44/out/shots | wc -l; ls $S/gfx44/out/shots | sed -n '9p;30p'",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T08:55:44+00:00"
+ "actualizado": "2026-11-04T08:55:50+00:00"
 }
