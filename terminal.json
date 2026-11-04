@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:53:44+00:00",
-   "tipo": "bash",
-   "desc": "Recover profiling timing and save symbols",
-   "cmd": "grep -o '\"command\":\"S=[^\"]*perf5[^\"]*' ~/.claude/projects/-home-user-Super-Mario-Galaxy-Web/e2695b41-d29e-55eb-8e5e-c09dc112449c.jsonl | head -1 | sed 's/\\\\n/\\n/g; s/\\\\\"/\"/g' | se…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:53:49+00:00",
-   "tipo": "bash",
-   "desc": "Extract the earlier perf5 commands from the transcript",
-   "cmd": "python3 - <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:54:00+00:00",
    "tipo": "bash",
    "desc": "Write reusable garden profiling script",
@@ -279,8 +265,22 @@
    "desc": "Commit and push patch 0027 with tests and docs",
    "cmd": "python3 - <<'EOF'  … (+26 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:56:10+00:00",
+   "tipo": "bash",
+   "desc": "Recover the earlier 44-stage graphics tour command",
+   "cmd": "python3 - <<'EOF'  … (+13 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T16:56:15+00:00",
+   "tipo": "bash",
+   "desc": "Run 44-stage graphics tour with the new engine",
+   "cmd": "S=$S; wc -l $S/galaxies.txt; rm -rf $S/gfx44b && mkdir -p $S/gfx44b && cd ~/repo && timeout 7100 node tools/galaxy_tour.mjs --site $S/site3 --disc $S/disc/smg.rvz --stages $S/gala…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:56:05+00:00"
+ "actualizado": "2026-11-04T16:56:15+00:00"
 }
