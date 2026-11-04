@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:48:11+00:00",
-   "tipo": "bash",
-   "desc": "Publish servir.py and refreshed LEEME on gh-pages",
-   "cmd": "S=$S; cd ~/repo && HEADC=$(git rev-parse --short HEAD) && cat > $S/gh-pages/LEEME.md <<EOF  … (+25 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:48:24+00:00",
    "tipo": "bash",
    "desc": "Download the real GitHub zip and serve it locally",
@@ -279,8 +272,15 @@
    "desc": "Use in-place index writer at both call sites",
    "cmd": "S=$S; cd $S/p27/b && python3 - <<'EOF'  … (+72 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:57:28+00:00",
+   "tipo": "bash",
+   "desc": "Check baseline profile progress",
+   "cmd": "S=$S; cat $S/perf6.summary 2>/dev/null; grep -c \"render thread\" $S/perf6/out/log_tail.txt 2>/dev/null; tail -2 $S/perf6/tour.log",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:57:16+00:00"
+ "actualizado": "2026-11-04T15:57:28+00:00"
 }
