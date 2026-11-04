@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:41:00+00:00",
-   "tipo": "bash",
-   "desc": "Find where texture ids and versions are assigned",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"bp_tex\\b\\|bp_tex(\" *.cpp | head; grep -rn \"texObjId = \\|texDataVersion = \\|texDataVersion++\\|++.*texDataVersion\" ../ | h…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:41:03+00:00",
    "tipo": "bash",
    "desc": "Read how BP textures become loaded slots",
@@ -279,8 +272,15 @@
    "desc": "Find who reads the clock on the game thread",
    "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; cp $SYM $S/perf4/symbols_now 2>/dev/null; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 300 | …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:31:30+00:00",
+   "tipo": "bash",
+   "desc": "Find the game thread profile with matching symbols",
+   "cmd": "S=$S; SYM=$S/perf4_symbols; ls -la $SYM; G=\"\"; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 400 | grep -q \"nebula_game_main\" && G=\"$G $f\"; done; ec…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:31:22+00:00"
+ "actualizado": "2026-11-04T07:31:30+00:00"
 }
