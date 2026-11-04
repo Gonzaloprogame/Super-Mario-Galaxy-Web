@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:12:48+00:00",
-   "tipo": "bash",
-   "desc": "Reiniciar el conductor en modo diagnóstico",
-   "cmd": "pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; pkill -f \"until curl\"; sleep 2; pgrep -fa \"driver.mjs|serve.py 18760\" | head -3; S=$S; cd ~/repo; (node $S/drive/driver.mjs…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:12:53+00:00",
    "tipo": "bash",
    "desc": "Recorrer el prólogo pulsando A en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Escribir y probar el traductor de índices de tabla",
    "cmd": "S=$S; mkdir -p $S/tools; cat > $S/tools/table_index.py <<'EOF'  … (+54 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:54:22+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance del cazador de cuelgues",
+   "cmd": "S=$S; cat $S/catch/run.out; for f in $S/catch/out_*/tour.md; do echo \"$f: $(head -1 $f | grep -o 'Fin: [^.]*'), $(grep -c 'cargó y dibujó' $f) paradas\"; done",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:54:15+00:00"
+ "actualizado": "2026-11-04T00:54:22+00:00"
 }
