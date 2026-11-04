@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:50:27+00:00",
-   "tipo": "bash",
-   "desc": "Summarize the garden runs across changes",
-   "cmd": "S=$S; until [ -f $S/perf5/out/log_end.txt ] || ! pgrep -f \"perf5/out\" >/dev/null; do sleep 10; done; for r in perf1 perf2 perf5; do awk -v r=$r '/tour: stop 1/{on=1} on && /render…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:50:33+00:00",
    "tipo": "bash",
    "desc": "Check seed 8 results",
@@ -279,8 +272,15 @@
    "desc": "Record the long play and commit",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+21 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T10:24:37+00:00",
+   "tipo": "bash",
+   "desc": "Check working tree and running tours",
+   "cmd": "git status --short | head; git log --oneline -1; ps aux | grep -c \"[g]alaxy_tour\"",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T09:03:52+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T10:24:37+00:00"
 }
