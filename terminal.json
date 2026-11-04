@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T16:55:50+00:00",
-   "tipo": "bash",
-   "desc": "Read final smoke test results",
-   "cmd": "S=$S; for f in smoke bridge; do echo \"$f: $(grep -c '^PASS' $S/p27/$f.log) PASS, $(grep -c '^FAIL' $S/p27/$f.log) FAIL, $(grep '^exit' $S/p27/$f.log)\"; grep '^FAIL' $S/p27/$f.log …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T16:56:05+00:00",
    "tipo": "bash",
    "desc": "Commit and push patch 0027 with tests and docs",
@@ -279,8 +272,15 @@
    "desc": "Check save import UI and controls API",
    "cmd": "cd ~/repo; grep -n -i -E \"export|import|descarg|subir|backup|copia\" web/shell/index.html | head; grep -n -E \"globalThis|window\\.|smg[A-Z]|export |function \" web/shell/controls.js …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:37:56+00:00",
+   "tipo": "bash",
+   "desc": "Read blind-play blocks and tour docs",
+   "cmd": "cd ~/repo; sed -n 240,256p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 300,320p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 340,352p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 39…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:37:51+00:00"
+ "actualizado": "2026-11-04T18:37:56+00:00"
 }
