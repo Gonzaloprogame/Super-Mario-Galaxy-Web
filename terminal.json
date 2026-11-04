@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:18+00:00",
-   "tipo": "bash",
-   "desc": "Show busy workers' hot functions",
-   "cmd": "S=$S; awk '/worker_6|worker_8|worker_0/{p=1} /worker_[12345]|worker_7/{p=0} p' $S/perf1/named.txt",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:03:24+00:00",
-   "tipo": "bash",
-   "desc": "Read the NAND thread loop",
-   "cmd": "cd ~/repo; grep -n \"nand_main\" -r web/host/*.c | head; n=$(grep -n \"static void\\* nand_main\" web/host/console_services.c | cut -d: -f1); sed -n \"$((n-10)),$((n+45))p\" web/host/con…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:34+00:00",
    "tipo": "bash",
    "desc": "Look for disassembly tools",
@@ -279,8 +265,22 @@
    "desc": "Profile the castle garden with the new build",
    "cmd": "S=$S; cd ~/repo; mkdir -p $S/perf2; timeout 1500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf2/out --nand $S/drive/…  … (+1 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:20:50+00:00",
+   "tipo": "bash",
+   "desc": "Find the render thread profile",
+   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; for f in $S/perf2/dump/*.cpuprofile; do r=$(node $S/tools/prof_total.mjs $f $SYM 200 | grep -c \"render_main\"); [ $r -gt 0 ] &…",
+   "ok": false
+  },
+  {
+   "t": "2026-11-04T06:20:56+00:00",
+   "tipo": "bash",
+   "desc": "Compare render-thread work before and after",
+   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; node $S/tools/prof_total.mjs $S/perf2/dump/worker_3.cpuprofile $SYM 200 | grep -E \"work samples|render_main|fifo::drain|auror…",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:20:44+00:00"
+ "actualizado": "2026-11-04T06:20:56+00:00"
 }
