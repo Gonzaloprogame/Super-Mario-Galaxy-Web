@@ -117,8 +117,13 @@
   .screen-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
                 margin-bottom: 10px; }
   .screen-bar h2 { margin: 0; }
-  .screen-tools { display: flex; gap: 8px; align-items: center; }
-  .screen-tools button { padding: 7px 12px; border-radius: 10px; font-size: .88rem; }
+  .screen-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; align-items: center; }
+  .screen-tools button { padding: 7px 12px; border-radius: 10px; font-size: .88rem; white-space: nowrap; }
+  /* On phones the buttons keep one line: the full-screen one shows only its icon (its name stays for screen readers) */
+  @media (max-width: 520px) {
+    .screen-tools .label-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .volume input { width: 80px; }
+  }
   .volume { display: flex; align-items: center; gap: 6px; font-size: .88rem; color: var(--muted); }
   .volume input { width: 96px; accent-color: var(--accent); }
   .frame, #pad, #screen-info, #pad-help { max-width: 720px; margin-left: auto; margin-right: auto; }
@@ -271,7 +276,7 @@
       <div class="screen-tools">
         <label class="volume" for="volume" style="margin: 0">🔊 <input id="volume" type="range" min="0" max="100" value="80"></label>
         <button id="fps-toggle" type="button" aria-pressed="true" title="Mostrar u ocultar el contador de fotogramas por segundo">📈 FPS</button>
-        <button id="fullscreen" type="button">⛶ Pantalla completa</button>
+        <button id="fullscreen" type="button" title="Pantalla completa">⛶<span class="label-long"> Pantalla completa</span></button>
       </div>
     </div>
     <div class="frame"><canvas id="screen" width="640" height="480"></canvas>
