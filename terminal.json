@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:20:56+00:00",
-   "tipo": "bash",
-   "desc": "Compare render-thread work before and after",
-   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; node $S/tools/prof_total.mjs $S/perf2/dump/worker_3.cpuprofile $SYM 200 | grep -E \"work samples|render_main|fifo::drain|auror…",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T06:21:06+00:00",
    "tipo": "bash",
    "desc": "Average per-frame render times in the level",
@@ -279,8 +272,15 @@
    "desc": "Read how BP textures become loaded slots",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 1395,1450p regs.cpp; grep -n \"s_contentTextures\\|find_content_texture\\|cache_content_texture\" texture.cpp | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:41:30+00:00",
+   "tipo": "bash",
+   "desc": "Check copy textures versus static resolution order",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"copyTextures\" *.cpp | head -20; grep -n \"resolve_static_texture\\|resolve_static_palette_texture\" *.cpp | grep -v \"^textu…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:41:03+00:00"
+ "actualizado": "2026-11-04T06:41:30+00:00"
 }
