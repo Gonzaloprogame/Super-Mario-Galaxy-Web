@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:56:42+00:00",
-   "tipo": "bash",
-   "desc": "Restore fix, run smoke and diagnostic route on it",
-   "cmd": "git stash pop >/dev/null && git status --short; S=$S; (SMG_SITE=$S/site7 timeout 1700 node web/tests/browser_smoke.mjs > $S/mem/smoke.log 2>&1; echo \"exit $?\" >> $S/mem/smoke.log;…  … (+1 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:57:02+00:00",
    "tipo": "bash",
    "desc": "Document memory finding and crash trace",
@@ -279,8 +272,15 @@
    "desc": "Read the last log lines before the page crash",
    "cmd": "S=$S; tail -12 $S/missions/m23/log_full.txt | cut -c1-260; grep -o \"wasm memory [0-9]* MB\" $S/missions/m23/log_full.txt | uniq -c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:55:57+00:00",
+   "tipo": "bash",
+   "desc": "Reproduce the page crash with memory sampling",
+   "cmd": "S=$S; printf 'AstroGalaxy:2\\nBattleShipGalaxy:2\\n' > $S/missions/crash.txt; cd ~/repo && rm -rf $S/missions/crash1 $S/missions/crash1.rss && (timeout 900 node tools/galaxy_tour.mj…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:55:07+00:00"
+ "actualizado": "2026-11-04T23:55:57+00:00"
 }
