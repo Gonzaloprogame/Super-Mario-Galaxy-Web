@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:02:35+00:00",
-   "tipo": "bash",
-   "desc": "Check smoke test progress",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke.log) PASS $(grep -c '^FAIL' $S/b1_smoke.log) FAIL $(grep '^exit' $S/b1_smoke.log)\"; grep -E \"^(FAIL|PASS gira)\" $S/b1_smoke.log; e…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:03:11+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Wait for the async message in the test and rerun 3 times",
    "cmd": "python3 - <<'EOF'  … (+21 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:54:25+00:00",
+   "tipo": "bash",
+   "desc": "Commit test fix and publish page and engine",
+   "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $R && git add -A && git commit -q -m \"Prueba de la partida: espera la respuesta asíncrona de descargar sin partida  … (+9 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:54:03+00:00"
+ "actualizado": "2026-11-04T19:54:25+00:00"
 }
