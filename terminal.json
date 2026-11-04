@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:14:40+00:00",
-   "tipo": "bash",
-   "desc": "Esperar las primeras pulsaciones y ver si el mando llega",
-   "cmd": "S=$S; until grep -q \"k=24\" $S/story/run.out 2>/dev/null || ! pgrep -f story/run.sh >/dev/null; do sleep 3; done; cat $S/story/run.out | cut -c1-300; curl -s \"127.0.0.1:18777/log?t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:14:51+00:00",
    "tipo": "bash",
    "desc": "Leer cómo se creaba una partida nueva",
@@ -279,8 +272,15 @@
    "desc": "Esperar el primer resultado del cazador",
    "cmd": "S=$S; until grep -q \"caught\\|run [0-9]*: no hang\" $S/catch/run.out 2>/dev/null; do sleep 10; done; cat $S/catch/run.out",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:58:11+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resultado del cazador",
+   "cmd": "S=$S; cat $S/catch/run.out; ls $S/catch/",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T00:54:36+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T00:58:11+00:00"
 }
