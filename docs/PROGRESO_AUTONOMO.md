@@ -386,6 +386,16 @@ puente (`gx_bridge.html`, `gx_replay.html`), que no reciben la memoria. Un `Shar
   pide un búfer persistente en Aurora con su invalidación (`aurora_guest_written`): ganancia estimada ~6 %, cambio
   grande; pendiente.
 
+**Probado y descartado: hashear cada textura del juego una vez por fotograma.** Las texturas que vienen de los
+registros del juego no tienen identidad y Aurora hashea su contenido en cada enlace (`sync_guest_textures`, a
+propósito: así ve si el juego la reescribe). Un parche (0027, retirado) guardaba el resultado dentro del fotograma,
+olvidándolo si el juego vaciaba su caché sobre esa memoria. Medido en el jardín (`$S/perf4`, con contadores): ahorró
+el 24 % de los bytes hasheados (131 MB frente a 413 MB), pero en el perfil el hash pasó del 2,5 % al 1,9 % del hilo
+de render y la búsqueda costó otro ~0,5 %: **ganancia neta ~0**, dentro del ruido (procesar 16,4 → 15,7 ms). La
+mayoría de las texturas se enlaza una sola vez por fotograma; lo que ahorraría sería guardarlas entre fotogramas, y
+eso depende de que el juego vacíe siempre su caché antes de que la GPU lea (sin comprobar para las lecturas del
+disco). No se hace.
+
 **Por qué el teléfono suma y no solapa** (27 fps: 20 ms procesar + 8 terminar + 8 esperando al juego): al final de cada
 fotograma el juego espera a que la GPU acabe ese fotograma (`MainLoopFramework::endFrame` → `waitDrawDoneAndSetAlarm`
 → `GXDrawDone`), como en la consola; durante la lógica del fotograma siguiente no sale GX y el hilo de render espera.
