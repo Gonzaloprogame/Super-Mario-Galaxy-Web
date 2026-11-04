@@ -10,6 +10,9 @@
 //   node tools/galaxy_tour.mjs --disc <your .rvz> --stages <file> --out <folder> [--nand <file>] [--frames 900]
 //        [--hang 180] [--port 18790] [--site build/site] [--mode graphics|diagnostic] [--debug-port N]
 // --debug-port: Chromium's remote debugging port, for a profiler during a hang (scratchpad tools, not here).
+// --play <seed>: plays badly during each stop (the keyboard: the stick in changing directions, A, B, shake, Z, C), to
+// run the stages' gameplay code (moving, colliding, enemies) and not only their loading. The same seed, the same
+// presses. It proves nothing about a stage being playable: it looks for what stops the engine while it is played.
 // Diagnostic mode: the game at full speed without a renderer, to measure its own loads (nothing is drawn).
 // The stages file: one "Stage" or "Stage:scenario" per line (the names of the folders under /StageData of the disc).
 // Needs tools/build_web.sh first, and Playwright's Chromium (preinstalled here).
@@ -61,7 +64,7 @@ const writeReport = (end) => {
     `${r.drew ? 'sí' : 'no'} | ${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
   writeFileSync(join(args.out, 'tour.md'), [
     `Gira: ${results.length} paradas, ${frames} fotogramas de escena cada una, cuelgue si una parada dura más de ` +
-    `${hangSeconds} s. Fin: ${end}.`, '',
+    `${hangSeconds} s${args.mode === 'diagnostic' ? ', modo diagnóstico' : ''}${args.play ? `, jugando a ciegas (semilla ${Number(args.play) || 1})` : ''}. Fin: ${end}.`, '',
     '| Parada | Resultado | Carga (s) | Paradas | Dibuja | Problemas |', '|---|---|---|---|---|---|', ...rows, ''].join('\n'));
 };
 
@@ -79,6 +82,26 @@ try {
   // The diagnostic mode needs a length: an hour, longer than any tour here
   await page.fill('#seconds', args.mode === 'diagnostic' ? '3600' : '0');
   await page.click('#run');
+
+  // --play: a press every 0.7 s from a seeded generator (xorshift), until the tour ends
+  let playing = !!args.play;
+  if (playing) {
+    let seed = (Number(args.play) || 1) >>> 0 || 1;
+    const random = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; };
+    const sticks = [['KeyW'], ['KeyS'], ['KeyA'], ['KeyD'], ['KeyW', 'KeyA'], ['KeyW', 'KeyD'], ['KeyS', 'KeyA'], ['KeyS', 'KeyD'], []];
+    const buttons = ['Space', 'Space', 'ShiftLeft', 'KeyQ', 'KeyZ', 'KeyC'];
+    (async () => {
+      let held = [];
+      while (playing) {
+        for (const key of held) await page.keyboard.up(key).catch(() => {});
+        held = [...sticks[Math.floor(random() * sticks.length)]];
+        if (random() < 0.6) held.push(buttons[Math.floor(random() * buttons.length)]);
+        for (const key of held) await page.keyboard.down(key).catch(() => {});
+        await sleep(700);
+      }
+      for (const key of held) await page.keyboard.up(key).catch(() => {});
+    })();
+  }
 
   let seen = 0;            // log lines handled
   let lastGx = 0;          // GX bytes in the last report
@@ -139,6 +162,7 @@ try {
       break;
     }
   }
+  playing = false;
   console.log(`${end}: ${join(args.out, 'tour.md')}`);
 } finally {
   await browser.close().catch(() => {});
