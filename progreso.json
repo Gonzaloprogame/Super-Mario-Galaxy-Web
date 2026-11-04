@@ -3,9 +3,9 @@
   "actualizado": "2026-11-04",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
-    "etiqueta": "Arreglado",
-    "titulo": "El cuelgue a toda velocidad",
-    "detalle": "El reloj del navegador podía dar el mismo instante a dos retrazados seguidos y el bucle principal no acababa. Jugando a ciegas: antes 3 de 6 giras colgadas, ahora 0 de 8."
+    "etiqueta": "Más rápido",
+    "titulo": "Dibujar cuesta un 15 % menos",
+    "detalle": "Los índices de cada primitiva se escriben directamente en su sitio: procesar el flujo de dibujo bajó de 17,4 a 14,8 ms por fotograma en el jardín del castillo. Falta medirlo en el móvil."
   },
   "comprobaciones": [
     {
