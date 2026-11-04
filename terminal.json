@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:40:24+00:00",
-   "tipo": "bash",
-   "desc": "Document the render-thread analysis; check tours",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+21 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:40:33+00:00",
    "tipo": "bash",
    "desc": "Commit doc; find texture source hashing",
@@ -279,8 +272,15 @@
    "desc": "Rebuild without patch 0027",
    "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all smg_headless_web smg_web gx_bridge gx_replay gx_demo 2>&1 | grep -E \"error|FAILED|Re-running|aplic…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:20:32+00:00",
+   "tipo": "bash",
+   "desc": "Document the discarded texture-cache experiment",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+17 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:20:22+00:00"
+ "actualizado": "2026-11-04T07:20:32+00:00"
 }
