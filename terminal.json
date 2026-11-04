@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:56:43+00:00",
-   "tipo": "bash",
-   "desc": "Mutation check: test must fail on a planted bug",
-   "cmd": "S=$S; rm -rf $S/p27m && mkdir -p $S/p27m/lib/gx && ln -s $S/p27/b/include $S/p27m/include && sed 's/(v \\& 1) == 0 ? idx - 2 : idx - 1/(v \\& 1) == 1 ? idx - 2 : idx - 1/' $S/p27/b/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:56:59+00:00",
    "tipo": "bash",
    "desc": "Add in-place index reservation to Aurora copy",
@@ -279,8 +272,15 @@
    "desc": "Commit docs and progress panel, push",
    "cmd": "python3 - <<'EOF'  … (+13 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:58:19+00:00",
+   "tipo": "bash",
+   "desc": "Publish the new engine to gh-pages",
+   "cmd": "S=$S; G=$S/gh-pages; for f in smg_web.js smg_web.wasm smg_headless_web.js smg_headless_web.wasm gx/gx_demo.js gx/gx_demo.wasm bridge/gx_bridge.js bridge/gx_bridge.wasm bridge/gx_r…  … (+3 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T17:58:04+00:00"
+ "actualizado": "2026-11-04T17:58:19+00:00"
 }
