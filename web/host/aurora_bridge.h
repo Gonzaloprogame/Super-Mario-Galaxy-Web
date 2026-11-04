@@ -59,6 +59,13 @@ uint32_t smg_bridge_peek_efb(uint16_t x, uint16_t y, uint32_t type, uint16_t tok
 void smg_bridge_vi_frame(uint32_t xfb, int black);
 /* Frames posted to the page. */
 uint32_t smg_bridge_presented(void);
+/* The frames' slots in shared memory, for the page (web/shell/present.js, attachMemory): a 16-byte header whose word 0
+   the page sets to 1 once it reads them, then 3 slots of a 16-byte header (word 0: sequence, odd while written) and
+   up to 640 x 576 RGBA rows. Until the page sets that word the frames go in the messages, as before. Allocated by the
+   first call (from the host's thread, not the game's). */
+uint8_t* smg_bridge_present_memory(void);
+/* Of the frames posted, those that went through the shared slots. */
+uint32_t smg_bridge_presented_shared(void);
 /* The XFB the VI shows (physical address, 0: none). */
 uint32_t smg_bridge_vi_xfb(void);
 /* Tests: the game's peeks since the last call, and in *captured how many were answered from a capture. */

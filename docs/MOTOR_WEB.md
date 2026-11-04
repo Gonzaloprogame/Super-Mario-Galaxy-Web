@@ -519,6 +519,14 @@ ahora la disposición de los atributos indexados se calcula una vez por formato 
 - **Comprobado con el disco (contenedor):** procesar el flujo pasó de unos 22,5 ms a unos 13 ms por fotograma; el nivel
   se ve igual. `bridge_smoke.mjs` (50) y `browser_smoke.mjs` (31) pasan.
 
+**Presentación sin copias:** cada fotograma se copiaba en JS y lo clonaba el `BroadcastChannel` (12 % del trabajo del
+hilo de render en el jardín del castillo). Ahora el hilo de render escribe las filas en uno de tres huecos de la memoria
+compartida, con un número de secuencia, y publica solo cuál; la página copia una vez y descarta un hueco reescrito
+(`smg_bridge_present_memory`, `web/shell/present.js`). Solo cuando la página marca los huecos como leídos: una página
+antigua, o las del puente, siguen con los píxeles en el mensaje.
+- **Comprobado con el disco (contenedor):** terminar el fotograma pasó de unos 15,2 ms a 9,8 ms; la imagen es la misma.
+  `browser_smoke.mjs` (54) y `bridge_smoke.mjs` (56) pasan. Sin medir en el teléfono.
+
 **Arranque lento en el teléfono:** más de un minuto hasta la pantalla de archivos, con pausas de 6 a 24 s.
 - El informe mide ahora el tiempo de las lecturas del disco (`disc reads N (bytes, X ms)`) y, en cada pausa, la
   lectura en curso. En el teléfono, las 1166 lecturas del arranque y el primer nivel (30 MB) sumaban 85 s, unos 73 ms

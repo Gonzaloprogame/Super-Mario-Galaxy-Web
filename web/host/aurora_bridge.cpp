@@ -12,6 +12,7 @@
 // EFB copies, which Aurora still takes only through its own commands (docs/PUENTE_FIFO.md).
 #include "aurora_bridge.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <aurora/aurora.h>
@@ -149,6 +150,18 @@ std::atomic<int> g_viBlack{1};
 std::vector<uint8_t> g_presentTiles;  // render thread
 std::vector<uint8_t> g_presentPixels; // render thread
 std::atomic<uint32_t> g_presented{0};
+// The same frames in shared memory (smg_bridge_present_memory), once the page says it reads them there: the render
+// thread writes the rows straight into one of PresentSlots slots and posts only which one, so a frame is not copied
+// for the message and cloned by the channel (about 12 % of the render thread's work in the first level). The region:
+// a 16-byte header (word 0: 1 once the page reads the slots, which the page writes) and the slots, each a 16-byte
+// header (word 0: its sequence, odd while the render thread writes it) and up to PresentMaxBytes of rows.
+constexpr uint32_t PresentSlots = 3;
+constexpr uint32_t PresentHeader = 16;
+constexpr uint32_t PresentMaxBytes = 640 * 576 * 4; // the largest XFB (PAL)
+constexpr uint32_t PresentSlotSize = PresentHeader + PresentMaxBytes;
+std::atomic<uint8_t*> g_presentShared{nullptr};
+uint32_t g_presentSlot = 0; // render thread
+std::atomic<uint32_t> g_presentedShared{0};
 
 // The XFB probe (tests): a display copy's destination, read back at each frame's end as the hardware would have
 // written it to memory (RGBA8 here: 4x4-texel tiles of 64 bytes, alpha and red then green and blue).
@@ -328,6 +341,32 @@ void present(AuroraReadbackStream stream) {
   g_presentTiles.resize(size);
   AuroraReadbackDest dest = {0, g_presentTiles.data(), size, GX_FALSE};
   if (AuroraReadbackGet(stream, &dest, 1) && dest.found) {
+    uint8_t* shared = g_presentShared.load(std::memory_order_acquire);
+    if (shared != nullptr && size <= PresentMaxBytes &&
+        reinterpret_cast<std::atomic<uint32_t>*>(shared)->load(std::memory_order_acquire) == 1) {
+      uint8_t* slot = shared + PresentHeader + g_presentSlot * PresentSlotSize;
+      auto* sequence = reinterpret_cast<std::atomic<uint32_t>*>(slot);
+      const uint32_t writing = sequence->load(std::memory_order_relaxed) + 1; // odd: the page drops what it reads now
+      sequence->store(writing, std::memory_order_relaxed);
+      std::atomic_thread_fence(std::memory_order_release);
+      detile_rgba8(g_presentTiles.data(), width, height, slot + PresentHeader);
+      sequence->store(writing + 1, std::memory_order_release);
+      EM_ASM(
+          {
+            if (!globalThis.smgPresentChannel) {
+              globalThis.smgPresentChannel = new BroadcastChannel('smg-present');
+            }
+            globalThis.smgPresentChannel.postMessage(
+                {type : 'frame', width : $0, height : $1, black : $2, slot : $3, sequence : $4});
+          },
+          width, height, g_viBlack.load(std::memory_order_relaxed), g_presentSlot, writing + 1);
+      g_presentSlot = (g_presentSlot + 1) % PresentSlots;
+      g_presented.fetch_add(1, std::memory_order_relaxed);
+      g_presentedShared.fetch_add(1, std::memory_order_relaxed);
+      const AuroraReadbackCopySrc source = {0, xfb};
+      AuroraReadbackCaptureCopies(stream, &source, 1);
+      return;
+    }
     g_presentPixels.resize(size);
     detile_rgba8(g_presentTiles.data(), width, height, g_presentPixels.data());
     // The page's thread is not this one: a BroadcastChannel reaches it from any worker (a copy of the rows).
@@ -810,6 +849,17 @@ extern "C" void smg_bridge_vi_frame(uint32_t xfb, int black) {
 }
 
 extern "C" uint32_t smg_bridge_presented(void) { return g_presented.load(std::memory_order_relaxed); }
+
+extern "C" uint32_t smg_bridge_presented_shared(void) { return g_presentedShared.load(std::memory_order_relaxed); }
+
+extern "C" uint8_t* smg_bridge_present_memory(void) {
+  static uint8_t* memory = nullptr;
+  if (memory == nullptr) {
+    memory = static_cast<uint8_t*>(calloc(1, PresentHeader + PresentSlots * PresentSlotSize));
+    g_presentShared.store(memory, std::memory_order_release);
+  }
+  return memory;
+}
 
 extern "C" uint32_t smg_bridge_vi_xfb(void) { return g_viXfb.load(std::memory_order_relaxed); }
 

@@ -463,6 +463,10 @@ async function start() {
         // The engine's shared memory and where its control words are (web/host/console_services.h)
         controls.attach(new Int32Array(data.buffer, data.address, data.words));
         break;
+      case 'present':
+        // The frames' slots in the engine's shared memory (web/host/aurora_bridge.h): painted from there
+        presenter.attachMemory(data.buffer, data.address);
+        break;
       case 'audio':
         // The engine's ring of samples (web/host/audio_output.h), in its shared memory
         attachAudio(data.buffer, data.address);

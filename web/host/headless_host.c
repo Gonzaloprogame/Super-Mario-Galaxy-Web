@@ -839,8 +839,9 @@ static void report(void) {
 #if defined(SMG_HOST_AURORA)
     char peaks[256];
     smg_bridge_buffer_peaks(peaks, sizeof(peaks));
-    host_log( "[host] Aurora: %u frames drawn, %u shown on the page; frame buffers' peaks: %s\n",
-            smg_bridge_frames(), smg_bridge_presented(), peaks);
+    host_log( "[host] Aurora: %u frames drawn, %u shown on the page (%u through shared memory); frame buffers' peaks: "
+              "%s\n",
+            smg_bridge_frames(), smg_bridge_presented(), smg_bridge_presented_shared(), peaks);
     char stats[256];
     smg_bridge_debug_stats(stats, sizeof(stats));
     host_log( "[host] Aurora pipelines: %s\n", stats);
@@ -1132,6 +1133,14 @@ int main(int argc, char** argv) {
             }
         },
         smg_bridge_render_debug());
+    /* The frames' slots (web/host/aurora_bridge.h): the page paints from them once it marks them read */
+    EM_ASM(
+        {
+            if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+                postMessage({type : 'present', buffer : HEAPU8.buffer, address : $0});
+            }
+        },
+        smg_bridge_present_memory());
 #endif
 #endif
     if (nebula_game_attach(&services) == 0) {

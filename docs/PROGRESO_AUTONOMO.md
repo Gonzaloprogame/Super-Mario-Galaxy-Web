@@ -37,8 +37,11 @@ disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca)
   `timeout 7100 $S/catch5/run.sh 8 5 > $S/catch5/run.out 2>&1` (semillas 5 a 8; si se cuelga, `prof_N.txt`,
   `dump_N/` y `hang_log_N.txt` en `$S/catch5`). Mapa de símbolos: `build/all/game/smg_headless_web.js.symbols`;
   índices de tabla: `$S/tools/table_index.py`.
-- **Después:** rendimiento (medidas en el PC/móvil del usuario: `[host] load …`, `render thread … per frame`),
-  y jugar galaxias (lo que la gira no comprueba).
+- **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
+  `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
+  mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
+- **Ojo:** las tareas de fondo se cortan a los 30 min si no se les da `timeout` (hasta 2 h); las giras de 44 paradas
+  tardan más de 1 h.
 - **Bloqueados:** cuelgue del libro del prólogo (pendiente de que el usuario lo pruebe con la versión publicada; tiene
   la firma del cuelgue del reloj arreglado en el bloque 12, sin comprobar que sea el mismo); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
@@ -337,4 +340,40 @@ arreglo, semillas 1 a 4: **0 cuelgues en 4 giras, 176 de 176 paradas cargan y di
 prueba fuerte pero no definitiva: con la frecuencia de antes, 4 giras limpias saldrían por azar un 6 % de las veces.
 En curso, 4 giras más con las semillas 5 a 8 (`$S/catch5/run.sh 8 5`).
 
+De dónde salen los retrazados seguidos: la interrupción pendiente ya es un solo bit, como en la consola
+(`os_native.c`, `sPending`); es el reloj del host (`clock_main`, `headless_host.c`), que va por plazos absolutos y, si
+se despierta tarde, recupera de golpe los retrazados atrasados. Si el juego atiende uno entre dos de ellos, el
+intervalo es casi 0. Con el arreglo vale 20 ns y `calcCombinationRatio` da ese fotograma ~1 millón de vueltas (~1 ms);
+`mCombinationRatio` no se lee en ninguna otra parte del código del juego, así que no se toca el reloj del host.
+
 Publicado en gh-pages (`f977c04`: `smg_web.wasm`, `smg_headless_web.wasm`, `bridge/gx_bridge.wasm`).
+
+### Bloque 13: el hilo de render, perfilado en el jardín del castillo; la presentación sin copias (2026-11-04)
+
+**Perfil** (`$S/perf1`: el jardín del castillo con gráficos, 20 s con el perfilador del navegador; nombres con
+`smg_web.js.symbols` del mismo binario). El trabajo del hilo de render (sin las esperas): procesar el flujo GX 59 %
+(`draw_prim_as_written`, `process`, `push`…), terminar el fotograma 16 % (`writeBuffer` 13 %) y **presentar 12 %**: cada
+fotograma se copiaba en JS (`slice` de unos 1,2 MB) y el `BroadcastChannel` lo clonaba otra vez.
+
+- De paso: el perfilador dio al hilo de la NAND un 100 % «propio» en `nand_main`. **No gira**: llama a
+  `pthread_cond_timedwait` (desensamblado) y el sistema da a cada worker como mucho un 17 % de CPU (`top -H`); es un
+  artefacto del perfilador con un hilo bloqueado desde antes de empezar. La corrección del principio sigue en pie.
+
+**Cambio:** los fotogramas van por la memoria compartida (`smg_bridge_present_memory`, `web/host/aurora_bridge.h`): tres
+huecos con un número de secuencia (impar mientras se escribe). El hilo de render desentrelaza las filas directamente en
+uno y publica solo cuál (`{type: 'frame', slot, sequence}`). La página (`present.js`, `attachMemory`) copia una vez a un
+`ImageData` que reutiliza y descarta el fotograma si la secuencia cambió. Solo se usa cuando la página marca los huecos
+como leídos: una página antigua (en caché) con un motor nuevo sigue por el camino de antes, y también las páginas del
+puente (`gx_bridge.html`, `gx_replay.html`), que no reciben la memoria. Un `SharedArrayBuffer` no se puede mandar por
+`BroadcastChannel` (comprobado en este Chromium: el mensaje no llega), por eso la memoria la da el host del motor.
+
+**Comprobado:**
+- `browser_smoke.mjs` 54 PASS: 3 nuevas (el motor da los huecos y la página los marca; un fotograma anunciado por su
+  hueco se pinta con sus píxeles; uno reescrito se descarta). `bridge_smoke.mjs` 56 PASS (el camino de antes).
+- Con el disco, el jardín del castillo, 3000 fotogramas, el mismo escenario (`$S/perf2`): todos los fotogramas por la
+  memoria compartida (`350 shown on the page (350 through shared memory)`). Por fotograma, **terminar pasó de 15,2 ms a
+  9,8 ms**; procesar el flujo no cambia (17,6 → 16,4 ms, ruido). La parada entera tardó 750 s en vez de 940 s
+  (4,1 frente a 3,3 fps en este contenedor, con la GPU por software). La imagen es la misma.
+- **Sin medir en el teléfono**: allí terminar costaba unos 8 ms.
+
+**Siguiente en el perfil:** procesar el flujo GX (59 %), y `writeBuffer` (13 %).

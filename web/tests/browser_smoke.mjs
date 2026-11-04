@@ -359,6 +359,42 @@ await withServer('isolated', async (url) => {
   check(d.state === 'error' && /código 3/.test(d.status),
         `sin el onExit de Emscripten, la página termina por el anuncio del host: "${d.status.trim()}"`);
 
+  // Frames in shared memory (web/shell/present.js, attachMemory): the engine hands its slots over and the page marks
+  // them read; a frame posted by slot is painted from there, and one whose slot was rewritten since is dropped
+  const f = await run(url, join(fixtures, 'fixture_emptydol.pak'), 60000, 'graphics', {}, {
+    after: (page) => page.evaluate(async () => {
+      const p = globalThis.smgPresenter;
+      const engine = p.memory && { shared: p.memory.buffer instanceof SharedArrayBuffer,
+                                   marked: Atomics.load(new Int32Array(p.memory.buffer, p.memory.address, 1), 0) };
+      const HEADER = 16, SLOT = HEADER + 640 * 576 * 4, address = 64;
+      const buffer = new SharedArrayBuffer(address + HEADER + 3 * SLOT);
+      p.attachMemory(buffer, address);
+      const marked = Atomics.load(new Int32Array(buffer, address, 1), 0);
+      const base = address + HEADER + SLOT; // slot 1
+      new Int32Array(buffer, base, 1)[0] = 6;
+      const rows = new Uint8Array(buffer, base + HEADER, 8 * 4 * 4);
+      for (let i = 0; i < 32; i++) rows.set([200, 40, 10, 255], i * 4);
+      const channel = new BroadcastChannel('smg-present');
+      const before = { frames: p.frames, shared: p.sharedFrames, dropped: p.dropped };
+      channel.postMessage({ type: 'frame', width: 8, height: 4, black: 0, slot: 1, sequence: 6 });
+      await new Promise((r) => setTimeout(r, 300));
+      const canvas = document.getElementById('screen');
+      const pixel = Array.from(canvas.getContext('2d').getImageData(3, 2, 1, 1).data);
+      const painted = { frames: p.frames, shared: p.sharedFrames, size: `${canvas.width}x${canvas.height}` };
+      channel.postMessage({ type: 'frame', width: 8, height: 4, black: 0, slot: 1, sequence: 8 });
+      await new Promise((r) => setTimeout(r, 300));
+      return { engine, marked, before, pixel, painted, after: { frames: p.frames, dropped: p.dropped } };
+    }),
+  });
+  check(f.after && f.after.engine && f.after.engine.shared && f.after.engine.marked === 1,
+        `fotogramas en memoria compartida: el motor da sus huecos y la página los marca leídos (${JSON.stringify(f.after && f.after.engine)})`);
+  check(f.after && f.after.marked === 1 && f.after.painted.shared === f.after.before.shared + 1 &&
+        f.after.painted.frames === f.after.before.frames + 1 && f.after.painted.size === '8x4' &&
+        f.after.pixel.join(',') === '200,40,10,255',
+        `fotogramas en memoria compartida: uno anunciado por su hueco se pinta desde allí (${JSON.stringify(f.after && { pixel: f.after.pixel, painted: f.after.painted })})`);
+  check(f.after && f.after.after.frames === f.after.painted.frames && f.after.after.dropped === f.after.before.dropped + 1,
+        `fotogramas en memoria compartida: uno cuyo hueco se reescribió se descarta (${JSON.stringify(f.after && f.after.after)})`);
+
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak
   const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');
