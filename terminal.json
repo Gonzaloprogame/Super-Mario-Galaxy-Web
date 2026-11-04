@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:41:00+00:00",
-   "tipo": "bash",
-   "desc": "Analizar el desglose de las cargas de la gira",
-   "cmd": "S=$S; for o in out_fix out_01 out_02 out_03 out_04; do grep -h \"^\\[host\\] load '\" $S/tour/$o/log_end.txt; done | sed -E \"s/\\[host\\] load '([^']*)' -> '([^']*)': ([0-9.]+) s from t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:41:14+00:00",
    "tipo": "bash",
    "desc": "Añadir el modo diagnóstico a la gira",
@@ -279,8 +272,15 @@
    "desc": "Ampliar el búfer, añadir la prueba y compilar",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:34:09+00:00",
+   "tipo": "bash",
+   "desc": "Ejecutar la prueba de la página con el rastro",
+   "cmd": "cd ~/repo; S=$S; timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_trail.log 2>&1; echo \"salida $?\"; grep -c PASS $S/smoke_trail.log; grep \"FAIL\\|últimas llamadas\" $S/smoke…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:32:28+00:00"
+ "actualizado": "2026-11-04T01:34:09+00:00"
 }
