@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:36:12+00:00",
-   "tipo": "bash",
-   "desc": "Confirm GitHub Pages serves the new presenter",
-   "cmd": "for i in 1 2 3 4 5 6 7 8 9 10; do c=$(curl -s \"https://gonzaloprogame.github.io/super-mario-galaxy-web/present.js?x=$RANDOM\" | grep -c attachMemory); [ \"$c\" -gt 0 ] && { echo \"pub…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:36:17+00:00",
    "tipo": "bash",
    "desc": "Find the right Pages URL",
@@ -279,8 +272,15 @@
    "desc": "See how the build applies Aurora patches",
    "cmd": "cd ~/repo; sed -n 40,75p web/aurora/CMakeLists.txt | grep -n \"patch\\|COMMAND\\|git\" | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:43:19+00:00",
+   "tipo": "bash",
+   "desc": "Read the patch application commands",
+   "cmd": "cd ~/repo; sed -n 52,75p web/aurora/CMakeLists.txt",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:43:16+00:00"
+ "actualizado": "2026-11-04T06:43:19+00:00"
 }
