@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:49:37+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/tools/code_index.sh",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:49:47+00:00",
    "tipo": "bash",
    "desc": "Rebuild the wasm-faithful database and recheck",
@@ -279,8 +272,15 @@
    "desc": "Commit tour starting-scene fix and push",
    "cmd": "git add -A && git commit -q -m \"Gira y ruta: cada parada anota la escena en la que empezó  … (+6 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:13:30+00:00",
+   "tipo": "bash",
+   "desc": "Inspect segment 8 details",
+   "cmd": "S=$S; sed -n 5,6p $S/route1/08/out/tour.md; grep -E \"^\\[host\\] (test|stage|movie)\" $S/route1/08/out/log_end.txt",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:12:43+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:13:30+00:00"
 }
