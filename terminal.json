@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:49:33+00:00",
-   "tipo": "bash",
-   "desc": "Check confirmation tour progress",
-   "cmd": "S=$S; cat $S/catch5/run.out; grep -c '| cargó y dibujó |' $S/catch5/out_6/tour.md $S/catch5/out_7/tour.md 2>/dev/null",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T06:59:38+00:00",
    "tipo": "bash",
    "desc": "Wait for the texture-cache comparison",
@@ -279,8 +272,15 @@
    "desc": "Check seed 8 results",
    "cmd": "S=$S; cat $S/catch5/run.out; i=8; echo \"semilla $i: $(grep -c '| cargó y dibujó |' $S/catch5/out_$i/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/catch5/out_$i/tour.md)\"; grep '^| […",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:51:02+00:00",
+   "tipo": "bash",
+   "desc": "Record 8 clean tours, commit and publish panel",
+   "cmd": "S=$S; mkdir -p $S/long1; cat > $S/long1/run.sh <<'EOF'  … (+53 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:50:33+00:00"
+ "actualizado": "2026-11-04T07:51:02+00:00"
 }
