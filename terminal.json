@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:32:25+00:00",
-   "tipo": "bash",
-   "desc": "Document and commit the presentation change",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+74 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:32:30+00:00",
    "tipo": "bash",
    "desc": "List files that changed versus gh-pages",
@@ -279,8 +272,15 @@
    "desc": "Invalidate guest textures on game writes",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+28 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:43:01+00:00",
+   "tipo": "bash",
+   "desc": "Report texture hashing in the host log",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+22 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:42:52+00:00"
+ "actualizado": "2026-11-04T06:43:01+00:00"
 }
