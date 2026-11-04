@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:21:06+00:00",
-   "tipo": "bash",
-   "desc": "Average per-frame render times in the level",
-   "cmd": "S=$S; for r in perf1 perf2; do f=$S/$r/out/log_end.txt; [ -f $f ] || f=$S/$r/out/log_tail.txt; awk -v r=$r '/tour: stop 1/{on=1} on && /render thread:/ { n++; match($0,/processing…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:31:14+00:00",
    "tipo": "bash",
    "desc": "Compare whole-level render times",
@@ -279,8 +272,15 @@
    "desc": "Check copy textures versus static resolution order",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"copyTextures\" *.cpp | head -20; grep -n \"resolve_static_texture\\|resolve_static_palette_texture\" *.cpp | grep -v \"^textu…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:41:33+00:00",
+   "tipo": "bash",
+   "desc": "Read the texture binding path and caches",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 825,875p texture.cpp; sed -n 200,262p texture.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:41:30+00:00"
+ "actualizado": "2026-11-04T06:41:33+00:00"
 }
