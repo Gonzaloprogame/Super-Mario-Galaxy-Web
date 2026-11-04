@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:31+00:00",
-   "tipo": "bash",
-   "desc": "Read the pre-fix catcher outcome for comparison",
-   "cmd": "S=$S; cat $S/catch3/run.out | grep -i 'run\\|hang' | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:37+00:00",
    "tipo": "bash",
    "desc": "Collect all earlier hang-catcher outcomes",
@@ -279,8 +272,15 @@
    "desc": "Inspect nand_main disassembly",
    "cmd": "cd $S/perf1; head -5 nand_main.wat; grep -c \"\" nand_main.wat; grep -o \"call \\$[a-z0-9_]*\\|memory.atomic[a-z.0-9]*\\|i32.atomic[a-z.0-9_]*\" nand_main.wat | sort | uniq -c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:08+00:00",
+   "tipo": "bash",
+   "desc": "Count imports and find atomic waits",
+   "cmd": "cd $S/perf1; grep -c \"(import \\\"[^\\\"]*\\\" \\\"[^\\\"]*\\\" (func\" smg_web.wat; grep -n \"memory.atomic.wait32\" smg_web.wat | head -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:04:02+00:00"
+ "actualizado": "2026-11-04T06:04:08+00:00"
 }
