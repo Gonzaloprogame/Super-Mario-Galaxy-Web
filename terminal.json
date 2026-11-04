@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:53:50+00:00",
-   "tipo": "bash",
-   "desc": "Read full page test result",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b4_smoke.log) PASS $(grep -c '^FAIL' $S/b4_smoke.log) FAIL $(grep '^exit' $S/b4_smoke.log)\"; grep \"^FAIL\" $S/b4_smoke.log",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:54:03+00:00",
    "tipo": "bash",
    "desc": "Wait for the async message in the test and rerun 3 times",
@@ -279,8 +272,15 @@
    "desc": "Read tour report for segment 14",
    "cmd": "S=$S; sed -n 1,8p $S/route5/14/out/tour.md; python3 -c \"  … (+2 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T22:25:29+00:00",
+   "tipo": "bash",
+   "desc": "Check segment 14 status",
+   "cmd": "S=$S; tail -3 $S/route5.log; ls $S/route5/14/out/; grep -E \"^\\[host\\] (stage|tour|test|the game|movie)|^\\[página\\] (el motor|Error)|aurora (ERROR|FATAL)\" $S/route5/14/out/log_tail…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T22:13:31+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T22:25:29+00:00"
 }
