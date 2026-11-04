@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:33:49+00:00",
-   "tipo": "bash",
-   "desc": "Jugar a ciegas las 44 galaxias en modo diagnóstico",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+5 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:34:33+00:00",
    "tipo": "bash",
    "desc": "Comprobar que las pulsaciones llegan al juego",
@@ -279,8 +272,15 @@
    "desc": "Leer el reloj del SO de Nebula",
    "cmd": "cd ~/repo; sed -n 140,205p third_party/nebula/native/sdk/os/os_native.c; sed -n 265,285p third_party/nebula/native/sdk/os/os_native.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:12:13+00:00",
+   "tipo": "bash",
+   "desc": "Ver el resto de las pruebas del SO y un sustituto existente",
+   "cmd": "cd ~/repo; sed -n 40,80p web/tests/run_os_tests.sh; cat web/platform/abort_report_wasm.c | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:11:48+00:00"
+ "actualizado": "2026-11-04T04:12:13+00:00"
 }
