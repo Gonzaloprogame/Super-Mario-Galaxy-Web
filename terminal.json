@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:49:21+00:00",
-   "tipo": "bash",
-   "desc": "Wait for and compare the texture-cache run",
-   "cmd": "S=$S; until [ -f $S/perf3/out/log_end.txt ] || ! pgrep -f \"perf3/out\" >/dev/null; do sleep 10; done; for r in perf2 perf3; do awk -v r=$r '/tour: stop 1/{on=1} on && /render threa…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:49:26+00:00",
    "tipo": "bash",
    "desc": "Find where Aurora patches are listed",
@@ -279,8 +272,15 @@
    "desc": "Find per-draw blend constant and index buffer sets",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -rn \"SetBlendConstant\\|SetIndexBuffer\" --include=*.cpp . | head;",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:42:22+00:00",
+   "tipo": "bash",
+   "desc": "Read Aurora's per-draw render function",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 40,100p gx/pipeline.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:42:19+00:00"
+ "actualizado": "2026-11-04T07:42:22+00:00"
 }
