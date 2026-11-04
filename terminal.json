@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:50:39+00:00",
-   "tipo": "bash",
-   "desc": "Commit Part A tools and push",
-   "cmd": "git status --short && git add CLAUDE.md tools/code_index.sh && git commit -q -m \"Herramientas: CLAUDE.md (reglas, rutas, comandos y trampas) y análisis C/C++ local con clangd como…  … (+7 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:50:47+00:00",
-   "tipo": "bash",
-   "desc": "Read Nebula host test hook implementation",
-   "cmd": "cd ~/repo/third_party/nebula/native/host && awk 'NR>=2800 && NR<=2990' host_main.cpp",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:50:52+00:00",
-   "tipo": "bash",
-   "desc": "Trace tour parameter from page to host",
-   "cmd": "cd ~/repo && grep -n \"tour\" web/shell/app.js | head -20; grep -n \"tour_parse\\|getenv\\|SMG_TOUR\\|tourframes\\|\\\"tour\\\"\" web/host/headless_host.c web/shell/boot_worker.post.js | head…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:50:55+00:00",
    "tipo": "bash",
    "desc": "Read argv handling in host and worker",
@@ -279,8 +258,29 @@
    "desc": "Read save storage code in app.js",
    "cmd": "grep -n \"nandStore\\|anterior\\|RMGE01\" web/shell/app.js | head -30; sed -n 150,200p web/shell/app.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:19:19+00:00",
+   "tipo": "bash",
+   "desc": "Read NAND restore format in host",
+   "cmd": "grep -n \"static void restore_nand\\|static void nand_changed\" web/host/headless_host.c; sed -n \"$(grep -n 'static void restore_nand' web/host/headless_host.c | cut -d: -f1),+30p\" w…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:19:22+00:00",
+   "tipo": "bash",
+   "desc": "Read NAND export/import blob format",
+   "cmd": "sed -n 655,720p web/host/console_services.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:19:30+00:00",
+   "tipo": "bash",
+   "desc": "Find the place for save buttons in the page",
+   "cmd": "grep -n \"options\\|id=\\\"run\\\"\\|class=\\\"actions\\\"\\|<section class=\\\"card\\\"\" web/shell/index.html | head; sed -n \"$(grep -n 'class=\"actions\"' web/shell/index.html | head -1 | cut -d:…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:19:14+00:00"
+ "actualizado": "2026-11-04T19:19:30+00:00"
 }
