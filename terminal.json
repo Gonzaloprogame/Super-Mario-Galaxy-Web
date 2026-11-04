@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:34+00:00",
-   "tipo": "bash",
-   "desc": "Look for disassembly tools",
-   "cmd": "S=$S; ls $S/tools; ls ~/tools/emsdk/upstream/bin | grep -i \"wasm-dis\\|objdump\\|wasm-opt\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:45+00:00",
    "tipo": "bash",
    "desc": "Find nand_main function index",
@@ -279,8 +272,15 @@
    "desc": "Compare render-thread work before and after",
    "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; node $S/tools/prof_total.mjs $S/perf2/dump/worker_3.cpuprofile $SYM 200 | grep -E \"work samples|render_main|fifo::drain|auror…",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T06:21:06+00:00",
+   "tipo": "bash",
+   "desc": "Average per-frame render times in the level",
+   "cmd": "S=$S; for r in perf1 perf2; do f=$S/$r/out/log_end.txt; [ -f $f ] || f=$S/$r/out/log_tail.txt; awk -v r=$r '/tour: stop 1/{on=1} on && /render thread:/ { n++; match($0,/processing…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:20:56+00:00"
+ "actualizado": "2026-11-04T06:21:06+00:00"
 }
