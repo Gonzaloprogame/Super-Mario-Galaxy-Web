@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:24:34+00:00",
-   "tipo": "bash",
-   "desc": "Read screen markup and search speed displays",
-   "cmd": "sed -n 240,293p web/shell/index.html; grep -n -i \"fps\\|ritmo\\|velocidad\\|por segundo\" web/shell/app.js web/host/*.c | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:24:50+00:00",
-   "tipo": "bash",
-   "desc": "Search for any FPS overlay in engine or patches",
-   "cmd": "grep -rn -i \"fps\\|framerate\\|frame rate\" web/ --include=*.c --include=*.cpp --include=*.js --include=*.h --include=*.patch -l | head; grep -rn -i \"renderdebug\\|imgui\" web/shell/ap…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:25:02+00:00",
    "tipo": "bash",
    "desc": "Read presenter and smoke test hooks",
@@ -279,8 +265,22 @@
    "desc": "",
    "cmd": "~/repo/web/shell/servir.py",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:47:20+00:00",
+   "tipo": "bash",
+   "desc": "Serve a downloaded copy with servir.py and check the page",
+   "cmd": "S=$S; rm -rf $S/descarga && mkdir -p $S/descarga && cd $S/gh-pages && git archive HEAD | tar -x -C $S/descarga && cp ~/repo/web/shell/servir.py $S/descarga/ && cd $S/descarga && (…  … (+11 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T14:47:28+00:00",
+   "tipo": "bash",
+   "desc": "Add servir.py to the site build",
+   "cmd": "kill $(pgrep -f \"servir.py 8123\") 2>/dev/null; cd ~/repo && sed -i 's#   \"$ROOT\"/web/shell/fps.js \"$ROOT\"/web/shell/audio_worklet.js#   \"$ROOT\"/web/shell/fps.js \"$ROOT\"/web/shell/…",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:47:05+00:00"
+ "actualizado": "2026-11-04T14:47:28+00:00"
 }
