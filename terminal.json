@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:12:11+00:00",
-   "tipo": "bash",
-   "desc": "Record each stop's starting scene in tour and route",
-   "cmd": "python3 - <<'EOF'  … (+33 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:12:24+00:00",
    "tipo": "bash",
    "desc": "Commit tour starting-scene fix and push",
@@ -279,8 +272,15 @@
    "desc": "Read Nebula arena reservation code",
    "cmd": "sed -n 70,130p third_party/nebula/native/sdk/memory.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:11:50+00:00",
+   "tipo": "bash",
+   "desc": "Check baseline memory samples so far",
+   "cmd": "S=$S; cat $S/mem/base.rss | tail -5; grep -c . $S/mem/base.rss; grep -E \"^\\[host\\] (stage|tour)\" $S/mem/base/log_tail.txt 2>/dev/null | tail -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:11:43+00:00"
+ "actualizado": "2026-11-04T20:11:50+00:00"
 }
