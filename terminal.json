@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:25:49+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que se cree la partida nueva",
-   "cmd": "S=$S; until grep -q \"play pressed\" $S/story/new.out 2>/dev/null || ! pgrep -f story/new.sh >/dev/null; do sleep 4; done; cat $S/story/new.out; curl -s -m 10 \"127.0.0.1:18777/log?t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:35:56+00:00",
    "tipo": "bash",
    "desc": "Esperar a que la nueva ejecución cree la partida",
@@ -279,8 +272,15 @@
    "desc": "Ver el avance del cazador",
    "cmd": "S=$S; cat $S/catch/run.out; for f in $S/catch/out_*/tour.md; do echo \"$(basename $(dirname $f)): $(head -1 $f | grep -o 'Fin: [^.]*'), $(grep -c 'cargó y dibujó' $f) paradas\"; done",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:28:06+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resultado del cazador y el perfil",
+   "cmd": "S=$S; cat $S/catch/run.out; ls $S/catch/; head -60 $S/catch/prof_*.txt 2>/dev/null | cut -c1-150",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T00:59:23+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T01:28:06+00:00"
 }
