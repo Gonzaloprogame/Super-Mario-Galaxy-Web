@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:49:28+00:00",
-   "tipo": "bash",
-   "desc": "Read the patch table in PUENTE_FIFO.md",
-   "cmd": "cd ~/repo; sed -n 25,60p docs/PUENTE_FIFO.md | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:49:33+00:00",
    "tipo": "bash",
    "desc": "Check confirmation tour progress",
@@ -279,8 +272,15 @@
    "desc": "Summarize the garden runs across changes",
    "cmd": "S=$S; until [ -f $S/perf5/out/log_end.txt ] || ! pgrep -f \"perf5/out\" >/dev/null; do sleep 10; done; for r in perf1 perf2 perf5; do awk -v r=$r '/tour: stop 1/{on=1} on && /render…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:50:33+00:00",
+   "tipo": "bash",
+   "desc": "Check seed 8 results",
+   "cmd": "S=$S; cat $S/catch5/run.out; i=8; echo \"semilla $i: $(grep -c '| cargó y dibujó |' $S/catch5/out_$i/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/catch5/out_$i/tour.md)\"; grep '^| […",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:50:27+00:00"
+ "actualizado": "2026-11-04T07:50:33+00:00"
 }
