@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:53:16+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo terminó la secuencia",
-   "cmd": "S=$S; head -1 $S/tour/out_seq32/tour.md; tail -2 $S/tour/out_seq32/tour.md | cut -c1-200; tail -3 $S/tour/run_seq32.log",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:53:40+00:00",
    "tipo": "bash",
    "desc": "Ver qué imprime el perfilador",
@@ -279,8 +272,15 @@
    "desc": "Corregir el comentario de --play",
    "cmd": "cd ~/repo; sed -i 's|^// --play \\[seed\\]: plays badly|// --play <seed>: plays badly|' tools/galaxy_tour.mjs; grep -n \"^// --play\" tools/galaxy_tour.mjs; node --check tools/galaxy_…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:04:10+00:00",
+   "tipo": "bash",
+   "desc": "Confirmar y subir la opción de juego a ciegas",
+   "cmd": "cd ~/repo; git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: --play <semilla>, jugar a ciegas durante cada parada (palanca y botones al azar, reproducible)  … (+7 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T02:03:56+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T02:04:10+00:00"
 }
