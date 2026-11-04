@@ -1,34 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:11:48+00:00",
-   "tipo": "bash",
-   "desc": "Leer el reloj del SO de Nebula",
-   "cmd": "cd ~/repo; sed -n 140,205p third_party/nebula/native/sdk/os/os_native.c; sed -n 265,285p third_party/nebula/native/sdk/os/os_native.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:12:13+00:00",
-   "tipo": "bash",
-   "desc": "Ver el resto de las pruebas del SO y un sustituto existente",
-   "cmd": "cd ~/repo; sed -n 40,80p web/tests/run_os_tests.sh; cat web/platform/abort_report_wasm.c | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:12:34+00:00",
-   "tipo": "bash",
-   "desc": "Escribir el reloj estrictamente creciente y su prueba",
-   "cmd": "cd ~/repo; cat > web/platform/monotonic_clock_wasm.c <<'EOF'  … (+78 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:13:35+00:00",
-   "tipo": "bash",
-   "desc": "Añadir la prueba del reloj y ejecutar las pruebas del SO",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+20 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:13:44+00:00",
    "tipo": "bash",
    "desc": "Ver cómo arrancan el SO las pruebas del planificador",
@@ -279,8 +251,36 @@
    "desc": "Read calcCombinationRatio and its caller",
    "cmd": "cd ~/repo/third_party/nebula/native/petari/src/Game/System; sed -n 260,300p MainLoopFramework.cpp; sed -n 390,430p MainLoopFramework.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:16+00:00",
+   "tipo": "bash",
+   "desc": "Find where retraces are delivered",
+   "cmd": "cd ~/repo; grep -rln -i \"retrace\" web/ third_party/nebula/native --include=*.c --include=*.cpp --include=*.h 2>/dev/null | grep -v petari/ | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:19+00:00",
+   "tipo": "bash",
+   "desc": "Inspect retrace delivery code",
+   "cmd": "cd ~/repo; grep -n -i \"retrace\" third_party/nebula/native/sdk/vi/vi_native.c | head -40; grep -n -i \"retrace\" web/host/headless_host.c web/host/host_services.c | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:23+00:00",
+   "tipo": "bash",
+   "desc": "See how the VI interrupt is raised and queued",
+   "cmd": "cd ~/repo; sed -n 36,45p third_party/nebula/native/sdk/vi/vi_native.c; grep -n \"__OSRaiseInterrupt\\|void __OSRaiseInterrupt\\|pending\\|sPending\" third_party/nebula/native/sdk/os/os…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:28+00:00",
+   "tipo": "bash",
+   "desc": "Read the host retrace clock loop",
+   "cmd": "cd ~/repo; sed -n 1008,1050p web/host/headless_host.c; grep -n \"nebula_game_vi_retrace\" -r web/ third_party/nebula/native/host | grep -v \"^web/host/headless_host.c\"",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:59:07+00:00"
+ "actualizado": "2026-11-04T05:59:28+00:00"
 }
