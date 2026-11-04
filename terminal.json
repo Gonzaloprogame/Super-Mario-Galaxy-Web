@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:11:39+00:00",
-   "tipo": "bash",
-   "desc": "Add unistd include and check how Nebula calls mmap",
-   "cmd": "sed -i 's/#include <sys\\/mman.h>/#include <sys\\/mman.h>\\n#include <unistd.h>/' web/platform/memory_shim_wasm.c && grep -n \"#include\" web/platform/memory_shim_wasm.c && grep -rn \"n…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:11:43+00:00",
    "tipo": "bash",
    "desc": "Read Nebula arena reservation code",
@@ -279,8 +272,15 @@
    "desc": "Find which DVD call leads to the panic",
    "cmd": "grep -n \"File isn't exist\" -B 25 third_party/nebula/native/petari/src/Game/System/FileRipper.cpp | grep -n \"DVDOpen\\|DVDFastOpen\\|convertPathToEntrynum\\|isExist\\|OSPanic\\|loadToMa…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:41:51+00:00",
+   "tipo": "bash",
+   "desc": "Locate the path-to-entry lookup in SDK or web layer",
+   "cmd": "grep -rn \"DVDConvertPathToEntrynum\\|ConvertPathToEntrynum\" third_party/nebula/native/sdk third_party/nebula/native/petari/src/RVL_SDK 2>/dev/null | grep -v \"^.*://\" | head -5; gre…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:41:43+00:00"
+ "actualizado": "2026-11-04T23:41:51+00:00"
 }
