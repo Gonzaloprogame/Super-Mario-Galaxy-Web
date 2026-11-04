@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:16:04+00:00",
-   "tipo": "bash",
-   "desc": "Assemble a separate test site",
-   "cmd": "S=$S; cd ~/repo; mkdir -p $S/site2; cp -r build/site/. $S/site2/; B=build/all; cp web/shell/app.js web/shell/present.js $S/site2/; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:17:46+00:00",
-   "tipo": "bash",
-   "desc": "Run the page tests on the new build",
-   "cmd": "S=$S; cd ~/repo; sed -n 36,40p tools/build_web.sh; cp web/shell/present.js $S/site2/bridge/present.js; SMG_SITE=$S/site2 timeout 1500 node web/tests/browser_smoke.mjs > $S/site2/b…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:18:22+00:00",
-   "tipo": "bash",
-   "desc": "Run the bridge tests on the new build",
-   "cmd": "S=$S; cd ~/repo; timeout 1500 node web/tests/bridge_smoke.mjs $S/site2/bridge > $S/site2/bridge.out 2>&1; echo exit $?; grep -c \"^PASS\" $S/site2/bridge.out; grep \"^FAIL\" $S/site2/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:20:44+00:00",
    "tipo": "bash",
    "desc": "Profile the castle garden with the new build",
@@ -279,8 +258,29 @@
    "desc": "Read texture hashing and its callers",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 262,300p texture.cpp; sed -n 600,700p texture.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:40:47+00:00",
+   "tipo": "bash",
+   "desc": "Check how FIFO textures get cache identities",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"texObjId\\|texDataVersion\" command_processor.cpp | head -20; grep -n \"hashedBytes\\|objectHits\\|misses\" texture.cpp | head…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:40:51+00:00",
+   "tipo": "bash",
+   "desc": "Read how FIFO texture slots get ids",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 860,905p command_processor.cpp; grep -n \"newTexObjId\\|guest_tex_obj_id\\|texture_object_id\" command_processor.cpp | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:40:56+00:00",
+   "tipo": "bash",
+   "desc": "See texture identity in the BP register path",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; n=$(grep -n \"void bp_tex(\" command_processor.cpp | cut -d: -f1); sed -n \"$n,$((n+80))p\" command_processor.cpp | grep -n \"texObjId…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:40:37+00:00"
+ "actualizado": "2026-11-04T06:40:56+00:00"
 }
