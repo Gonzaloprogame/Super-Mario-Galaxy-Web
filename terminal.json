@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:08:03+00:00",
-   "tipo": "bash",
-   "desc": "Add shared-memory frame slots to the bridge",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+79 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:08:10+00:00",
    "tipo": "bash",
    "desc": "Hand the frame slots to the page from the host",
@@ -279,8 +272,15 @@
    "desc": "Aggregate warnings from tour logs",
    "cmd": "S=$S; ls $S/tour/ | head; ls $S/tour/all40 2>/dev/null | head; wc -c $S/catch4/out_1/log_end.txt; grep -i -h \"unsupported\\|unimplemented\\|not implemented\\|warn\\|error\\|unknown\\|in…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:38:50+00:00",
+   "tipo": "bash",
+   "desc": "Aggregate warnings from graphics tour logs",
+   "cmd": "S=$S; ls $S/tour/all40 $S/tour/batch_00 | head; find $S/tour -name \"log_*.txt\" | head; grep -i -h \"unsupported\\|unimplemented\\|not implemented\\|warn\\|unknown\\|invalid\\|stub\\|TODO\"…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:38:42+00:00"
+ "actualizado": "2026-11-04T06:38:50+00:00"
 }
