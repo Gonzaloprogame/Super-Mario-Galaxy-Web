@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:58:29+00:00",
-   "tipo": "bash",
-   "desc": "Recorrer el prólogo pulsando A en modo diagnóstico",
-   "cmd": "S=$S; timeout 900 $S/story/run.sh > $S/story/run.out 2>&1; tail -40 $S/story/run.out",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T23:59:08+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que empiecen las pulsaciones del prólogo",
-   "cmd": "S=$S; until grep -q \"presses from\" $S/story/run.out || ! pgrep -f story/run.sh >/dev/null; do sleep 3; done; cat $S/story/run.out; curl -s \"127.0.0.1:18777/log?tail=400\" | grep -E…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:59:17+00:00",
    "tipo": "bash",
    "desc": "Ver qué cuenta los informes del mando",
@@ -279,8 +265,22 @@
    "desc": "Esperar el final y resumir las cargas en modo diagnóstico",
    "cmd": "S=$S; until ! pgrep -f \"out_diag40\" >/dev/null; do sleep 5; done; head -1 $S/tour/out_diag40/tour.md; grep -c \"cargó y dibujó\" $S/tour/out_diag40/tour.md; grep -v \"cargó y dibujó\"…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:47:02+00:00",
+   "tipo": "bash",
+   "desc": "Leer los avisos de bloqueo de StarDustGalaxy",
+   "cmd": "S=$S; grep -n \"StarDustGalaxy\" $S/tour/out_diag40/log_end.txt | head -5 | cut -c1-200; grep \"stall:\" $S/tour/out_diag40/log_end.txt | tail -6 | fold -w 250",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:47:11+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar la función de entrada del hilo en bucle",
+   "cmd": "cd ~/repo; ls build/all/game/*.symbols 2>/dev/null; grep \"^13911:\" build/all/game/smg_headless_web.js.symbols 2>/dev/null; grep -n \"emit-symbol-map\" web/game/CMakeLists.txt web/en…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:46:55+00:00"
+ "actualizado": "2026-11-04T00:47:11+00:00"
 }
