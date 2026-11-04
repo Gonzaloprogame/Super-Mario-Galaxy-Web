@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:02:22+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar qué sobrevivió al reinicio",
-   "cmd": "S=$S; ls $S 2>&1 | head; ls -la $S/disc 2>&1 | head -3; cat $S/catch2/run.out 2>&1; ls $S/catch2 2>&1 | head; cd ~/repo && git status --short | head && git log --oneline -1 && ls …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T02:02:35+00:00",
-   "tipo": "bash",
-   "desc": "Relanzar el cazador tras el reinicio",
-   "cmd": "S=$S; mv $S/catch2/run.out $S/catch2/run_before_restart.out; timeout 7000 $S/catch2/run.sh 7 > $S/catch2/run.out 2>&1; cat $S/catch2/run.out",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:03:08+00:00",
    "tipo": "bash",
    "desc": "Comprobar que la gira arranca tras el reinicio",
@@ -279,8 +265,22 @@
    "desc": "Ver los otros usos de la variable global",
    "cmd": "S=$S; for l in 1576154 3383625; do echo \"=== $l\"; sed -n \"$((l-12)),$((l+8))p\" $S/headless.dis | cut -c1-90; done",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:10:43+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar el reloj y la función que actualiza la duración",
+   "cmd": "cd ~/repo; S=$S; echo \"1630: $(grep '^1630:' build/all/game/smg_headless_web.js.symbols)\"; python3 -I - <<'EOF'  … (+10 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T04:10:48+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar la función y buscar la constante 670000",
+   "cmd": "cd ~/repo; grep \"^12773:\" build/all/game/smg_headless_web.js.symbols; P=third_party/nebula/native/petari; grep -rn \"670000\" $P/src $P/libs 2>/dev/null | head -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:10:28+00:00"
+ "actualizado": "2026-11-04T04:10:48+00:00"
 }
