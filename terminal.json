@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:19+00:00",
-   "tipo": "bash",
-   "desc": "Inspect retrace delivery code",
-   "cmd": "cd ~/repo; grep -n -i \"retrace\" third_party/nebula/native/sdk/vi/vi_native.c | head -40; grep -n -i \"retrace\" web/host/headless_host.c web/host/host_services.c | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:59:23+00:00",
    "tipo": "bash",
    "desc": "See how the VI interrupt is raised and queued",
@@ -279,8 +272,15 @@
    "desc": "See how the page gets the engine memory",
    "cmd": "cd ~/repo; sed -n 1,40p web/shell/controls.js | grep -v \"^\\s*$\" | head -40; grep -n \"memory\\|smgAttachControls\\|attach\" web/shell/app.js | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:06:25+00:00",
+   "tipo": "bash",
+   "desc": "Find presenter users and the memory handoff",
+   "cmd": "cd ~/repo; grep -rn \"present.js\\|smgAttachPresenter\\|smgPresenter\" web/ tools/ --include=*.html --include=*.js --include=*.mjs | grep -v \"^web/shell/present.js\" | head -20; sed -n…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:06:03+00:00"
+ "actualizado": "2026-11-04T06:06:25+00:00"
 }
