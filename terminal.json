@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:18:04+00:00",
-   "tipo": "bash",
-   "desc": "Read route summary and final segment log",
-   "cmd": "S=$S; tail -4 $S/route1.log; cat $S/route1/route.md; grep -E \"^\\[host\\] (test|stage|movie|the game)|^\\[página\\]\" $S/route1/11/out/log_end.txt | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:18:14+00:00",
    "tipo": "bash",
    "desc": "Add graphics-mode ending segment to the route",
@@ -279,8 +272,15 @@
    "desc": "Check epilogue and baseline memory progress",
    "cmd": "S=$S; tail -2 $S/route3.log; grep -E \"^\\[host\\] (stage|tour)\" $S/route3/13/out/log_tail.txt | tail -3; grep -o \"movies: [0-9]* frames decoded\" $S/route3/13/out/log_tail.txt | tail…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:35:57+00:00",
+   "tipo": "bash",
+   "desc": "Restore memory fix and rebuild the engine",
+   "cmd": "git stash pop && git status --short && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && ninja -C build/all smg_headless_web smg_web > $S/mem/build.log 2>&1; echo \"build exit $…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T20:25:00+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T20:35:57+00:00"
 }
