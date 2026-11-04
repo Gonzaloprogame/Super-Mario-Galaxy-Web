@@ -470,6 +470,8 @@ await withServer('isolated', async (url) => {
     const info = () => page.textContent('#save-info');
     const stored = (id) => page.evaluate(async (k) => { const d = await nandStore.get(k); return d ? Array.from(d) : null; }, id);
     await page.click('#save-export');
+    // The page reads the stored save first (IndexedDB, asynchronous): its answer, once it comes
+    await page.waitForFunction(() => document.getElementById('save-info').textContent !== '', null, { timeout: 10000 }).catch(() => {});
     const none = await info();
     await page.setInputFiles('#save-import', { name: 'partida.bin', mimeType: 'application/octet-stream', buffer: first });
     await page.waitForFunction(() => /Partida cargada/.test(document.getElementById('save-info').textContent), null, { timeout: 10000 }).catch(() => {});
