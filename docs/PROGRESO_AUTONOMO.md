@@ -546,3 +546,58 @@ las primitivas, de 0 a 300 vértices, recuentos grandes y 10 comienzos, incluido
   ven** (de 311 a 468 fotogramas pintados), sin errores nuevos; solo el aviso conocido de SurfingLv1. Capturas
   comparadas con la gira anterior (`$S/gfx44`): la misma proporción de negro en las 37 comunes (no falta geometría);
   la más distinta, revisada a ojo, es el mismo escenario en otro momento de su presentación. Publicado en gh-pages.
+
+### Bloque 19: herramientas, ganchos de prueba y la ruta de la historia (2026-11-04)
+
+**Pedido por el usuario:** dejar la optimización y avanzar el hito 7 («Jugable de principio a fin»). Antes, plugins
+y herramientas para analizar mejor el código y gastar menos tokens. También pidió «descompilar todo Petari»; no se
+hace por dos razones:
+- No hace falta: Nebula compila desde Petari el 99,90 % de las funciones de RMGE01, y no falta ningún actor del juego.
+- Petari prohíbe la descompilación hecha por IA, y es también regla del propio usuario.
+
+**Hallazgo (exploración):** el código no es lo que falta, falta evidencia.
+- El enlace no deja símbolos sin resolver. Los únicos stubs son 26 funciones del SDK que el DOL de RMGE01 no tiene
+  (`third_party/nebula/native/sdk/stubs/dead_only.cpp`).
+- Nebula trae ganchos de prueba (`nebula_game_api.h`, `NEBULA_TEST_*`) para tomar estrellas, matar actores, fijar
+  Grandes Estrellas y banderas, etc. El host web solo usaba el cambio de escenario.
+
+**Herramientas:**
+- Tarjeta de plugins (`agent-context-kit`, `no-cape`, `karellen-lsp-mcp`): los instala el usuario; ninguno
+  instalado de momento.
+- `tools/code_index.sh`: clangd y clang-tidy de emsdk con una base de compilación fiel al build (las opciones de
+  `emcc --cflags`: objetivo wasm32 y sysroot de Emscripten), sin enviar código fuera. `headless_host.c`: 0
+  diagnósticos; un error puesto a propósito sí se detecta.
+- `CLAUDE.md`: reglas, rutas, comandos y trampas.
+
+**Ganchos en la gira web** (`web/host/headless_host.c`, `tour_parse` y `svc_test_scene_frame`):
+- Eventos por parada en `?tour=`, con la semántica de `GALAXY_TEST_*` de Nebula: `Stage:1/star@600/grandstar@…/`
+  `defeat:<modelo>@…/actors@…/kill@…/movieN@…/shake@…/mario@…/luigi@…/tp:x;y;z@…/wait@…`.
+- Ajustes: `grandstars=N`, `flag=Nombre`, `player=…`.
+- Lo desconocido se dice en el registro.
+- `galaxy_tour.mjs` anota por parada los eventos, las escenas (desde la escena en la que empezó la parada) y los
+  fotogramas de vídeo.
+
+**Fallo del host encontrado y arreglado:** `svc_log` no terminaba las líneas del juego. El contrato de Nebula dice
+«one line… without a trailing newline», así que la siguiente línea del host quedaba pegada y la gira no veía los
+cambios de escena.
+
+**Pruebas:** `browser_smoke.mjs` 60/60 (2 nuevas: lectura de la gira y avisos de lo desconocido) y
+`bridge_smoke.mjs` 56/56.
+
+**Ruta de la historia** (`tools/story_route.mjs`, `tools/routes/historia.txt`; con el disco del usuario, modo
+diagnóstico, `$S/route1` y `$S/route2`):
+
+| # | Segmento | Resultado |
+|---|---|---|
+| 1 | Prólogo: `star@` en el jardín | el juego va solo al Observatorio ✅ |
+| 2-7 | Observatorio con 1, 2, 3, 4, 5 y 6 Grandes Estrellas | carga sin errores ✅ (el 5 falló la primera vez por la medida de la gira, no por el juego; repetido con el arreglo: bien) |
+| 8 | Primera batalla con Bowser, `grandstar@` | vuelve al Observatorio ✅ |
+| 9 | Segunda batalla con Bowser, `grandstar@` | vuelve al Observatorio ✅ |
+| 10 | Flota de Bowser Jr., `grandstar@` | vuelve al Observatorio ✅ |
+| 11 | Batalla final, `grandstar@` (sin gráficos) | el juego **empieza el vídeo del final**; sin decodificador en esta compilación, se queda en la escena |
+| 12 | Batalla final con gráficos | en curso |
+
+**Qué demuestra:** la lógica de progreso del juego (estrellas, Observatorio, jefes, el inicio del final) funciona en
+el motor web sin cuelgues. **No** demuestra que cada nivel se pueda pasar jugando: los ganchos toman las estrellas.
+Para eso está `docs/PRUEBA_DE_PARTIDA.md` (la lista para una partida real). El hito 7 queda desglosado en partes
+comprobables en `docs/HOJA_DE_RUTA.md`.

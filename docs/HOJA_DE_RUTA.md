@@ -11,11 +11,23 @@ en `COMPILACION_WASM.md`.
 | 4. Arranque con el disco real | El juego arranca en el navegador desde la imagen RVZ del usuario | **Completado**: título, elección de archivo y partidas guardadas, comprobado con el disco en escritorio y Android (`MOTOR_WEB.md`) |
 | 5. Gráficos con WebGPU | Las escenas del juego se dibujan como en la consola | **Parcial**: el primer nivel se ve completo (parches de Aurora 0009 a 0026, `PUENTE_FIFO.md`); los vídeos THP del prólogo se decodifican en el juego (12.667 fotogramas, 0 rechazados); falta probar más niveles |
 | 6. Sonido y controles | Música, efectos y controles del Wiimote con Nunchuk | **Parcial**: controles táctiles, teclado y ratón comprobados en Android; la mezcla de sonido funciona (`MOTOR_WEB.md`), falta oírla en un dispositivo; sin mandos físicos |
-| 7. Jugable de principio a fin | Movimiento, cámara, niveles y progreso hasta el final del juego | **En curso**: se juega el primer nivel; el resto, sin probar |
+| 7. Jugable de principio a fin | Movimiento, cámara, niveles y progreso hasta el final del juego (desglose abajo) | **En curso**: ver «Hito 7, por partes» |
 | 8. Rendimiento y publicación | Rendimiento, memoria, estabilidad, tiempos de carga, despliegue | **En curso**: unos 27 fps en Android en el primer nivel; versiones 0.1.0 y 0.1.1 publicadas en GitHub Pages |
 
 El panel del directo (`web/shell/overlay.html`) muestra este estado desde `docs/progreso.json`, con porcentajes
 estimados por hito.
+
+## Hito 7, por partes
+
+El hito 7 se da por completado solo cuando lo estén las cuatro partes. Su porcentaje en `docs/progreso.json` sale
+de las partes comprobadas, no de una estimación.
+
+| Parte | Criterio | Cómo se comprueba | Estado |
+|---|---|---|---|
+| A. Todos los escenarios | Los 44 escenarios cargan, dibujan y aguantan jugados a ciegas | `tools/galaxy_tour.mjs` (con gráficos y `--play`) | **Hecho** para la misión 1 de cada galaxia; faltan las demás misiones |
+| B. Progreso de la historia | Estrellas, Observatorio con 1-6 Grandes Estrellas, jefes y final, sin cuelgues, con la lógica del propio juego | `tools/story_route.mjs` con `tools/routes/historia.txt` (ganchos de prueba de Nebula) | **En curso**: ver `PROGRESO_AUTONOMO.md` (bloque 19) |
+| C. El final | Tras la última Gran Estrella: los vídeos del final, los créditos y la vuelta a la partida | La ruta, segmento final con gráficos | **En curso** |
+| D. Partida real | Una persona juega y marca la lista | `docs/PRUEBA_DE_PARTIDA.md` | **Pendiente** del usuario |
 
 ## Próximos pasos, por prioridad
 
