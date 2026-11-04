@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:38:42+00:00",
-   "tipo": "bash",
-   "desc": "Aggregate warnings from tour logs",
-   "cmd": "S=$S; ls $S/tour/ | head; ls $S/tour/all40 2>/dev/null | head; wc -c $S/catch4/out_1/log_end.txt; grep -i -h \"unsupported\\|unimplemented\\|not implemented\\|warn\\|error\\|unknown\\|in…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:38:50+00:00",
    "tipo": "bash",
    "desc": "Aggregate warnings from graphics tour logs",
@@ -279,8 +272,15 @@
    "desc": "Make texture counters cumulative and thread-safe",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+41 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:00:26+00:00",
+   "tipo": "bash",
+   "desc": "Count the bytes the cache saves from hashing",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+31 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:00:13+00:00"
+ "actualizado": "2026-11-04T07:00:26+00:00"
 }
