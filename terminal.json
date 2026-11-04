@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:39:50+00:00",
-   "tipo": "bash",
-   "desc": "Read the game's GX pacing layer",
-   "cmd": "cd ~/repo; sed -n 1,80p web/platform/gx_pacing_wasm.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:39:57+00:00",
    "tipo": "bash",
    "desc": "Find the game's per-frame waits",
@@ -279,8 +272,15 @@
    "desc": "Measure again with counters and a profile",
    "cmd": "S=$S; cd ~/repo; B=build/all; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S/site2/; cp $B/bridge/gx_bridge.js $B/brid…  … (+1 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:10:04+00:00",
+   "tipo": "bash",
+   "desc": "Measure hashing share after the cache",
+   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 300 | grep -q render_main && R=$f; done; echo $R…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:09:55+00:00"
+ "actualizado": "2026-11-04T07:10:04+00:00"
 }
