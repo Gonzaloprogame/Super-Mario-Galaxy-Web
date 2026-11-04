@@ -86,8 +86,10 @@ try {
   await page.setInputFiles('#pak', args.disc);
   await page.selectOption('#mode', args.mode || 'graphics');
   await page.selectOption('#language', '4');
-  // The diagnostic mode needs a length: an hour, longer than any tour here
-  await page.fill('#seconds', args.mode === 'diagnostic' ? '3600' : '0');
+  // The diagnostic mode needs a length: the tour's frames at 60 a second, twice over (for the loads), and at least an
+  // hour (a fixed hour ended a long tour of the 44 stages at its 38th)
+  const diagnosticSeconds = Math.max(3600, Math.ceil((stops.length * frames * 2) / 60));
+  await page.fill('#seconds', args.mode === 'diagnostic' ? String(diagnosticSeconds) : '0');
   await page.click('#run');
 
   // --play: a press every 0.7 s from a seeded generator (xorshift), until the tour ends
