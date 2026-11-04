@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:37:28+00:00",
-   "tipo": "bash",
-   "desc": "Run save and crash-trace checks standalone",
-   "cmd": "S=$S; R=~/repo; rm -rf $S/site7 && cp -r $S/site6 $S/site7 && cp $R/web/shell/index.html $R/web/shell/app.js $S/site7/ && python3 - \"$R/web/tests/browser_smoke.mjs\" \"$S/savetest.m…  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:37:38+00:00",
    "tipo": "bash",
    "desc": "Commit the session trace feature",
@@ -279,8 +272,15 @@
    "desc": "Rebuild and reproduce mission 1 to 2 transition",
    "cmd": "S=$S; B=~/repo/build/all; cd ~/repo && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && ninja -C build/all smg_headless_web smg_web > $S/missions/build2.log 2>&1; echo \"build …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:51:22+00:00",
+   "tipo": "bash",
+   "desc": "Confirm how the transition run ended",
+   "cmd": "S=$S; sed -n 1p $S/missions/hd12/tour.md; sed -n 5,6p $S/missions/hd12/tour.md | cut -c1-200; grep -E \"^\\[host\\] (tour: done|load )\" $S/missions/hd12/log_end.txt | cut -c1-160",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:51:15+00:00"
+ "actualizado": "2026-11-04T23:51:22+00:00"
 }
