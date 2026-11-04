@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:26:48+00:00",
-   "tipo": "bash",
-   "desc": "Copy shell files into site and syntax-check",
-   "cmd": "cp web/shell/index.html web/shell/app.js web/shell/fps.js build/site/ && node --check web/shell/fps.js && node --check web/shell/app.js && node --check web/tests/browser_smoke.mjs…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:26:54+00:00",
    "tipo": "bash",
    "desc": "Run the browser smoke test with FPS checks",
@@ -279,8 +272,15 @@
    "desc": "Record user confirmation of local setup",
    "cmd": "python3 - <<'EOF'  … (+11 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:07:39+00:00",
+   "tipo": "bash",
+   "desc": "Check scratch tools and the resume section",
+   "cmd": "S=$S; ls -la $S/tools $S/drive 2>/dev/null | head -30; cd ~/repo && sed -n \"$(grep -n '^## Para reanudar' docs/PROGRESO_AUTONOMO.md | cut -d: -f1),+28p\" docs/PROGRESO_AUTONOMO.md",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T15:03:56+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T15:07:39+00:00"
 }
