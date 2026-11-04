@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:24:19+00:00",
-   "tipo": "bash",
-   "desc": "Locate current FPS counter code",
-   "cmd": "grep -rn -i \"fps\" web/shell/*.js web/shell/*.html web/shell/*.css 2>/dev/null | head -40; ls web/shell",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:24:23+00:00",
    "tipo": "bash",
    "desc": "Search for frame-rate display in shell",
@@ -279,8 +272,15 @@
    "desc": "Check final smoke test results",
    "cmd": "F=$S/smoke_fps3.log; grep -E \"^exit\" $F; echo \"PASS $(grep -c '^PASS' $F) FAIL $(grep -c '^FAIL' $F)\"; grep -E \"^(FAIL|PASS.*móvil)\" $F; grep -v \"GET /\" $F | grep -E \"Error:|TypeE…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:25:44+00:00",
+   "tipo": "bash",
+   "desc": "Commit, push and publish the phone fixes",
+   "cmd": "S=$S; cd ~/repo && sed -i 's|  Comprobación nueva en `browser_smoke.mjs` (360 px: una línea por botón, sin desbordar).|  Comprobación nueva en `browser_smoke.mjs` (360 px: una lín…  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:25:30+00:00"
+ "actualizado": "2026-11-04T14:25:44+00:00"
 }
