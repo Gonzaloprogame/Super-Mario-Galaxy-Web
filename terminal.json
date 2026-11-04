@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:28:19+00:00",
-   "tipo": "bash",
-   "desc": "Leer el servicio de nombres de objetos",
-   "cmd": "cd ~/repo; n=$(grep -n \"^static void svc_object_name\" web/host/headless_host.c | cut -d: -f1); sed -n \"$((n-6)),$((n+20))p\" web/host/headless_host.c; grep -n \"object_name\" third_p…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:28:24+00:00",
    "tipo": "bash",
    "desc": "Ver quién llama al servicio de nombres de objetos",
@@ -279,8 +272,15 @@
    "desc": "Leer y descodificar el rastro del segundo cuelgue",
    "cmd": "S=$S; grep \"stall:\" $S/catch3/hang_log_1.txt | head -1 | grep -o \"the game's last calls.*\" | sed 's/; /;\\n  /g' | cut -c1-200 | python3 -I -c \"  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:45:18+00:00",
+   "tipo": "bash",
+   "desc": "Cazar otra vez el cuelgue guardando el perfil en bruto",
+   "cmd": "S=$S; mkdir -p $S/catch3/first; mv $S/catch3/out_1 $S/catch3/prof_1.txt $S/catch3/hang_log_1.txt $S/catch3/tour_1.log $S/catch3/run.out $S/catch3/first/ 2>/dev/null; timeout 7000 …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:44:54+00:00"
+ "actualizado": "2026-11-04T02:45:18+00:00"
 }
