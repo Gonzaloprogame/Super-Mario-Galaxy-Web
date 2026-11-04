@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:37:11+00:00",
-   "tipo": "bash",
-   "desc": "Look at null entries in factory",
-   "cmd": "cd ~/repo/third_party/nebula/native/petari; grep -n -E \"nullptr|NULL\" src/Game/NameObj/NameObjFactory.cpp | head -15; grep -n -E \"nullptr|NULL\" src/Game/NameObj/NameObjFactory.cpp…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:37:14+00:00",
    "tipo": "bash",
    "desc": "Read null entry context",
@@ -279,8 +272,15 @@
    "desc": "Test actors and star hooks in the garden",
    "cmd": "S=$S; B=~/repo/build/all; rm -rf $S/site4 && cp -r $S/site3 $S/site4 && cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:57:27+00:00",
+   "tipo": "bash",
+   "desc": "Find host_log and the game's print service",
+   "cmd": "grep -n \"static void host_log\\|^static.*svc_.*print\\|svc_report\\|\\.report\\s*=\\|console_write\\|svc_log\" web/host/headless_host.c | head; grep -n \"report\\|print\" third_party/nebula/…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:57:15+00:00"
+ "actualizado": "2026-11-04T18:57:27+00:00"
 }
