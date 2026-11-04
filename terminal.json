@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:57:58+00:00",
-   "tipo": "bash",
-   "desc": "Ver las órdenes del conductor",
-   "cmd": "cd ~/repo; rm -rf build/site_next; S=$S; sed -n 50,120p $S/drive/driver.mjs | grep -n \"pathname ===\\|state\" | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:58:24+00:00",
    "tipo": "bash",
    "desc": "Arrancar el motor en modo diagnóstico con el conductor",
@@ -279,8 +272,15 @@
    "desc": "Medir las cargas de las 40 galaxias en modo diagnóstico",
    "cmd": "S=$S; cd ~/repo; timeout 2400 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/all40 --out $S/tour/out_diag40 --nand $S/drive/nand_RMGE01.bin --frames 300 --hang…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:41:50+00:00",
+   "tipo": "bash",
+   "desc": "Ver las primeras cargas en modo diagnóstico",
+   "cmd": "S=$S; until [ -f $S/tour/out_diag40/tour.md ] && [ $(grep -c \"cargó y dibujó\" $S/tour/out_diag40/tour.md) -ge 3 ] || ! pgrep -f \"out_diag40\" >/dev/null; do sleep 5; done; cat $S/t…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:41:20+00:00"
+ "actualizado": "2026-11-04T00:41:50+00:00"
 }
