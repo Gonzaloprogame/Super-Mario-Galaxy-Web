@@ -215,7 +215,7 @@ static pthread_mutex_t sWatchLock = PTHREAD_MUTEX_INITIALIZER;
 static _Atomic int sWatchReader;
 
 static void host_log(const char* format, ...) {
-    char line[2048];
+    char line[4096]; /* a stall report, with its trail of the game's calls, can pass 2 KB */
     va_list args;
     va_start(args, format);
     int n = vsnprintf(line, sizeof(line), format, args);
@@ -239,6 +239,69 @@ static void host_log(const char* format, ...) {
     pthread_mutex_unlock(&sWatchLock);
 }
 
+/* The game's last calls to the host, for the stall report: when its thread loops in its own code it calls nothing,
+   and only what it did last says where it was (the object it was making, the stage, the scene's frames, the GX it
+   sent). The 8 most recent distinct calls, the newest last: a call already there (the same service and detail) moves
+   to the end with its count and time, so frequent calls (the audio mix, the renderer's queue) take one place each.
+   Written by the game's thread only; the clock thread reads it while it may change, which at worst costs a wrong word
+   in a report. */
+#define SMG_TRAIL 8
+typedef struct {
+    const char* what;
+    char detail[96];
+    uint64_t at;
+    uint32_t count;
+} TrailEntry;
+static TrailEntry sTrail[SMG_TRAIL];
+static _Atomic int sTrailCount;
+
+static void trail(const char* what, const char* detail) {
+    char text[sizeof(sTrail[0].detail)] = "";
+    /* The game's names are Shift-JIS: their other bytes as \xNN, so the log stays text */
+    for (size_t i = 0, o = 0; detail != NULL && detail[i] != '\0' && o + 5 < sizeof(text); i++) {
+        const unsigned char c = (unsigned char)detail[i];
+        if (c >= 0x20 && c < 0x7F) {
+            text[o++] = (char)c;
+        } else {
+            o += (size_t)snprintf(text + o, sizeof(text) - o, "\\x%02x", c);
+        }
+    }
+    int count = atomic_load_explicit(&sTrailCount, memory_order_relaxed);
+    TrailEntry entry = {what, "", now_micros(), 1};
+    memcpy(entry.detail, text, sizeof(text));
+    for (int i = count - 1; i >= 0; i--) {
+        if (sTrail[i].what == what && strcmp(sTrail[i].detail, text) == 0) {
+            entry.count = sTrail[i].count + 1;
+            memmove(&sTrail[i], &sTrail[i + 1], (size_t)(count - 1 - i) * sizeof(TrailEntry));
+            count--;
+            break;
+        }
+    }
+    if (count == SMG_TRAIL) {
+        memmove(&sTrail[0], &sTrail[1], (SMG_TRAIL - 1) * sizeof(TrailEntry));
+        count--;
+    }
+    sTrail[count] = entry;
+    atomic_store_explicit(&sTrailCount, count + 1, memory_order_release);
+}
+
+/* "X 'detail' (N times, the last M ms ago); ..." from the oldest to the newest */
+static void describe_trail(char* out, size_t size) {
+    const int count = atomic_load_explicit(&sTrailCount, memory_order_acquire);
+    const uint64_t now = now_micros();
+    size_t used = (size_t)snprintf(out, size, "the game's last calls to the host:");
+    for (int i = 0; i < count && used < size; i++) {
+        const TrailEntry* const entry = &sTrail[i];
+        used += (size_t)snprintf(out + used, size - used, "%s %s%s%s%s (%u times, the last %" PRIu64 " ms ago)",
+                                 i > 0 ? ";" : "", entry->what != NULL ? entry->what : "?",
+                                 entry->detail[0] != '\0' ? " '" : "", entry->detail, entry->detail[0] != '\0' ? "'" : "",
+                                 entry->count, now > entry->at ? (now - entry->at) / 1000 : 0);
+    }
+    if (count == 0) {
+        snprintf(out + used, size - used, " none yet");
+    }
+}
+
 /* Where the game's thread is in the host: set around the services that can wait (the renderer's queue and answers,
    the disc, the audio mix, the movie decoder), for the stall report. */
 static _Atomic(const char*) sInService;
@@ -248,6 +311,7 @@ static _Atomic uint64_t sInServiceSince;
         atomic_fetch_add(&sWatch.beat, 1);               \
         atomic_store(&sInServiceSince, now_micros());    \
         atomic_store(&sInService, (const char*)(name));  \
+        trail((const char*)(name), NULL);                \
     } while (0)
 #define SERVICE_LEAVE() atomic_store(&sInService, (const char*)NULL)
 
@@ -457,6 +521,7 @@ static void tour_parse(const char* spec, const char* frames) {
 static int svc_test_scene_frame(void* user, NebulaTestAction* action) {
     (void)user;
     sSceneFrames++;
+    trail("scene frame", NULL);
     atomic_fetch_add(&sWatch.beat, 1);
     if (sTourStops == 0 || sTourDone) {
         return 0;
@@ -507,6 +572,7 @@ static void pipeline_times_since(uint64_t last[2], char* out, size_t size) {
    (what the rest is: the game's own work, decompressing and building the scene, and waiting for the renderer). */
 static void svc_game_stage(void* user, const char* name) {
     (void)user;
+    trail("stage", name);
     static uint64_t lastSceneMicros, discMicrosAtLast, discReadsAtLast;
 #if defined(SMG_HOST_AURORA)
     static uint64_t pipelinesAtLast[2], pipelineCountAtLast;
@@ -833,6 +899,7 @@ static void svc_gpu_coherent(void* user, uint32_t physical, uint32_t size) {
 
 static void svc_object_name(void* user, uint32_t id, const char* name) {
     atomic_fetch_add(&sObjectNames, 1);
+    trail("object name", name);
     sDefaults.object_name(user, id, name);
 }
 
@@ -907,6 +974,8 @@ static void check_stall(uint64_t retrace) {
         snprintf(discNow, sizeof(discNow), "a disc read of %" PRIu64 " bytes in progress for %" PRIu64 " ms",
                  atomic_load(&sDiscBusySize), (now_micros() - busySince) / 1000);
     }
+    char trailText[SMG_TRAIL * 160];
+    describe_trail(trailText, sizeof(trailText));
     char inService[512] = "the game's thread is not inside a host service";
     const char* service = atomic_load(&sInService);
     if (service != NULL) {
@@ -933,11 +1002,11 @@ static void check_stall(uint64_t retrace) {
             "read its remotes %" PRIu64 " times (its main loop %s), read the disc %" PRIu64 " times, sent its audio "
             "DSP %" PRIu64 " commands, flushed %" PRIu64 " ranges for the GPU and named %" PRIu64
             " objects (the game %s); %s; movie frames asked to decode %" PRIu64 "; NAND requests %" PRIu64
-            "; audio blocks %" PRIu64 "; %s; %s\n",
+            "; audio blocks %" PRIu64 "; %s; %s; %s\n",
             stalled / 60.0, atomic_load(&sFrames), sStage, console.wpad_samples - lastSamples,
             console.wpad_samples != lastSamples ? "runs" : "is stopped", disc, dsp, coherent, names,
             disc + dsp + coherent + names != 0 ? "works: loading, or slow" : "does nothing the host sees: stuck?", discNow,
-            atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, inService, bridge);
+            atomic_load(&sThpDecodes), console.nand_requests, console.ai_blocks, inService, trailText, bridge);
 }
 
 /* The 60 Hz retrace (Nebula paces the game at 60, not the console's 59.94) and the end of the run (none when the

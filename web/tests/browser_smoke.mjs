@@ -161,6 +161,8 @@ await withServer('isolated', async (url) => {
     check(/no responde/.test(hungStatus), `bloqueo: la página lo dice en su estado ("${hungStatus.trim().slice(0, 60)}…")`);
     check(/\[vigía\] \[host\] stall: .*a probe sent [\d.]+ s ago was not run/.test(hungLog),
           'bloqueo en un bucle sin ceder: la sonda no se ejecuta, y el aviso lo dice');
+    check(/\[vigía\] \[host\] stall: .*the game's last calls to the host: hang test \(1 times, the last \d+ ms ago\)/.test(hungLog),
+          'bloqueo: el aviso dice las últimas llamadas del juego al host, y hace cuánto (dónde estaba antes de parar)');
     await browser.close();
   }
   // The same hang in a wait that yields (?hangtest=yield), as Nebula's scheduler sleeping for want of work: the probe runs

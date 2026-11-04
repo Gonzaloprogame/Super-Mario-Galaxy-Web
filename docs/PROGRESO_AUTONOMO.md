@@ -274,3 +274,12 @@ vez: sin cuelgue. **No es determinista**: una vez en unas 70 cargas a toda veloc
 - Herramientas: `galaxy_tour.mjs --mode diagnostic` y `--debug-port` (para el perfilador del navegador durante un
   cuelgue); el motor de diagnóstico emite ahora su mapa de símbolos (`smg_headless_web.js.symbols`, no se publica).
 - En curso: repetir la gira de diagnóstico hasta cazarlo y perfilar el hilo atascado en ese momento.
+- **Cazador:** 8 giras más de diagnóstico de los 40 escenarios (320 cargas a toda velocidad, con `--debug-port` y el
+  perfilador listo): **ningún cuelgue**. Es raro (una vez en unas 350 cargas); no se puede contar con reproducirlo.
+- **Para que el próximo diga dónde:** el aviso de bloqueo lleva ahora **las últimas llamadas del juego al host**
+  (`the game's last calls to the host: …`): las 8 más recientes distintas, con cuántas veces y hace cuánto (el objeto
+  que creaba, en Shift-JIS escapado, el escenario, los fotogramas de escena, la GX, la mezcla de audio…). Un bucle del
+  juego no llama al host, así que lo último que hizo dice dónde estaba. Visto en un aviso real (BattleShipGalaxy, la
+  espera al renderizador al cargar): objetos creados → escenas → GX → audio → cola del renderizador. Prueba nueva en
+  `browser_smoke.mjs` (51 PASS, 0 FAIL). El hilo atascado del cuelgue de StarDust era `boot_thread`, el principal del
+  juego (índice de tabla 13911, `$S/tools/table_index.py`).
