@@ -33,14 +33,11 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **En curso:** jugar a ciegas más tiempo (5400 fotogramas por parada, unos 90 s de juego, los 44 escenarios, con lo
-  publicado en `$S/site2`): `timeout 7100 $S/long1/run.sh 9 > $S/long1/run.out 2>&1` (tarea de fondo con `timeout`
-  de 2 h). Si se cuelga: `prof_N.txt`, `dump_N/` y `hang_log_N.txt` en `$S/long1`. A la vez, la gira con gráficos de
-  los 44 con lo publicado, que ahora cuenta los fotogramas pintados en la página por parada:
-  `node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/galaxies.txt --out $S/gfx44/out
-  --nand $S/drive/nand_RMGE01.bin --frames 300 --hang 900 --port 18797` (resultado en `$S/gfx44/out/tour.md`; un
-  «la página no pintó ningún fotograma» sería un fallo de la presentación del bloque 13). Mapa de símbolos:
-  `build/all/game/smg_headless_web.js.symbols`; índices de tabla: `$S/tools/table_index.py`.
+- **Hecho hoy (bloques 12 y 13):** reloj estrictamente creciente (8 giras a ciegas sin cuelgues), fotogramas por
+  memoria compartida, rastro de diagnóstico sin leer el reloj; 44/44 con gráficos y 44/44 jugando a ciegas 90 s. Todo
+  publicado (gh-pages `1bb6016` y siguientes). Copia del sitio con lo publicado: `$S/site2` (para giras sin tocar
+  `build/site`; montarla: `ninja -C build/all <objetivos>` y copiar como en `tools/build_web.sh`).
+- **Siguiente:** que el usuario pruebe el libro del prólogo y mida fps en su teléfono con lo publicado.
 - **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
   `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
   mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
@@ -387,6 +384,11 @@ gira cuenta ahora los fotogramas que la página pinta): **44 de 44 cargan, dibuj
 ~330 fotogramas pintados cada una, todos por la memoria compartida); carga media 7,9 s (GPU por software, con la gira
 larga de diagnóstico a la vez). Solo un aviso, el ya conocido de SurfingLv1 (coordenada de textura sin texgen, parche
 0022). Las capturas revisadas se ven bien, sin fotogramas mezclados.
+
+**Jugando a ciegas más tiempo** (`$S/long1`, semilla 9, modo diagnóstico, 5400 fotogramas por parada, unos 90 s de
+juego, con lo publicado): **44 de 44 sin cuelgues ni errores** (37 en la primera tanda; terminó en la parada 38 porque
+la gira daba al motor una hora fija, 216 000 retrazados, salida 0; ahora la duración sale de las paradas y sus
+fotogramas; las 7 restantes en `out_9b`).
 
 **Lo que queda, medido** (`$S/perf2`, con el cambio; trabajo del hilo de render = 100 %):
 - procesar el flujo 67 %: `draw_prim` 42 % (unas 39 000 primitivas por fotograma, cada una con su paso por
