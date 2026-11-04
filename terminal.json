@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:00:10+00:00",
-   "tipo": "bash",
-   "desc": "Find frame-time measurements in docs",
-   "cmd": "cd ~/repo; grep -n -i \"fps\\|ms por\\|per frame\\|render thread\" docs/MOTOR_WEB.md docs/HOJA_DE_RUTA.md docs/PUENTE_FIFO.md | head -30",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:00:12+00:00",
-   "tipo": "bash",
-   "desc": "Read the render-thread performance section",
-   "cmd": "cd ~/repo; sed -n 485,560p docs/MOTOR_WEB.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:00:19+00:00",
-   "tipo": "bash",
-   "desc": "Find a profiling build configuration",
-   "cmd": "cd ~/repo; ls build; grep -n \"PROFILING_FUNCS\" -r web/cmake web/*/CMakeLists.txt CMakeLists.txt 2>/dev/null | head; ls build/*/CMakeCache.txt; grep -l \"SMG_PROFILING_FUNCS:BOOL=ON…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:24+00:00",
    "tipo": "bash",
    "desc": "Review the profiler and symbol tools",
@@ -279,8 +258,29 @@
    "desc": "Add shared-memory frame slots to the bridge",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+79 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:10+00:00",
+   "tipo": "bash",
+   "desc": "Hand the frame slots to the page from the host",
+   "cmd": "cd ~/repo; sed -i 's|^#include <cstring>$|#include <cstdlib>\\n#include <cstring>|' web/host/aurora_bridge.cpp; python3 - <<'EOF'  … (+19 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:13+00:00",
+   "tipo": "bash",
+   "desc": "Read the Aurora report line",
+   "cmd": "cd ~/repo; sed -n 838,846p web/host/headless_host.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:18+00:00",
+   "tipo": "bash",
+   "desc": "Report shared-memory frames in the host log",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:08:03+00:00"
+ "actualizado": "2026-11-04T06:08:18+00:00"
 }
