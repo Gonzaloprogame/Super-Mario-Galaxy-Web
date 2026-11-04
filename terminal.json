@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:21:17+00:00",
-   "tipo": "bash",
-   "desc": "Document route results and push docs",
-   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+60 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:22:12+00:00",
    "tipo": "bash",
    "desc": "Run only the save export/import checks against site5",
@@ -279,8 +272,15 @@
    "desc": "Document memory finding and crash trace",
    "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+42 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:57:15+00:00",
+   "tipo": "bash",
+   "desc": "Check test progress before committing",
+   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/mem/smoke.log) PASS $(grep -c '^FAIL' $S/mem/smoke.log) FAIL $(grep '^exit' $S/mem/smoke.log)\"; grep -E \"^  (bien|PROBLEMAS)\" $S/route4.log…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:57:02+00:00"
+ "actualizado": "2026-11-04T20:57:15+00:00"
 }
