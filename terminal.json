@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:50+00:00",
-   "tipo": "bash",
-   "desc": "Disassemble the engine wasm",
-   "cmd": "~/tools/emsdk/upstream/bin/wasm-dis ~/repo/build/site/smg_web.wasm -o $S/perf1/smg_web.wat",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:03:56+00:00",
-   "tipo": "bash",
-   "desc": "Extract nand_main and list its calls and waits",
-   "cmd": "cd $S/perf1; a=$(grep -n '^ (func \\$9405 \\|^ (func \\$9405$' smg_web.wat | cut -d: -f1); grep -n '^ (func ' smg_web.wat | head -2; echo start $a; b=$(awk -v a=$a 'NR>a && /^ \\(func…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:04:02+00:00",
    "tipo": "bash",
    "desc": "Inspect nand_main disassembly",
@@ -279,8 +265,22 @@
    "desc": "Compare whole-level render times",
    "cmd": "S=$S; until [ -f $S/perf2/out/log_end.txt ] || ! pgrep -f \"perf2/out\" >/dev/null; do sleep 10; done; for r in perf1 perf2; do awk -v r=$r '/tour: stop 1/{on=1} on && /render threa…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:21+00:00",
+   "tipo": "bash",
+   "desc": "Check catch5 partial results",
+   "cmd": "S=$S; cat $S/catch5/run.out; for i in 5 6 7 8; do [ -f $S/catch5/out_$i/tour.md ] && { head -1 $S/catch5/out_$i/tour.md | grep -o \"Fin: [^.]*\"; grep -c '| cargó y dibujó |' $S/cat…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:27+00:00",
+   "tipo": "bash",
+   "desc": "Inspect leftover catch5 processes",
+   "cmd": "ps -o pid,etime,cmd -p $(pgrep -d, -f \"catch5\") 2>/dev/null | cut -c1-200",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:31:14+00:00"
+ "actualizado": "2026-11-04T06:31:27+00:00"
 }
