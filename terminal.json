@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:43:55+00:00",
-   "tipo": "bash",
-   "desc": "Read the draw path in the command processor",
-   "cmd": "sed -n 520,830p lib/gx/command_processor.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:44:09+00:00",
    "tipo": "bash",
    "desc": "Find the previous profiling run setup",
@@ -279,8 +272,15 @@
    "desc": "Compare profile with patch against baseline",
    "cmd": "S=$S; cat $S/perf7.summary; grep \"render thread\" $S/perf6/out/log_tail.txt | grep -o \"processing the stream [0-9.]*\" | awk '{s+=$4;n++} END {print \"perf6 media\", s/n, n}'; grep \"r…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:26:22+00:00",
+   "tipo": "bash",
+   "desc": "Compare index buffer sizes and ending times",
+   "cmd": "S=$S; for r in perf6 perf7; do echo \"== $r\"; grep -o \"indices [0-9]* KB of [0-9]*\\|draws in the last frame [0-9]*\" $S/$r/out/log_tail.txt | sort | uniq -c | sort -rn | head -6; gr…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:26:09+00:00"
+ "actualizado": "2026-11-04T16:26:22+00:00"
 }
