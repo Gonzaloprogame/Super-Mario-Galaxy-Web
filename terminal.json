@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:29:17+00:00",
-   "tipo": "bash",
-   "desc": "Generar el texto del rastro en el informe",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:32:28+00:00",
    "tipo": "bash",
    "desc": "Ampliar el búfer, añadir la prueba y compilar",
@@ -279,8 +272,15 @@
    "desc": "Extraer los desplazamientos de las muestras del hilo del juego",
    "cmd": "S=$S; python3 -I - <<'EOF'  … (+14 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:09:23+00:00",
+   "tipo": "bash",
+   "desc": "Extraer el desensamblado de nebula_game_main",
+   "cmd": "S=$S; grep -n \"^0030ef8c <>:\\|^30ef8c\\|^  30ef8c:\" $S/headless.dis | head -3; awk 'BEGIN{found=0} /^[0-9a-f]+ <>:/{ if(found){exit} if($1==\"0030ef8c\"){found=1} } found{print}' $S/…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:09:13+00:00"
+ "actualizado": "2026-11-04T04:09:23+00:00"
 }
