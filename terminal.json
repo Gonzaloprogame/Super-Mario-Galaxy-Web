@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:22:21+00:00",
-   "tipo": "bash",
-   "desc": "Open the saves section in the test and rerun",
-   "cmd": "S=$S; R=~/repo; cd $R && python3 - <<'EOF'  … (+18 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:22:31+00:00",
    "tipo": "bash",
    "desc": "Commit save download/load feature and push",
@@ -279,8 +272,15 @@
    "desc": "Stash memory fix and docs while tests run",
    "cmd": "git stash push -m \"memoria: arreglo de la arena y bloque 20 (pruebas en curso)\" web/platform/memory_shim_wasm.c docs/PROGRESO_AUTONOMO.md >/dev/null && git status --short | wc -l …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T21:10:04+00:00",
+   "tipo": "bash",
+   "desc": "Commit memory fix, publish engine and page",
+   "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $R && git stash pop >/dev/null && head -1 $S/route4/route.md && sed -i 's|^\\*\\*Falta:\\*\\* confirmar en el dispositivo del usuario que los cierres…  … (+12 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T21:06:47+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T21:10:04+00:00"
 }
