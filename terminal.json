@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:41:03+00:00",
-   "tipo": "bash",
-   "desc": "Read how BP textures become loaded slots",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 1395,1450p regs.cpp; grep -n \"s_contentTextures\\|find_content_texture\\|cache_content_texture\" texture.cpp | head",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:41:30+00:00",
-   "tipo": "bash",
-   "desc": "Check copy textures versus static resolution order",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"copyTextures\" *.cpp | head -20; grep -n \"resolve_static_texture\\|resolve_static_palette_texture\" *.cpp | grep -v \"^textu…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:41:33+00:00",
    "tipo": "bash",
    "desc": "Read the texture binding path and caches",
@@ -279,8 +265,22 @@
    "desc": "Find the game thread profile with matching symbols",
    "cmd": "S=$S; SYM=$S/perf4_symbols; ls -la $SYM; G=\"\"; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 400 | grep -q \"nebula_game_main\" && G=\"$G $f\"; done; ec…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:31:35+00:00",
+   "tipo": "bash",
+   "desc": "Inclusive game thread profile and clock callers",
+   "cmd": "S=$S; SYM=$S/perf4_symbols; G=$S/perf4/dump/worker_0.cpuprofile; node $S/tools/prof_total.mjs $G $SYM 25; echo; node $S/tools/prof_callers.mjs $G $SYM \"_emscripten_get_now\" | head…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T07:31:43+00:00",
+   "tipo": "bash",
+   "desc": "Read the service trail recording code",
+   "cmd": "cd ~/repo; grep -n \"SERVICE_ENTER\\|define SERVICE\\|trail_note\\|static void trail\" web/host/headless_host.c | head -20; n=$(grep -n \"define SERVICE_ENTER\" web/host/headless_host.c …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:31:30+00:00"
+ "actualizado": "2026-11-04T07:31:43+00:00"
 }
