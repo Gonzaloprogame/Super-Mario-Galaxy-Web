@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:44:12+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado y el perfil del cazador",
-   "cmd": "S=$S; cat $S/catch3/run.out; ls $S/catch3; head -80 $S/catch3/prof_*.txt 2>/dev/null | cut -c1-160",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:44:19+00:00",
    "tipo": "bash",
    "desc": "Nombrar las funciones del perfil",
@@ -279,8 +272,15 @@
    "desc": "Ver cómo se añaden los sustitutos de la plataforma web",
    "cmd": "cd ~/repo; grep -rn \"abort_report_wasm\\|operator_new_wasm\\|gx_pacing_wasm\" web --include=CMakeLists.txt --include=*.cmake | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:15:28+00:00",
+   "tipo": "bash",
+   "desc": "Leer cómo reúne el módulo de juego sus fuentes de plataforma",
+   "cmd": "cd ~/repo; sed -n 25,66p web/game/CMakeLists.txt",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:15:24+00:00"
+ "actualizado": "2026-11-04T04:15:28+00:00"
 }
