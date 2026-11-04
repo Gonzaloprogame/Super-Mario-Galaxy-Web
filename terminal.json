@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:24:19+00:00",
-   "tipo": "bash",
-   "desc": "Read halfway results",
-   "cmd": "cat $TMP",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:24:27+00:00",
    "tipo": "bash",
    "desc": "Wait for both tours to finish",
@@ -279,8 +272,15 @@
    "desc": "Render preview screenshots of the FPS badge with a synthetic frame",
    "cmd": "S=$S; mkdir -p $S/fpsprev && cat > $S/fpsprev/shot.mjs <<'EOF'  … (+41 líneas)",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T13:27:33+00:00",
+   "tipo": "bash",
+   "desc": "Retry preview screenshots using require for playwright",
+   "cmd": "S=$S; cd $S/fpsprev && sed -i \"s#^import { chromium } from 'playwright';#import { createRequire } from 'node:module';\\nconst { chromium } = createRequire(import.meta.url)('playwri…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:27:07+00:00"
+ "actualizado": "2026-11-04T13:27:33+00:00"
 }
