@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:49:22+00:00",
-   "tipo": "bash",
-   "desc": "Get the flags emcc adds internally",
-   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; emcc --cflags -pthread 2>/dev/null | head -c 600; echo; em++ --cflags -pthread 2>/dev/null | tr ' ' '\\n' | grep -v \"^$\" | wc -l",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:49:37+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Record each stop's starting scene in tour and route",
    "cmd": "python3 - <<'EOF'  … (+33 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:12:24+00:00",
+   "tipo": "bash",
+   "desc": "Commit tour starting-scene fix and push",
+   "cmd": "git add -A && git commit -q -m \"Gira y ruta: cada parada anota la escena en la que empezó  … (+6 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:12:11+00:00"
+ "actualizado": "2026-11-04T19:12:24+00:00"
 }
