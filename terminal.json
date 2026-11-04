@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:58:24+00:00",
-   "tipo": "bash",
-   "desc": "Arrancar el motor en modo diagnóstico con el conductor",
-   "cmd": "S=$S; mkdir -p $S/story; cat > $S/story/run.sh <<'EOF'  … (+22 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:58:29+00:00",
    "tipo": "bash",
    "desc": "Recorrer el prólogo pulsando A en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ver las primeras cargas en modo diagnóstico",
    "cmd": "S=$S; until [ -f $S/tour/out_diag40/tour.md ] && [ $(grep -c \"cargó y dibujó\" $S/tour/out_diag40/tour.md) -ge 3 ] || ! pgrep -f \"out_diag40\" >/dev/null; do sleep 5; done; cat $S/t…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:46:55+00:00",
+   "tipo": "bash",
+   "desc": "Esperar el final y resumir las cargas en modo diagnóstico",
+   "cmd": "S=$S; until ! pgrep -f \"out_diag40\" >/dev/null; do sleep 5; done; head -1 $S/tour/out_diag40/tour.md; grep -c \"cargó y dibujó\" $S/tour/out_diag40/tour.md; grep -v \"cargó y dibujó\"…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:41:50+00:00"
+ "actualizado": "2026-11-04T00:46:55+00:00"
 }
