@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:04:13+00:00",
-   "tipo": "bash",
-   "desc": "Find which functions contain the atomic waits",
-   "cmd": "cd $S/perf1; for l in 1595660 5521742; do awk -v l=$l 'NR<=l && /^ \\(func /{f=$0; n=NR} NR==l{print n\": \"f; exit}' smg_web.wat; done; grep -n \"^ (func \\$9405\\b\\|^ (func \\$9085 \" s…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:04:20+00:00",
-   "tipo": "bash",
-   "desc": "List nand_main's callees by name",
-   "cmd": "cd $S/perf1; grep \"^9805:\\|^3100:\" ~/repo/build/all/engine/smg_web.js.symbols; a=5313434; b=$(awk -v a=$a 'NR>a && /^ \\(func /{print NR; exit}' smg_web.wat); sed -n \"${a},${b}p\" s…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:04:29+00:00",
    "tipo": "bash",
    "desc": "Show per-thread CPU usage",
@@ -279,8 +265,22 @@
    "desc": "List screenshots of both runs",
    "cmd": "S=$S; ls -la $S/perf2/out/shots $S/perf1/out/shots | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:55+00:00",
+   "tipo": "bash",
+   "desc": "Play blind tours with seeds 6-8",
+   "cmd": "S=$S; mv $S/catch5/run.out $S/catch5/run_first.out; mv $S/catch5/out_6 $S/catch5/out_6_cortada; timeout 7100 $S/catch5/run.sh 8 6 > $S/catch5/run.out 2>&1",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:55+00:00",
+   "tipo": "bash",
+   "desc": "Review pending changes",
+   "cmd": "cd ~/repo; git status --short; git diff --stat",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:31:40+00:00"
+ "actualizado": "2026-11-04T06:31:55+00:00"
 }
