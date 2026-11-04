@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:36:18+00:00",
-   "tipo": "bash",
-   "desc": "Find the log and status functions in app.js",
-   "cmd": "sed -n 1,80p web/shell/app.js | grep -n \"function log\\|const log\\|^const \\$\\|function setStatus\\|copy-log\\|#log\" ; grep -n \"^function log\\|^const log\\|function setStatus\\|'copy-lo…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:36:49+00:00",
    "tipo": "bash",
    "desc": "Add abrupt-close session trace to the page",
@@ -279,8 +272,15 @@
    "desc": "Add the wrap to link options and build",
    "cmd": "python3 - <<'EOF'  … (+13 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:47:21+00:00",
+   "tipo": "bash",
+   "desc": "Reproduce the mission 2 panic with missing-file logging",
+   "cmd": "S=$S; B=~/repo/build/all; rm -rf $S/site8 && cp -r $S/site7 $S/site8 && cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:46:55+00:00"
+ "actualizado": "2026-11-04T23:47:21+00:00"
 }
