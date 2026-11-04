@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:16+00:00",
-   "tipo": "bash",
-   "desc": "Find where retraces are delivered",
-   "cmd": "cd ~/repo; grep -rln -i \"retrace\" web/ third_party/nebula/native --include=*.c --include=*.cpp --include=*.h 2>/dev/null | grep -v petari/ | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:59:19+00:00",
    "tipo": "bash",
    "desc": "Inspect retrace delivery code",
@@ -279,8 +272,15 @@
    "desc": "Read the page's presenter and memory access",
    "cmd": "cd ~/repo; cat web/shell/present.js | head -80; grep -n \"buffer\\|memory\\|SharedArrayBuffer\" web/shell/controls.js | head -15",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:06:03+00:00",
+   "tipo": "bash",
+   "desc": "See how the page gets the engine memory",
+   "cmd": "cd ~/repo; sed -n 1,40p web/shell/controls.js | grep -v \"^\\s*$\" | head -40; grep -n \"memory\\|smgAttachControls\\|attach\" web/shell/app.js | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:05:59+00:00"
+ "actualizado": "2026-11-04T06:06:03+00:00"
 }
