@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:37:11+00:00",
-   "tipo": "bash",
-   "desc": "Contar la advertencia de texcoord sin generador",
-   "cmd": "S=$S; grep -h \"no texgen makes it\" $S/tour/out_*/log_end.txt $S/tour/out_04/log_tail.txt 2>/dev/null | sort | uniq -c | cut -c1-220; grep -rn \"no texgen makes it\" web/aurora/patch…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T23:37:14+00:00",
-   "tipo": "bash",
-   "desc": "Leer el parche 0022",
-   "cmd": "cd ~/repo; sed -n 1,60p web/aurora/patches/0022*.patch",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:37:22+00:00",
    "tipo": "bash",
    "desc": "Anotar el aviso de SurfingLv1Galaxy",
@@ -279,8 +265,22 @@
    "desc": "Esperar a que la nueva ejecución cree la partida",
    "cmd": "S=$S; date +%T; until grep -q \"play pressed 00:[3-5]\\|play pressed 0[1-9]\" $S/story/new.out 2>/dev/null || ! pgrep -f story/new.sh >/dev/null; do sleep 4; done; cat $S/story/new.o…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:36:01+00:00",
+   "tipo": "bash",
+   "desc": "Ver el estado de la nueva ejecución",
+   "cmd": "S=$S; date +%T; cat $S/story/new.out; curl -s -m 10 \"127.0.0.1:18777/log?tail=3000\" | grep -E \"^\\[host\\] (stage:|movies|report|NAND)\" | tail -4 | cut -c1-260",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:36:11+00:00",
+   "tipo": "bash",
+   "desc": "Ver los cambios de escenario y los vídeos del recorrido",
+   "cmd": "curl -s -m 20 \"127.0.0.1:18777/log?tail=100000\" > $S/story/full.log; S=$S; grep -E \"^\\[host\\] (stage:|load |movies|stall|memory)|THP|thp|resumed\" $S/story/full.log | cut -c1-220 |…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:35:56+00:00"
+ "actualizado": "2026-11-04T00:36:11+00:00"
 }
