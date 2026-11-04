@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:02:03+00:00",
-   "tipo": "bash",
-   "desc": "Rerun garden hooks test after log fix",
-   "cmd": "S=$S; B=~/repo/build/all; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S/site4/ && rm -rf $S/hooks1/out && cd ~/repo &…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:02:09+00:00",
    "tipo": "bash",
    "desc": "Run smoke tests on site4",
@@ -279,8 +272,15 @@
    "desc": "Record ending result in progress docs",
    "cmd": "python3 - <<'EOF'  … (+16 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:52:26+00:00",
+   "tipo": "bash",
+   "desc": "Fix frame count and commit ending result",
+   "cmd": "sed -i 's/`grandstar@` y 20 000 fotogramas de espera/`grandstar@` y 12 000 fotogramas de espera/' docs/PROGRESO_AUTONOMO.md && grep -c \"12 000 fotogramas de espera\" docs/PROGRESO_…  … (+6 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T19:52:16+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T19:52:31+00:00"
 }
