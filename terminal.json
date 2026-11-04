@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:49:35+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a ver si StarDustGalaxy se cuelga",
-   "cmd": "S=$S; until grep -q \"stall: no GX from the game for [3-9][0-9] s\" $S/tour/out_stardust/log_tail.txt 2>/dev/null || ! pgrep -f \"out_stardust\" >/dev/null; do sleep 3; done; date +%T…",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T00:49:45+00:00",
    "tipo": "bash",
    "desc": "Repetir la secuencia hasta StarDustGalaxy en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Ver el bucle de la gira",
    "cmd": "cd ~/repo; grep -n \"for (;;) {\\|await sleep(5000);\" tools/galaxy_tour.mjs | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:03:36+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el modo de juego a ciegas a la gira",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+33 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:03:19+00:00"
+ "actualizado": "2026-11-04T02:03:36+00:00"
 }
