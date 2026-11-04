@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:09:01+00:00",
-   "tipo": "bash",
-   "desc": "Ver el final de la tanda 02 y que arrancó la 03",
-   "cmd": "S=$S; tail -12 $TMP | cut -c1-250; grep -c \"memory error\" $S/tour/out_02/log_end.txt; grep -c \"check_low\\|report:\" $S/tour/out_02/log_end.txt; sleep 20; pgrep -f \"batch_03\" >/dev/…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T23:09:15+00:00",
-   "tipo": "bash",
-   "desc": "Anotar la tanda 02 en el registro",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+25 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T23:33:56+00:00",
-   "tipo": "bash",
-   "desc": "Ver el resultado de la tanda 03",
-   "cmd": "S=$S; cat $S/tour/out_03/tour.md | cut -c1-250; grep -c \"memory error\" $S/tour/out_03/log_end.txt; grep -c \"report:\" $S/tour/out_03/log_end.txt; cat $S/tour/batch_04",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:34:14+00:00",
    "tipo": "bash",
    "desc": "Anotar la tanda 03 y corregir la cuenta",
@@ -279,8 +258,29 @@
    "desc": "Comprobar el estado del conductor",
    "cmd": "S=$S; curl -s -m 10 127.0.0.1:18777/state | cut -c1-300; echo; tail -5 $S/story/driver.out | cut -c1-300; pgrep -fa \"driver.mjs\" | cut -c1-100",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:25:43+00:00",
+   "tipo": "bash",
+   "desc": "Matar el conductor viejo y liberar los puertos",
+   "cmd": "pkill -f story/new.sh; kill 30860 2>/dev/null; pkill -f \"serve.py 18760\"; sleep 3; pgrep -fa \"driver.mjs|serve.py 18760\" | cut -c1-80; (ss -ltnp 2>/dev/null || netstat -ltnp 2>/de…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:25:43+00:00",
+   "tipo": "bash",
+   "desc": "Relanzar el conductor y el recorrido del prólogo",
+   "cmd": "S=$S; cd ~/repo; (node $S/drive/driver.mjs ~/repo $S/disc/smg.rvz $S/story diagnostic > $S/story/driver.out 2>&1 &); sleep 20; curl -s -m 10 127.0.0.1:18777/state | cut -c1-150; e…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:25:49+00:00",
+   "tipo": "bash",
+   "desc": "Esperar a que se cree la partida nueva",
+   "cmd": "S=$S; until grep -q \"play pressed\" $S/story/new.out 2>/dev/null || ! pgrep -f story/new.sh >/dev/null; do sleep 4; done; cat $S/story/new.out; curl -s -m 10 \"127.0.0.1:18777/log?t…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:25:30+00:00"
+ "actualizado": "2026-11-04T00:25:49+00:00"
 }
