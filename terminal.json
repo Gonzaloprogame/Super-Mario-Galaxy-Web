@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:41:50+00:00",
-   "tipo": "bash",
-   "desc": "Ver las primeras cargas en modo diagnóstico",
-   "cmd": "S=$S; until [ -f $S/tour/out_diag40/tour.md ] && [ $(grep -c \"cargó y dibujó\" $S/tour/out_diag40/tour.md) -ge 3 ] || ! pgrep -f \"out_diag40\" >/dev/null; do sleep 5; done; cat $S/t…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:46:55+00:00",
    "tipo": "bash",
    "desc": "Esperar el final y resumir las cargas en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Rastro sin repetidos: compilar y verlo en el juego",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+72 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:45:42+00:00",
+   "tipo": "bash",
+   "desc": "Ampliar los nombres del rastro, recompilar y probar",
+   "cmd": "cd ~/repo; sed -i 's/^    char detail\\[48\\];$/    char detail[96];/' web/host/headless_host.c; sed -i 's/    char trailText\\[SMG_TRAIL \\* 96\\];/    char trailText[SMG_TRAIL * 160]…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:40:50+00:00"
+ "actualizado": "2026-11-04T01:45:42+00:00"
 }
