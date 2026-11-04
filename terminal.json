@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:44:15+00:00",
-   "tipo": "bash",
-   "desc": "Recover the exact profiling command used before",
-   "cmd": "S=$S; head -5 $S/perf5/prof.txt; head -3 $S/perf2/tour.log; grep -rn \"galaxy_tour\" ~/.bash_history 2>/dev/null | tail -3; grep -o '\"command\":\"[^\"]*perf5[^\"]*\"' ~/.claude/projects/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:44:21+00:00",
    "tipo": "bash",
    "desc": "Show the full perf5 run command",
@@ -279,8 +272,15 @@
    "desc": "Repeat baseline and patched profiles alternately",
    "cmd": "S=$S; $S/perfrun.sh perf6b $S/site2 $S/perf6_symbols > $S/perf6b.summary 2>&1; echo \"exit $?\" >> $S/perf6b.summary; $S/perfrun.sh perf7b $S/site3 $S/perf7_symbols > $S/perf7b.summ…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:53:18+00:00",
+   "tipo": "bash",
+   "desc": "Compare all four runs",
+   "cmd": "S=$S; for r in perf6 perf6b perf7 perf7b; do grep -o \"processing the stream [0-9.]*\" $S/$r/out/log_tail.txt | awk -v r=$r '{s+=$4;n++} END {printf \"%s procesar %.2f \", r, s/n}'; g…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T16:26:46+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T16:53:18+00:00"
 }
