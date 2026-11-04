@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:42:43+00:00",
-   "tipo": "bash",
-   "desc": "Add the per-frame guest texture cache",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+86 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:42:52+00:00",
    "tipo": "bash",
    "desc": "Invalidate guest textures on game writes",
@@ -279,8 +272,15 @@
    "desc": "Profile the game thread after the fix",
    "cmd": "S=$S; cd ~/repo; mkdir -p $S/perf5; timeout 1500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf5/out --nand $S/drive/…  … (+1 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:39:53+00:00",
+   "tipo": "bash",
+   "desc": "Find remaining clock readers",
+   "cmd": "S=$S; SYM=$S/perf5_symbols; for f in $S/perf5/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 400 | grep -q \"nebula_game_main\" && G=$f; done; node $S/tools/prof_callers…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:39:46+00:00"
+ "actualizado": "2026-11-04T07:39:53+00:00"
 }
