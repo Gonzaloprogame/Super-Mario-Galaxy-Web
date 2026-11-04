@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:52:53+00:00",
-   "tipo": "bash",
-   "desc": "Confirm the surviving tour is the long play",
-   "cmd": "ps -o pid,args -p 9506 | cut -c1-400 | grep -o \"out [^ ]*\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:52:57+00:00",
    "tipo": "bash",
    "desc": "Show the surviving tour's output folder",
@@ -279,8 +272,15 @@
    "desc": "Check how build copies shell files",
    "cmd": "grep -n \"present.js\\|controls.js\\|shell/\" tools/build_web.sh | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:29+00:00",
+   "tipo": "bash",
+   "desc": "Find fullscreen and storage code in app.js",
+   "cmd": "grep -n \"fullscreen\\|localStorage\\|dataset.state =\" web/shell/app.js | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:25:09+00:00"
+ "actualizado": "2026-11-04T13:25:29+00:00"
 }
