@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:04:10+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar y subir la opción de juego a ciegas",
-   "cmd": "cd ~/repo; git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: --play <semilla>, jugar a ciegas durante cada parada (palanca y botones al azar, reproducible)  … (+7 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T02:33:38+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado del cazador",
-   "cmd": "S=$S; cat $S/catch2/run.out; ls $S/catch2/ | grep -E \"prof|hang\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:33:49+00:00",
    "tipo": "bash",
    "desc": "Jugar a ciegas las 44 galaxias en modo diagnóstico",
@@ -279,8 +265,22 @@
    "desc": "Ver cómo modifica el proyecto el código de Nebula",
    "cmd": "cd ~/repo; ls web; ls web/game; grep -rn \"patch\\|REPLACES\" web/game/CMakeLists.txt | head -10; ls web/platform; grep -rn \"petari.*patch\\|nebula.*patch\" tools/fetch_sources.sh | he…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:11:44+00:00",
+   "tipo": "bash",
+   "desc": "Buscar la implementación del reloj del SO de Nebula",
+   "cmd": "cd ~/repo; grep -rn \"OSGetTick\\|OSGetTime\\|now_ticks\\|time_init\" third_party/nebula/native/sdk/os/*.c | grep -v \"^.*://\" | head -15",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T04:11:48+00:00",
+   "tipo": "bash",
+   "desc": "Leer el reloj del SO de Nebula",
+   "cmd": "cd ~/repo; sed -n 140,205p third_party/nebula/native/sdk/os/os_native.c; sed -n 265,285p third_party/nebula/native/sdk/os/os_native.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:11:28+00:00"
+ "actualizado": "2026-11-04T04:11:48+00:00"
 }
