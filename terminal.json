@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:09:11+00:00",
-   "tipo": "bash",
-   "desc": "See how build_web.sh assembles the site",
-   "cmd": "cd ~/repo; grep -n \"cp \\|ninja\\|site\" tools/build_web.sh | head -40",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:15:58+00:00",
-   "tipo": "bash",
-   "desc": "Build the engine and bridge targets",
-   "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all smg_headless_web smg_web gx_bridge gx_replay 2>&1 | grep -E \"error|warning: .*aurora_bridge|FAILED…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:16:04+00:00",
    "tipo": "bash",
    "desc": "Assemble a separate test site",
@@ -279,8 +265,22 @@
    "desc": "Document the render-thread analysis; check tours",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+21 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:40:33+00:00",
+   "tipo": "bash",
+   "desc": "Commit doc; find texture source hashing",
+   "cmd": "cd ~/repo; git commit -qam \"Progreso: lo que queda en el hilo de render, medido, y por qué en el teléfono el juego y el render no se solapan  … (+3 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:40:37+00:00",
+   "tipo": "bash",
+   "desc": "Read texture hashing and its callers",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 262,300p texture.cpp; sed -n 600,700p texture.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:40:24+00:00"
+ "actualizado": "2026-11-04T06:40:37+00:00"
 }
