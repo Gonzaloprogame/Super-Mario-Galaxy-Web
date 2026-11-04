@@ -35,7 +35,11 @@ disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca)
 
 - **En curso:** jugar a ciegas más tiempo (5400 fotogramas por parada, unos 90 s de juego, los 44 escenarios, con lo
   publicado en `$S/site2`): `timeout 7100 $S/long1/run.sh 9 > $S/long1/run.out 2>&1` (tarea de fondo con `timeout`
-  de 2 h). Si se cuelga: `prof_N.txt`, `dump_N/` y `hang_log_N.txt` en `$S/long1`. Mapa de símbolos:
+  de 2 h). Si se cuelga: `prof_N.txt`, `dump_N/` y `hang_log_N.txt` en `$S/long1`. A la vez, la gira con gráficos de
+  los 44 con lo publicado, que ahora cuenta los fotogramas pintados en la página por parada:
+  `node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/galaxies.txt --out $S/gfx44/out
+  --nand $S/drive/nand_RMGE01.bin --frames 300 --hang 900 --port 18797` (resultado en `$S/gfx44/out/tour.md`; un
+  «la página no pintó ningún fotograma» sería un fallo de la presentación del bloque 13). Mapa de símbolos:
   `build/all/game/smg_headless_web.js.symbols`; índices de tabla: `$S/tools/table_index.py`.
 - **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
   `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
