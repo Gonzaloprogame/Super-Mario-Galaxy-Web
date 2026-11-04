@@ -60,3 +60,11 @@ mode graphics
 frames 600
 hang 1800
 expect movie
+---
+# El epílogo entero con gráficos: tras los vídeos del final, los créditos y lo que el juego hace al terminarlos
+grandstars=6
+KoopaBattleVs3Galaxy:1/grandstar@900/wait@40000
+mode graphics
+frames 600
+hang 3600
+expect movie
