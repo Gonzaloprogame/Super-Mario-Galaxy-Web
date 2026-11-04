@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:04:41+00:00",
-   "tipo": "bash",
-   "desc": "Read smoke test results",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke.log) PASS $(grep -c '^FAIL' $S/b1_smoke.log) FAIL $(grep '^exit' $S/b1_smoke.log)\"; grep -E \"^FAIL|gira de prueba\" $S/b1_smoke.log…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:04:49+00:00",
    "tipo": "bash",
    "desc": "Fix test regex to match the summary line",
@@ -279,8 +272,15 @@
    "desc": "Run the full epilogue segment",
    "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route3 --nand $S/drive/nand_RMGE01.bin --site $S/site5 --only 13 > …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:10:29+00:00",
+   "tipo": "bash",
+   "desc": "Check wasm memory settings and observed usage",
+   "cmd": "grep -rn \"INITIAL_MEMORY\\|MAXIMUM_MEMORY\\|ALLOW_MEMORY_GROWTH\\|STACK_SIZE\\|PTHREAD_POOL_SIZE\" web/CMakeLists.txt web/cmake/*.cmake web/*/CMakeLists.txt 2>/dev/null | head; grep -o…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:54:52+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T20:10:29+00:00"
 }
