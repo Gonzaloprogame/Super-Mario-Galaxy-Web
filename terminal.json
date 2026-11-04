@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:38:50+00:00",
-   "tipo": "bash",
-   "desc": "Aggregate warnings from graphics tour logs",
-   "cmd": "S=$S; ls $S/tour/all40 $S/tour/batch_00 | head; find $S/tour -name \"log_*.txt\" | head; grep -i -h \"unsupported\\|unimplemented\\|not implemented\\|warn\\|unknown\\|invalid\\|stub\\|TODO\"…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:39:00+00:00",
    "tipo": "bash",
    "desc": "Read guest array uploads and storage users",
@@ -279,8 +272,15 @@
    "desc": "Count the bytes the cache saves from hashing",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+31 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:02:33+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the timing comparison to finish",
+   "cmd": "until [ -s $TMP ]; do sleep 15; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:00:26+00:00"
+ "actualizado": "2026-11-04T07:02:33+00:00"
 }
