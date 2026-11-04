@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:37:58+00:00",
-   "tipo": "bash",
-   "desc": "Stash memory fix while measuring",
-   "cmd": "git stash push -m \"memoria: no rellenar de ceros la arena nueva (midiendo)\" web/platform/memory_shim_wasm.c >/dev/null && git status --short | wc -l",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:54:57+00:00",
    "tipo": "bash",
    "desc": "Check epilogue and memory run status",
@@ -279,8 +272,15 @@
    "desc": "Stash the missing-file report until tested",
    "cmd": "git status --short && git stash push -u -m \"disco: archivos no encontrados al pararse el juego (pendiente de browser_smoke)\" >/dev/null && git status --short | wc -l",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:54:57+00:00",
+   "tipo": "bash",
+   "desc": "Inspect why the missions tour ended early",
+   "cmd": "S=$S; cat $S/missions/m23.log | tail -15; ls $S/missions/m23/; grep -E \"^\\[host\\] (  |disc paths|the game stopped|stage|tour)|^\\[página\\]\" $S/missions/m23/log_tail.txt | tail -15 …",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T23:54:10+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T23:54:57+00:00"
 }
