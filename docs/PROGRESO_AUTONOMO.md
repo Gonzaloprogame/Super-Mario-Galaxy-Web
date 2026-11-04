@@ -409,6 +409,11 @@ dos por subtrama en el mezclador de Nebula, que no se toca). `browser_smoke` 54 
 rastro). Comprobado de paso en el desensamblado que `OSGetTick` pasa por `__wrap_clock_gettime` (el reloj del
 bloque 12): el perfilador pierde ese marco al ponerlo en línea.
 
+**La mezcla de audio en el hilo del juego** (11,7 % de su trabajo en el jardín, `svc_audio_dsp`): en la consola el DSP
+mezcla en paralelo con la CPU; aquí la mezcla bloquea el único hilo de wasm de todas las fibras del juego. El contrato
+de Nebula lo fija (`nebula_game_api.h`, `audio_dsp`: «run at once on the simulation thread; returns 1 when the words
+completed a subframe»): sacarla a otro hilo pide cambiar la interfaz de Nebula, que se mantiene intacta. No se hace.
+
 **Por qué el teléfono suma y no solapa** (27 fps: 20 ms procesar + 8 terminar + 8 esperando al juego): al final de cada
 fotograma el juego espera a que la GPU acabe ese fotograma (`MainLoopFramework::endFrame` → `waitDrawDoneAndSetAlarm`
 → `GXDrawDone`), como en la consola; durante la lógica del fotograma siguiente no sale GX y el hilo de render espera.
