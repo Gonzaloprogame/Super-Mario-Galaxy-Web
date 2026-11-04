@@ -30,24 +30,27 @@ hilo bloqueado en una espera.
 
 ## Para reanudar
 
-Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
-disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
+Se actualiza al cerrar cada bloque. `$S` es la carpeta de trabajo local de cada sesión (fuera del repositorio: disco
+del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión nueva empieza con `$S` vacía.**
 
-- **Hecho hoy (bloques 12 y 13):** reloj estrictamente creciente (8 giras a ciegas sin cuelgues), fotogramas por
-  memoria compartida, rastro de diagnóstico sin leer el reloj; 44/44 con gráficos y 44/44 jugando a ciegas 90 s. Todo
-  publicado (gh-pages `1bb6016` y siguientes). Copia del sitio con lo publicado: `$S/site2` (para giras sin tocar
-  `build/site`; montarla: `ninja -C build/all <objetivos>` y copiar como en `tools/build_web.sh`).
-- **Hecho (bloque 14):** el usuario probó el libro del prólogo con lo publicado y pasó entero (un intento).
-- **Hecho (bloque 16):** fps medidos en el teléfono del usuario con lo publicado: 22–33 fps, media ~28.
-- **Siguiente:** rendimiento del hilo de render: procesar el flujo GX (16–22 ms por fotograma en el teléfono) es lo
-  que más cuesta.
-- **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
-  `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
-  mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
+- **Estado (2026-11-04, bloques 12 a 17):** reloj estrictamente creciente (8 giras a ciegas sin cuelgues), fotogramas
+  por memoria compartida, rastro de diagnóstico sin leer el reloj; 44/44 escenarios con gráficos y 44/44 jugando a
+  ciegas 90 s; el libro del prólogo pasa en el PC del usuario (un intento); contador de fps nuevo; fps medidos en el
+  teléfono del usuario (22–33, media 27,6); descarga para usarlo en local (`servir.py`), que el usuario ya usa. Todo
+  en la rama y publicado en gh-pages.
+- **Montar en una sesión nueva:** emsdk 6.0.13 (`docs/ENTORNO.md`), `tools/fetch_sources.sh`, `tools/build_web.sh`
+  (borra y monta `build/site`; para giras largas, monta otra copia y pásala con `SMG_SITE=<carpeta>`). Pruebas:
+  `node web/tests/browser_smoke.mjs` (58 de 58 el 2026-11-04). Con el disco real hace falta que el usuario vuelva a
+  dar su `.rvz` (no se guarda en ningún sitio del repositorio).
+- **Siguiente:** rendimiento del hilo de render. En el teléfono, procesar el flujo GX cuesta 16–22 ms por fotograma,
+  más de la mitad (bloque 16); aquí es el 59 % de su trabajo (bloque 13). Perfil con `tools/perf/` (ver su
+  `LEEME.md`), con el mapa de símbolos del mismo binario. Ideas ya medidas y descartadas o pendientes: bloque 13.
+- **Después:** jugar galaxias de verdad (misiones, jefes; la gira no lo comprueba), y medidas en el PC y el móvil del
+  usuario (ahora puede usarlo en local y pasar el registro).
 - **Ojo:** las tareas de fondo se cortan a los 30 min si no se les da `timeout` (hasta 2 h); las giras de 44 paradas
-  tardan más de 1 h.
-- **Bloqueados:** PAL y japonesa (Nebula solo
-  prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
+  tardan más de 1 h. No uses `pkill -f` con un patrón que también case con tu propia orden.
+- **Bloqueados:** PAL y japonesa (Nebula solo prepara RMGE01; sin disco para probar); mando real (solo probado con uno
+  simulado).
 
 ## Bloques de trabajo
 
