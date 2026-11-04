@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:39:00+00:00",
-   "tipo": "bash",
-   "desc": "Read guest array uploads and storage users",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 480,530p gx/command_processor.cpp; grep -rn \"push_storage(\" --include=*.cpp . | grep -v \"^./gfx/common.cpp\" | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:39:20+00:00",
    "tipo": "bash",
    "desc": "Read push_verts, push_indices and helpers",
@@ -279,8 +272,15 @@
    "desc": "Wait for the timing comparison to finish",
    "cmd": "until [ -s $TMP ]; do sleep 15; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:07:35+00:00",
+   "tipo": "bash",
+   "desc": "Regenerate patch, verify, and rebuild",
+   "cmd": "S=$S; cd $S/patch27; for f in texture.cpp texture.hpp command_processor.cpp; do cp ~/repo/build/all/aurora/aurora-patched/lib/gx/$f b/lib/gx/; done; diff -ruN a b > 0027.patch; cp…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:02:33+00:00"
+ "actualizado": "2026-11-04T07:07:35+00:00"
 }
