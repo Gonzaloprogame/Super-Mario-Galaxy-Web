@@ -289,3 +289,19 @@ vez: sin cuelgue. **No es determinista**: una vez en unas 70 cargas a toda veloc
 - **Cazador, segunda vuelta** (con el rastro; un reinicio del contenedor por medio): 10 giras más de los 40 escenarios
   a toda velocidad, sin cuelgues. En total, unas 720 cargas en modo diagnóstico y **un solo cuelgue** (StarDustGalaxy).
   Queda vigilado: si vuelve, aquí o en el PC del usuario, el aviso dirá lo último que hizo el juego.
+
+### Bloque 11: jugando a ciegas, el cuelgue sale mucho más (2026-11-04)
+
+`galaxy_tour.mjs --play <semilla>` (palanca y botones al azar cada 0,7 s; comprobado que llegan: las palabras de
+control cambian, 1024 = B, 2048 = A, palanca 71/71…). Los 44 escenarios en modo diagnóstico, 30 s de juego cada uno,
+semilla 1: **cuelgue en CubeBubbleExLv2Galaxy**, la parada 9. La misma firma que el de StarDust (`boot_thread` en un
+bucle propio, sin cambios de hilo, fuera del host), y ya con el rastro:
+
+- los últimos objetos creados, 8,6 s antes (Shift-JIS descodificado): 壊れる籠 (jaula rompible), 壊れる籠壊れモデル (su
+  modelo roto), 中継惑星Ｄ y Ａ (planetas de enlace), スターピースディレクターピース (el director de trozos de estrella),
+  影描画[ボリューム球] (sombra de una esfera);
+- después, 192 fotogramas de escena normales; el último 5,2 s antes del aviso: el bucle empezó dentro de un fotograma,
+  unos 3,4 s después de crear esos objetos. No señala a ninguno: es la pista de dónde estaba.
+
+Jugando sale una vez en 9 escenarios, frente a una en ~720 cargas sin jugar: se puede cazar. En curso:
+`$S/catch3/run.sh 5` (semillas 1 a 5, con el perfilador al detectar 20 s sin GX).
