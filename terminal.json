@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:37:36+00:00",
-   "tipo": "bash",
-   "desc": "Break down draw encoding and frame end",
-   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; P=$S/perf2/dump/worker_3.cpuprofile; node $S/tools/prof_callees.mjs $P $SYM \"encode_draw<&aurora::gx::render\" | head; node $S…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:37:45+00:00",
    "tipo": "bash",
    "desc": "Attribute JS WebGPU calls under draw and frame end",
@@ -279,8 +272,15 @@
    "desc": "Check confirmation tour progress",
    "cmd": "S=$S; cat $S/catch5/run.out; grep -c '| cargó y dibujó |' $S/catch5/out_6/tour.md $S/catch5/out_7/tour.md 2>/dev/null",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T06:59:38+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the texture-cache comparison",
+   "cmd": "until [ -s $TMP ]; do sleep 15; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:49:33+00:00"
+ "actualizado": "2026-11-04T06:59:38+00:00"
 }
