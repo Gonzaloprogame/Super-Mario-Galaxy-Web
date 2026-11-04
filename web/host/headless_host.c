@@ -331,9 +331,15 @@ static _Atomic uint64_t sInServiceSince;
 
 /* ---- services ---- */
 
+/* One line of the game's reports (OSReport) or of Nebula's log, without its newline (nebula_game_api.h): ended here,
+   so the next line (the host's own, which the page and the tour read from the start of a line) is not glued to it */
 static void svc_log(void* user, const char* text) {
     (void)user;
+    const size_t length = strlen(text);
     fputs(text, stderr);
+    if (length == 0 || text[length - 1] != '\n') {
+        fputc('\n', stderr);
+    }
 }
 
 static void report(void);
@@ -492,33 +498,156 @@ static void svc_power(void* user, uint32_t what) {
 /* ---- the galaxy tour (the page's ?tour=, docs/MOTOR_WEB.md): each stop in turn, through the game's own stage change
    (MR::requestChangeStageInGameMoving, NEBULA_TEST_CHANGE_STAGE), every `frames` scene frames. The way Nebula's host
    visits galaxies (GALAXY_TEST_GALAXY_TOUR): to find, galaxy by galaxy, what the web engine cannot draw or run, without
-   playing to each one. The list comes from the page, not from this repository. ---- */
+   playing to each one. The list comes from the page, not from this repository.
+   Each stop can carry test events, and the run settings, the hooks Nebula's host takes from GALAXY_TEST_EVENTS,
+   GALAXY_TEST_TELEPORT, GALAXY_TEST_GRAND_STARS and GALAXY_TEST_EVENT_FLAGS (third_party/nebula/native/host/host_main.cpp,
+   nebula_game_api.h NEBULA_TEST_*), performed by the game with its own calls:
+     Stage:scenario/kind@frame/...   kind, at that scene frame counted from the stop's stage change: star, grandstar (the
+       stop's star collected: its result, the get demo, the save and what follows), defeat:<model> (the live actors with
+       that model killed, as their defeat ends), actors (the live actors with a model, logged), kill (a miss), movieN,
+       shake, mario/luigi (the player from the next scene), tp:x;y;z (the player placed there for 30 frames), wait
+       (nothing: the stop lasts until then). A stop lasts its `frames`, or until 20 s after its last event.
+     grandstars=N, flag=Name (several), player=mario|luigi: once, from the second scene frame, before the first stop
+       (the save holds Grand Stars 1-N, and the stage played starts again with them; the event flag on; the player). ---- */
 #define SMG_TOUR_MAX 160
+#define SMG_TOUR_EVENTS 16
+#define SMG_TOUR_FLAGS 16
+enum { TOUR_WAIT = 0, TOUR_TELEPORT = 0x100 };
+typedef struct {
+    uint32_t kind; /* NEBULA_TEST_*, TOUR_WAIT or TOUR_TELEPORT */
+    uint32_t frame;
+    int32_t value; /* the star (-1: the stop's scenario), the movie, the player */
+    int fired;
+    float position[3];
+    char name[48]; /* the model (NEBULA_TEST_KILL_ACTOR), and the event as written, for the log */
+} TourEvent;
 static struct {
     char stage[64];
     int32_t scenario;
+    TourEvent events[SMG_TOUR_EVENTS];
+    size_t eventCount;
+    uint64_t length; /* scene frames the stop lasts */
 } sTour[SMG_TOUR_MAX];
 static size_t sTourStops, sTourNext;
 static uint64_t sTourFrames = 1200, sTourSince, sSceneFrames, sTourStartMicros;
 static int sTourDone;
+static char sTourFlags[SMG_TOUR_FLAGS][48];
+static size_t sTourFlagCount, sTourFlagNext;
+static int32_t sTourGrandStars, sTourPlayer = -1;
+static int sTourGrandStarsSet, sTourPlayerSet;
 
-/* "Stage:scenario,Stage:scenario,..." (scenario 1 when left out) */
+/* One event, "kind@frame"; 0 when it is not one */
+static int tour_event_parse(const char* text, TourEvent* event) {
+    memset(event, 0, sizeof(*event));
+    event->value = -1;
+    snprintf(event->name, sizeof(event->name), "%s", text);
+    const char* at = strrchr(text, '@');
+    if (at == NULL || at[1] == '\0') {
+        return 0;
+    }
+    event->frame = (uint32_t)strtoul(at + 1, NULL, 10);
+    char kind[64];
+    snprintf(kind, sizeof(kind), "%.*s", (int)(at - text < 63 ? at - text : 63), text);
+    if (strcmp(kind, "star") == 0) {
+        event->kind = NEBULA_TEST_GET_STAR;
+    } else if (strcmp(kind, "grandstar") == 0) {
+        event->kind = NEBULA_TEST_GET_GRAND_STAR;
+    } else if (strcmp(kind, "kill") == 0) {
+        event->kind = NEBULA_TEST_KILL_PLAYER;
+    } else if (strcmp(kind, "actors") == 0) {
+        event->kind = NEBULA_TEST_LIST_ACTORS;
+    } else if (strcmp(kind, "shake") == 0) {
+        event->kind = NEBULA_TEST_SHAKE_CAMERA;
+    } else if (strcmp(kind, "wait") == 0) {
+        event->kind = TOUR_WAIT;
+    } else if (strcmp(kind, "mario") == 0 || strcmp(kind, "luigi") == 0) {
+        event->kind = NEBULA_TEST_SET_PLAYER;
+        event->value = kind[0] == 'l' ? 1 : 0;
+    } else if (strncmp(kind, "movie", 5) == 0 && kind[5] >= '0' && kind[5] <= '9') {
+        event->kind = NEBULA_TEST_START_MOVIE;
+        event->value = atoi(kind + 5);
+    } else if (strncmp(kind, "defeat:", 7) == 0 && kind[7] != '\0') {
+        event->kind = NEBULA_TEST_KILL_ACTOR;
+        snprintf(event->name, sizeof(event->name), "%s", kind + 7);
+    } else if (strncmp(kind, "tp:", 3) == 0 &&
+               sscanf(kind + 3, "%f;%f;%f", &event->position[0], &event->position[1], &event->position[2]) == 3) {
+        event->kind = TOUR_TELEPORT;
+    } else {
+        return 0;
+    }
+    return 1;
+}
+
+/* A run setting, "name=value"; 0 when it is not one */
+static int tour_setting_parse(const char* text) {
+    if (strncmp(text, "grandstars=", 11) == 0) {
+        sTourGrandStars = atoi(text + 11);
+    } else if (strncmp(text, "flag=", 5) == 0 && text[5] != '\0' && sTourFlagCount < SMG_TOUR_FLAGS) {
+        snprintf(sTourFlags[sTourFlagCount++], sizeof(sTourFlags[0]), "%s", text + 5);
+    } else if (strcmp(text, "player=mario") == 0 || strcmp(text, "player=luigi") == 0) {
+        sTourPlayer = text[7] == 'l' ? 1 : 0;
+    } else {
+        return 0;
+    }
+    return 1;
+}
+
+/* "Stage:scenario/event/...,setting,..." (scenario 1 when left out) */
 static void tour_parse(const char* spec, const char* frames) {
+    if (frames != NULL && atoi(frames) >= 60) {
+        sTourFrames = (uint64_t)atoi(frames);
+    }
+    size_t events = 0;
     const char* p = spec;
-    while (*p != '\0' && sTourStops < SMG_TOUR_MAX) {
+    while (*p != '\0') {
         const char* end = strchr(p, ',');
         const size_t length = end != NULL ? (size_t)(end - p) : strlen(p);
-        char entry[80];
+        char entry[512];
         snprintf(entry, sizeof(entry), "%.*s", (int)(length < sizeof(entry) - 1 ? length : sizeof(entry) - 1), p);
-        char* colon = strchr(entry, ':');
-        int scenario = 1;
-        if (colon != NULL) {
-            *colon = '\0';
-            scenario = atoi(colon + 1);
-        }
-        if (entry[0] != '\0') {
+        char* slash = strchr(entry, '/');
+        const char* equals = strchr(entry, '=');
+        if (equals != NULL && (slash == NULL || equals < slash)) {
+            if (!tour_setting_parse(entry)) {
+                host_log("[host] tour: unknown setting '%s' (ignored)\n", entry);
+            }
+        } else if (entry[0] != '\0' && sTourStops < SMG_TOUR_MAX) {
+            if (slash != NULL) {
+                *slash = '\0';
+            }
+            char* colon = strchr(entry, ':');
+            int scenario = 1;
+            if (colon != NULL) {
+                *colon = '\0';
+                scenario = atoi(colon + 1);
+            }
             snprintf(sTour[sTourStops].stage, sizeof(sTour[sTourStops].stage), "%s", entry);
             sTour[sTourStops].scenario = scenario > 0 ? scenario : 1;
+            uint64_t last = 0;
+            for (char* item = slash != NULL ? slash + 1 : NULL; item != NULL && *item != '\0';) {
+                char* next = strchr(item, '/');
+                if (next != NULL) {
+                    *next = '\0';
+                }
+                TourEvent* event = &sTour[sTourStops].events[sTour[sTourStops].eventCount];
+                if (sTour[sTourStops].eventCount == SMG_TOUR_EVENTS) {
+                    host_log("[host] tour: more than %d events at %s; '%s' and those after it ignored\n",
+                             SMG_TOUR_EVENTS, entry, item);
+                    break;
+                }
+                if (tour_event_parse(item, event)) {
+                    sTour[sTourStops].eventCount++;
+                    events++;
+                    last = event->frame + (event->kind == TOUR_TELEPORT ? 30u : 0u) > last
+                               ? event->frame + (event->kind == TOUR_TELEPORT ? 30u : 0u)
+                               : last;
+                } else {
+                    host_log("[host] tour: unknown test event '%s' at %s (ignored)\n", item, entry);
+                }
+                item = next != NULL ? next + 1 : NULL;
+            }
+            /* After its last event, 20 s for what follows (a star's demo, a defeat's reward, the next scene) */
+            sTour[sTourStops].length =
+                sTour[sTourStops].eventCount > 0 && last + 1200u > sTourFrames ? last + 1200u : sTourFrames;
             sTourStops++;
         }
         if (end == NULL) {
@@ -526,10 +655,10 @@ static void tour_parse(const char* spec, const char* frames) {
         }
         p = end + 1;
     }
-    if (frames != NULL && atoi(frames) >= 60) {
-        sTourFrames = (uint64_t)atoi(frames);
-    }
-    host_log("[host] tour: %zu stops, %" PRIu64 " scene frames apart\n", sTourStops, sTourFrames);
+    host_log("[host] tour: %zu stops, %" PRIu64 " scene frames apart, %zu test events; settings: grand stars %d, "
+             "%zu event flags, player %s\n",
+             sTourStops, sTourFrames, events, (int)sTourGrandStars, sTourFlagCount,
+             sTourPlayer < 0 ? "as saved" : sTourPlayer == 1 ? "luigi" : "mario");
 }
 
 static int svc_test_scene_frame(void* user, NebulaTestAction* action) {
@@ -537,14 +666,81 @@ static int svc_test_scene_frame(void* user, NebulaTestAction* action) {
     sSceneFrames++;
     trail("scene frame", NULL);
     atomic_fetch_add(&sWatch.beat, 1);
+    /* The run's settings, one a scene frame from the second: event flags, then the Grand Stars, then the player */
+    if (sSceneFrames >= 2) {
+        if (sTourFlagNext < sTourFlagCount) {
+            action->kind = NEBULA_TEST_SET_EVENT_FLAG;
+            snprintf(action->stage, sizeof(action->stage), "%s", sTourFlags[sTourFlagNext++]);
+            host_log("[host] test: event flag %s\n", action->stage);
+            return 1;
+        }
+        if (sTourGrandStars > 0 && !sTourGrandStarsSet) {
+            sTourGrandStarsSet = 1;
+            action->kind = NEBULA_TEST_SET_GRAND_STARS;
+            action->scenario = sTourGrandStars;
+            action->stage[0] = '\0'; /* the stage played starts again with them */
+            sTourSince = 0;          /* the first stop waits for that start */
+            host_log("[host] test: grand stars 1-%d\n", (int)sTourGrandStars);
+            return 1;
+        }
+        if (sTourPlayer >= 0 && !sTourPlayerSet) {
+            sTourPlayerSet = 1;
+            action->kind = NEBULA_TEST_SET_PLAYER;
+            action->scenario = sTourPlayer;
+            host_log("[host] test: player %s from the next scene\n", sTourPlayer == 1 ? "luigi" : "mario");
+            return 1;
+        }
+    }
     if (sTourStops == 0 || sTourDone) {
         return 0;
     }
     if (sTourStartMicros == 0) {
         sTourStartMicros = now_micros();
     }
-    /* The first stop 2 s into the first game scene, the others `frames` apart */
-    if (++sTourSince < (sTourNext == 0 ? 120u : sTourFrames)) {
+    sTourSince++;
+    /* The current stop's events, counted from its stage change */
+    if (sTourNext > 0) {
+        const size_t index = sTourNext - 1;
+        for (size_t i = 0; i < sTour[index].eventCount; i++) {
+            TourEvent* event = &sTour[index].events[i];
+            if (event->kind == TOUR_TELEPORT) {
+                if (sTourSince >= event->frame && sTourSince < (uint64_t)event->frame + 30u) {
+                    action->kind = NEBULA_TEST_PLACE_PLAYER;
+                    memcpy(action->position, event->position, sizeof(action->position));
+                    if (sTourSince == event->frame) {
+                        host_log("[host] test: %s at frame %" PRIu64 " of stop %zu\n", event->name, sTourSince, sTourNext);
+                    }
+                    return 1;
+                }
+                continue;
+            }
+            if (event->fired || sTourSince < event->frame) {
+                continue;
+            }
+            event->fired = 1;
+            if (event->kind == TOUR_WAIT) {
+                continue;
+            }
+            action->kind = event->kind;
+            action->scenario = event->value >= 0 ? event->value : sTour[index].scenario;
+            snprintf(action->stage, sizeof(action->stage), "%s",
+                     event->kind == NEBULA_TEST_KILL_ACTOR ? event->name : "");
+            /* The event as written, without its frame: "star", "movie2", "defeat <model>" */
+            char label[64];
+            if (event->kind == NEBULA_TEST_KILL_ACTOR) {
+                snprintf(label, sizeof(label), "defeat %s", event->name);
+            } else {
+                const char* at = strrchr(event->name, '@');
+                snprintf(label, sizeof(label), "%.*s", (int)(at != NULL ? at - event->name : (long)strlen(event->name)),
+                         event->name);
+            }
+            host_log("[host] test: %s at frame %" PRIu64 " of stop %zu (%s scenario %d)\n", label, sTourSince,
+                     sTourNext, sTour[index].stage, (int)sTour[index].scenario);
+            return 1;
+        }
+    }
+    /* The first stop 2 s into the first game scene, the others when the one before has had its frames */
+    if (sTourSince < (sTourNext == 0 ? 120u : sTour[sTourNext - 1].length)) {
         return 0;
     }
     sTourSince = 0;

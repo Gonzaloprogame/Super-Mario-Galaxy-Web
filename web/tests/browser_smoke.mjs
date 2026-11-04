@@ -439,6 +439,19 @@ await withServer('isolated', async (url) => {
           `en un móvil (360 px) los botones de la pantalla ocupan una línea y la página no desborda (${JSON.stringify(bar)})`);
   }
 
+  // The tour's test events and run settings (web/host/headless_host.c, tour_parse), read before the game starts: what
+  // the host understood, and what it did not, said in the log instead of dropped
+  {
+    const spec = 'PeachCastleGardenGalaxy:1/actors@300/star@600/defeat:KuriboChief@900/tp:1;2;3@100/movie2@50/wait@2000,' +
+      'AstroGalaxy,grandstars=3,flag=SpinAndStarPointer,player=luigi,bogus=1,AstroGalaxy:2/dance@10';
+    const t = await run(`${url}?tour=${encodeURIComponent(spec)}&tourframes=600`, join(fixtures, 'fixture_emptydol.pak'), 120000);
+    const summary = (/\[host\] tour: \d+ stops[^\n]*/.exec(t.log) || [''])[0];
+    check(/tour: 3 stops, 600 scene frames apart, 6 test events; settings: grand stars 3, 1 event flags, player luigi/.test(summary),
+          `gira de prueba: el host lee paradas, eventos y ajustes ("${summary}")`);
+    check(/unknown setting 'bogus=1'/.test(t.log) && /unknown test event 'dance@10' at AstroGalaxy/.test(t.log),
+          'gira de prueba: un ajuste o un evento desconocido se dice en el registro');
+  }
+
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak
   const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');

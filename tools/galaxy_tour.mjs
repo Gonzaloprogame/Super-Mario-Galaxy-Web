@@ -14,7 +14,11 @@
 // run the stages' gameplay code (moving, colliding, enemies) and not only their loading. The same seed, the same
 // presses. It proves nothing about a stage being playable: it looks for what stops the engine while it is played.
 // Diagnostic mode: the game at full speed without a renderer, to measure its own loads (nothing is drawn).
-// The stages file: one "Stage" or "Stage:scenario" per line (the names of the folders under /StageData of the disc).
+// The stages file: one "Stage" or "Stage:scenario" per line (the names of the folders under /StageData of the disc),
+// with test events after it if wanted ("Stage:1/actors@300/star@900": star, grandstar, defeat:<model>, actors, kill,
+// movieN, shake, mario, luigi, tp:x;y;z, wait, each at a scene frame of the stop), and run settings on lines of their
+// own ("grandstars=N", "flag=Name", "player=luigi"): web/host/headless_host.c, tour_parse. The report says, per stop,
+// the events the game performed, the scenes it went through and the movie frames it decoded.
 // Needs tools/build_web.sh first, and Playwright's Chromium (preinstalled here).
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -35,8 +39,15 @@ if (!args.disc || !args.stages || !args.out) {
 const frames = Number(args.frames || 900);
 const hangSeconds = Number(args.hang || 180);
 const port = Number(args.port || 18790);
+// A line is a stop ("Stage", "Stage:scenario", with test events after it: "Stage:1/actors@300/star@600") or a run
+// setting ("grandstars=3", "flag=Name", "player=luigi"): web/host/headless_host.c, tour_parse
+const isSetting = (l) => /^[a-z]+=/.test(l);
 const stops = readFileSync(args.stages, 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
-  .map((l) => (l.includes(':') ? l : `${l}:1`));
+  .map((l) => {
+    if (isSetting(l)) return l;
+    const [head, ...events] = l.split('/');
+    return [head.includes(':') ? head : `${head}:1`, ...events].join('/');
+  });
 mkdirSync(join(args.out, 'shots'), { recursive: true });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -50,6 +61,9 @@ const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(String(e)));
 
 const results = [];
+const settings = [];     // the run settings the host applied ([host] test: grand stars / event flag / player)
+const tourProblems = []; // what the host could not read in the list
+let movieFrames = 0;     // movie frames decoded, from the host's reports
 let current = null; // the stop being visited
 // With graphics, a stop also has to reach the screen: the frames the page painted meanwhile (web/shell/present.js)
 const graphics = args.mode !== 'diagnostic';
@@ -65,14 +79,20 @@ const finishStop = (outcome) => {
   }
 };
 const writeReport = (end) => {
-  const summary = { disc: args.disc.split('/').pop(), frames, hangSeconds, end, pageErrors, stages: results };
+  const summary = { disc: args.disc.split('/').pop(), frames, hangSeconds, end, pageErrors, settings, tourProblems,
+                    stages: results };
   writeFileSync(join(args.out, 'tour.json'), JSON.stringify(summary, null, 1));
   const rows = results.map((r) => `| ${r.stop} | ${r.outcome || 'sin terminar'} | ${r.load ?? '—'} | ${r.stalls.length} | ` +
-    `${r.drew ? 'sí' : 'no'}${graphics && r.painted !== undefined ? ` (${r.painted} en pantalla)` : ''} | ${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
+    `${r.drew ? 'sí' : 'no'}${graphics && r.painted !== undefined ? ` (${r.painted} en pantalla)` : ''} | ` +
+    `${r.events.join(', ') || '—'} | ${r.scenes.join(' → ') || '—'} | ${r.movieFrames || 0} | ` +
+    `${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
   writeFileSync(join(args.out, 'tour.md'), [
     `Gira: ${results.length} paradas, ${frames} fotogramas de escena cada una, cuelgue si una parada dura más de ` +
-    `${hangSeconds} s${args.mode === 'diagnostic' ? ', modo diagnóstico' : ''}${args.play ? `, jugando a ciegas (semilla ${Number(args.play) || 1})` : ''}. Fin: ${end}.`, '',
-    '| Parada | Resultado | Carga (s) | Paradas | Dibuja | Problemas |', '|---|---|---|---|---|---|', ...rows, ''].join('\n'));
+    `${hangSeconds} s${args.mode === 'diagnostic' ? ', modo diagnóstico' : ''}${args.play ? `, jugando a ciegas (semilla ${Number(args.play) || 1})` : ''}. Fin: ${end}.`,
+    ...(settings.length ? [`Ajustes de prueba: ${settings.join('; ')}.`] : []),
+    ...(tourProblems.length ? [`Problemas de la gira: ${tourProblems.join('; ')}.`] : []), '',
+    '| Parada | Resultado | Carga (s) | Paradas | Dibuja | Eventos de prueba | Escenas | Vídeo (fotogramas) | Problemas |',
+    '|---|---|---|---|---|---|---|---|---|', ...rows, ''].join('\n'));
 };
 
 try {
@@ -125,8 +145,20 @@ try {
       if ((m = /^\[host\] tour: stop (\d+) of (\d+), (\S+) scenario (\d+)/.exec(line))) {
         finishStop('cargó y dibujó');
         current = { stop: `${m[3]}:${m[4]}`, since: Date.now(), load: null, stalls: [], problems: [], drew: false,
-                    gxAtStart: lastGx, shot: false, paintedAtStart: painted };
+                    gxAtStart: lastGx, shot: false, paintedAtStart: painted, events: [], scenes: [],
+                    moviesAtStart: movieFrames, movieFrames: 0 };
         results.push(current);
+      } else if ((m = /^\[host\] test: (.+?) at frame (\d+) of stop \d+/.exec(line)) && current) {
+        current.events.push(`${m[1]}@${m[2]}`);
+      } else if ((m = /^\[host\] test: (grand stars .*|event flag .*|player .*)$/.exec(line))) {
+        settings.push(m[1]);
+      } else if ((m = /^\[host\] tour: (unknown .*|more than .*)$/.exec(line))) {
+        tourProblems.push(m[1]);
+      } else if ((m = /^\[host\] stage: (\S+)/.exec(line)) && current) {
+        if (current.scenes[current.scenes.length - 1] !== m[1]) current.scenes.push(m[1]);
+      } else if ((m = /^\[host\] movies: (\d+) frames decoded/.exec(line))) {
+        movieFrames = Number(m[1]);
+        if (current) current.movieFrames = movieFrames - current.moviesAtStart;
       } else if ((m = /^\[host\] load '[^']*' -> '([^']+)': ([\d.]+) s/.exec(line)) && current) {
         current.load = Number(m[2]);
       } else if ((m = /^\[host\] stall: no GX from the game for (\d+) s/.exec(line)) && current) {

@@ -1,0 +1,54 @@
+# Prólogo: la estrella del jardín lleva el juego al Observatorio
+PeachCastleGardenGalaxy:1/star@600
+expect scenes PeachCastleGardenGalaxy AstroGalaxy
+---
+# El Observatorio con 1 Gran Estrella (lo que el juego restaura y abre para ese número)
+grandstars=1
+AstroGalaxy:1/actors@600/wait@1200
+expect scenes AstroGalaxy
+---
+# El Observatorio con 2 Grandes Estrellas
+grandstars=2
+AstroGalaxy:1/wait@1200
+expect scenes AstroGalaxy
+---
+# El Observatorio con 3 Grandes Estrellas
+grandstars=3
+AstroGalaxy:1/wait@1200
+expect scenes AstroGalaxy
+---
+# El Observatorio con 4 Grandes Estrellas
+grandstars=4
+AstroGalaxy:1/wait@1200
+expect scenes AstroGalaxy
+---
+# El Observatorio con 5 Grandes Estrellas
+grandstars=5
+AstroGalaxy:1/wait@1200
+expect scenes AstroGalaxy
+---
+# El Observatorio con 6 Grandes Estrellas
+grandstars=6
+AstroGalaxy:1/actors@600/wait@1200
+expect scenes AstroGalaxy
+---
+# Primera batalla con Bowser: su Gran Estrella y la vuelta al Observatorio
+grandstars=2
+KoopaBattleVs1Galaxy:1/actors@600/grandstar@900
+expect scenes KoopaBattleVs1Galaxy AstroGalaxy
+---
+# Segunda batalla con Bowser: su Gran Estrella y la vuelta al Observatorio
+grandstars=4
+KoopaBattleVs2Galaxy:1/actors@600/grandstar@900
+expect scenes KoopaBattleVs2Galaxy AstroGalaxy
+---
+# La flota de Bowser Jr.: su estrella y la vuelta al Observatorio
+grandstars=3
+KoopaJrShipLv1Galaxy:1/actors@600/grandstar@900
+expect scenes KoopaJrShipLv1Galaxy AstroGalaxy
+---
+# La batalla final: su Gran Estrella, lo que el juego hace después (el final), sin vídeo (modo diagnóstico)
+grandstars=6
+KoopaBattleVs3Galaxy:1/actors@600/grandstar@900/wait@9000
+frames 600
+hang 900
