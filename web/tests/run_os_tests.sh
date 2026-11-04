@@ -31,6 +31,13 @@ emcc $FL -pthread -c $N/sdk/memory.c -include "$W/include/web_memory_shim.h" -o 
 emcc $FL $LINK "$N/sdk/os/tests/context_switch_tests.c" "$W/context_switch_wasm.c" -o "$OUT/context_switch_tests.js"
 emcc $FL $LINK "$N/sdk/os/tests/os_scheduler_tests.c" $OS "$OUT/memory.o" "$W/memory_shim_wasm.c" "$W/posix_shim_wasm.c" $SDK \
     -o "$OUT/os_scheduler_tests.js"
+# The game's clock (OSGetTick) in wasm: without web/platform/monotonic_clock_wasm.c two reads in a row can be equal
+# (the browser's clock has microseconds), with it never (the console's time base never repeats).
+emcc $FL $LINK "$ROOT/web/tests/monotonic_clock_test.c" $OS "$OUT/memory.o" "$W/memory_shim_wasm.c" "$W/posix_shim_wasm.c" \
+    $SDK -o "$OUT/monotonic_clock_plain.js"
+emcc $FL $LINK -DSMG_TEST_WRAPPED_CLOCK -Wl,--wrap=clock_gettime "$ROOT/web/tests/monotonic_clock_test.c" $OS \
+    "$W/monotonic_clock_wasm.c" "$OUT/memory.o" "$W/memory_shim_wasm.c" "$W/posix_shim_wasm.c" $SDK \
+    -o "$OUT/monotonic_clock_tests.js"
 emcc $FL $LINK "$N/sdk/mtx/tests/mtx_tests.c" "$N/sdk/mtx/mtx_native.c" -o "$OUT/mtx_tests.js"
 emcc $FL $LINK "$N/msl/tests/msl_runtime_tests.c" "$N/msl/src/msl_runtime.c" -o "$OUT/msl_runtime_tests.js"
 
@@ -49,7 +56,9 @@ emcc -O2 "$ROOT/web/tests/ppc_divide_test.c" -o "$OUT/ppc_divide_tests.js"
 python3 -I "$ROOT/tools/wasm_ppc_divide.py" "$OUT/ppc_divide_tests.wasm" "$OUT/ppc_divide_tests.wasm"
 
 status=0
-for t in context_switch_tests os_scheduler_tests mtx_tests msl_runtime_tests host_services_tests console_services_tests audio_output_tests ppc_divide_tests; do
+echo "== monotonic_clock_plain (without the wrapper: shows what the browser's clock gives)"
+node "$OUT/monotonic_clock_plain.js" || true
+for t in context_switch_tests os_scheduler_tests monotonic_clock_tests mtx_tests msl_runtime_tests host_services_tests console_services_tests audio_output_tests ppc_divide_tests; do
     echo "== $t"
     node "$OUT/$t.js" || { echo "FAILED: $t (exit $?)"; status=1; }
 done

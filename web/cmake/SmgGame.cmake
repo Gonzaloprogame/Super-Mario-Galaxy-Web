@@ -53,7 +53,9 @@ endfunction()
 # delete globales del juego (JKRHeap) frente a los del resto del binario (web/platform/operator_new_wasm.cpp);
 # GXCallDisplayList, que copia la lista en el flujo GX (web/platform/gx_display_list_inline_wasm.c); GXSetDrawDone y
 # GXSetDrawSync, que limitan la ventaja del juego sobre el renderizador (web/platform/gx_pacing_wasm.c); abort, que
-# avisa a la página desde el hilo que aborta (web/platform/abort_report_wasm.c).
+# avisa a la página desde el hilo que aborta (web/platform/abort_report_wasm.c); clock_gettime, cuyo reloj monótono
+# no repite valor, como la base de tiempos de la consola (web/platform/monotonic_clock_wasm.c: con la resolución del
+# navegador dos lecturas seguidas podían ser iguales y un bucle del juego no terminaba).
 # PTHREAD_POOL_SIZE: un hilo creado más allá del conjunto no arranca nunca (necesita que el hilo del juego vuelva al
 # bucle de eventos del worker, y no vuelve): el host sin renderizador crea 5 (headless_host.c, check_thread_pool, que lo
 # comprueba al arrancar); con 4, el del mando no arrancaba y el juego no recibía los controles. Cada binario puede
@@ -66,7 +68,7 @@ set(SMG_WEB_LINK_OPTIONS
     -sEXIT_RUNTIME
     -Wl,--wrap=_Znwm -Wl,--wrap=_Znam -Wl,--wrap=_ZdlPv -Wl,--wrap=_ZdaPv
     -Wl,--wrap=GXCallDisplayList -Wl,--wrap=GXSetDrawDone -Wl,--wrap=GXSetDrawSync
-    -Wl,--wrap=abort -Wl,--wrap=GXSetTexCopyDst -Wl,--wrap=GXCopyTex)
+    -Wl,--wrap=abort -Wl,--wrap=GXSetTexCopyDst -Wl,--wrap=GXCopyTex -Wl,--wrap=clock_gettime)
 
 # División entera con la semántica de PowerPC (tools/wasm_ppc_divide.py): cada div/rem del binario enlazado pasa a una
 # función que da el resultado de la consola donde wasm haría trap. Sustituye a native/sdk/os/divide_native.c.

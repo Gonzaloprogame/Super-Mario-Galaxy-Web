@@ -305,3 +305,28 @@ bucle propio, sin cambios de hilo, fuera del host), y ya con el rastro:
 
 Jugando sale una vez en 9 escenarios, frente a una en ~720 cargas sin jugar: se puede cazar. En curso:
 `$S/catch3/run.sh 5` (semillas 1 a 5, con el perfilador al detectar 20 s sin GX).
+
+### Bloque 12: la causa del cuelgue a toda velocidad (2026-11-04)
+
+**Cazado con el perfilador** (jugando a ciegas, `$S/catch3`, tres veces: BreakDownPlanet, KoopaBattleVs2…). El hilo
+del juego pasa el 100 % en `nebula_game_main` (el bucle principal, con mucho código del juego en línea), sin llamar a
+nada. En su desensamblado, de los 11 bucles sin llamadas, uno no tiene fin si su paso es 0:
+`x = G; while (x < 2 * campo) x += G`, con `G` una global en 962800 que vale 670000 al arrancar y luego
+`OSGetTick() - anterior`. En el código: **`MainLoopFramework::calcCombinationRatio`** suma `JUTVideo::getVideoInterval()`
+hasta pasar dos fotogramas, y **`JUTVideo::preRetraceProc`** guarda ese intervalo en cada retrazado
+(`sVideoInterval = tick - sVideoLastTick`).
+
+**Causa:** en la consola dos retrazados están a 16,7 ms; Nebula entrega los que llegaron mientras el juego estaba
+ocupado uno tras otro, y en el navegador el reloj monótono (`performance.now()`) tiene microsegundos de resolución: los
+dos leen el mismo instante, el intervalo es 0 y el bucle no acaba. Por eso solo a toda velocidad y dependiendo del
+momento; y es la firma del cuelgue del libro en el PC del usuario (sin comprobar que sea el mismo).
+
+**Arreglo, en la plataforma (sin tocar el juego):** `web/platform/monotonic_clock_wasm.c`, con
+`--wrap=clock_gettime` (`web/cmake/SmgGame.cmake`): el reloj monótono no repite valor; una lectura que no pasa la
+anterior devuelve la anterior más 20 ns (algo más de un tick de la consola, 16,5 ns). Como la base de tiempos de la
+consola, que nunca se repite.
+
+**Pruebas:** `web/tests/monotonic_clock_test.c` en `run_os_tests.sh`, un millón de lecturas seguidas de `OSGetTick`:
+sin el arreglo **396.780 iguales a la anterior**; con él, 0 (PASS). Todas las pruebas del SO pasan; `browser_smoke`
+51 PASS, `bridge_smoke` 56 PASS. **Pendiente:** la prueba en el juego (jugar a ciegas sin cuelgues, cuando antes salía
+en la mitad de las giras).
