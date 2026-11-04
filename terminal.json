@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:41:49+00:00",
-   "tipo": "bash",
-   "desc": "Anotar la tanda 01 en el registro",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+30 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-03T23:06:43+00:00",
-   "tipo": "bash",
-   "desc": "Encadenar las tandas 03 y 04 tras la 02",
-   "cmd": "S=$S; until ! pgrep -f \"galaxy_tour.mjs.*batch_02\" >/dev/null; do sleep 15; done; cd ~/repo; for b in 03 04; do timeout 3500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --st…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:09:01+00:00",
    "tipo": "bash",
    "desc": "Ver el final de la tanda 02 y que arrancó la 03",
@@ -279,8 +265,22 @@
    "desc": "Esperar a que avance por el prólogo",
    "cmd": "S=$S; until grep -q \"k=36\" $S/story/new.out 2>/dev/null || ! pgrep -f story/new.sh >/dev/null; do sleep 4; done; cat $S/story/new.out | cut -c1-300; curl -s \"127.0.0.1:18777/log?t…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:25:25+00:00",
+   "tipo": "bash",
+   "desc": "Ver dónde está el recorrido del prólogo",
+   "cmd": "S=$S; cat $S/story/new.out | cut -c1-300; curl -s \"127.0.0.1:18777/log?tail=3000\" | grep -E \"^\\[host\\] (stage:|movies|stall|report)\" | tail -6 | cut -c1-240",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:25:30+00:00",
+   "tipo": "bash",
+   "desc": "Comprobar el estado del conductor",
+   "cmd": "S=$S; curl -s -m 10 127.0.0.1:18777/state | cut -c1-300; echo; tail -5 $S/story/driver.out | cut -c1-300; pgrep -fa \"driver.mjs\" | cut -c1-100",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:25:20+00:00"
+ "actualizado": "2026-11-04T00:25:30+00:00"
 }
