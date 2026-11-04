@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:45+00:00",
-   "tipo": "bash",
-   "desc": "Find nand_main function index",
-   "cmd": "grep \":nand_main$\" ~/repo/build/all/engine/smg_web.js.symbols",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:50+00:00",
    "tipo": "bash",
    "desc": "Disassemble the engine wasm",
@@ -279,8 +272,15 @@
    "desc": "Average per-frame render times in the level",
    "cmd": "S=$S; for r in perf1 perf2; do f=$S/$r/out/log_end.txt; [ -f $f ] || f=$S/$r/out/log_tail.txt; awk -v r=$r '/tour: stop 1/{on=1} on && /render thread:/ { n++; match($0,/processing…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:31:14+00:00",
+   "tipo": "bash",
+   "desc": "Compare whole-level render times",
+   "cmd": "S=$S; until [ -f $S/perf2/out/log_end.txt ] || ! pgrep -f \"perf2/out\" >/dev/null; do sleep 10; done; for r in perf1 perf2; do awk -v r=$r '/tour: stop 1/{on=1} on && /render threa…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:21:06+00:00"
+ "actualizado": "2026-11-04T06:31:14+00:00"
 }
