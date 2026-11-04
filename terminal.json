@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:40:56+00:00",
-   "tipo": "bash",
-   "desc": "See texture identity in the BP register path",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; n=$(grep -n \"void bp_tex(\" command_processor.cpp | cut -d: -f1); sed -n \"$n,$((n+80))p\" command_processor.cpp | grep -n \"texObjId…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:41:00+00:00",
    "tipo": "bash",
    "desc": "Find where texture ids and versions are assigned",
@@ -279,8 +272,15 @@
    "desc": "Verify every stop of seeds 5-7",
    "cmd": "S=$S; for i in 5 6 7; do echo \"semilla $i: $(grep -c '| cargó y dibujó |' $S/catch5/out_$i/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/catch5/out_$i/tour.md)\"; grep '^| [A-Z].*Gal…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:31:22+00:00",
+   "tipo": "bash",
+   "desc": "Find who reads the clock on the game thread",
+   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; cp $SYM $S/perf4/symbols_now 2>/dev/null; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 300 | …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:31:02+00:00"
+ "actualizado": "2026-11-04T07:31:22+00:00"
 }
