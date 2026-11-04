@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T16:12:48+00:00",
-   "tipo": "bash",
-   "desc": "Read build_web.sh copy layout",
-   "cmd": "sed -n 30,60p tools/build_web.sh",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T16:12:55+00:00",
-   "tipo": "bash",
-   "desc": "Assemble site3 with the new engine",
-   "cmd": "S=$S; B=~/repo/build/all; rm -rf $S/site3 && cp -r $S/site2 $S/site3 && cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T16:12:59+00:00",
-   "tipo": "bash",
-   "desc": "Profile the garden with patch 0027",
-   "cmd": "S=$S; $S/perfrun.sh perf7 $S/site3 $S/perf7_symbols > $S/perf7.summary 2>&1; echo \"exit $?\" >> $S/perf7.summary",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T16:26:09+00:00",
    "tipo": "bash",
    "desc": "Compare profile with patch against baseline",
@@ -279,8 +258,29 @@
    "desc": "Search Nebula native for stubs and nonmatching",
    "cmd": "cd ~/repo/third_party/nebula/native; grep -rIl -i -E \"\\bstub\" --include=*.c --include=*.cpp --include=*.h --include=*.txt --include=*.md . | head -30; echo ---; grep -rIn -i -E \"u…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:50+00:00",
+   "tipo": "bash",
+   "desc": "Inspect stub and nonmatching markers",
+   "cmd": "cd ~/repo/third_party; grep -n -i -B2 -A8 \"stub\" nebula/native/sdk/core.c | head -40; echo ---; grep -rIn -i -E \"unimplemented|not decompiled|nonmatching|NON_MATCHING|// TODO|stub…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:54+00:00",
+   "tipo": "bash",
+   "desc": "Find SDK missing call sites and TODO markers in fork",
+   "cmd": "cd ~/repo/third_party; grep -rIn \"nebula_sdk_missing\" nebula/native --include=*.c --include=*.cpp --include=*.h | head -20; ls nebula/native/sdk; echo ---; grep -rIn -i -E \"unimpl…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:36:58+00:00",
+   "tipo": "bash",
+   "desc": "Inspect NameObjFactoryStubs and SDK stubs",
+   "cmd": "cd ~/repo/third_party; for d in nebula/native/petari petari; do f=$(find $d -name NameObjFactoryStubs.hpp); echo \"== $f\"; wc -l $f; done; head -40 $(find nebula/native/petari -nam…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:36:44+00:00"
+ "actualizado": "2026-11-04T18:36:58+00:00"
 }
