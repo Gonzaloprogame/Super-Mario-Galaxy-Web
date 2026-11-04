@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:51:44+00:00",
-   "tipo": "bash",
-   "desc": "Check the seconds field limit; list remaining stages",
-   "cmd": "cd ~/repo; grep -n 'id=\"seconds\"' web/shell/index.html; S=$S; awk 'f{print} /SurfingLv2Galaxy/{f=1; print}' $S/galaxies.txt > $S/long1/rest.txt; cat $S/long1/rest.txt | tr '\\n' ' '",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:51:48+00:00",
    "tipo": "bash",
    "desc": "See how app.js reads the run length",
@@ -279,8 +272,15 @@
    "desc": "Document the FPS counter in README and progress log",
    "cmd": "python3 - <<'EOF'  … (+32 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:28:27+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test result",
+   "cmd": "F=$TMP cat $F; S=$S; grep -v \"GET /\" $S/smoke_fps.log | tail -15",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T13:28:22+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T13:28:27+00:00"
 }
