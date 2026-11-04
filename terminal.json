@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:52:10+00:00",
-   "tipo": "bash",
-   "desc": "Run full page test with the save feature",
-   "cmd": "S=$S; R=~/repo; cp $R/web/shell/index.html $R/web/shell/app.js $S/site5/ && cd $R && SMG_SITE=$S/site5 timeout 1700 node web/tests/browser_smoke.mjs > $S/b4_smoke.log 2>&1; echo \"…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:52:16+00:00",
    "tipo": "bash",
    "desc": "Record ending result in progress docs",
@@ -279,8 +272,15 @@
    "desc": "Add play directive and epilogue-with-buttons segment",
    "cmd": "python3 - <<'EOF'  … (+39 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T21:55:22+00:00",
+   "tipo": "bash",
+   "desc": "Run the epilogue segment with button presses",
+   "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route5 --nand $S/drive/nand_RMGE01.bin --site $S/site7 --only 14 > …",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T21:55:17+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T21:55:31+00:00"
 }
