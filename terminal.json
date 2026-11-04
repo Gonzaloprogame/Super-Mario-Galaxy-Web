@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:55:48+00:00",
-   "tipo": "bash",
-   "desc": "Wait for the first stops of the graphics tour",
-   "cmd": "S=$S; until [ \"$(grep -c '^| [A-Z].*Galaxy' $S/gfx44/out/tour.md 2>/dev/null)\" -ge 2 ] 2>/dev/null; do sleep 10; done; cat $S/gfx44/out/tour.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:55:57+00:00",
    "tipo": "bash",
    "desc": "Commit the tour's painted-frames check",
@@ -279,8 +272,15 @@
    "desc": "",
    "cmd": "~/repo/web/shell/fps.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:26:07+00:00",
+   "tipo": "bash",
+   "desc": "Add badge styles, markup, toggle and build copy",
+   "cmd": "python3 - <<'EOF'  … (+61 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:25:49+00:00"
+ "actualizado": "2026-11-04T13:26:07+00:00"
 }
