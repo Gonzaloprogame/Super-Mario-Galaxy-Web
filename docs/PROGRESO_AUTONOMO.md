@@ -494,6 +494,8 @@ guardan en el repositorio). Del registro, por informe de 10 s (600 retrazados) e
 - **Comprobado:** el zip real de GitHub (`archive/refs/heads/gh-pages.zip`, 12 MB) descargado aquí, descomprimido y
   servido con `servir.py`: la página queda aislada (`crossOriginIsolated`), lista para elegir el juego y con el
   contador de fps. No comprobado aquí: Windows (`py servir.py`) ni macOS.
+- **El usuario lo confirmó en su ordenador:** clonó la rama gh-pages, arrancó `servir.py` y la página funciona
+  (sistema sin especificar).
 - **Para que Claude pruebe en el ordenador del usuario:** hace falta una sesión que corra allí (la app de escritorio
   de Claude o `claude remote-control` en la carpeta clonada) o que el usuario comparta la carpeta en la app de
   escritorio (Ajustes, Claude Code, Remote Control) para que esta sesión pueda pedirla.
