@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:45:18+00:00",
-   "tipo": "bash",
-   "desc": "Cazar otra vez el cuelgue guardando el perfil en bruto",
-   "cmd": "S=$S; mkdir -p $S/catch3/first; mv $S/catch3/out_1 $S/catch3/prof_1.txt $S/catch3/hang_log_1.txt $S/catch3/tour_1.log $S/catch3/run.out $S/catch3/first/ 2>/dev/null; timeout 7000 …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:45:34+00:00",
    "tipo": "bash",
    "desc": "Desensamblar el motor de diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Jugar a ciegas cuatro giras con el arreglo del reloj",
    "cmd": "S=$S; timeout 7100 $S/catch4/run.sh 4 > $S/catch4/run.out 2>&1; cat $S/catch4/run.out",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:56:37+00:00",
+   "tipo": "bash",
+   "desc": "Read the blind-play tour results",
+   "cmd": "S=$S; tail -60 $S/catch4/run.out; ls $S/catch4",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T04:23:20+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T05:56:37+00:00"
 }
