@@ -38,14 +38,15 @@ disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca)
   publicado (gh-pages `1bb6016` y siguientes). Copia del sitio con lo publicado: `$S/site2` (para giras sin tocar
   `build/site`; montarla: `ninja -C build/all <objetivos>` y copiar como en `tools/build_web.sh`).
 - **Hecho (bloque 14):** el usuario probó el libro del prólogo con lo publicado y pasó entero (un intento).
-- **Siguiente:** fps en el teléfono del usuario con lo publicado (sin medir: no tiene el teléfono a mano); mientras,
-  rendimiento del hilo de render.
+- **Hecho (bloque 16):** fps medidos en el teléfono del usuario con lo publicado: 22–33 fps, media ~28.
+- **Siguiente:** rendimiento del hilo de render: procesar el flujo GX (16–22 ms por fotograma en el teléfono) es lo
+  que más cuesta.
 - **Después:** rendimiento del hilo de render (bloque 13: procesar el flujo GX es el 59 % de su trabajo; perfil con
   `$S/drive/prof.mjs` y `$S/tools/prof_total.mjs`, `prof_callees.mjs`, `prof_callers.mjs`, con el mapa de símbolos del
   mismo binario), medidas en el PC/móvil del usuario, y jugar galaxias (lo que la gira no comprueba).
 - **Ojo:** las tareas de fondo se cortan a los 30 min si no se les da `timeout` (hasta 2 h); las giras de 44 paradas
   tardan más de 1 h.
-- **Bloqueados:** fps en el teléfono (necesita el teléfono del usuario); PAL y japonesa (Nebula solo
+- **Bloqueados:** PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).
 
 ## Bloques de trabajo
@@ -456,3 +457,29 @@ mientras Aurora aún los lee: no se hace. Cada ms que se quita al hilo de render
 - **Vista previa** con una imagen sintética (degradado, nada del juego) en escritorio y móvil: `$S/fpsprev`.
 - **Resultado:** `browser_smoke.mjs` 57 de 57 con la copia al día del sitio (`SMG_SITE=$S/site2`; `build/site` tenía un
   `present.js` anterior a la memoria compartida y falló por eso, no por el contador).
+
+### Bloque 16: medida en el teléfono del usuario (2026-11-04)
+
+Con lo publicado y el contador nuevo, el usuario jugó en su teléfono Android y pasó el registro y una captura (no se
+guardan en el repositorio). Del registro, por informe de 10 s (600 retrazados) en `PeachCastleGardenGalaxy`:
+
+| Tramo (10 s) | Fotogramas pintados | fps | Procesar el flujo GX (ms) | Terminar (ms) | Esperando al juego (ms) |
+|---|---|---|---|---|---|
+| 1 (tras la carga) | 221 | 22,1 | 22,5 | 7,9 | 13,9 |
+| 2 | 216 | 21,6 | 22,9 | 7,9 | 14,6 |
+| 3 | 281 | 28,1 | 17,7 | 6,2 | 10,9 |
+| 4 | 270 | 27,0 | 18,3 | 6,7 | 11,4 |
+| 5 | 318 | 31,8 | 16,2 | 6,0 | 8,8 |
+| 6 | 306 | 30,6 | 16,6 | 6,0 | 9,5 |
+| 7 | 329 | 32,9 | 16,0 | 5,9 | 8,0 |
+| 8 | 295 | 29,5 | 15,5 | 9,0 | 8,5 |
+| 9 (la escena de la nave) | 246 | 24,6 | 21,9 | 6,9 | 11,1 |
+
+- **Media:** 2482 fotogramas en 90 s, **27,6 fps**; entre 22 y 33 según la escena. La captura (23 fps, en rojo)
+  es de la escena de la nave (707 dibujos en el último fotograma frente a ~438 en el jardín).
+- **Lectura:** la medida anterior (~27 fps) apenas cambia de media. Terminar el fotograma ya cuesta 6–8 ms (antes ~8),
+  pero lo que manda es **procesar el flujo GX: 16–22 ms**, más de la mitad del fotograma. Es el siguiente objetivo.
+- **Arreglo de interfaz a raíz de la captura:** en el móvil, los botones «📈 FPS» y «Pantalla completa» se partían en
+  dos líneas (57 px de alto en 360 y 412 px de ancho, reproducido aquí). Ahora no se parten; en pantallas de 520 px o
+  menos el de pantalla completa muestra solo su icono (el nombre sigue para lectores de pantalla y en `title`).
+  Comprobación nueva en `browser_smoke.mjs` (360 px: una línea por botón, sin desbordar); 58 de 58.

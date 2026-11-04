@@ -163,7 +163,7 @@ de esta tabla: 3 de noviembre de 2026*):
 | Jugar cada galaxia | ⏳ | Cargar y dibujar no es poder jugarla: falta recorrerlas jugando, con sus jefes y sus misiones |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
 | Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; sin confirmar en un teléfono |
-| Rendimiento | 🧪 | ~27 fps en Android en el primer nivel; mejoras posteriores sin medir allí |
+| Rendimiento | 🧪 | Android, jardín del castillo, con lo publicado: 22–33 fps por tramos de 10 s, media ~28; el procesado del flujo GX es lo que más cuesta |
 | Cargas de escenario | 🧪 | El disco ya es rápido (~0,4 s por carga); el registro mide cada carga (`[host] load …`) |
 | Versiones PAL y japonesa | ⏳ | Solo se ha probado la norteamericana (RMGE01) |
 | Jugar de principio a fin | ❌ | **Todavía no** |
@@ -173,7 +173,8 @@ de esta tabla: 3 de noviembre de 2026*):
 - 🧊 **Cuelgue del libro del prólogo, arreglado en la prueba hecha:** en un PC el juego se paraba en la segunda página
   del libro; con el reloj arreglado (ver «Novedades») ese PC ya lo pasa entero, en un primer intento. Si vuelve a
   pasar, el aviso de bloqueo dice lo último que hizo el juego: copia el registro con «Copiar el registro».
-- 🐢 **Velocidad:** en teléfonos va por debajo de 30 fps; en escritorio con GPU por software es mucho más lento.
+- 🐢 **Velocidad:** en un teléfono Android, unos 28 fps de media en el primer nivel (22–33 según la escena); en
+  escritorio con GPU por software es mucho más lento.
 - ⏸️ **Pausas la primera vez:** cada combinación de efectos nueva crea un *pipeline* gráfico en mitad del juego (una
   pausa pequeña). Desde la segunda sesión en el mismo navegador se preparan antes de jugar, en la pantalla de carga.
 - 🌠 **Efectos:** puede haber efectos de luz, transparencias o resplandores que no se vean igual que en la consola.
@@ -288,7 +289,8 @@ Publicado en la página, todavía sin número de versión:
 
 - 📈 **Contador de fps nuevo:** una placa sobre la esquina de la pantalla, también en pantalla completa, con los
   fotogramas que la página pinta de verdad en el último segundo, en verde, ámbar o rojo según la velocidad, y una
-  gráfica de los últimos 24 segundos. Se oculta con su botón y la página lo recuerda.
+  gráfica de los últimos 24 segundos. Se oculta con su botón y la página lo recuerda. En los móviles, los botones de
+  la pantalla ya no se parten en dos líneas.
 - 🎬 **Vídeos del juego:** los vídeos THP se reproducen con el decodificador de Nebula. En WebAssembly no existe su
   instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
   la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg

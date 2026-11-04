@@ -421,6 +421,24 @@ await withServer('isolated', async (url) => {
   check(rate && rate.toggled.hidden === true && rate.toggled.pressed === 'false' && rate.back,
         `contador de fps: su botón lo oculta y lo vuelve a mostrar (${JSON.stringify(rate && rate.toggled)})`);
 
+  // On a phone's width the screen's buttons keep one line each (a two-line button was seen on a phone)
+  {
+    const browser = await chromium.launch();
+    const page = await (await browser.newContext({ viewport: { width: 360, height: 800 }, isMobile: true, hasTouch: true })).newPage();
+    await page.goto(url);
+    const bar = await page.evaluate(() => {
+      document.getElementById('screen-card').hidden = false;
+      const lineHeight = parseFloat(getComputedStyle(document.getElementById('fps-toggle')).lineHeight) || 20;
+      return { heights: [...document.querySelectorAll('.screen-tools button')].map((b) => Math.round(b.getBoundingClientRect().height)),
+               lineHeight, overflow: document.documentElement.scrollWidth > innerWidth,
+               name: document.getElementById('fullscreen').textContent.trim() };
+    });
+    await browser.close();
+    check(bar.heights.length === 2 && bar.heights.every((h) => h < bar.lineHeight * 2) && !bar.overflow &&
+          /Pantalla completa/.test(bar.name),
+          `en un móvil (360 px) los botones de la pantalla ocupan una línea y la página no desborda (${JSON.stringify(bar)})`);
+  }
+
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak
   const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');
