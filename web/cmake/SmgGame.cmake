@@ -54,9 +54,13 @@ endfunction()
 # GXCallDisplayList, que copia la lista en el flujo GX (web/platform/gx_display_list_inline_wasm.c); GXSetDrawDone y
 # GXSetDrawSync, que limitan la ventaja del juego sobre el renderizador (web/platform/gx_pacing_wasm.c); abort, que
 # avisa a la página desde el hilo que aborta (web/platform/abort_report_wasm.c).
+# PTHREAD_POOL_SIZE: un hilo creado más allá del conjunto no arranca nunca (necesita que el hilo del juego vuelva al
+# bucle de eventos del worker, y no vuelve): el host sin renderizador crea 5 (headless_host.c, check_thread_pool, que lo
+# comprueba al arrancar); con 4, el del mando no arrancaba y el juego no recibía los controles. Cada binario puede
+# pedir más (smg_web, con el hilo de render de Aurora).
 set(SMG_WEB_LINK_OPTIONS
     -sASYNCIFY -sASYNCIFY_STACK_SIZE=65536
-    -pthread -sPTHREAD_POOL_SIZE=4
+    -pthread -sPTHREAD_POOL_SIZE=6
     -sALLOW_MEMORY_GROWTH -sINITIAL_MEMORY=64MB -sMAXIMUM_MEMORY=4GB
     -sSTACK_SIZE=1MB
     -sEXIT_RUNTIME

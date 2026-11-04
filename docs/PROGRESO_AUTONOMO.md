@@ -234,3 +234,24 @@ Sin alarmas de memoria (127 informes).
 (CocoonExGalaxy, tras el arreglo del bloque 3) y los otros 4 se comprobaron antes: **44 de 44 cargan y dibujan**.
 Encontrado y arreglado por el camino: el fallo de memoria de la exportación de pipelines. Queda un aviso conocido
 (SurfingLv1). **Ninguno se ha jugado**: el hito «jugable de principio a fin» sigue abierto.
+
+### Bloque 9: en modo diagnóstico el juego no recibía los controles (2026-11-04)
+
+- **Encontrado** al preparar el libro del prólogo en modo diagnóstico (el juego a toda velocidad): el informe decía
+  `Wii Remote reports 0` aunque se pulsaba A; el juego seguía en el menú.
+- **Causa:** en el navegador cada hilo corre en un worker del conjunto de Emscripten (`PTHREAD_POOL_SIZE`). Uno creado
+  más allá necesita un worker nuevo, que solo arranca cuando el hilo que lo crea vuelve al bucle de eventos: el hilo
+  del juego no vuelve nunca, así que ese hilo se crea **y no corre nunca, sin error**. La compilación sin renderizador
+  tenía 4 workers y el host crea 5 hilos (su reloj, el reloj del SO de Nebula, la NAND, el audio y el mando): el del
+  mando, el último (se crea cuando el juego arranca WPAD), no arrancaba. Con gráficos hay 8 para 6: por eso allí iba.
+- **Arreglo:** `web/cmake/SmgGame.cmake`, conjunto de 6. Y una comprobación al arrancar (`check_thread_pool`,
+  `headless_host.c`): cuenta los workers libres frente a los hilos que el host va a crear y, si no llegan, para con un
+  error claro (`the thread pool has N workers and the host needs M`) en lugar de dejar un hilo muerto.
+- **Comprobado:** con 4, la comprobación para el motor con ese error; con 6, arranca (`6 workers for the host's 5
+  threads`), y con el disco el mando llega (`Wii Remote reports` ~100 por segundo). `browser_smoke.mjs` comprueba la
+  línea en los dos modos.
+- **Pruebas:** `browser_smoke.mjs` 50 PASS, 0 FAIL; `bridge_smoke.mjs` 56 PASS, 0 FAIL.
+- **Libro del prólogo en modo diagnóstico** (ya con mando): partida nueva y 8 minutos pulsando A cada 2,5 s, el juego
+  a toda velocidad: sin paradas, sin cuelgue y sin alarmas de memoria. **No se puede confirmar qué página se veía**: sin
+  renderizador no hay pantalla, y en ese modo no se decodifican los vídeos, así que el flujo puede no ser igual al del
+  PC del usuario. No reproducido; sigue pendiente de su prueba con la versión publicada.

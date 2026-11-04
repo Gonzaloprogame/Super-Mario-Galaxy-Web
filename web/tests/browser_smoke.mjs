@@ -109,6 +109,9 @@ await withServer('isolated', async (url) => {
   check(/cStoryProgressTable .* is not in the disc's main\.dol/.test(r.log),
         'el módulo de juego (wasm) ejecutó su cargador de datos del DOL y explicó el fallo');
   check(/código 3/.test(r.status), `la interfaz muestra el código de salida real del motor: "${r.status.trim()}"`);
+  const pool = /thread pool: (\d+) workers for the host's (\d+) threads/.exec(r.log);
+  check(pool && Number(pool[1]) >= Number(pool[2]),
+        `sin renderizador: hay un worker para cada hilo del host (${pool ? pool[0] : 'sin línea'}); uno de más no arrancaría`);
   check(/\[host\] report:/.test(r.log) && !/memory error/.test(r.log),
         'un arranque normal no escribe por debajo de la dirección 1024 (ninguna escritura por puntero nulo)');
   check(r.consoleErrors.length === 0, `sin excepciones de página (${r.consoleErrors.join('; ')})`);
@@ -304,6 +307,9 @@ await withServer('isolated', async (url) => {
     },
   });
   const k = c.after;
+  const graphicsPool = /thread pool: (\d+) workers for the host's (\d+) threads/.exec(c.log);
+  check(graphicsPool && Number(graphicsPool[1]) >= Number(graphicsPool[2]),
+        `con gráficos: hay un worker para cada hilo del host (${graphicsPool ? graphicsPool[0] : 'sin línea'})`);
   check(k.marked, 'controles: la página recibe las palabras de control del motor (marca "SMGI" del host)');
   check(k.keys[0] === (0x0800 | 0x4000) && k.keys[1] === 100 && k.keys[2] === 0,
         `controles: espacio = A, C = C, D = palanca a la derecha (${k.keys.slice(0, 3)})`);

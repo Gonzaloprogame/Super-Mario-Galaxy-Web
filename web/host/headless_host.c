@@ -692,6 +692,32 @@ static uint32_t svc_sc_get(void* user, uint32_t item) {
 
 static double sSeconds = 10.0;
 
+/* ---- the threads' workers ----
+   In the browser a thread runs in one of Emscripten's pooled workers (PTHREAD_POOL_SIZE). One created past the pool
+   needs a new worker, which starts only when the creating thread returns to the worker's event loop: the game's thread
+   never does, so that thread is created and never runs, with no error. It happened to the Wii Remote's thread, the
+   last one (created when the game starts WPAD), in the diagnostic build with a pool of 4: the game never got the
+   controls. The host counts the free workers before creating any thread, and stops if they are not enough. */
+#if defined(__EMSCRIPTEN__)
+static void check_thread_pool(void) {
+    /* The host's clock, Nebula's OS clock (os_native.c), the NAND, the audio interface, the Wii Remote; and Aurora's
+       render thread when drawing */
+    int needed = 5;
+#if defined(SMG_HOST_AURORA)
+    needed++;
+#endif
+    const int available = EM_ASM_INT({ return typeof PThread !== 'undefined' ? PThread.unusedWorkers.length : -1; });
+    if (available < 0) {
+        return; /* not a pthread build */
+    }
+    host_log("[host] thread pool: %d workers for the host's %d threads\n", available, needed);
+    if (available < needed) {
+        die("the thread pool has %d workers and the host needs %d: a thread past them would never run "
+            "(PTHREAD_POOL_SIZE, web/cmake/SmgGame.cmake)", available, needed);
+    }
+}
+#endif
+
 /* ---- writes through a null pointer ----
    WebAssembly memory below 1024 holds nothing: Emscripten's data starts there (its GLOBAL_BASE), no game address maps
    there (the arena is at 512 MB), and unlike a console or a PC, wasm does not stop a write through a null pointer.
@@ -984,6 +1010,9 @@ int main(int argc, char** argv) {
     services.object_name = svc_object_name;
     sDefaultScGet = services.sc_get;
     services.sc_get = svc_sc_get;
+#if defined(__EMSCRIPTEN__)
+    check_thread_pool();
+#endif
     smg_console_start(sPak.id);
     if (argc > 4 && argv[4][0] != '\0') {
         restore_nand(argv[4]);
