@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T17:57:45+00:00",
-   "tipo": "bash",
-   "desc": "Find where to add the index writer note in MOTOR_WEB",
-   "cmd": "sed -n 489,530p docs/MOTOR_WEB.md | grep -n \"Presentación sin copias\\|^###\\|^- \\*\\*\" | head -12",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T17:57:47+00:00",
-   "tipo": "bash",
-   "desc": "Read lines after the presentation note",
-   "cmd": "sed -n 527,530p docs/MOTOR_WEB.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T17:57:55+00:00",
    "tipo": "editar",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Fix cmake source path and retry",
    "cmd": "sed -i 's#    cmake -B \"$BUILD_DIR\" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null#    cmake -S \"$ROOT/web\" -B \"$BUILD_DIR\" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null#' tools/co…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:49:15+00:00",
+   "tipo": "bash",
+   "desc": "Inspect a compile command and the emscripten sysroot",
+   "cmd": "python3 -c \"  … (+3 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:49:22+00:00",
+   "tipo": "bash",
+   "desc": "Get the flags emcc adds internally",
+   "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; emcc --cflags -pthread 2>/dev/null | head -c 600; echo; em++ --cflags -pthread 2>/dev/null | tr ' ' '\\n' | grep -v \"^$\" | wc -l",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:49:02+00:00"
+ "actualizado": "2026-11-04T18:49:22+00:00"
 }
