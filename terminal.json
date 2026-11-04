@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:36:28+00:00",
-   "tipo": "bash",
-   "desc": "Break down GX stream processing",
-   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; P=$S/perf2/dump/worker_3.cpuprofile; for fn in \"aurora::gx::fifo::process(\" \"draw_prim_as_written\" \"push_gx_draw\" ; do echo \"…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:36:35+00:00",
-   "tipo": "bash",
-   "desc": "Locate Aurora's FIFO source and patches",
-   "cmd": "cd ~/repo; grep -rln \"draw_prim_as_written\" --include=*.cpp . 2>/dev/null | grep -v \"^./build/\" | head; ls web/aurora/patches | tail -5; grep -n \"aurora\" web/cmake/*.cmake | grep …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:37:12+00:00",
    "tipo": "bash",
    "desc": "Find the patched Aurora source tree",
@@ -279,8 +265,22 @@
    "desc": "Build with Aurora patch 0027",
    "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all -t targets all 2>/dev/null | grep -i \"test\" | grep -v \"\\.o\\|cmake\\|CMake\" | head; ninja -C build/a…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:49:13+00:00",
+   "tipo": "bash",
+   "desc": "Assemble the site and measure the garden again",
+   "cmd": "cd ~/repo; grep -c \"guestFrameHits\\|forget_guest_textures\" build/all/aurora/aurora-patched/lib/gx/texture.cpp; ls -la build/all/engine/smg_web.wasm; S=$S; B=build/all; cp $B/engin…  … (+1 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:49:21+00:00",
+   "tipo": "bash",
+   "desc": "Wait for and compare the texture-cache run",
+   "cmd": "S=$S; until [ -f $S/perf3/out/log_end.txt ] || ! pgrep -f \"perf3/out\" >/dev/null; do sleep 10; done; for r in perf2 perf3; do awk -v r=$r '/tour: stop 1/{on=1} on && /render threa…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:49:06+00:00"
+ "actualizado": "2026-11-04T06:49:21+00:00"
 }
