@@ -10,6 +10,7 @@
 //   expect scenes A B ...   the last stop goes through these scenes, in this order (after the ones before)
 //   expect movie            the segment decodes movie frames (needs graphics mode: the diagnostic build has no decoder)
 //   mode graphics|diagnostic, frames N, hang S   for this segment (diagnostic, 600 and 600 by default)
+//   play SEED               presses buttons during the segment (galaxy_tour --play): for screens that wait for one
 // Output: <out>/NN/ (galaxy_tour's report, log and screenshots: game data, kept out of the repository) and
 // <out>/route.md, the table of segments.
 import { spawnSync } from 'node:child_process';
@@ -41,6 +42,7 @@ const segments = readFileSync(args.route, 'utf8').split(/^---\s*$/m).map((text, 
     else if ((m = /^mode (graphics|diagnostic)$/.exec(line))) segment.mode = m[1];
     else if ((m = /^frames (\d+)$/.exec(line))) segment.frames = m[1];
     else if ((m = /^hang (\d+)$/.exec(line))) segment.hang = m[1];
+    else if ((m = /^play (\d+)$/.exec(line))) segment.play = m[1];
     else segment.lines.push(line);
   }
   return segment;
@@ -58,6 +60,7 @@ for (const segment of segments) {
     '--out', join(dir, 'out'), '--frames', segment.frames, '--hang', segment.hang, '--mode', segment.mode,
     '--port', String(Number(args.port || 18800) + segment.index)];
   if (args.nand) tourArgs.push('--nand', args.nand);
+  if (segment.play) tourArgs.push('--play', segment.play);
   if (args.site) tourArgs.push('--site', args.site);
   const started = Date.now();
   console.log(`segmento ${segment.index}: ${segment.title || segment.lines[0]} (${segment.mode})`);

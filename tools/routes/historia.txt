@@ -68,3 +68,12 @@ mode graphics
 frames 600
 hang 3600
 expect movie
+---
+# El epílogo pulsando botones: si al acabar los créditos el juego espera una pulsación, qué hace después
+grandstars=6
+KoopaBattleVs3Galaxy:1/grandstar@900/wait@20000
+mode graphics
+play 7
+frames 600
+hang 3600
+expect movie
