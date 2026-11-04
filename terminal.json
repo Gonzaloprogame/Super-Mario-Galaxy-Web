@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:51:07+00:00",
-   "tipo": "bash",
-   "desc": "Inspect galaxy_tour stage parsing and log matching",
-   "cmd": "grep -n \"stages\\|tour=\\|tour:\\|stop \\|encodeURI\\|URLSearchParams\\|split(\" tools/galaxy_tour.mjs | head -40; wc -l tools/galaxy_tour.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:52:17+00:00",
    "tipo": "bash",
    "desc": "Implement tour test events and run settings in host",
@@ -279,8 +272,15 @@
    "desc": "Add save download and load to the page",
    "cmd": "python3 - <<'EOF'  … (+98 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:20:22+00:00",
+   "tipo": "bash",
+   "desc": "Add save export/import checks to smoke test",
+   "cmd": "python3 - <<'EOF'  … (+58 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:19:57+00:00"
+ "actualizado": "2026-11-04T19:20:22+00:00"
 }
