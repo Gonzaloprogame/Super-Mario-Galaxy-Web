@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:53:00+00:00",
-   "tipo": "bash",
-   "desc": "Teach galaxy_tour settings, events, scenes and movies",
-   "cmd": "python3 - <<'EOF'  … (+61 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:56:23+00:00",
    "tipo": "bash",
    "desc": "Document stage file format and build engine",
@@ -279,8 +272,15 @@
    "desc": "Check ending segment progress",
    "cmd": "S=$S; cat $S/route2.log; grep -E \"^\\[host\\] (test|stage|movie|tour)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route2/12/out/log_tail.txt 2>/dev/null | tail -12; grep -o \"movies: [0-9]*…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:21:17+00:00",
+   "tipo": "bash",
+   "desc": "Document route results and push docs",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+60 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:20:54+00:00"
+ "actualizado": "2026-11-04T19:21:17+00:00"
 }
