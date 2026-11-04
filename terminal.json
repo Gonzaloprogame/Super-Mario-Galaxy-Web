@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:51:27+00:00",
-   "tipo": "bash",
-   "desc": "Check ending segment progress",
-   "cmd": "S=$S; tail -2 $S/route2.log; grep -E \"^\\[host\\] (test|stage|tour)\" $S/route2/12/out/log_tail.txt | tail -5; grep -o \"movies: [0-9]* frames decoded[^,]*, [0-9]* refused\" $S/route2/…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:51:57+00:00",
    "tipo": "bash",
    "desc": "Read ending segment result",
@@ -279,8 +272,15 @@
    "desc": "Inspect what the killed epilogue run observed",
    "cmd": "S=$S; sed -n 1,6p $S/route3/13/out/tour.md; grep -E \"^\\[host\\] (stage|tour|test|the game|memory)|aurora (ERROR|FATAL)\" $S/route3/13/out/log_tail.txt | tail -5; grep -o \"report: re…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T21:54:57+00:00",
+   "tipo": "bash",
+   "desc": "List leftover processes from the killed epilogue run",
+   "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); case \"$c\" in *route3/13*|*--remote-debugging*18…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T21:54:43+00:00"
+ "actualizado": "2026-11-04T21:54:57+00:00"
 }
