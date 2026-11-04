@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:31:21+00:00",
-   "tipo": "bash",
-   "desc": "Check catch5 partial results",
-   "cmd": "S=$S; cat $S/catch5/run.out; for i in 5 6 7 8; do [ -f $S/catch5/out_$i/tour.md ] && { head -1 $S/catch5/out_$i/tour.md | grep -o \"Fin: [^.]*\"; grep -c '| cargó y dibujó |' $S/cat…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:31:27+00:00",
    "tipo": "bash",
    "desc": "Inspect leftover catch5 processes",
@@ -279,8 +272,15 @@
    "desc": "Back up files and check patch format",
    "cmd": "S=$S; mkdir -p $S/patch27/orig/lib/gx; cd ~/repo/build/all/aurora/aurora-patched; cp lib/gx/texture.cpp lib/gx/command_processor.cpp $S/patch27/orig/lib/gx/; ls lib/gx/texture.hpp…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:41:56+00:00",
+   "tipo": "bash",
+   "desc": "Read texture header and binding entry",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; sed -n 28,56p lib/gx/texture.hpp; sed -n 815,826p lib/gx/texture.cpp; grep -n \"^#include\\|frame_generation\\|s_frameCount =\" lib/gx/textu…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:41:51+00:00"
+ "actualizado": "2026-11-04T06:41:56+00:00"
 }
