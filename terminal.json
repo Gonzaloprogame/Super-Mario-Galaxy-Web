@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:02:09+00:00",
-   "tipo": "bash",
-   "desc": "Run smoke tests on site4",
-   "cmd": "S=$S; cd ~/repo && cp web/shell/*.js web/shell/index.html $S/site4/ 2>/dev/null; SMG_SITE=$S/site4 timeout 1700 node web/tests/browser_smoke.mjs > $S/b1_smoke.log 2>&1; echo \"exit…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:02:16+00:00",
    "tipo": "bash",
    "desc": "Search Nebula docs for grand star and ending test notes",
@@ -279,8 +272,15 @@
    "desc": "Fix frame count and commit ending result",
    "cmd": "sed -i 's/`grandstar@` y 20 000 fotogramas de espera/`grandstar@` y 12 000 fotogramas de espera/' docs/PROGRESO_AUTONOMO.md && grep -c \"12 000 fotogramas de espera\" docs/PROGRESO_…  … (+6 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:53:50+00:00",
+   "tipo": "bash",
+   "desc": "Read full page test result",
+   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b4_smoke.log) PASS $(grep -c '^FAIL' $S/b4_smoke.log) FAIL $(grep '^exit' $S/b4_smoke.log)\"; grep \"^FAIL\" $S/b4_smoke.log",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:52:31+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:53:50+00:00"
 }
