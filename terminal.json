@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:20:44+00:00",
-   "tipo": "bash",
-   "desc": "Profile the castle garden with the new build",
-   "cmd": "S=$S; cd ~/repo; mkdir -p $S/perf2; timeout 1500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf2/out --nand $S/drive/…  … (+1 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:20:50+00:00",
-   "tipo": "bash",
-   "desc": "Find the render thread profile",
-   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; for f in $S/perf2/dump/*.cpuprofile; do r=$(node $S/tools/prof_total.mjs $f $SYM 200 | grep -c \"render_main\"); [ $r -gt 0 ] &…",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T06:20:56+00:00",
    "tipo": "bash",
    "desc": "Compare render-thread work before and after",
@@ -279,8 +265,22 @@
    "desc": "See texture identity in the BP register path",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; n=$(grep -n \"void bp_tex(\" command_processor.cpp | cut -d: -f1); sed -n \"$n,$((n+80))p\" command_processor.cpp | grep -n \"texObjId…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:41:00+00:00",
+   "tipo": "bash",
+   "desc": "Find where texture ids and versions are assigned",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"bp_tex\\b\\|bp_tex(\" *.cpp | head; grep -rn \"texObjId = \\|texDataVersion = \\|texDataVersion++\\|++.*texDataVersion\" ../ | h…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:41:03+00:00",
+   "tipo": "bash",
+   "desc": "Read how BP textures become loaded slots",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 1395,1450p regs.cpp; grep -n \"s_contentTextures\\|find_content_texture\\|cache_content_texture\" texture.cpp | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:40:56+00:00"
+ "actualizado": "2026-11-04T06:41:03+00:00"
 }
