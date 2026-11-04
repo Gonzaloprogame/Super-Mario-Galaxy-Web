@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:10:04+00:00",
-   "tipo": "bash",
-   "desc": "Measure hashing share after the cache",
-   "cmd": "S=$S; SYM=~/repo/build/all/engine/smg_web.js.symbols; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 300 | grep -q render_main && R=$f; done; echo $R…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:10:16+00:00",
    "tipo": "bash",
    "desc": "Revert the texture-cache patch and stats",
@@ -279,8 +272,15 @@
    "desc": "Find the stop finalizer and report table",
    "cmd": "cd ~/repo; grep -n \"finishStop\\|const finishStop\\|function finishStop\\|Dibuja\\|drew\\|mode\" tools/galaxy_tour.mjs | head -30; sed -n 56,72p tools/galaxy_tour.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:52:30+00:00",
+   "tipo": "bash",
+   "desc": "Read finishStop and the screenshot step",
+   "cmd": "cd ~/repo; sed -n 50,58p tools/galaxy_tour.mjs; sed -n 140,160p tools/galaxy_tour.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:52:26+00:00"
+ "actualizado": "2026-11-04T07:52:30+00:00"
 }
