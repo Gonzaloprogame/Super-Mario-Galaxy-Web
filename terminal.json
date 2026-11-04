@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:39:18+00:00",
-   "tipo": "bash",
-   "desc": "Check repo license for GPL compatibility",
-   "cmd": "head -3 ~/repo/LICENSE; grep -n \"GPL\\|licen\" ~/repo/README.md | head -5",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:39:52+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:46:41+00:00",
    "tipo": "editar",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Read smoke test results",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke.log) PASS $(grep -c '^FAIL' $S/b1_smoke.log) FAIL $(grep '^exit' $S/b1_smoke.log)\"; grep -E \"^FAIL|gira de prueba\" $S/b1_smoke.log…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:04:49+00:00",
+   "tipo": "bash",
+   "desc": "Fix test regex to match the summary line",
+   "cmd": "cd ~/repo && python3 - <<'EOF'  … (+8 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:04:57+00:00",
+   "tipo": "bash",
+   "desc": "Rerun browser smoke test after regex fix",
+   "cmd": "S=$S; cd ~/repo && SMG_SITE=$S/site4 timeout 1700 node web/tests/browser_smoke.mjs > $S/b1_smoke2.log 2>&1; echo \"exit $?\" >> $S/b1_smoke2.log; echo \"smoke: $(grep -c '^PASS' $S/b…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:04:41+00:00"
+ "actualizado": "2026-11-04T19:04:57+00:00"
 }
