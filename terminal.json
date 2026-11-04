@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:48:29+00:00",
-   "tipo": "bash",
-   "desc": "Stop the local test server by exact command line",
-   "cmd": "for p in $(ls /proc | grep -E '^[0-9]+$'); do c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); case \"$c\" in \"python3 servir.py 8123\"*) echo kill $p; kill $p;; esac; done; echo done",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:48:43+00:00",
    "tipo": "bash",
    "desc": "Document and commit local download support",
@@ -279,8 +272,15 @@
    "desc": "Generate Aurora patch 0027",
    "cmd": "S=$S; cd $S/p27 && diff -ruN a b > ~/repo/web/aurora/patches/0027-index-writer-in-place.patch; echo \"diff exit $?\"; grep -c \"^+\" ~/repo/web/aurora/patches/0027-index-writer-in-pla…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:57:59+00:00",
+   "tipo": "bash",
+   "desc": "Check baseline and untracked files",
+   "cmd": "S=$S; cat $S/perf6.summary; tail -1 $S/perf6/tour.log; cd ~/repo && git status --short",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:57:33+00:00"
+ "actualizado": "2026-11-04T15:57:59+00:00"
 }
