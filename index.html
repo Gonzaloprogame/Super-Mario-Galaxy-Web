@@ -90,6 +90,12 @@
   #status[data-kind=error]::before { color: var(--err); }
   #status[data-kind=ok] { border-color: rgba(76,214,160,.5); }
   #status[data-kind=ok]::before { color: var(--ok); }
+  #crash-note { margin-top: 10px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--gold);
+                background: rgba(255, 211, 77, .08); font-size: .92rem; }
+  #crash-note[hidden] { display: none; }
+  #crash-note p { margin: 0; }
+  #crash-note .actions { margin-top: 10px; }
+  #crash-note button { padding: 8px 14px; font-size: .9rem; }
 
   /* The screen */
   #screen-card[hidden] { display: none; }
@@ -286,6 +292,14 @@
   </section>
 
   <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
+  <!-- The last session, if the browser closed the page while the game ran (web/shell/app.js, sessionTrace) -->
+  <div id="crash-note" hidden role="alert">
+    <p id="crash-text"></p>
+    <div class="actions">
+      <button id="crash-copy" type="button">📋 Copiar lo que pasó</button>
+      <button id="crash-dismiss" type="button">Descartar</button>
+    </div>
+  </div>
 
   <section class="card" id="screen-card" hidden>
     <div class="screen-bar">

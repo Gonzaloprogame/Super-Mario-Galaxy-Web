@@ -16,6 +16,7 @@ function log(text) {
   logEl.textContent += text + '\n';
   logEl.scrollTop = logEl.scrollHeight;
   loading.line(text);
+  globalThis.smgSessionTrace?.line(text); // defined below (a log before it is not traced)
 }
 
 // The loading screen (web/shell/index.html, #loading) until the game starts. Each step changes when the engine says so
@@ -354,6 +355,67 @@ $('copy-log').addEventListener('click', async () => {
   }
   setTimeout(() => { $('copy-log').textContent = 'Copiar el registro'; }, 2000);
 });
+
+// The last session's trace (localStorage, per browser): while the engine runs, every 5 s, the scene, the engine's
+// memory, the frames per second and the log's last lines; a normal end (the engine's, or the page closed or reloaded)
+// marks it clean. A tab the browser kills (out of memory, a crashed process) says nothing as it goes: the next visit
+// finds the trace unclean and shows it (#crash-note), with the lines to copy. globalThis.smgSessionTrace, for tests.
+const sessionTrace = {
+  key: 'smg-ultima-sesion', scene: '', memory: '',
+  line(text) {
+    let m;
+    if ((m = /^\[host\] stage: (\S+)/.exec(text))) this.scene = m[1];
+    else if ((m = /^\[host\] wasm memory (\d+ MB)/.exec(text))) this.memory = m[1];
+  },
+  save(clean) {
+    try {
+      localStorage.setItem(this.key, JSON.stringify({
+        at: Date.now(), clean, scene: this.scene, memory: this.memory,
+        fps: globalThis.smgFps ? Math.round(globalThis.smgFps.fps) : null,
+        log: logEl.textContent.split('\n').slice(-80).join('\n'),
+      }));
+    } catch { /* no storage: nothing is kept */ }
+  },
+  read() {
+    try { return JSON.parse(localStorage.getItem(this.key) || 'null'); } catch { return null; }
+  },
+};
+globalThis.smgSessionTrace = sessionTrace;
+setInterval(() => {
+  const state = document.body.dataset.state;
+  if (state === 'running') sessionTrace.save(false);
+  else if ((state === 'done' || state === 'error') && sessionTrace.read()?.clean === false) sessionTrace.save(true);
+}, 5000);
+addEventListener('pagehide', () => {
+  if (document.body.dataset.state === 'running') sessionTrace.save(true);
+});
+{
+  const last = sessionTrace.read();
+  if (last && last.clean === false) {
+    const minutes = Math.max(1, Math.round((Date.now() - last.at) / 60000));
+    const where = [last.scene && `en ${last.scene}`, last.memory && `motor con ${last.memory}`,
+                   last.fps !== null && last.fps !== undefined && `${last.fps} fps`].filter(Boolean).join(', ');
+    $('crash-text').textContent = `La última vez (hace ${minutes} min) la página se cerró de golpe con el juego en marcha` +
+      `${where ? ` (${where})` : ''}. Suele pasar cuando el navegador se queda sin memoria y cierra la pestaña. ` +
+      'Copia lo que pasó y mándalo para investigarlo.';
+    $('crash-note').hidden = false;
+    $('crash-copy').addEventListener('click', async () => {
+      const text = `Sesión cerrada de golpe: ${new Date(last.at).toISOString()}, escena ${last.scene || '?'}, ` +
+        `memoria ${last.memory || '?'}, fps ${last.fps ?? '?'}\n${navigator.userAgent}\n\n${last.log}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        $('crash-copy').textContent = 'Copiado';
+      } catch {
+        logEl.textContent += `\n[página] la sesión anterior, cerrada de golpe:\n${text}\n`;
+        $('crash-copy').textContent = 'Está en el registro de abajo: cópialo de ahí';
+      }
+    });
+    $('crash-dismiss').addEventListener('click', () => {
+      $('crash-note').hidden = true;
+      try { localStorage.setItem(sessionTrace.key, JSON.stringify({ ...last, clean: true })); } catch { /* none */ }
+    });
+  }
+}
 
 // The game's sound (web/shell/audio_worklet.js): its context is made at the click that starts the engine (browsers
 // start sound only after a gesture), and the engine's ring of samples is handed to it when the worker says where it
