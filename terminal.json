@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:24:26+00:00",
-   "tipo": "bash",
-   "desc": "Find files that mention FPS",
-   "cmd": "wc -l web/shell/app.js web/shell/index.html web/shell/present.js; grep -rln -i \"fps\" web/ tools/build_web.sh | head; grep -n -i \"frames\\b\\|rate\\|per second\\|/ s\\b\" web/shell/app.j…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:24:29+00:00",
    "tipo": "bash",
    "desc": "Read the screen info code",
@@ -279,8 +272,15 @@
    "desc": "Read milestone percentages",
    "cmd": "python3 -c \"  … (+5 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:46:39+00:00",
+   "tipo": "bash",
+   "desc": "Read build docs, submodules, and server script",
+   "cmd": "sed -n \"$(grep -n '## 🛠️ Compilar' README.md | cut -d: -f1),+20p\" README.md; cat .gitmodules 2>/dev/null; ls; head -30 tools/serve.py; du -sh $S 2>/dev/null; ls $S/gh-pages | wc -…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T14:43:55+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T14:46:39+00:00"
 }
