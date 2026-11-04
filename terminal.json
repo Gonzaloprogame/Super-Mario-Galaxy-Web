@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:39:53+00:00",
-   "tipo": "bash",
-   "desc": "Find remaining clock readers",
-   "cmd": "S=$S; SYM=$S/perf5_symbols; for f in $S/perf5/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 400 | grep -q \"nebula_game_main\" && G=$f; done; node $S/tools/prof_callers…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:40:14+00:00",
-   "tipo": "bash",
-   "desc": "Check OSGetTick includes the monotonic wrapper",
-   "cmd": "S=$S; cd ~/repo; ~/tools/emsdk/upstream/bin/wasm-dis build/all/engine/smg_web.wasm -o $S/perf5/smg_web.wat; for name in OSGetTick __wrap_clock_gettime __OSGetSystemTime; do idx=$(…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:40:22+00:00",
-   "tipo": "bash",
-   "desc": "Read svc_audio_dsp for clock reads",
-   "cmd": "cd ~/repo; n=$(grep -n \"^static.*svc_audio_dsp\" web/host/headless_host.c | cut -d: -f1); sed -n \"$n,$((n+16))p\" web/host/headless_host.c; grep -n \"now_micros\\|clock_gettime\\|emscr…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:40:27+00:00",
    "tipo": "bash",
    "desc": "Look for clock reads in the audio mix",
@@ -279,8 +258,29 @@
    "desc": "Scale diagnostic length with the tour",
    "cmd": "cd ~/repo; grep -n \"stops\\b\\|const stops\" tools/galaxy_tour.mjs | head -5; python3 - <<'EOF'  … (+11 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:51:44+00:00",
+   "tipo": "bash",
+   "desc": "Check the seconds field limit; list remaining stages",
+   "cmd": "cd ~/repo; grep -n 'id=\"seconds\"' web/shell/index.html; S=$S; awk 'f{print} /SurfingLv2Galaxy/{f=1; print}' $S/galaxies.txt > $S/long1/rest.txt; cat $S/long1/rest.txt | tr '\\n' ' '",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T08:51:48+00:00",
+   "tipo": "bash",
+   "desc": "See how app.js reads the run length",
+   "cmd": "cd ~/repo; grep -n \"seconds\" web/shell/app.js | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T08:51:56+00:00",
+   "tipo": "bash",
+   "desc": "Long blind play on the remaining 7 stages",
+   "cmd": "S=$S; cd ~/repo; timeout 3500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/long1/rest.txt --out $S/long1/out_9b --nand $S/drive/nand_RMGE01.bin --…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T08:51:38+00:00"
+ "actualizado": "2026-11-04T08:51:56+00:00"
 }
