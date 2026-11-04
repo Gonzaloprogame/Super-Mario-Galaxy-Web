@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:55:15+00:00",
-   "tipo": "bash",
-   "desc": "Find how patched Aurora tree is produced and its license",
-   "cmd": "cd ~/repo && grep -rln \"aurora-patched\" --include=*.txt --include=*.cmake --include=*.sh . 2>/dev/null | grep -v \"^./build\\|third_party\" | head; ls third_party | head; ls third_pa…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:55:17+00:00",
    "tipo": "bash",
    "desc": "Read how CMake applies Aurora patches",
@@ -279,8 +272,15 @@
    "desc": "Make side-by-side comparison image for review",
    "cmd": "S=$S; python3 -I - \"$S/gfx44/out/shots/BeltConveyerExGalaxy_1.png\" \"$S/gfx44b/out/shots/BeltConveyerExGalaxy_1.png\" \"$S/p27/compare_belt.png\" <<'EOF'  … (+9 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:57:32+00:00",
+   "tipo": "bash",
+   "desc": "Verify gh-pages engine matches the previous site copy",
+   "cmd": "S=$S; G=$S/gh-pages; for f in smg_web.js smg_web.wasm smg_headless_web.js smg_headless_web.wasm gx/gx_demo.js gx/gx_demo.wasm bridge/gx_bridge.js bridge/gx_bridge.wasm bridge/gx_r…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T17:57:20+00:00"
+ "actualizado": "2026-11-04T17:57:32+00:00"
 }
