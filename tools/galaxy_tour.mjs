@@ -54,11 +54,18 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const server = spawn('python3', [join(root, 'tools/serve.py'), String(port), args.site || join(root, 'build/site')],
                      { stdio: ['ignore', 'pipe', 'ignore'] });
 await new Promise((r) => server.stdout.once('data', r));
+// Chromium's own log (its reasons for killing a page: out of memory, a crashed process) to browser.log in the output
+const browserLog = [];
 const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan',
-  ...(args['debug-port'] ? [`--remote-debugging-port=${args['debug-port']}`] : [])] });
+  '--enable-logging=stderr', '--v=0',
+  ...(args['debug-port'] ? [`--remote-debugging-port=${args['debug-port']}`] : [])],
+  logger: { isEnabled: (name) => name === 'browser', log: (name, severity, message) => browserLog.push(String(message)) } });
 const page = await browser.newPage({ viewport: { width: 900, height: 1400 } });
 const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(String(e)));
+// The page's process died (the browser closed the tab): the tour says so, with what it last read, instead of failing
+let crashed = false;
+page.on('crash', () => { crashed = true; });
 
 const results = [];
 const settings = [];     // the run settings the host applied ([host] test: grand stars / event flag / player)
@@ -137,11 +144,21 @@ try {
   let lastFullLog = 0;     // when the whole log was last written
   let lastGx = 0;          // GX bytes in the last report
   let end = '';
+  let lastLines = [];      // the log as last read: what is left if the page dies
   for (;;) {
     await sleep(5000);
+    if (crashed) {
+      if (current) current.problems.push('la pestaña se cerró: el proceso de la página murió (page crash)');
+      finishStop('pestaña cerrada');
+      end = `la pestaña se cerró${current ? ` en ${current.stop}` : ''}`;
+      writeReport(end);
+      writeFileSync(join(args.out, 'log_end.txt'), lastLines.join('\n'));
+      break;
+    }
     const state = await page.evaluate(() => document.body.dataset.state);
     painted = await page.evaluate(() => (globalThis.smgPresenter ? globalThis.smgPresenter.frames : 0));
     const lines = (await page.textContent('#log')).split('\n').map((l) => l.replace(/^\[vigía\] /, ''));
+    lastLines = lines;
     for (const line of lines.slice(seen)) {
       let m;
       if ((m = /^\[host\] tour: stop (\d+) of (\d+), (\S+) scenario (\d+)/.exec(line))) {
@@ -217,6 +234,7 @@ try {
   playing = false;
   console.log(`${end}: ${join(args.out, 'tour.md')}`);
 } finally {
+  writeFileSync(join(args.out, 'browser.log'), browserLog.join('\n'));
   await browser.close().catch(() => {});
   server.kill();
 }
