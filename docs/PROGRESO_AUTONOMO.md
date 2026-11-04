@@ -255,3 +255,22 @@ Encontrado y arreglado por el camino: el fallo de memoria de la exportación de 
   a toda velocidad: sin paradas, sin cuelgue y sin alarmas de memoria. **No se puede confirmar qué página se veía**: sin
   renderizador no hay pantalla, y en ese modo no se decodifican los vídeos, así que el flujo puede no ser igual al del
   PC del usuario. No reproducido; sigue pendiente de su prueba con la versión publicada.
+
+### Bloque 10: cargas medidas, y un cuelgue a toda velocidad (2026-11-04)
+
+**Cargas.** De los registros de la gira con gráficos (40 cargas): media 6,8 s, de los que el disco son 680 ms (10 %) y
+los pipelines creados durante la carga, 0. La misma gira en modo diagnóstico (`--mode diagnostic`: el juego a toda
+velocidad, sin renderizador): **media 1,27 s** (disco 159 ms), la más lenta OceanPhantomCaveGalaxy, 2,3 s. El trabajo
+del propio juego al cargar (objetos, archivos, disco) es rápido; el resto, con gráficos, es esperar al renderizador, que
+aquí es una GPU por software que comparte los 4 núcleos con el juego. Con una GPU real hay que medirlo en el PC o el
+móvil (`[host] load …` en el registro). Precargar modelos y texturas no ataca lo que se ve aquí.
+
+**Un cuelgue en StarDustGalaxy, en modo diagnóstico.** La parada 32 de 40, nada más cargar: ningún GX en 125 s, el
+juego **fuera de cualquier servicio del host**, los hilos **sin cambiar** y la sonda sin ejecutarse: el hilo del juego
+da vueltas en su propio código sin ceder. Es la misma firma que el cuelgue del libro en el PC del usuario, y en modo
+gráfico (4 fotogramas por segundo) no ha salido nunca. StarDustGalaxy sola: sin cuelgue; la misma secuencia de 32 otra
+vez: sin cuelgue. **No es determinista**: una vez en unas 70 cargas a toda velocidad.
+
+- Herramientas: `galaxy_tour.mjs --mode diagnostic` y `--debug-port` (para el perfilador del navegador durante un
+  cuelgue); el motor de diagnóstico emite ahora su mapa de símbolos (`smg_headless_web.js.symbols`, no se publica).
+- En curso: repetir la gira de diagnóstico hasta cazarlo y perfilar el hilo atascado en ese momento.

@@ -8,7 +8,9 @@
 // job. The screenshots are the game's images: they stay in the output folder, which must not be committed or shared.
 //
 //   node tools/galaxy_tour.mjs --disc <your .rvz> --stages <file> --out <folder> [--nand <file>] [--frames 900]
-//        [--hang 180] [--port 18790] [--site build/site]
+//        [--hang 180] [--port 18790] [--site build/site] [--mode graphics|diagnostic] [--debug-port N]
+// --debug-port: Chromium's remote debugging port, for a profiler during a hang (scratchpad tools, not here).
+// Diagnostic mode: the game at full speed without a renderer, to measure its own loads (nothing is drawn).
 // The stages file: one "Stage" or "Stage:scenario" per line (the names of the folders under /StageData of the disc).
 // Needs tools/build_web.sh first, and Playwright's Chromium (preinstalled here).
 import { spawn } from 'node:child_process';
@@ -38,7 +40,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const server = spawn('python3', [join(root, 'tools/serve.py'), String(port), args.site || join(root, 'build/site')],
                      { stdio: ['ignore', 'pipe', 'ignore'] });
 await new Promise((r) => server.stdout.once('data', r));
-const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan'] });
+const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan',
+  ...(args['debug-port'] ? [`--remote-debugging-port=${args['debug-port']}`] : [])] });
 const page = await browser.newPage({ viewport: { width: 900, height: 1400 } });
 const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(String(e)));
@@ -71,9 +74,10 @@ try {
     await page.evaluate(async (b) => nandStore.put('RMGE01', new Uint8Array(b)), bytes);
   }
   await page.setInputFiles('#pak', args.disc);
-  await page.selectOption('#mode', 'graphics');
+  await page.selectOption('#mode', args.mode || 'graphics');
   await page.selectOption('#language', '4');
-  await page.fill('#seconds', '0');
+  // The diagnostic mode needs a length: an hour, longer than any tour here
+  await page.fill('#seconds', args.mode === 'diagnostic' ? '3600' : '0');
   await page.click('#run');
 
   let seen = 0;            // log lines handled

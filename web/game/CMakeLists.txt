@@ -85,7 +85,10 @@ target_link_libraries(smg_headless_web PRIVATE smg_game smg_zstd)
 target_link_options(smg_headless_web PRIVATE ${SMG_WEB_LINK_OPTIONS}
     -sENVIRONMENT=worker -sMODULARIZE -sEXPORT_NAME=createSmgModule -sINVOKE_RUN=0
     -lworkerfs.js "-sEXPORTED_RUNTIME_METHODS=['callMain','FS','WORKERFS']"
-    "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
+    "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js"
+    # smg_headless_web.js.symbols (not published): wasm function indices to names (tools/wasm_symbols.py), for a stack
+    # or a profile of the diagnostic mode, where the game runs at full speed
+    --emit-symbol-map)
 set_property(TARGET smg_headless_web APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../shell/boot_worker.post.js")
 
 foreach(target smg_headless smg_headless_web)
