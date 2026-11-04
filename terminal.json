@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:42:19+00:00",
-   "tipo": "bash",
-   "desc": "Find per-draw blend constant and index buffer sets",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -rn \"SetBlendConstant\\|SetIndexBuffer\" --include=*.cpp . | head;",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:42:22+00:00",
    "tipo": "bash",
    "desc": "Read Aurora's per-draw render function",
@@ -279,8 +272,15 @@
    "desc": "Wait for the remaining long-play stages",
    "cmd": "until [ -s $TMP ]; do sleep 30; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T09:03:31+00:00",
+   "tipo": "bash",
+   "desc": "Read the remaining long-play results",
+   "cmd": "cat $TMP S=$S; grep -c \"memory error\\|Error en el motor\\|abortó\" $S/long1/out_9b/log_end.txt",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T08:56:18+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T09:03:31+00:00"
 }
