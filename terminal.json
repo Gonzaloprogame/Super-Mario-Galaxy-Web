@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:23:29+00:00",
-   "tipo": "bash",
-   "desc": "Keep screen buttons on one line on phones and recheck",
-   "cmd": "python3 - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T14:23:42+00:00",
-   "tipo": "bash",
-   "desc": "Add phone-width button layout check",
-   "cmd": "python3 - <<'EOF'  … (+28 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:23:46+00:00",
    "tipo": "bash",
    "desc": "Check how chromium is imported in the smoke test",
@@ -279,8 +265,22 @@
    "desc": "Check scratch state and build after restart",
    "cmd": "S=$S; ls -la $S/disc/smg.rvz $S/site2/smg_web.wasm $S/drive/nand_RMGE01.bin $S/perf1/stages.txt 2>&1; ls ~/tools/emsdk/emsdk_env.sh; cd ~/repo && git status --short | head; git lo…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:53:44+00:00",
+   "tipo": "bash",
+   "desc": "Recover profiling timing and save symbols",
+   "cmd": "grep -o '\"command\":\"S=[^\"]*perf5[^\"]*' ~/.claude/projects/-home-user-Super-Mario-Galaxy-Web/e2695b41-d29e-55eb-8e5e-c09dc112449c.jsonl | head -1 | sed 's/\\\\n/\\n/g; s/\\\\\"/\"/g' | se…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T15:53:49+00:00",
+   "tipo": "bash",
+   "desc": "Extract the earlier perf5 commands from the transcript",
+   "cmd": "python3 - <<'EOF'  … (+13 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:53:37+00:00"
+ "actualizado": "2026-11-04T15:53:49+00:00"
 }
