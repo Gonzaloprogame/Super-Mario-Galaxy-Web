@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:56:40+00:00",
-   "tipo": "bash",
-   "desc": "Check tour summaries and errors",
-   "cmd": "S=$S; cd $S/catch4; for i in 1 2 3 4; do echo \"== $i\"; tail -8 tour_$i.log; done; grep -l \"memory error\\|Error en el motor\\|abortó\" out_*/* tour_*.log 2>/dev/null | head; ls out_1…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:56:45+00:00",
-   "tipo": "bash",
-   "desc": "Summarize tour outcomes",
-   "cmd": "S=$S; head -30 $S/catch4/out_1/tour.md; for i in 1 2 3 4; do node -e 'const t=require(process.argv[1]);const r=t.results||t.galaxies||t;const a=Array.isArray(r)?r:Object.values(r)…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:56:49+00:00",
    "tipo": "bash",
    "desc": "Find any non-clean stops per tour",
@@ -279,8 +265,22 @@
    "desc": "Profile the engine workers in the level for 20 s",
    "cmd": "S=$S; until [ $(grep -c \"render thread\" $S/perf1/out/log_tail.txt) -ge 8 ] || ! pgrep -f \"perf1/stages\" >/dev/null; do sleep 5; done; grep \"render thread\\|draws in\" $S/perf1/out/l…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:02+00:00",
+   "tipo": "bash",
+   "desc": "Name the hot wasm functions",
+   "cmd": "cd ~/repo; for i in 3100 3701 1640 6941 16768 16683 996 9693 9404 3705 1141 8784 1868 1212; do echo \"$i $(grep \"^$i:\" build/all/engine/smg_web.js.symbols | cut -c1-150)\"; done; S=…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:14+00:00",
+   "tipo": "bash",
+   "desc": "Summarize profiles by named function without waits",
+   "cmd": "S=$S; ls $S/perf1/dump; cat > $S/tools/prof_named.mjs <<'EOF'  … (+21 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:02:57+00:00"
+ "actualizado": "2026-11-04T06:03:14+00:00"
 }
