@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:36:30+00:00",
-   "tipo": "bash",
-   "desc": "Esperar la tanda 01 y lanzar la 02 con el motor nuevo",
-   "cmd": "S=$S; until ! pgrep -f \"galaxy_tour.mjs.*next_01\" >/dev/null; do sleep 15; done; echo \"== tanda 01\"; cat $S/tour/out_01/tour.md | cut -c1-250; cd ~/repo && cat $S/tour/batch_02 &&…",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:41:23+00:00",
    "tipo": "bash",
    "desc": "Ver el final de la tanda 01 y que la 02 arrancó",
@@ -279,8 +272,15 @@
    "desc": "Leer cómo se creaba una partida nueva",
    "cmd": "S=$S; head -30 $S/drive/to_level.sh; grep -l \"new\\|nueva\\|icon\" $S/drive/*.sh",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:15:04+00:00",
+   "tipo": "bash",
+   "desc": "Crear partida nueva y recorrer el prólogo en modo diagnóstico",
+   "cmd": "pkill -f story/run.sh; pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; sleep 2; S=$S; cat > $S/story/new.sh <<'EOF'  … (+26 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:14:51+00:00"
+ "actualizado": "2026-11-04T00:15:04+00:00"
 }
