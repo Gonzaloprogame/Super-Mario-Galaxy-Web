@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:26:26+00:00",
-   "tipo": "bash",
-   "desc": "Find other lists that include shell files",
-   "cmd": "grep -rn \"present.js\" --include=*.js --include=*.mjs --include=*.sh --include=*.html --include=*.py --include=*.json . 2>/dev/null | grep -v \"^./build\\|node_modules\\|third_party\\|…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:26:43+00:00",
    "tipo": "bash",
    "desc": "Add FPS badge checks to browser smoke test",
@@ -279,8 +272,15 @@
    "desc": "Document and commit local download support",
    "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+22 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:58:37+00:00",
+   "tipo": "bash",
+   "desc": "Check whether build output is in the repo",
+   "cmd": "cat .gitignore 2>/dev/null | head; git ls-files build third_party | head -3",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T14:48:56+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T14:58:37+00:00"
 }
