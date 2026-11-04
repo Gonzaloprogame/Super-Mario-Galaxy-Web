@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:10:01+00:00",
-   "tipo": "bash",
-   "desc": "Ver los bucles sin llamadas más pequeños",
-   "cmd": "S=$S; for l in 8961 13834 1805; do echo \"=== line $l\"; sed -n \"$((l+2)),$((l+24))p\" $S/game_main.dis | cut -c1-90; done",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:10:13+00:00",
-   "tipo": "bash",
-   "desc": "Ver el código antes del bucle sospechoso",
-   "cmd": "S=$S; sed -n 13770,13836p $S/game_main.dis | cut -c1-100",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:10:21+00:00",
-   "tipo": "bash",
-   "desc": "Nombrar las llamadas previas y buscar quién usa la global",
-   "cmd": "cd ~/repo; for f in 3860 1106; do echo \"$f: $(grep \"^$f:\" build/all/game/smg_headless_web.js.symbols)\"; done; S=$S; grep -n \"i32.const\t962800\" $S/headless.dis | wc -l; grep -n \"i3…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:10:28+00:00",
    "tipo": "bash",
    "desc": "Ver los otros usos de la variable global",
@@ -279,8 +258,29 @@
    "desc": "Read the pre-fix catcher outcome for comparison",
    "cmd": "S=$S; cat $S/catch3/run.out | grep -i 'run\\|hang' | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:37+00:00",
+   "tipo": "bash",
+   "desc": "Collect all earlier hang-catcher outcomes",
+   "cmd": "S=$S; ls $S/catch3 $S/catch2 2>/dev/null; ls $S | head -50; for f in $S/catch*/run*.out $S/catch*/*.out; do echo \"== $f\"; grep -h 'run [0-9]*:' $f; done 2>/dev/null | sort -u",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:41+00:00",
+   "tipo": "bash",
+   "desc": "Check earlier catcher runs for hang counts",
+   "cmd": "S=$S; ls $S/catch3/first; cat $S/catch3/first/*.out 2>/dev/null | grep 'run\\|hang' ; for i in 1 2 3 4; do head -1 $S/catch3/out_$i/tour.md 2>/dev/null; done; cat $S/catch2/run.out…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:48+00:00",
+   "tipo": "bash",
+   "desc": "Read the catcher script",
+   "cmd": "S=$S; cat $S/catch4/run.sh",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:57:31+00:00"
+ "actualizado": "2026-11-04T05:57:48+00:00"
 }
