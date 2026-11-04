@@ -64,6 +64,7 @@ const results = [];
 const settings = [];     // the run settings the host applied ([host] test: grand stars / event flag / player)
 const tourProblems = []; // what the host could not read in the list
 let movieFrames = 0;     // movie frames decoded, from the host's reports
+let lastScene = '';      // the scene the game is in ([host] stage:): a stop starts there
 let current = null; // the stop being visited
 // With graphics, a stop also has to reach the screen: the frames the page painted meanwhile (web/shell/present.js)
 const graphics = args.mode !== 'diagnostic';
@@ -84,7 +85,7 @@ const writeReport = (end) => {
   writeFileSync(join(args.out, 'tour.json'), JSON.stringify(summary, null, 1));
   const rows = results.map((r) => `| ${r.stop} | ${r.outcome || 'sin terminar'} | ${r.load ?? '—'} | ${r.stalls.length} | ` +
     `${r.drew ? 'sí' : 'no'}${graphics && r.painted !== undefined ? ` (${r.painted} en pantalla)` : ''} | ` +
-    `${r.events.join(', ') || '—'} | ${r.scenes.join(' → ') || '—'} | ${r.movieFrames || 0} | ` +
+    `${r.events.join(', ') || '—'} | ${r.startScene ? `(${r.startScene}) ` : ''}${r.scenes.join(' → ') || '—'} | ${r.movieFrames || 0} | ` +
     `${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
   writeFileSync(join(args.out, 'tour.md'), [
     `Gira: ${results.length} paradas, ${frames} fotogramas de escena cada una, cuelgue si una parada dura más de ` +
@@ -146,6 +147,8 @@ try {
         finishStop('cargó y dibujó');
         current = { stop: `${m[3]}:${m[4]}`, since: Date.now(), load: null, stalls: [], problems: [], drew: false,
                     gxAtStart: lastGx, shot: false, paintedAtStart: painted, events: [], scenes: [],
+                    // A stop to the stage the game is already in changes no scene: it stays where it started
+                    startScene: lastScene,
                     moviesAtStart: movieFrames, movieFrames: 0 };
         results.push(current);
       } else if ((m = /^\[host\] test: (.+?) at frame (\d+) of stop \d+/.exec(line)) && current) {
@@ -154,8 +157,9 @@ try {
         settings.push(m[1]);
       } else if ((m = /^\[host\] tour: (unknown .*|more than .*)$/.exec(line))) {
         tourProblems.push(m[1]);
-      } else if ((m = /^\[host\] stage: (\S+)/.exec(line)) && current) {
-        if (current.scenes[current.scenes.length - 1] !== m[1]) current.scenes.push(m[1]);
+      } else if ((m = /^\[host\] stage: (\S+)/.exec(line))) {
+        lastScene = m[1];
+        if (current && current.scenes[current.scenes.length - 1] !== m[1]) current.scenes.push(m[1]);
       } else if ((m = /^\[host\] movies: (\d+) frames decoded/.exec(line))) {
         movieFrames = Number(m[1]);
         if (current) current.movieFrames = movieFrames - current.moviesAtStart;

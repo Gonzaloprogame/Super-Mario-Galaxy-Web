@@ -76,8 +76,9 @@ for (const segment of segments) {
   if (report) for (const p of report.tourProblems || []) problems.push(`lista: ${p}`);
   // The expected scenes, in order, among the last stop's
   if (segment.expectScenes.length && last) {
+    // From the scene the game was in when the stop began (a stop to that same stage changes nothing)
     let at = 0;
-    for (const scene of last.scenes) if (scene === segment.expectScenes[at]) at++;
+    for (const scene of [last.startScene, ...last.scenes].filter(Boolean)) if (scene === segment.expectScenes[at]) at++;
     if (at < segment.expectScenes.length) {
       problems.push(`esperaba las escenas ${segment.expectScenes.join(' → ')}; hubo ${last.scenes.join(' → ') || 'ninguna'}`);
     }
@@ -87,7 +88,7 @@ for (const segment of segments) {
   rows.push({
     index: segment.index, title: segment.title, mode: segment.mode, ok: problems.length === 0,
     settings: report ? report.settings : [], events: stops.flatMap((s) => s.events),
-    scenes: last ? last.scenes : [], movieFrames, minutes: Math.round((Date.now() - started) / 6000) / 10, problems,
+    scenes: last ? [...(last.startScene ? [`(${last.startScene})`] : []), ...last.scenes] : [], movieFrames, minutes: Math.round((Date.now() - started) / 6000) / 10, problems,
   });
   writeFileSync(join(args.out, 'route.json'), JSON.stringify(rows, null, 1));
   writeFileSync(join(args.out, 'route.md'), [
