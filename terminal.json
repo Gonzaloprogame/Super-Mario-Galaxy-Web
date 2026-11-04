@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:25:49+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/shell/fps.js",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:26:07+00:00",
-   "tipo": "bash",
-   "desc": "Add badge styles, markup, toggle and build copy",
-   "cmd": "python3 - <<'EOF'  … (+61 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:26:26+00:00",
    "tipo": "bash",
    "desc": "Find other lists that include shell files",
@@ -279,8 +265,22 @@
    "desc": "Download the real GitHub zip and serve it locally",
    "cmd": "S=$S; rm -rf $S/zipreal && mkdir -p $S/zipreal/x && cd $S/zipreal && curl -sSL --max-time 120 -o gh.zip https://github.com/gonzaloprogame/Super-Mario-Galaxy-Web/archive/refs/heads…",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T14:48:29+00:00",
+   "tipo": "bash",
+   "desc": "Stop the local test server by exact command line",
+   "cmd": "for p in $(ls /proc | grep -E '^[0-9]+$'); do c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); case \"$c\" in \"python3 servir.py 8123\"*) echo kill $p; kill $p;; esac; done; echo done",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T14:48:43+00:00",
+   "tipo": "bash",
+   "desc": "Document and commit local download support",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+22 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:48:24+00:00"
+ "actualizado": "2026-11-04T14:48:43+00:00"
 }
