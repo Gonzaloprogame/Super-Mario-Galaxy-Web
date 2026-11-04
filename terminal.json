@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:07+00:00",
-   "tipo": "bash",
-   "desc": "Read calcCombinationRatio and its caller",
-   "cmd": "cd ~/repo/third_party/nebula/native/petari/src/Game/System; sed -n 260,300p MainLoopFramework.cpp; sed -n 390,430p MainLoopFramework.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:59:16+00:00",
    "tipo": "bash",
    "desc": "Find where retraces are delivered",
@@ -279,8 +272,15 @@
    "desc": "Drill into the enqueued op lambda",
    "cmd": "S=$S; node $S/tools/prof_callees.mjs $S/perf1/dump/worker_6.cpuprofile ~/repo/build/all/engine/smg_web.js.symbols 'enqueue_op(aurora::gfx::detail::FramePacket&, unsigned int)::$_0…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:05:59+00:00",
+   "tipo": "bash",
+   "desc": "Read the page's presenter and memory access",
+   "cmd": "cd ~/repo; cat web/shell/present.js | head -80; grep -n \"buffer\\|memory\\|SharedArrayBuffer\" web/shell/controls.js | head -15",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:05:45+00:00"
+ "actualizado": "2026-11-04T06:05:59+00:00"
 }
