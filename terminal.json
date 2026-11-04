@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:11:53+00:00",
-   "tipo": "bash",
-   "desc": "Inspect failing segment 6 log against segment 5",
-   "cmd": "S=$S; cat $S/route1/06/out/tour.md | sed -n 1,8p; grep -E \"^\\[host\\] (test|tour|stage|load|stall|the game)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route1/06/out/log_end.txt | head -3…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:12:11+00:00",
    "tipo": "bash",
    "desc": "Record each stop's starting scene in tour and route",
@@ -279,8 +272,15 @@
    "desc": "Add unistd include and check how Nebula calls mmap",
    "cmd": "sed -i 's/#include <sys\\/mman.h>/#include <sys\\/mman.h>\\n#include <unistd.h>/' web/platform/memory_shim_wasm.c && grep -n \"#include\" web/platform/memory_shim_wasm.c && grep -rn \"n…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:11:43+00:00",
+   "tipo": "bash",
+   "desc": "Read Nebula arena reservation code",
+   "cmd": "sed -n 70,130p third_party/nebula/native/sdk/memory.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:11:39+00:00"
+ "actualizado": "2026-11-04T20:11:43+00:00"
 }
