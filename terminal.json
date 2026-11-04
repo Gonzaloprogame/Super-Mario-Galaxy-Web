@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:43:52+00:00",
-   "tipo": "bash",
-   "desc": "Find draw path functions in patched Aurora",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched && grep -n \"draw_prim_as_written\\|push_gx_draw\\|void draw_prim\\|merge\\|coalesc\" lib/gx/command_processor.cpp lib/gfx/*.cpp lib/gx/*.cpp 2…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:43:55+00:00",
    "tipo": "bash",
    "desc": "Read the draw path in the command processor",
@@ -279,8 +272,15 @@
    "desc": "Profile the garden with patch 0027",
    "cmd": "S=$S; $S/perfrun.sh perf7 $S/site3 $S/perf7_symbols > $S/perf7.summary 2>&1; echo \"exit $?\" >> $S/perf7.summary",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:26:09+00:00",
+   "tipo": "bash",
+   "desc": "Compare profile with patch against baseline",
+   "cmd": "S=$S; cat $S/perf7.summary; grep \"render thread\" $S/perf6/out/log_tail.txt | grep -o \"processing the stream [0-9.]*\" | awk '{s+=$4;n++} END {print \"perf6 media\", s/n, n}'; grep \"r…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T16:13:06+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T16:26:09+00:00"
 }
