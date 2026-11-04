@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:23:05+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar y subir el detector",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+43 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:23:22+00:00",
    "tipo": "bash",
    "desc": "Publicar el detector en la página",
@@ -279,8 +272,15 @@
    "desc": "Leer la salida del conductor",
    "cmd": "S=$S; tail -20 $S/story/driver.out | cut -c1-300; pgrep -fa \"driver.mjs|serve.py\" | cut -c1-150",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:12:48+00:00",
+   "tipo": "bash",
+   "desc": "Reiniciar el conductor en modo diagnóstico",
+   "cmd": "pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; pkill -f \"until curl\"; sleep 2; pgrep -fa \"driver.mjs|serve.py 18760\" | head -3; S=$S; cd ~/repo; (node $S/drive/driver.mjs…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:12:27+00:00"
+ "actualizado": "2026-11-04T00:12:48+00:00"
 }
