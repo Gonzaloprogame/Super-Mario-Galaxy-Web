@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:10:29+00:00",
-   "tipo": "bash",
-   "desc": "Check wasm memory settings and observed usage",
-   "cmd": "grep -rn \"INITIAL_MEMORY\\|MAXIMUM_MEMORY\\|ALLOW_MEMORY_GROWTH\\|STACK_SIZE\\|PTHREAD_POOL_SIZE\" web/CMakeLists.txt web/cmake/*.cmake web/*/CMakeLists.txt 2>/dev/null | head; grep -o…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:10:38+00:00",
    "tipo": "bash",
    "desc": "Find large memory reservations in the host",
@@ -279,8 +272,15 @@
    "desc": "Save full tour log periodically and record segment 14",
    "cmd": "python3 - <<'EOF'  … (+30 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:38:42+00:00",
+   "tipo": "bash",
+   "desc": "List available tour screenshots",
+   "cmd": "S=$S; ls $S/route2/12/out/shots $S/mem/fix/shots $S/route3/13/out/shots 2>/dev/null; ls $S/gfx44b/out/shots | wc -l",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T22:56:28+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T23:38:42+00:00"
 }
