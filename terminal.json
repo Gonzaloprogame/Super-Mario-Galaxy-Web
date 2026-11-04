@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:47:56+00:00",
-   "tipo": "bash",
-   "desc": "Fix README link and check zip download URL",
-   "cmd": "python3 - <<'EOF'  … (+8 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:48:11+00:00",
    "tipo": "bash",
    "desc": "Publish servir.py and refreshed LEEME on gh-pages",
@@ -279,8 +272,15 @@
    "desc": "Add in-place index reservation to Aurora copy",
    "cmd": "S=$S; cd $S/p27/b && python3 - <<'EOF'  … (+108 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:57:16+00:00",
+   "tipo": "bash",
+   "desc": "Use in-place index writer at both call sites",
+   "cmd": "S=$S; cd $S/p27/b && python3 - <<'EOF'  … (+72 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:56:59+00:00"
+ "actualizado": "2026-11-04T15:57:16+00:00"
 }
