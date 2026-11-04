@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:24:32+00:00",
-   "tipo": "bash",
-   "desc": "Check smoke test status",
-   "cmd": "F=$S/smoke_fps3.log; grep -E \"^exit\" $F; echo \"PASS $(grep -c '^PASS' $F) FAIL $(grep -c '^FAIL' $F)\"; grep -E \"^(FAIL)\" $F",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:25:30+00:00",
    "tipo": "bash",
    "desc": "Check final smoke test results",
@@ -279,8 +272,15 @@
    "desc": "Find ByteBuffer and push declarations",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched && grep -rn \"class ByteBuffer\" lib include | head -2; grep -n \"push_indices\\|push_verts\" lib/gfx/*.hpp include/aurora/*.h 2>/dev/null | h…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:54:31+00:00",
+   "tipo": "bash",
+   "desc": "Read map helper and ByteBuffer class",
+   "cmd": "sed -n 317,345p lib/gfx/recording.cpp; grep -n \"map(current_frame_packet\\|= map(\\|map_verts\\|map_indices\\|map_storage\\|map_uniform\" lib/gfx/*.cpp lib/gfx/*.hpp lib/gx/*.cpp | head…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:54:27+00:00"
+ "actualizado": "2026-11-04T15:54:31+00:00"
 }
