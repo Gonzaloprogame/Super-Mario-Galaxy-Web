@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:59:06+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo llegan los pánicos del juego al host",
-   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; grep -n \"panic\\|NEBULA\\|nebula\\|TARGET_PC\" $P/src/JSystem/JUtility/JUTException.cpp | head -30; grep -rn \"OSPanic\\b\" third_party/neb…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:59:10+00:00",
    "tipo": "bash",
    "desc": "Leer el pánico de JUTException en el port",
@@ -279,8 +272,15 @@
    "desc": "Leer el resultado y el perfil del cazador",
    "cmd": "S=$S; cat $S/catch3/run.out; ls $S/catch3; head -80 $S/catch3/prof_*.txt 2>/dev/null | cut -c1-160",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:44:19+00:00",
+   "tipo": "bash",
+   "desc": "Nombrar las funciones del perfil",
+   "cmd": "cd ~/repo; for f in 6596 6608 6633 6680 6679 2503 3103 6651; do echo \"$f: $(grep \"^$f:\" build/all/game/smg_headless_web.js.symbols)\"; done; cmp build/all/game/smg_headless_web.was…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:44:12+00:00"
+ "actualizado": "2026-11-04T02:44:19+00:00"
 }
