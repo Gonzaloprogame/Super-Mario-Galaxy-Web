@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:07:39+00:00",
-   "tipo": "bash",
-   "desc": "See how browser_smoke checks presentation",
-   "cmd": "cd ~/repo; grep -n \"smgPresenter\\|frames\\b\\|presenter\" web/tests/browser_smoke.mjs | head -20; grep -n \"disc\\|rvz\\|SMG_DISC\" web/tests/browser_smoke.mjs | head -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:07:43+00:00",
    "tipo": "bash",
    "desc": "Learn what game data browser_smoke runs",
@@ -279,8 +272,15 @@
    "desc": "Find Aurora's WriteBuffer calls",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -rn \"WriteBuffer\" --include=*.cpp . | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:38:28+00:00",
+   "tipo": "bash",
+   "desc": "Read the frame-end staging write",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 55,80p gfx/frame.cpp; sed -n 720,770p gfx/frame.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:38:24+00:00"
+ "actualizado": "2026-11-04T06:38:28+00:00"
 }
