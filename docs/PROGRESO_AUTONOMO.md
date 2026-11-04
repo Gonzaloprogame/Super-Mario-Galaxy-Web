@@ -596,6 +596,7 @@ diagnóstico, `$S/route1` y `$S/route2`):
 | 10 | Flota de Bowser Jr., `grandstar@` | vuelve al Observatorio ✅ |
 | 11 | Batalla final, `grandstar@` (sin gráficos) | el juego **empieza el vídeo del final**; sin decodificador en esta compilación, se queda en la escena |
 | 13 | El epílogo entero (40 000 fotogramas de espera, con gráficos) | cortado a las 2 h, el máximo de una tarea: el juego siguió en `EpilogueDemoStage` dibujando todo ese tiempo, a casi 60 fotogramas de juego por segundo, **sin errores ni cierres**. Los créditos debieron de acabar mucho antes: probablemente espera una pulsación (se prueba con `play`, segmento 14) |
+| 14 | El epílogo pulsando botones al azar (`play 7`) | sin conclusión: `grandstar@` se hizo, pero el juego volvió a la pantalla de archivos **sin vídeo** (0 fotogramas) ni epílogo, quizá porque las pulsaciones saltaron escenas o porque Mario perdió las vidas cayendo antes del fotograma 900. Parado a mano tras 1 h en la pantalla de archivos (allí la parada no avanza). La gira guardaba el registro entero solo al terminar; ahora lo guarda cada minuto (`log_full.txt`) |
 | 12 | Batalla final con gráficos, `grandstar@` y 12 000 fotogramas de espera | los vídeos del final: **10 115 fotogramas, 0 rechazados**; después el juego pasa solo al epílogo (`EpilogueDemoStage`) ✅. Sin errores ni cuelgues. La parada terminó antes del final del epílogo: los créditos y el aviso de guardar, sin ver aún |
 
 **Qué demuestra:** la lógica de progreso del juego (estrellas, Observatorio, jefes, el inicio del final) funciona en

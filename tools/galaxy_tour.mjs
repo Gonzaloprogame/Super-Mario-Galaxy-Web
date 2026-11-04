@@ -134,6 +134,7 @@ try {
   }
 
   let seen = 0;            // log lines handled
+  let lastFullLog = 0;     // when the whole log was last written
   let lastGx = 0;          // GX bytes in the last report
   let end = '';
   for (;;) {
@@ -189,6 +190,11 @@ try {
     seen = Math.max(0, lines.length - 1);
     // The log's last lines, to follow a run while it goes (game data: they stay in the output folder)
     writeFileSync(join(args.out, 'log_tail.txt'), lines.slice(-60).join('\n'));
+    // The whole log once a minute too: a run cut off from outside (a time limit) keeps what it saw
+    if (Date.now() - lastFullLog > 60000) {
+      lastFullLog = Date.now();
+      writeFileSync(join(args.out, 'log_full.txt'), lines.join('\n'));
+    }
     // One screenshot per stop, once its stage has drawn for a while
     if (current && !current.shot && current.drew && Date.now() - current.since > 60000) {
       current.shot = true;
