@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:48+00:00",
-   "tipo": "bash",
-   "desc": "Read the catcher script",
-   "cmd": "S=$S; cat $S/catch4/run.sh",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:57:53+00:00",
-   "tipo": "bash",
-   "desc": "Create the catcher for seeds 5-8",
-   "cmd": "S=$S; mkdir -p $S/catch5; sed -e 's/catch4/catch5/g' -e 's/seq 1 \\${1:-6}/seq ${2:-1} ${1:-6}/' $S/catch4/run.sh > $S/catch5/run.sh; chmod +x $S/catch5/run.sh; grep -n seq $S/catc…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:59+00:00",
    "tipo": "bash",
    "desc": "Play blind four more tours (seeds 5-8)",
@@ -279,8 +265,22 @@
    "desc": "List nand_main's callees by name",
    "cmd": "cd $S/perf1; grep \"^9805:\\|^3100:\" ~/repo/build/all/engine/smg_web.js.symbols; a=5313434; b=$(awk -v a=$a 'NR>a && /^ \\(func /{print NR; exit}' smg_web.wat); sed -n \"${a},${b}p\" s…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:29+00:00",
+   "tipo": "bash",
+   "desc": "Show per-thread CPU usage",
+   "cmd": "pid=$(pgrep -f \"remote-debugging-port=9334\" | head -1); echo browser $pid; for p in $(pgrep -f \"type=renderer\"); do if grep -q 9334 /proc/$p/cmdline 2>/dev/null || [ \"$(cat /proc/…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:43+00:00",
+   "tipo": "bash",
+   "desc": "Inclusive render-thread profile",
+   "cmd": "S=$S; cat > $S/tools/prof_total.mjs <<'EOF'  … (+20 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:04:20+00:00"
+ "actualizado": "2026-11-04T06:04:43+00:00"
 }
