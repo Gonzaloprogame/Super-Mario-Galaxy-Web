@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:53:03+00:00",
-   "tipo": "bash",
-   "desc": "Graphics tour of the 44 stages, checking painted frames",
-   "cmd": "S=$S; mv $S/gfx44/out $S/gfx44/out_old_script 2>/dev/null; cd ~/repo; timeout 7100 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/galaxies.txt --out…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:55:48+00:00",
    "tipo": "bash",
    "desc": "Wait for the first stops of the graphics tour",
@@ -279,8 +272,15 @@
    "desc": "Read fullscreen handler",
    "cmd": "sed -n 615,631p web/shell/app.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:49+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/web/shell/fps.js",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:25:32+00:00"
+ "actualizado": "2026-11-04T13:25:49+00:00"
 }
