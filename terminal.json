@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:56:23+00:00",
-   "tipo": "bash",
-   "desc": "Document stage file format and build engine",
-   "cmd": "python3 - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:57:15+00:00",
    "tipo": "bash",
    "desc": "Test actors and star hooks in the garden",
@@ -279,8 +272,15 @@
    "desc": "Document route results and push docs",
    "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+60 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:22:12+00:00",
+   "tipo": "bash",
+   "desc": "Run only the save export/import checks against site5",
+   "cmd": "S=$S; R=~/repo; rm -rf $S/site5 && cp -r $S/site4 $S/site5 && cp $R/web/shell/index.html $R/web/shell/app.js $S/site5/ && python3 - \"$R/web/tests/browser_smoke.mjs\" \"$S/savetest.m…  … (+23 líneas)",
+   "ok": false
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:21:30+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:22:12+00:00"
 }
