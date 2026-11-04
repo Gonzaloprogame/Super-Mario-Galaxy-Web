@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:57:41+00:00",
-   "tipo": "editar",
-   "desc": "",
-   "cmd": "~/repo/web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:57:48+00:00",
    "tipo": "bash",
    "desc": "Rebuild engine and look for tour tests",
@@ -279,8 +272,15 @@
    "desc": "Check ending segment progress",
    "cmd": "S=$S; grep -E \"^\\[host\\] (test|stage|movie)\" $S/route2/12/out/log_tail.txt | tail -6; grep -o \"movies: [0-9]* frames decoded\" $S/route2/12/out/log_tail.txt | tail -1; tail -1 $S/r…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:51:27+00:00",
+   "tipo": "bash",
+   "desc": "Check ending segment progress",
+   "cmd": "S=$S; tail -2 $S/route2.log; grep -E \"^\\[host\\] (test|stage|tour)\" $S/route2/12/out/log_tail.txt | tail -5; grep -o \"movies: [0-9]* frames decoded[^,]*, [0-9]* refused\" $S/route2/…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:48:29+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:51:27+00:00"
 }
