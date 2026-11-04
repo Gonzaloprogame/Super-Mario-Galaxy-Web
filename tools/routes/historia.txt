@@ -52,3 +52,11 @@ grandstars=6
 KoopaBattleVs3Galaxy:1/actors@600/grandstar@900/wait@9000
 frames 600
 hang 900
+---
+# La batalla final con gráficos: su Gran Estrella, los vídeos del final y lo que sigue (créditos, guardar)
+grandstars=6
+KoopaBattleVs3Galaxy:1/grandstar@900/wait@12000
+mode graphics
+frames 600
+hang 1800
+expect movie
