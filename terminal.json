@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:28+00:00",
-   "tipo": "bash",
-   "desc": "Read the host retrace clock loop",
-   "cmd": "cd ~/repo; sed -n 1008,1050p web/host/headless_host.c; grep -n \"nebula_game_vi_retrace\" -r web/ third_party/nebula/native/host | grep -v \"^web/host/headless_host.c\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:59:37+00:00",
    "tipo": "bash",
    "desc": "Find uses of the combination ratio and video interval",
@@ -279,8 +272,15 @@
    "desc": "Test SharedArrayBuffer over BroadcastChannel",
    "cmd": "S=$S; mkdir -p $S/sabtest/site; cd $S/sabtest/site; cat > index.html <<'EOF'  … (+21 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:07:09+00:00",
+   "tipo": "bash",
+   "desc": "Read the memory handoff and bridge API",
+   "cmd": "cd ~/repo; sed -n 1085,1125p web/host/headless_host.c; grep -n \"smg_bridge_\\w*(\" web/host/aurora_bridge.h | head -40",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:06:44+00:00"
+ "actualizado": "2026-11-04T06:07:09+00:00"
 }
