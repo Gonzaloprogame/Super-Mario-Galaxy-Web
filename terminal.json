@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T17:56:33+00:00",
-   "tipo": "bash",
-   "desc": "Check graphics tour progress",
-   "cmd": "S=$S; grep -c \"^| [A-Z]\" $S/gfx44b/out/tour.md; grep \"^| [A-Z]\" $S/gfx44b/out/tour.md | grep -v \"cargó y dibujó\\|^| Parada\"; tail -2 $S/gfx44b/tour.log",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T17:56:56+00:00",
    "tipo": "bash",
    "desc": "Summarize graphics tour results",
@@ -279,8 +272,15 @@
    "desc": "Read Nebula test action API and host usage",
    "cmd": "cd ~/repo/third_party/nebula/native && sed -n 100,140p include/nebula_game_api.h; sed -n 2755,2800p host/host_main.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:39:18+00:00",
+   "tipo": "bash",
+   "desc": "Check repo license for GPL compatibility",
+   "cmd": "head -3 ~/repo/LICENSE; grep -n \"GPL\\|licen\" ~/repo/README.md | head -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:39:12+00:00"
+ "actualizado": "2026-11-04T18:39:18+00:00"
 }
