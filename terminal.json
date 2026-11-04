@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:51:57+00:00",
-   "tipo": "bash",
-   "desc": "Read ending segment result",
-   "cmd": "S=$S; tail -3 $S/route2.log; cat $S/route2/route.md; grep -E \"^\\[host\\] (test|stage|tour|the game|memory)|^\\[página\\] (el motor|Error)|aurora (ERROR|FATAL)\" $S/route2/12/out/log_e…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:52:10+00:00",
    "tipo": "bash",
    "desc": "Run full page test with the save feature",
@@ -279,8 +272,15 @@
    "desc": "List leftover processes from the killed epilogue run",
    "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); case \"$c\" in *route3/13*|*--remote-debugging*18…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T21:55:17+00:00",
+   "tipo": "bash",
+   "desc": "Add play directive and epilogue-with-buttons segment",
+   "cmd": "python3 - <<'EOF'  … (+39 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T21:54:57+00:00"
+ "actualizado": "2026-11-04T21:55:17+00:00"
 }
