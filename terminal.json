@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:37:51+00:00",
-   "tipo": "bash",
-   "desc": "Check save import UI and controls API",
-   "cmd": "cd ~/repo; grep -n -i -E \"export|import|descarg|subir|backup|copia\" web/shell/index.html | head; grep -n -E \"globalThis|window\\.|smg[A-Z]|export |function \" web/shell/controls.js …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:37:56+00:00",
-   "tipo": "bash",
-   "desc": "Read blind-play blocks and tour docs",
-   "cmd": "cd ~/repo; sed -n 240,256p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 300,320p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 340,352p docs/PROGRESO_AUTONOMO.md; echo ...; sed -n 39…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:38:04+00:00",
    "tipo": "bash",
    "desc": "Search known bugs and scenario coverage",
@@ -279,8 +265,22 @@
    "desc": "Rerun garden hooks test after log fix",
    "cmd": "S=$S; B=~/repo/build/all; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S/site4/ && rm -rf $S/hooks1/out && cd ~/repo &…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:02:09+00:00",
+   "tipo": "bash",
+   "desc": "Run smoke tests on site4",
+   "cmd": "S=$S; cd ~/repo && cp web/shell/*.js web/shell/index.html $S/site4/ 2>/dev/null; SMG_SITE=$S/site4 timeout 1700 node web/tests/browser_smoke.mjs > $S/b1_smoke.log 2>&1; echo \"exit…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:02:16+00:00",
+   "tipo": "bash",
+   "desc": "Search Nebula docs for grand star and ending test notes",
+   "cmd": "cd ~/repo/third_party/nebula && grep -rn -i \"grand star\\|grandstar\\|GALAXY_TEST_GRAND\\|ending\\|KoopaBattleVs3\\|route\" docs/*.md | head -30; cat $S/galaxies.txt | tr '\\n' ' '",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:02:03+00:00"
+ "actualizado": "2026-11-04T19:02:16+00:00"
 }
