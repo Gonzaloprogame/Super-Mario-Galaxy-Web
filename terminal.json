@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:56:13+00:00",
-   "tipo": "bash",
-   "desc": "Wait for halfway results of both tours",
-   "cmd": "S=$S; until [ -s $S/long1/run.out ] || [ \"$(grep -c '^| [A-Z].*Galaxy' $S/gfx44/out/tour.md 2>/dev/null)\" -ge 22 ] 2>/dev/null; do sleep 20; done; cat $S/long1/run.out; grep -c '^…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T08:00:43+00:00",
-   "tipo": "bash",
-   "desc": "Check both tours' progress",
-   "cmd": "S=$S; cat $S/long1/run.out; echo \"largo: $(grep -c '^| [A-Z].*Galaxy' $S/long1/out_9/tour.md) paradas\"; grep '^| [A-Z].*Galaxy' $S/long1/out_9/tour.md | grep -v '| cargó y dibujó …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:00:49+00:00",
    "tipo": "bash",
    "desc": "Wait for halfway results",
@@ -279,8 +265,22 @@
    "desc": "Add FPS badge checks to browser smoke test",
    "cmd": "python3 - <<'EOF'  … (+44 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:26:48+00:00",
+   "tipo": "bash",
+   "desc": "Copy shell files into site and syntax-check",
+   "cmd": "cp web/shell/index.html web/shell/app.js web/shell/fps.js build/site/ && node --check web/shell/fps.js && node --check web/shell/app.js && node --check web/tests/browser_smoke.mjs…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:26:54+00:00",
+   "tipo": "bash",
+   "desc": "Run the browser smoke test with FPS checks",
+   "cmd": "timeout 1500 node web/tests/browser_smoke.mjs > $S/smoke_fps.log 2>&1; echo exit $?; grep -n -i \"fps\\|FALLO\\|fail\" $S/smoke_fps.log | head; tail -3 $S/smoke_fps.log",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:26:43+00:00"
+ "actualizado": "2026-11-04T13:26:54+00:00"
 }
