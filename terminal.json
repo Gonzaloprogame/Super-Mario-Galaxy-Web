@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:52:57+00:00",
-   "tipo": "bash",
-   "desc": "Show the surviving tour's output folder",
-   "cmd": "tr '\\0' ' ' < /proc/9506/cmdline | grep -o \"\\-\\-out [^ ]*\" | sed 's|.*scratchpad/||'; pgrep -f chrome | wc -l",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:53:03+00:00",
    "tipo": "bash",
    "desc": "Graphics tour of the 44 stages, checking painted frames",
@@ -279,8 +272,15 @@
    "desc": "Find fullscreen and storage code in app.js",
    "cmd": "grep -n \"fullscreen\\|localStorage\\|dataset.state =\" web/shell/app.js | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:32+00:00",
+   "tipo": "bash",
+   "desc": "Read fullscreen handler",
+   "cmd": "sed -n 615,631p web/shell/app.js",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:25:29+00:00"
+ "actualizado": "2026-11-04T13:25:32+00:00"
 }
