@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:51:02+00:00",
-   "tipo": "bash",
-   "desc": "Record 8 clean tours, commit and publish panel",
-   "cmd": "S=$S; mkdir -p $S/long1; cat > $S/long1/run.sh <<'EOF'  … (+53 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:51:11+00:00",
    "tipo": "bash",
    "desc": "Long blind play across the 44 stages (seed 9)",
@@ -279,8 +272,15 @@
    "desc": "Find prologue and phone fps mentions in docs",
    "cmd": "grep -n -i \"libro\\|Para reanudar\\|teléfono\\|fps\" docs/PROGRESO_AUTONOMO.md | tail -30; grep -n -i \"libro\\|teléfono\\|fps\" docs/progreso.json README.md | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:20:08+00:00",
+   "tipo": "bash",
+   "desc": "Read the relevant doc sections",
+   "cmd": "sed -n 1,60p docs/PROGRESO_AUTONOMO.md; sed -n 150,180p README.md; sed -n 355,370p README.md; sed -n 1,60p docs/progreso.json",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:20:04+00:00"
+ "actualizado": "2026-11-04T13:20:08+00:00"
 }
