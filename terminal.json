@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:39:57+00:00",
-   "tipo": "bash",
-   "desc": "Recompilar y ejecutar la prueba de la página completa",
-   "cmd": "pkill -f story/new.sh; pkill -f \"drive/driver.mjs\"; pkill -f \"serve.py 18760\"; sleep 2; cd ~/repo; S=$S; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; bash tools/build_web.sh…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:40:27+00:00",
    "tipo": "bash",
    "desc": "Ejecutar la prueba del puente",
@@ -279,8 +272,15 @@
    "desc": "Localizar las funciones donde dejar el rastro",
    "cmd": "cd ~/repo; grep -n \"^static void svc_game_stage\\|^static int svc_test_scene_frame\\|^static void svc_object_name\\|^static uint64_t now_micros\\|now_micros(void)\" web/host/headless_h…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:29:12+00:00",
+   "tipo": "bash",
+   "desc": "Añadir el rastro de las últimas llamadas del juego",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+102 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:28:53+00:00"
+ "actualizado": "2026-11-04T01:29:12+00:00"
 }
