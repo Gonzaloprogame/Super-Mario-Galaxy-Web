@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:49:06+00:00",
-   "tipo": "bash",
-   "desc": "Build with Aurora patch 0027",
-   "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all -t targets all 2>/dev/null | grep -i \"test\" | grep -v \"\\.o\\|cmake\\|CMake\" | head; ninja -C build/a…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T06:49:13+00:00",
-   "tipo": "bash",
-   "desc": "Assemble the site and measure the garden again",
-   "cmd": "cd ~/repo; grep -c \"guestFrameHits\\|forget_guest_textures\" build/all/aurora/aurora-patched/lib/gx/texture.cpp; ls -la build/all/engine/smg_web.wasm; S=$S; B=build/all; cp $B/engin…  … (+1 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:49:21+00:00",
    "tipo": "bash",
    "desc": "Wait for and compare the texture-cache run",
@@ -279,8 +265,22 @@
    "desc": "Commit the trail fix and list files to publish",
    "cmd": "S=$S; cd ~/repo; python3 - <<'EOF'  … (+31 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:42:11+00:00",
+   "tipo": "bash",
+   "desc": "Publish the game-thread improvement",
+   "cmd": "S=$S; cp $S/site2/smg_web.wasm $S/site2/smg_headless_web.wasm $S/gh-pages/; cp ~/repo/docs/progreso.json $S/gh-pages/; cd $S/gh-pages; git add -A; git commit -q -m \"Publicar: el h…  … (+3 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T07:42:19+00:00",
+   "tipo": "bash",
+   "desc": "Find per-draw blend constant and index buffer sets",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -rn \"SetBlendConstant\\|SetIndexBuffer\" --include=*.cpp . | head;",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:41:53+00:00"
+ "actualizado": "2026-11-04T07:42:19+00:00"
 }
