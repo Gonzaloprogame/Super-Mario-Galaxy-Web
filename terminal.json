@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:45:34+00:00",
-   "tipo": "bash",
-   "desc": "Desensamblar el motor de diagnóstico",
-   "cmd": "S=$S; cd ~/repo; ~/tools/emsdk/upstream/bin/llvm-objdump -d build/site/smg_headless_web.wasm > $S/headless.dis 2>/dev/null; grep -n \"^[0-9a-f]* <\" $S/headless.dis | head -3; grep …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T02:45:49+00:00",
-   "tipo": "bash",
-   "desc": "Calcular cuántas funciones son importadas",
-   "cmd": "S=$S; cd ~/repo; total=$(grep -c \"^[0-9]*:\" build/all/game/smg_headless_web.js.symbols); defined=$(grep -c \"^[0-9a-f]* <>:\" $S/headless.dis); echo \"symbols $total, defined $define…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T02:45:56+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que el cazador guarde el perfil",
-   "cmd": "S=$S; until grep -q \"caught\\|not caught\" $S/catch3/run.out 2>/dev/null || ! pgrep -f catch3/run.sh >/dev/null; do sleep 10; done; cat $S/catch3/run.out; ls $S/catch3/dump_* 2>/dev…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:09:06+00:00",
    "tipo": "bash",
    "desc": "Ver si se guardó el perfil en bruto",
@@ -279,8 +258,29 @@
    "desc": "Read the blind-play tour results",
    "cmd": "S=$S; tail -60 $S/catch4/run.out; ls $S/catch4",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:56:40+00:00",
+   "tipo": "bash",
+   "desc": "Check tour summaries and errors",
+   "cmd": "S=$S; cd $S/catch4; for i in 1 2 3 4; do echo \"== $i\"; tail -8 tour_$i.log; done; grep -l \"memory error\\|Error en el motor\\|abortó\" out_*/* tour_*.log 2>/dev/null | head; ls out_1…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:56:45+00:00",
+   "tipo": "bash",
+   "desc": "Summarize tour outcomes",
+   "cmd": "S=$S; head -30 $S/catch4/out_1/tour.md; for i in 1 2 3 4; do node -e 'const t=require(process.argv[1]);const r=t.results||t.galaxies||t;const a=Array.isArray(r)?r:Object.values(r)…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:56:49+00:00",
+   "tipo": "bash",
+   "desc": "Find any non-clean stops per tour",
+   "cmd": "S=$S; for i in 1 2 3 4; do echo \"== $i: $(grep -c '| cargó y dibujó |' $S/catch4/out_$i/tour.md) cargó y dibujó de $(grep -c '^| [A-Z].*Galaxy' $S/catch4/out_$i/tour.md)\"; grep '^…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:56:37+00:00"
+ "actualizado": "2026-11-04T05:56:49+00:00"
 }
