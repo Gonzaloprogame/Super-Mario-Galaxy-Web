@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:11:37+00:00",
-   "tipo": "editar",
-   "desc": "",
-   "cmd": "~/repo/web/platform/memory_shim_wasm.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:11:39+00:00",
    "tipo": "bash",
    "desc": "Add unistd include and check how Nebula calls mmap",
@@ -279,8 +272,15 @@
    "desc": "Find disc path lookup and FileRipper panic site",
    "cmd": "grep -rn \"ConvertPathToEntrynum\\|entrynum\\|path_to_entry\\|dvd_open\\|svc_dvd\\|disc_open\\|find_file\" web/host/*.c web/platform/*.c third_party/nebula/native/include/nebula_game_api.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:41:43+00:00",
+   "tipo": "bash",
+   "desc": "Find which DVD call leads to the panic",
+   "cmd": "grep -n \"File isn't exist\" -B 25 third_party/nebula/native/petari/src/Game/System/FileRipper.cpp | grep -n \"DVDOpen\\|DVDFastOpen\\|convertPathToEntrynum\\|isExist\\|OSPanic\\|loadToMa…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:41:33+00:00"
+ "actualizado": "2026-11-04T23:41:43+00:00"
 }
