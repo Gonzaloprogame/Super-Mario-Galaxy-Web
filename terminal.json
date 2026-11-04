@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:00:06+00:00",
-   "tipo": "bash",
-   "desc": "Review earlier performance measurements",
-   "cmd": "cd ~/repo; ls docs; grep -rln -i \"fps\\|per frame\\|por fotograma\" docs | head; sed -n 262,292p docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:10+00:00",
    "tipo": "bash",
    "desc": "Find frame-time measurements in docs",
@@ -279,8 +272,15 @@
    "desc": "Learn what game data browser_smoke runs",
    "cmd": "cd ~/repo; sed -n 1,60p web/tests/browser_smoke.mjs | grep -n \"fixture\\|pak\\|const\\|//\" | head -30; ls build/fixtures | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:03+00:00",
+   "tipo": "bash",
+   "desc": "Add shared-memory frame slots to the bridge",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+79 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:07:43+00:00"
+ "actualizado": "2026-11-04T06:08:03+00:00"
 }
