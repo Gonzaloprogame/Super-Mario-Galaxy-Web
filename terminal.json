@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:59:04+00:00",
-   "tipo": "bash",
-   "desc": "Find calcCombinationRatio source",
-   "cmd": "cd ~/repo; grep -rn \"calcCombinationRatio\" --include=*.cpp --include=*.hpp --include=*.h . 2>/dev/null | grep -v build/ | head;",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:59:07+00:00",
    "tipo": "bash",
    "desc": "Read calcCombinationRatio and its caller",
@@ -279,8 +272,15 @@
    "desc": "Break down enqueue_pass and enqueue_op",
    "cmd": "S=$S; node $S/tools/prof_callees.mjs $S/perf1/dump/worker_6.cpuprofile ~/repo/build/all/engine/smg_web.js.symbols \"enqueue_pass\"; node $S/tools/prof_callees.mjs $S/perf1/dump/work…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:05:45+00:00",
+   "tipo": "bash",
+   "desc": "Drill into the enqueued op lambda",
+   "cmd": "S=$S; node $S/tools/prof_callees.mjs $S/perf1/dump/worker_6.cpuprofile ~/repo/build/all/engine/smg_web.js.symbols 'enqueue_op(aurora::gfx::detail::FramePacket&, unsigned int)::$_0…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:05:40+00:00"
+ "actualizado": "2026-11-04T06:05:45+00:00"
 }
