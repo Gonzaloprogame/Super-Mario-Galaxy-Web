@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:37:31+00:00",
-   "tipo": "bash",
-   "desc": "Read Nebula native port status",
-   "cmd": "cd ~/repo; sed -n 1,60p third_party/nebula/docs/NATIVE_PORT.md; sed -n 225,250p third_party/nebula/docs/NATIVE_PORT.md; sed -n 75,90p docs/COMPILACION_WASM.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:37:36+00:00",
    "tipo": "bash",
    "desc": "Search headless host for test hooks",
@@ -279,8 +272,15 @@
    "desc": "Rebuild engine and look for tour tests",
    "cmd": "source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && (ninja -C build/all smg_headless_web smg_web > $S/b1_build2.log 2>&1; echo \"exit $?\" >> $S/b1_build2.log) & grep -n \"tour\" web…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:58:04+00:00",
+   "tipo": "bash",
+   "desc": "Add tour syntax checks to browser smoke test",
+   "cmd": "python3 - <<'EOF'  … (+24 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:57:48+00:00"
+ "actualizado": "2026-11-04T18:58:04+00:00"
 }
