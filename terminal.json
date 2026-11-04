@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:56:01+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/tests/index_writer_test.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:56:36+00:00",
    "tipo": "bash",
    "desc": "Write test runner and run index writer test",
@@ -279,8 +272,15 @@
    "desc": "Read lines after the presentation note",
    "cmd": "sed -n 527,530p docs/MOTOR_WEB.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:57:55+00:00",
+   "tipo": "editar",
+   "desc": "",
+   "cmd": "~/repo/docs/MOTOR_WEB.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T17:57:47+00:00"
+ "actualizado": "2026-11-04T17:57:55+00:00"
 }
