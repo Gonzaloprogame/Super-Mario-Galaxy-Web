@@ -51,8 +51,15 @@ page.on('pageerror', (e) => pageErrors.push(String(e)));
 
 const results = [];
 let current = null; // the stop being visited
+// With graphics, a stop also has to reach the screen: the frames the page painted meanwhile (web/shell/present.js)
+const graphics = args.mode !== 'diagnostic';
+let painted = 0; // the page's painted frames at the last reading
 const finishStop = (outcome) => {
   if (current && !current.outcome) {
+    current.painted = painted - current.paintedAtStart;
+    if (graphics && current.drew && current.painted === 0) {
+      current.problems.push('la página no pintó ningún fotograma');
+    }
     current.outcome = outcome;
     current.seconds = Math.round((Date.now() - current.since) / 1000);
   }
@@ -61,7 +68,7 @@ const writeReport = (end) => {
   const summary = { disc: args.disc.split('/').pop(), frames, hangSeconds, end, pageErrors, stages: results };
   writeFileSync(join(args.out, 'tour.json'), JSON.stringify(summary, null, 1));
   const rows = results.map((r) => `| ${r.stop} | ${r.outcome || 'sin terminar'} | ${r.load ?? '—'} | ${r.stalls.length} | ` +
-    `${r.drew ? 'sí' : 'no'} | ${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
+    `${r.drew ? 'sí' : 'no'}${graphics && r.painted !== undefined ? ` (${r.painted} en pantalla)` : ''} | ${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
   writeFileSync(join(args.out, 'tour.md'), [
     `Gira: ${results.length} paradas, ${frames} fotogramas de escena cada una, cuelgue si una parada dura más de ` +
     `${hangSeconds} s${args.mode === 'diagnostic' ? ', modo diagnóstico' : ''}${args.play ? `, jugando a ciegas (semilla ${Number(args.play) || 1})` : ''}. Fin: ${end}.`, '',
@@ -109,13 +116,14 @@ try {
   for (;;) {
     await sleep(5000);
     const state = await page.evaluate(() => document.body.dataset.state);
+    painted = await page.evaluate(() => (globalThis.smgPresenter ? globalThis.smgPresenter.frames : 0));
     const lines = (await page.textContent('#log')).split('\n').map((l) => l.replace(/^\[vigía\] /, ''));
     for (const line of lines.slice(seen)) {
       let m;
       if ((m = /^\[host\] tour: stop (\d+) of (\d+), (\S+) scenario (\d+)/.exec(line))) {
         finishStop('cargó y dibujó');
         current = { stop: `${m[3]}:${m[4]}`, since: Date.now(), load: null, stalls: [], problems: [], drew: false,
-                    gxAtStart: lastGx, shot: false };
+                    gxAtStart: lastGx, shot: false, paintedAtStart: painted };
         results.push(current);
       } else if ((m = /^\[host\] load '[^']*' -> '([^']+)': ([\d.]+) s/.exec(line)) && current) {
         current.load = Number(m[2]);
