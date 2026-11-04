@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:37:36+00:00",
-   "tipo": "bash",
-   "desc": "Search headless host for test hooks",
-   "cmd": "cd ~/repo; grep -n -E \"GALAXY_TEST|getenv|tour|teleport|TELEPORT|EVENTS|scenario|save|nand\" web/host/headless_host.c | head -60; wc -l web/host/headless_host.c tools/galaxy_tour.m…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:37:47+00:00",
    "tipo": "bash",
    "desc": "Check test action kinds and page URL params",
@@ -279,8 +272,15 @@
    "desc": "Add tour syntax checks to browser smoke test",
    "cmd": "python3 - <<'EOF'  … (+24 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:01:14+00:00",
+   "tipo": "bash",
+   "desc": "Wait for engine rebuild to finish",
+   "cmd": "S=$S; until grep -q \"^exit\" $S/b1_build2.log 2>/dev/null; do sleep 5; done; tail -2 $S/b1_build2.log; grep -E \" error\" $S/b1_build2.log | head -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:58:04+00:00"
+ "actualizado": "2026-11-04T19:01:14+00:00"
 }
