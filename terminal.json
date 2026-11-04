@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:22:18+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar las pruebas de la página y del puente",
-   "cmd": "cd ~/repo; S=$S; timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_clock.log 2>&1; echo \"browser $?: $(grep -c PASS $S/smoke_clock.log) PASS, $(grep -c FAIL $S/smoke_clock.…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:22:45+00:00",
    "tipo": "bash",
    "desc": "Confirmar el arreglo del reloj y preparar la comprobación",
@@ -279,8 +272,15 @@
    "desc": "Prepare a one-stage list for profiling",
    "cmd": "S=$S; head -3 $S/galaxies.txt; grep -n -i \"garden\\|Peach\" $S/galaxies.txt; mkdir -p $S/perf1; grep -i \"PeachCastleGarden\" $S/galaxies.txt > $S/perf1/stages.txt || echo \"PeachCastl…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:41+00:00",
+   "tipo": "bash",
+   "desc": "Run the castle garden in graphics mode for profiling",
+   "cmd": "S=$S; cd ~/repo; timeout 1500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf1/out --nand $S/drive/nand_RMGE01.bin --frames 3000 --han…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:00:37+00:00"
+ "actualizado": "2026-11-04T06:00:41+00:00"
 }
