@@ -376,4 +376,18 @@ puente (`gx_bridge.html`, `gx_replay.html`), que no reciben la memoria. Un `Shar
   (4,1 frente a 3,3 fps en este contenedor, con la GPU por software). La imagen es la misma.
 - **Sin medir en el teléfono**: allí terminar costaba unos 8 ms.
 
-**Siguiente en el perfil:** procesar el flujo GX (59 %), y `writeBuffer` (13 %).
+**Lo que queda, medido** (`$S/perf2`, con el cambio; trabajo del hilo de render = 100 %):
+- procesar el flujo 67 %: `draw_prim` 42 % (unas 39 000 primitivas por fotograma, cada una con su paso por
+  `draw_prim_as_written`: 14 % propio, `push_gx_draw` 12 %, del que `hash_texture_source` 2,5 %, índices 12 %), las
+  copias del EFB 11 % (al partir el pase se codifican sus dibujos: llamadas a WebGPU, `setBindGroup` 2 %,
+  `setIndexBuffer` y `setBlendConstant` 1 % cada una) y el bucle de comandos 10 %;
+- `writeBuffer` 15 %: cinco escrituras por fotograma, unos 6 MB (almacenamiento 2,5 MB: las matrices de vértices del
+  juego, que se suben otra vez en cada fotograma; uniformes 1,7 MB, unos 2 KB por dibujo). Guardarlas entre fotogramas
+  pide un búfer persistente en Aurora con su invalidación (`aurora_guest_written`): ganancia estimada ~6 %, cambio
+  grande; pendiente.
+
+**Por qué el teléfono suma y no solapa** (27 fps: 20 ms procesar + 8 terminar + 8 esperando al juego): al final de cada
+fotograma el juego espera a que la GPU acabe ese fotograma (`MainLoopFramework::endFrame` → `waitDrawDoneAndSetAlarm`
+→ `GXDrawDone`), como en la consola; durante la lógica del fotograma siguiente no sale GX y el hilo de render espera.
+Solaparlos pediría contestar el fin de dibujo antes de tiempo, y el juego reescribiría vértices, matrices y listas
+mientras Aurora aún los lee: no se hace. Cada ms que se quita al hilo de render es un ms menos por fotograma.
