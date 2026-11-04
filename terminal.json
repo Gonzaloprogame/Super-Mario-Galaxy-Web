@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T23:55:40+00:00",
-   "tipo": "bash",
-   "desc": "Leer el conductor de pruebas del juego",
-   "cmd": "S=$S; ls $S/drive/; head -50 $S/drive/driver.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T23:55:45+00:00",
    "tipo": "bash",
    "desc": "Leer el guion que llevaba el juego al prólogo",
@@ -279,8 +272,15 @@
    "desc": "Confirmar, subir y publicar el arreglo del conjunto de hilos",
    "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+28 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:41:00+00:00",
+   "tipo": "bash",
+   "desc": "Analizar el desglose de las cargas de la gira",
+   "cmd": "S=$S; for o in out_fix out_01 out_02 out_03 out_04; do grep -h \"^\\[host\\] load '\" $S/tour/$o/log_end.txt; done | sed -E \"s/\\[host\\] load '([^']*)' -> '([^']*)': ([0-9.]+) s from t…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:40:49+00:00"
+ "actualizado": "2026-11-04T00:41:00+00:00"
 }
