@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:23:28+00:00",
-   "tipo": "bash",
-   "desc": "Ver el avance de la tanda",
-   "cmd": "S=$S; cat $S/tour/out_01/tour.md | cut -c1-220",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:23:40+00:00",
    "tipo": "bash",
    "desc": "Anotar cómo seguir la gira",
@@ -279,8 +272,15 @@
    "desc": "Recorrer el prólogo pulsando A en modo diagnóstico",
    "cmd": "S=$S; timeout 900 $S/story/run.sh > $S/story/run.out 2>&1; tail -40 $S/story/run.out | cut -c1-300",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:14:40+00:00",
+   "tipo": "bash",
+   "desc": "Esperar las primeras pulsaciones y ver si el mando llega",
+   "cmd": "S=$S; until grep -q \"k=24\" $S/story/run.out 2>/dev/null || ! pgrep -f story/run.sh >/dev/null; do sleep 3; done; cat $S/story/run.out | cut -c1-300; curl -s \"127.0.0.1:18777/log?t…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:12:53+00:00"
+ "actualizado": "2026-11-04T00:14:40+00:00"
 }
