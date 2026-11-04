@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:56:36+00:00",
-   "tipo": "bash",
-   "desc": "Write test runner and run index writer test",
-   "cmd": "cd ~/repo && cat > web/tests/run_index_writer_test.sh <<'EOF'  … (+20 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:56:43+00:00",
    "tipo": "bash",
    "desc": "Mutation check: test must fail on a planted bug",
@@ -279,8 +272,15 @@
    "desc": "",
    "cmd": "~/repo/docs/MOTOR_WEB.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:58:04+00:00",
+   "tipo": "bash",
+   "desc": "Commit docs and progress panel, push",
+   "cmd": "python3 - <<'EOF'  … (+13 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T17:57:55+00:00"
+ "actualizado": "2026-11-04T17:58:04+00:00"
 }
