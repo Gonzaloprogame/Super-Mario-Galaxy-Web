@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:37+00:00",
-   "tipo": "bash",
-   "desc": "Collect all earlier hang-catcher outcomes",
-   "cmd": "S=$S; ls $S/catch3 $S/catch2 2>/dev/null; ls $S | head -50; for f in $S/catch*/run*.out $S/catch*/*.out; do echo \"== $f\"; grep -h 'run [0-9]*:' $f; done 2>/dev/null | sort -u",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:57:41+00:00",
-   "tipo": "bash",
-   "desc": "Check earlier catcher runs for hang counts",
-   "cmd": "S=$S; ls $S/catch3/first; cat $S/catch3/first/*.out 2>/dev/null | grep 'run\\|hang' ; for i in 1 2 3 4; do head -1 $S/catch3/out_$i/tour.md 2>/dev/null; done; cat $S/catch2/run.out…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:48+00:00",
    "tipo": "bash",
    "desc": "Read the catcher script",
@@ -279,8 +265,22 @@
    "desc": "Count imports and find atomic waits",
    "cmd": "cd $S/perf1; grep -c \"(import \\\"[^\\\"]*\\\" \\\"[^\\\"]*\\\" (func\" smg_web.wat; grep -n \"memory.atomic.wait32\" smg_web.wat | head -5",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:13+00:00",
+   "tipo": "bash",
+   "desc": "Find which functions contain the atomic waits",
+   "cmd": "cd $S/perf1; for l in 1595660 5521742; do awk -v l=$l 'NR<=l && /^ \\(func /{f=$0; n=NR} NR==l{print n\": \"f; exit}' smg_web.wat; done; grep -n \"^ (func \\$9405\\b\\|^ (func \\$9085 \" s…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:20+00:00",
+   "tipo": "bash",
+   "desc": "List nand_main's callees by name",
+   "cmd": "cd $S/perf1; grep \"^9805:\\|^3100:\" ~/repo/build/all/engine/smg_web.js.symbols; a=5313434; b=$(awk -v a=$a 'NR>a && /^ \\(func /{print NR; exit}' smg_web.wat); sed -n \"${a},${b}p\" s…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:04:08+00:00"
+ "actualizado": "2026-11-04T06:04:20+00:00"
 }
