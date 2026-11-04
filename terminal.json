@@ -1,41 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:51:59+00:00",
-   "tipo": "bash",
-   "desc": "Document the audio contract limit and commit",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:52:10+00:00",
-   "tipo": "bash",
-   "desc": "Graphics tour of the 44 stages with the new build",
-   "cmd": "S=$S; mkdir -p $S/gfx44; cd ~/repo; timeout 7100 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/galaxies.txt --out $S/gfx44/out --nand $S/drive/nand…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:52:15+00:00",
-   "tipo": "bash",
-   "desc": "See how the tour judges drawing",
-   "cmd": "cd ~/repo; grep -n \"dibuj\\|draws\\|presenter\\|smgPresenter\\|frames\" tools/galaxy_tour.mjs | head -20",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:52:18+00:00",
-   "tipo": "bash",
-   "desc": "Read the tour's stop judgment",
-   "cmd": "cd ~/repo; sed -n 95,140p tools/galaxy_tour.mjs",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:52:26+00:00",
-   "tipo": "bash",
-   "desc": "Find the stop finalizer and report table",
-   "cmd": "cd ~/repo; grep -n \"finishStop\\|const finishStop\\|function finishStop\\|Dibuja\\|drew\\|mode\" tools/galaxy_tour.mjs | head -30; sed -n 56,72p tools/galaxy_tour.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:52:30+00:00",
    "tipo": "bash",
    "desc": "Read finishStop and the screenshot step",
@@ -279,8 +244,43 @@
    "desc": "Locate current FPS counter code",
    "cmd": "grep -rn -i \"fps\" web/shell/*.js web/shell/*.html web/shell/*.css 2>/dev/null | head -40; ls web/shell",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:24:23+00:00",
+   "tipo": "bash",
+   "desc": "Search for frame-rate display in shell",
+   "cmd": "grep -rn -i \"fps\\|fotogramas/s\\|stats\\|perfBar\\|hud\" web/shell/app.js web/shell/index.html | head -40",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:24:26+00:00",
+   "tipo": "bash",
+   "desc": "Find files that mention FPS",
+   "cmd": "wc -l web/shell/app.js web/shell/index.html web/shell/present.js; grep -rln -i \"fps\" web/ tools/build_web.sh | head; grep -n -i \"frames\\b\\|rate\\|per second\\|/ s\\b\" web/shell/app.j…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:24:29+00:00",
+   "tipo": "bash",
+   "desc": "Read the screen info code",
+   "cmd": "sed -n 190,240p web/shell/app.js; grep -n \"screen-info\" web/shell/*.html web/shell/*.js",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:24:34+00:00",
+   "tipo": "bash",
+   "desc": "Read the page styles",
+   "cmd": "sed -n 1,140p web/shell/index.html",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:24:34+00:00",
+   "tipo": "bash",
+   "desc": "Read screen markup and search speed displays",
+   "cmd": "sed -n 240,293p web/shell/index.html; grep -n -i \"fps\\|ritmo\\|velocidad\\|por segundo\" web/shell/app.js web/host/*.c | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:24:19+00:00"
+ "actualizado": "2026-11-04T13:24:34+00:00"
 }
