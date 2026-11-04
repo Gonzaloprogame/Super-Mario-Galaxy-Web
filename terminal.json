@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:40:37+00:00",
-   "tipo": "bash",
-   "desc": "Read texture hashing and its callers",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; sed -n 262,300p texture.cpp; sed -n 600,700p texture.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:40:47+00:00",
    "tipo": "bash",
    "desc": "Check how FIFO textures get cache identities",
@@ -279,8 +272,15 @@
    "desc": "Wait for the rebuild to finish",
    "cmd": "until [ -s $TMP ] && ! pgrep -f \"ninja -C build/all\" >/dev/null; do sleep 15; done; cat $TMP",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:30:43+00:00",
+   "tipo": "bash",
+   "desc": "Confirm the rebuild finished cleanly",
+   "cmd": "cat $TMP cd ~/repo; grep -c \"guestFrameHits\" build/all/aurora/aurora-patched/lib/gx/texture.cpp; ls -la --time-style=+%T build/all/engine/smg_web.wasm build/all/bridge/gx_bridge.w…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:30:37+00:00"
+ "actualizado": "2026-11-04T07:30:43+00:00"
 }
