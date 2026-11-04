@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:14:05+00:00",
-   "tipo": "bash",
-   "desc": "Ver el error de las pruebas del SO",
-   "cmd": "S=$S; tail -20 $S/ostests.log | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:14:08+00:00",
    "tipo": "bash",
    "desc": "Ver cómo definen nebula_host las pruebas del planificador",
@@ -279,8 +272,15 @@
    "desc": "Check catch5 progress",
    "cmd": "S=$S; cat $S/catch5/run.out; tail -3 $S/catch5/tour_5.log; grep -c 'cargó' $S/catch5/out_5/tour.md 2>/dev/null; tail -2 $S/catch5/out_5/log_tail.txt",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:06+00:00",
+   "tipo": "bash",
+   "desc": "Review earlier performance measurements",
+   "cmd": "cd ~/repo; ls docs; grep -rln -i \"fps\\|per frame\\|por fotograma\" docs | head; sed -n 262,292p docs/PROGRESO_AUTONOMO.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:59:59+00:00"
+ "actualizado": "2026-11-04T06:00:06+00:00"
 }
