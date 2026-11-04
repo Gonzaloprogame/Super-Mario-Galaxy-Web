@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:02:57+00:00",
-   "tipo": "bash",
-   "desc": "Profile the engine workers in the level for 20 s",
-   "cmd": "S=$S; until [ $(grep -c \"render thread\" $S/perf1/out/log_tail.txt) -ge 8 ] || ! pgrep -f \"perf1/stages\" >/dev/null; do sleep 5; done; grep \"render thread\\|draws in\" $S/perf1/out/l…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:02+00:00",
    "tipo": "bash",
    "desc": "Name the hot wasm functions",
@@ -279,8 +272,15 @@
    "desc": "Assemble a separate test site",
    "cmd": "S=$S; cd ~/repo; mkdir -p $S/site2; cp -r build/site/. $S/site2/; B=build/all; cp web/shell/app.js web/shell/present.js $S/site2/; cp $B/engine/smg_web.js $B/engine/smg_web.wasm $…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:17:46+00:00",
+   "tipo": "bash",
+   "desc": "Run the page tests on the new build",
+   "cmd": "S=$S; cd ~/repo; sed -n 36,40p tools/build_web.sh; cp web/shell/present.js $S/site2/bridge/present.js; SMG_SITE=$S/site2 timeout 1500 node web/tests/browser_smoke.mjs > $S/site2/b…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:16:04+00:00"
+ "actualizado": "2026-11-04T06:17:46+00:00"
 }
