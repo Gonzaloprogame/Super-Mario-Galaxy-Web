@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:03:14+00:00",
-   "tipo": "bash",
-   "desc": "Summarize profiles by named function without waits",
-   "cmd": "S=$S; ls $S/perf1/dump; cat > $S/tools/prof_named.mjs <<'EOF'  … (+21 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:03:18+00:00",
    "tipo": "bash",
    "desc": "Show busy workers' hot functions",
@@ -279,8 +272,15 @@
    "desc": "Run the bridge tests on the new build",
    "cmd": "S=$S; cd ~/repo; timeout 1500 node web/tests/bridge_smoke.mjs $S/site2/bridge > $S/site2/bridge.out 2>&1; echo exit $?; grep -c \"^PASS\" $S/site2/bridge.out; grep \"^FAIL\" $S/site2/…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:20:44+00:00",
+   "tipo": "bash",
+   "desc": "Profile the castle garden with the new build",
+   "cmd": "S=$S; cd ~/repo; mkdir -p $S/perf2; timeout 1500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/perf1/stages.txt --out $S/perf2/out --nand $S/drive/…  … (+1 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:18:22+00:00"
+ "actualizado": "2026-11-04T06:20:44+00:00"
 }
