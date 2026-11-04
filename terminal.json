@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:07:59+00:00",
-   "tipo": "bash",
-   "desc": "Save profiling tools into the repository",
-   "cmd": "S=$S; cd ~/repo && mkdir -p tools/perf && cp $S/drive/prof.mjs $S/tools/prof_named.mjs $S/tools/prof_total.mjs $S/tools/prof_callees.mjs $S/tools/prof_callers.mjs $S/tools/prof_js…  … (+22 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:08:17+00:00",
    "tipo": "bash",
    "desc": "Update resume section and push",
@@ -279,8 +272,15 @@
    "desc": "Park patch outside the tree during build",
    "cmd": "S=$S; cd ~/repo && cmp web/aurora/patches/0027-index-writer-in-place.patch $S/p27/pending/0027-index-writer-in-place.patch && rm web/aurora/patches/0027-index-writer-in-place.patc…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:12:44+00:00",
+   "tipo": "bash",
+   "desc": "Check build result and patched tree match",
+   "cmd": "S=$S; grep -E \"error|warning|^exit|^real|FAILED\" $S/p27/build.log | head; cd ~/repo && diff -r build/all/aurora/aurora-patched/lib $S/p27/b/lib && echo \"patched tree = p27/b\"; ls …",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T16:08:09+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T16:12:44+00:00"
 }
