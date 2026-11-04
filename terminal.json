@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:20:22+00:00",
-   "tipo": "bash",
-   "desc": "Add save export/import checks to smoke test",
-   "cmd": "python3 - <<'EOF'  … (+58 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T19:20:29+00:00",
-   "tipo": "bash",
-   "desc": "Read roadmap milestones",
-   "cmd": "sed -n 1,30p docs/HOJA_DE_RUTA.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:20:42+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Compare memory samples with and without fix",
    "cmd": "S=$S; tail -3 $S/mem/fix.rss; echo \"base:\"; sed -n 3,6p $S/mem/base.rss",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:37:53+00:00",
+   "tipo": "bash",
+   "desc": "Check whether the fix memory run finished",
+   "cmd": "S=$S; kill -0 $(cat $S/mem/fix.pid) 2>/dev/null && echo \"sigue\" || echo \"terminó\"; tail -2 $S/mem/fix.rss; grep -E \"^\\[host\\] (stage|tour)\" $S/mem/fix/log_tail.txt | tail -3",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T20:37:58+00:00",
+   "tipo": "bash",
+   "desc": "Stash memory fix while measuring",
+   "cmd": "git stash push -m \"memoria: no rellenar de ceros la arena nueva (midiendo)\" web/platform/memory_shim_wasm.c >/dev/null && git status --short | wc -l",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:37:42+00:00"
+ "actualizado": "2026-11-04T20:37:58+00:00"
 }
