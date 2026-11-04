@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:54:04+00:00",
-   "tipo": "bash",
-   "desc": "Run baseline garden profile in background",
-   "cmd": "S=$S; $S/perfrun.sh perf6 $S/site2 $S/perf6_symbols > $S/perf6.summary 2>&1; echo \"exit $?\" >> $S/perf6.summary",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:54:27+00:00",
    "tipo": "bash",
    "desc": "Find ByteBuffer and push declarations",
@@ -279,8 +272,15 @@
    "desc": "Check graphics tour progress",
    "cmd": "S=$S; grep -c \"^| [A-Z]\" $S/gfx44b/out/tour.md 2>/dev/null; grep \"^| [A-Z]\" $S/gfx44b/out/tour.md 2>/dev/null | grep -v \"cargó y dibujó\" | head; tail -2 $S/gfx44b/tour.log",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T17:56:33+00:00",
+   "tipo": "bash",
+   "desc": "Check graphics tour progress",
+   "cmd": "S=$S; grep -c \"^| [A-Z]\" $S/gfx44b/out/tour.md; grep \"^| [A-Z]\" $S/gfx44b/out/tour.md | grep -v \"cargó y dibujó\\|^| Parada\"; tail -2 $S/gfx44b/tour.log",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T17:26:35+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T17:56:33+00:00"
 }
