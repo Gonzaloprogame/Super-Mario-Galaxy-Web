@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:56:11+00:00",
-   "tipo": "bash",
-   "desc": "Wait for the remaining long-play stages",
-   "cmd": "until [ -s $TMP ]; do sleep 30; done; cat $TMP",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T09:03:31+00:00",
    "tipo": "bash",
    "desc": "Read the remaining long-play results",
@@ -279,8 +272,15 @@
    "desc": "Publish the FPS counter to gh-pages",
    "cmd": "S=$S; cd $S/gh-pages && cp ~/repo/web/shell/{index.html,app.js,fps.js} . && git add index.html app.js fps.js && git commit -q -m \"Contador de fps nuevo sobre la pantalla  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:23:12+00:00",
+   "tipo": "bash",
+   "desc": "Reproduce the wrapped buttons at phone widths",
+   "cmd": "S=$S; cat > $S/fpsprev/bar.mjs <<'EOF'  … (+20 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T13:30:58+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T14:23:12+00:00"
 }
