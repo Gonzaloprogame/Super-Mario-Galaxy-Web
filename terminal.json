@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:05:19+00:00",
-   "tipo": "bash",
-   "desc": "Subir el conjunto de hilos a 6 y comprobarlo",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+17 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:05:29+00:00",
-   "tipo": "bash",
-   "desc": "Añadir las pruebas del conjunto de hilos",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:12:17+00:00",
    "tipo": "bash",
    "desc": "Arrancar el modo diagnóstico con el disco y ver el mando",
@@ -279,8 +265,22 @@
    "desc": "Ver cómo terminó la secuencia",
    "cmd": "S=$S; head -1 $S/tour/out_seq32/tour.md; tail -2 $S/tour/out_seq32/tour.md | cut -c1-200; tail -3 $S/tour/run_seq32.log",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:53:40+00:00",
+   "tipo": "bash",
+   "desc": "Ver qué imprime el perfilador",
+   "cmd": "S=$S; sed -n 30,120p $S/drive/prof.mjs | grep -n \"functionName\\|console.log\\|url\" | head -12",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:53:40+00:00",
+   "tipo": "bash",
+   "desc": "Repetir la gira de diagnóstico hasta cazar el cuelgue",
+   "cmd": "S=$S; mkdir -p $S/catch; cat > $S/catch/run.sh <<'EOF'  … (+25 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:53:16+00:00"
+ "actualizado": "2026-11-04T00:53:40+00:00"
 }
