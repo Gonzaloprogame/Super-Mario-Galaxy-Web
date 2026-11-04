@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:58:11+00:00",
-   "tipo": "bash",
-   "desc": "Leer el resultado del cazador",
-   "cmd": "S=$S; cat $S/catch/run.out; ls $S/catch/",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:58:17+00:00",
-   "tipo": "bash",
-   "desc": "Esperar a que el cazador termine",
-   "cmd": "S=$S; until grep -q \"^caught\\|not caught\" $S/catch/run.out 2>/dev/null || ! pgrep -f catch/run.sh >/dev/null; do sleep 10; done; cat $S/catch/run.out",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:58:28+00:00",
    "tipo": "bash",
    "desc": "Ver cómo entrega Nebula las interrupciones al hilo del juego",
@@ -279,8 +265,22 @@
    "desc": "Leer el resultado del juego a ciegas",
    "cmd": "S=$S; cat $TMP | cut -c1-600; grep -c \"memory error\" $S/tour/out_play1/log_end.txt",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:40:49+00:00",
+   "tipo": "bash",
+   "desc": "Leer el aviso del cuelgue con el rastro",
+   "cmd": "S=$S; grep \"stall:\" $S/tour/out_play1/log_end.txt | head -1 | sed 's/; /;\\n  /g' | cut -c1-400; grep -B3 \"stall: no GX from the game for 5 s\" $S/tour/out_play1/log_end.txt | grep …",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T02:40:58+00:00",
+   "tipo": "bash",
+   "desc": "Descodificar los nombres de objetos del rastro",
+   "cmd": "python3 -I - <<'EOF'  … (+6 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:40:41+00:00"
+ "actualizado": "2026-11-04T02:40:58+00:00"
 }
