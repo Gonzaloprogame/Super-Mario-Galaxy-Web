@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:52:16+00:00",
-   "tipo": "bash",
-   "desc": "Record ending result in progress docs",
-   "cmd": "python3 - <<'EOF'  … (+16 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:52:26+00:00",
    "tipo": "bash",
    "desc": "Fix frame count and commit ending result",
@@ -279,8 +272,15 @@
    "desc": "Run the epilogue segment with button presses",
    "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route5 --nand $S/drive/nand_RMGE01.bin --site $S/site7 --only 14 > …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T22:13:12+00:00",
+   "tipo": "bash",
+   "desc": "Inspect why the game went back to file select",
+   "cmd": "S=$S; grep -E \"^\\[host\\] (stage|tour|test|the game|movie)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route5/14/out/log_tail.txt | tail -12; grep -o \"movies: [0-9]* frames decoded\" $S/ro…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T21:56:29+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T22:13:12+00:00"
 }
