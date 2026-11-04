@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:28:40+00:00",
-   "tipo": "bash",
-   "desc": "Run smoke test against up-to-date site copy",
-   "cmd": "S=$S; cd ~/repo && cp web/shell/index.html web/shell/app.js web/shell/fps.js $S/site2/ && SMG_SITE=$S/site2 timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_fps2.log 2>&1;…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:30:18+00:00",
-   "tipo": "bash",
-   "desc": "Summarize smoke test results",
-   "cmd": "F=$S/smoke_fps2.log; grep -v \"GET /\" $F | grep -E \"^(FAIL|exit)|Error:|TypeError\"; echo \"PASS: $(grep -c '^PASS' $F)  FAIL: $(grep -c '^FAIL' $F)\"; grep \"fps\" $F | grep -E \"^(PASS…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:30:31+00:00",
    "tipo": "bash",
    "desc": "Commit, push, and check gh-pages state",
@@ -279,8 +265,22 @@
    "desc": "Recover the exact profiling command used before",
    "cmd": "S=$S; head -5 $S/perf5/prof.txt; head -3 $S/perf2/tour.log; grep -rn \"galaxy_tour\" ~/.bash_history 2>/dev/null | tail -3; grep -o '\"command\":\"[^\"]*perf5[^\"]*\"' ~/.claude/projects/…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:44:21+00:00",
+   "tipo": "bash",
+   "desc": "Show the full perf5 run command",
+   "cmd": "grep -o '\"command\":\"S=[^\"]*perf5[^\"]*' ~/.claude/projects/-home-user-Super-Mario-Galaxy-Web/e2695b41-d29e-55eb-8e5e-c09dc112449c.jsonl | head -1 | sed 's/\\\\n/\\n/g' | head -30; cat…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T15:44:30+00:00",
+   "tipo": "bash",
+   "desc": "Read existing profile: callees of draw_prim_as_written",
+   "cmd": "S=$S; ls $S/perf5/dump | head; ls $S/perf5_symbols >/dev/null && for f in $S/perf5/dump/*.cpuprofile; do if node $S/tools/prof_total.mjs $f $S/perf5_symbols 400 2>/dev/null | grep…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:44:15+00:00"
+ "actualizado": "2026-11-04T15:44:30+00:00"
 }
