@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:54:36+00:00",
-   "tipo": "bash",
-   "desc": "Run the full epilogue segment",
-   "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route3 --nand $S/drive/nand_RMGE01.bin --site $S/site5 --only 13 > …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:10:29+00:00",
    "tipo": "bash",
    "desc": "Check wasm memory settings and observed usage",
@@ -279,8 +272,15 @@
    "desc": "List orphaned Chromium and server processes",
    "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in *\"serve.py 18814\"*|*ch…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T22:56:15+00:00",
+   "tipo": "bash",
+   "desc": "Save full tour log periodically and record segment 14",
+   "cmd": "python3 - <<'EOF'  … (+30 líneas)",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T22:56:00+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T22:56:28+00:00"
 }
