@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:22:12+00:00",
-   "tipo": "bash",
-   "desc": "Run only the save export/import checks against site5",
-   "cmd": "S=$S; R=~/repo; rm -rf $S/site5 && cp -r $S/site4 $S/site5 && cp $R/web/shell/index.html $R/web/shell/app.js $S/site5/ && python3 - \"$R/web/tests/browser_smoke.mjs\" \"$S/savetest.m…  … (+23 líneas)",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T19:22:21+00:00",
    "tipo": "bash",
    "desc": "Open the saves section in the test and rerun",
@@ -279,8 +272,15 @@
    "desc": "Check test progress before committing",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/mem/smoke.log) PASS $(grep -c '^FAIL' $S/mem/smoke.log) FAIL $(grep '^exit' $S/mem/smoke.log)\"; grep -E \"^  (bien|PROBLEMAS)\" $S/route4.log…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:57:21+00:00",
+   "tipo": "bash",
+   "desc": "Stash memory fix and docs while tests run",
+   "cmd": "git stash push -m \"memoria: arreglo de la arena y bloque 20 (pruebas en curso)\" web/platform/memory_shim_wasm.c docs/PROGRESO_AUTONOMO.md >/dev/null && git status --short | wc -l …",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T20:57:15+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T20:57:27+00:00"
 }
