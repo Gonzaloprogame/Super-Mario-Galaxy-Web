@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:12:27+00:00",
-   "tipo": "bash",
-   "desc": "Leer la salida del conductor",
-   "cmd": "S=$S; tail -20 $S/story/driver.out | cut -c1-300; pgrep -fa \"driver.mjs|serve.py\" | cut -c1-150",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:12:48+00:00",
    "tipo": "bash",
    "desc": "Reiniciar el conductor en modo diagnóstico",
@@ -279,8 +272,15 @@
    "desc": "Anotar las cargas y el cuelgue y subir las herramientas",
    "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+28 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:54:15+00:00",
+   "tipo": "bash",
+   "desc": "Escribir y probar el traductor de índices de tabla",
+   "cmd": "S=$S; mkdir -p $S/tools; cat > $S/tools/table_index.py <<'EOF'  … (+54 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:54:03+00:00"
+ "actualizado": "2026-11-04T00:54:15+00:00"
 }
