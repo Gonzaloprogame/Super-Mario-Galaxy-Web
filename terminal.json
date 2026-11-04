@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:32:28+00:00",
-   "tipo": "bash",
-   "desc": "Ampliar el búfer, añadir la prueba y compilar",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T01:34:09+00:00",
-   "tipo": "bash",
-   "desc": "Ejecutar la prueba de la página con el rastro",
-   "cmd": "cd ~/repo; S=$S; timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_trail.log 2>&1; echo \"salida $?\"; grep -c PASS $S/smoke_trail.log; grep \"FAIL\\|últimas llamadas\" $S/smoke…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:35:58+00:00",
    "tipo": "bash",
    "desc": "Ver el rastro en un aviso real del juego",
@@ -279,8 +265,22 @@
    "desc": "Extraer el desensamblado de nebula_game_main",
    "cmd": "S=$S; grep -n \"^0030ef8c <>:\\|^30ef8c\\|^  30ef8c:\" $S/headless.dis | head -3; awk 'BEGIN{found=0} /^[0-9a-f]+ <>:/{ if(found){exit} if($1==\"0030ef8c\"){found=1} } found{print}' $S/…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:09:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver el formato de las direcciones del desensamblado",
+   "cmd": "S=$S; grep -n \"<>:\" $S/headless.dis | awk -F: '{print $2}' | head -3; grep -n \"^0030e[f]\" $S/headless.dis | head -3; grep -n \" 30ef8[0-9a-f]:\" $S/headless.dis | head -3",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T04:09:35+00:00",
+   "tipo": "bash",
+   "desc": "Buscar la cabecera de función cerca del desplazamiento",
+   "cmd": "S=$S; awk '/^[0-9a-f]+ <>:/{print NR\": \"$1}' $S/headless.dis | awk -F': ' '{a=strtonum(\"0x\"$2); if (a>=0x30ef00 && a<=0x30f200) print}'",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:09:23+00:00"
+ "actualizado": "2026-11-04T04:09:35+00:00"
 }
