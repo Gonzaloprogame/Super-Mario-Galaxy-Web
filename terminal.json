@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:06:46+00:00",
-   "tipo": "bash",
-   "desc": "Commit and push hooks and route tooling",
-   "cmd": "git add -A && git commit -q -m \"Ganchos de prueba de Nebula en la gira web, recorrido de la historia y líneas del juego terminadas  … (+13 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T19:06:47+00:00",
-   "tipo": "bash",
-   "desc": "Run the story route",
-   "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route1 --nand $S/drive/nand_RMGE01.bin --site $S/site4 > $S/route1.…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:11:53+00:00",
    "tipo": "bash",
    "desc": "Inspect failing segment 6 log against segment 5",
@@ -279,8 +265,22 @@
    "desc": "Measure baseline memory of a garden run",
    "cmd": "S=$S; cat > $S/mem/sample.sh <<'EOF'  … (+15 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:11:37+00:00",
+   "tipo": "editar",
+   "desc": "",
+   "cmd": "~/repo/web/platform/memory_shim_wasm.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T20:11:39+00:00",
+   "tipo": "bash",
+   "desc": "Add unistd include and check how Nebula calls mmap",
+   "cmd": "sed -i 's/#include <sys\\/mman.h>/#include <sys\\/mman.h>\\n#include <unistd.h>/' web/platform/memory_shim_wasm.c && grep -n \"#include\" web/platform/memory_shim_wasm.c && grep -rn \"n…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:11:21+00:00"
+ "actualizado": "2026-11-04T20:11:39+00:00"
 }
