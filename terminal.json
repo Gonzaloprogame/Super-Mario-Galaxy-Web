@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:14:08+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo definen nebula_host las pruebas del planificador",
-   "cmd": "cd ~/repo; grep -n \"nebula_host\" third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c third_party/nebula/native/sdk/nebula_sdk.h | head -5",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:14:18+00:00",
-   "tipo": "bash",
-   "desc": "Leer la definición de nebula_host en la prueba",
-   "cmd": "cd ~/repo; sed -n 10,18p third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:14:39+00:00",
-   "tipo": "bash",
-   "desc": "Dar un host vacío a la prueba y repetirla",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:15:24+00:00",
    "tipo": "bash",
    "desc": "Ver cómo se añaden los sustitutos de la plataforma web",
@@ -279,8 +258,29 @@
    "desc": "Review earlier performance measurements",
    "cmd": "cd ~/repo; ls docs; grep -rln -i \"fps\\|per frame\\|por fotograma\" docs | head; sed -n 262,292p docs/PROGRESO_AUTONOMO.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:10+00:00",
+   "tipo": "bash",
+   "desc": "Find frame-time measurements in docs",
+   "cmd": "cd ~/repo; grep -n -i \"fps\\|ms por\\|per frame\\|render thread\" docs/MOTOR_WEB.md docs/HOJA_DE_RUTA.md docs/PUENTE_FIFO.md | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:12+00:00",
+   "tipo": "bash",
+   "desc": "Read the render-thread performance section",
+   "cmd": "cd ~/repo; sed -n 485,560p docs/MOTOR_WEB.md",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:19+00:00",
+   "tipo": "bash",
+   "desc": "Find a profiling build configuration",
+   "cmd": "cd ~/repo; ls build; grep -n \"PROFILING_FUNCS\" -r web/cmake web/*/CMakeLists.txt CMakeLists.txt 2>/dev/null | head; ls build/*/CMakeCache.txt; grep -l \"SMG_PROFILING_FUNCS:BOOL=ON…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:00:06+00:00"
+ "actualizado": "2026-11-04T06:00:19+00:00"
 }
