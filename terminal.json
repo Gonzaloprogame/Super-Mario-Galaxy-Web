@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:38:24+00:00",
-   "tipo": "bash",
-   "desc": "Find Aurora's WriteBuffer calls",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; grep -rn \"WriteBuffer\" --include=*.cpp . | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:38:28+00:00",
    "tipo": "bash",
    "desc": "Read the frame-end staging write",
@@ -279,8 +272,15 @@
    "desc": "Inspect the texture stats accessor",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib/gx; grep -n \"texture_stats()\\|TextureStats s_stats\\|s_statsSnapshot\\|s_publishedStats\" texture.cpp | head; n=$(grep -n \"const Texture…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:00:02+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the timing comparison",
+   "cmd": "until [ -s $TMP ]; do sleep 15; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:59:49+00:00"
+ "actualizado": "2026-11-04T07:00:02+00:00"
 }
