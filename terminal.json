@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:11:07+00:00",
-   "tipo": "bash",
-   "desc": "Write a memory sampler for Chromium processes",
-   "cmd": "S=$S; mkdir -p $S/mem && cat > $S/mem/sample.sh <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:11:21+00:00",
    "tipo": "bash",
    "desc": "Measure baseline memory of a garden run",
@@ -279,8 +272,15 @@
    "desc": "Pilot tour of 2 galaxies × 7 missions",
    "cmd": "S=$S; mkdir -p $S/missions && (for g in HeavensDoorGalaxy EggStarGalaxy; do for n in 1 2 3 4 5 6 7; do echo \"$g:$n\"; done; done) > $S/missions/pilot.txt && cd ~/repo && timeout 15…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:41:20+00:00",
+   "tipo": "bash",
+   "desc": "Show log lines before the FileRipper panic",
+   "cmd": "S=$S; F=$S/missions/pilot/log_end.txt; n=$(grep -n \"the game stopped\" $F | head -1 | cut -d: -f1); sed -n \"$((n-25)),$((n+3))p\" $F | cut -c1-220",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:41:12+00:00"
+ "actualizado": "2026-11-04T23:41:20+00:00"
 }
