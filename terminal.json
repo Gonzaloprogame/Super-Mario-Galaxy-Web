@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:49:02+00:00",
-   "tipo": "bash",
-   "desc": "Fix cmake source path and retry",
-   "cmd": "sed -i 's#    cmake -B \"$BUILD_DIR\" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null#    cmake -S \"$ROOT/web\" -B \"$BUILD_DIR\" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null#' tools/co…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:49:15+00:00",
    "tipo": "bash",
    "desc": "Inspect a compile command and the emscripten sysroot",
@@ -279,8 +272,15 @@
    "desc": "Run the story route",
    "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route1 --nand $S/drive/nand_RMGE01.bin --site $S/site4 > $S/route1.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:11:53+00:00",
+   "tipo": "bash",
+   "desc": "Inspect failing segment 6 log against segment 5",
+   "cmd": "S=$S; cat $S/route1/06/out/tour.md | sed -n 1,8p; grep -E \"^\\[host\\] (test|tour|stage|load|stall|the game)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route1/06/out/log_end.txt | head -3…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T19:11:00+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T19:11:53+00:00"
 }
