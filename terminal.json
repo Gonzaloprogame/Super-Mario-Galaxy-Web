@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:23:46+00:00",
-   "tipo": "bash",
-   "desc": "Check how chromium is imported in the smoke test",
-   "cmd": "grep -n \"chromium\" web/tests/browser_smoke.mjs | head -3; sed -n 12,20p web/tests/browser_smoke.mjs",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T14:23:51+00:00",
-   "tipo": "bash",
-   "desc": "Run full smoke test with layout check",
-   "cmd": "S=$S; cd ~/repo && SMG_SITE=$S/site2 timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_fps3.log 2>&1; echo \"exit $?\" >> $S/smoke_fps3.log",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:24:14+00:00",
    "tipo": "bash",
    "desc": "Record phone measurement and UI fix in docs",
@@ -279,8 +265,22 @@
    "desc": "Extract the earlier perf5 commands from the transcript",
    "cmd": "python3 - <<'EOF'  … (+13 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:54:00+00:00",
+   "tipo": "bash",
+   "desc": "Write reusable garden profiling script",
+   "cmd": "S=$S; cat > $S/perfrun.sh <<'EOF'  … (+19 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T15:54:04+00:00",
+   "tipo": "bash",
+   "desc": "Run baseline garden profile in background",
+   "cmd": "S=$S; $S/perfrun.sh perf6 $S/site2 $S/perf6_symbols > $S/perf6.summary 2>&1; echo \"exit $?\" >> $S/perf6.summary",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:53:49+00:00"
+ "actualizado": "2026-11-04T15:54:04+00:00"
 }
