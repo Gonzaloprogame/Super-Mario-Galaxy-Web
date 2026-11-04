@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:49:45+00:00",
-   "tipo": "bash",
-   "desc": "Repetir la secuencia hasta StarDustGalaxy en modo diagnóstico",
-   "cmd": "S=$S; head -32 $S/tour/all40 > $S/tour/seq32; tail -1 $S/tour/seq32; cd ~/repo; timeout 1500 node tools/galaxy_tour.mjs --disc $S/disc/smg.rvz --stages $S/tour/seq32 --out $S/tour…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:53:12+00:00",
    "tipo": "bash",
    "desc": "Esperar a que se cuelgue en la secuencia",
@@ -279,8 +272,15 @@
    "desc": "Añadir el modo de juego a ciegas a la gira",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+33 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:03:42+00:00",
+   "tipo": "bash",
+   "desc": "Anotar el modo y la semilla en la cabecera",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:03:36+00:00"
+ "actualizado": "2026-11-04T02:03:42+00:00"
 }
