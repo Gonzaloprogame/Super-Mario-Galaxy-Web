@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:25:30+00:00",
-   "tipo": "bash",
-   "desc": "Comprobar el estado del conductor",
-   "cmd": "S=$S; curl -s -m 10 127.0.0.1:18777/state | cut -c1-300; echo; tail -5 $S/story/driver.out | cut -c1-300; pgrep -fa \"driver.mjs\" | cut -c1-100",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:25:43+00:00",
-   "tipo": "bash",
-   "desc": "Matar el conductor viejo y liberar los puertos",
-   "cmd": "pkill -f story/new.sh; kill 30860 2>/dev/null; pkill -f \"serve.py 18760\"; sleep 3; pgrep -fa \"driver.mjs|serve.py 18760\" | cut -c1-80; (ss -ltnp 2>/dev/null || netstat -ltnp 2>/de…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:25:43+00:00",
-   "tipo": "bash",
-   "desc": "Relanzar el conductor y el recorrido del prólogo",
-   "cmd": "S=$S; cd ~/repo; (node $S/drive/driver.mjs ~/repo $S/disc/smg.rvz $S/story diagnostic > $S/story/driver.out 2>&1 &); sleep 20; curl -s -m 10 127.0.0.1:18777/state | cut -c1-150; e…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:25:49+00:00",
    "tipo": "bash",
    "desc": "Esperar a que se cree la partida nueva",
@@ -279,8 +258,29 @@
    "desc": "Leer los bucles de JUTException",
    "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 600,700p $P/src/JSystem/JUtility/JUTException.cpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:59:06+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo llegan los pánicos del juego al host",
+   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; grep -n \"panic\\|NEBULA\\|nebula\\|TARGET_PC\" $P/src/JSystem/JUtility/JUTException.cpp | head -30; grep -rn \"OSPanic\\b\" third_party/neb…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:59:10+00:00",
+   "tipo": "bash",
+   "desc": "Leer el pánico de JUTException en el port",
+   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 150,200p $P/src/JSystem/JUtility/JUTException.cpp; grep -n \"errorHandler\\|OSSetErrorHandler\\|__OSErrorTable\\|::run()\\|createF…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T00:59:17+00:00",
+   "tipo": "bash",
+   "desc": "Ver el avance del cazador",
+   "cmd": "S=$S; cat $S/catch/run.out; for f in $S/catch/out_*/tour.md; do echo \"$(basename $(dirname $f)): $(head -1 $f | grep -o 'Fin: [^.]*'), $(grep -c 'cargó y dibujó' $f) paradas\"; done",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:58:58+00:00"
+ "actualizado": "2026-11-04T00:59:17+00:00"
 }
