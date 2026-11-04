@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:25:29+00:00",
-   "tipo": "bash",
-   "desc": "Find fullscreen and storage code in app.js",
-   "cmd": "grep -n \"fullscreen\\|localStorage\\|dataset.state =\" web/shell/app.js | head -20",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:25:32+00:00",
    "tipo": "bash",
    "desc": "Read fullscreen handler",
@@ -279,8 +272,15 @@
    "desc": "Fix README link and check zip download URL",
    "cmd": "python3 - <<'EOF'  … (+8 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:48:11+00:00",
+   "tipo": "bash",
+   "desc": "Publish servir.py and refreshed LEEME on gh-pages",
+   "cmd": "S=$S; cd ~/repo && HEADC=$(git rev-parse --short HEAD) && cat > $S/gh-pages/LEEME.md <<EOF  … (+25 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:47:56+00:00"
+ "actualizado": "2026-11-04T14:48:11+00:00"
 }
