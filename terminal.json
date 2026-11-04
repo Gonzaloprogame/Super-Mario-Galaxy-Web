@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:47:05+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/shell/servir.py",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:47:20+00:00",
    "tipo": "bash",
    "desc": "Serve a downloaded copy with servir.py and check the page",
@@ -279,8 +272,15 @@
    "desc": "Make before/after copies of patched Aurora sources",
    "cmd": "S=$S; rm -rf $S/p27 && mkdir -p $S/p27/a $S/p27/b && cd ~/repo/build/all/aurora/aurora-patched && cp -r lib include $S/p27/a/ && cp -r lib include $S/p27/b/ && ls $S/p27/b; cat $S…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:55:40+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "$S/p27/b/lib/gx/index_writer.hpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:55:25+00:00"
+ "actualizado": "2026-11-04T15:55:40+00:00"
 }
