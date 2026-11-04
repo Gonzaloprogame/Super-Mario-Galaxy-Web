@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:50:33+00:00",
-   "tipo": "bash",
-   "desc": "Check seed 8 results",
-   "cmd": "S=$S; cat $S/catch5/run.out; i=8; echo \"semilla $i: $(grep -c '| cargó y dibujó |' $S/catch5/out_$i/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/catch5/out_$i/tour.md)\"; grep '^| […",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:51:02+00:00",
    "tipo": "bash",
    "desc": "Record 8 clean tours, commit and publish panel",
@@ -279,8 +272,15 @@
    "desc": "Check working tree and running tours",
    "cmd": "git status --short | head; git log --oneline -1; ps aux | grep -c \"[g]alaxy_tour\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:20:04+00:00",
+   "tipo": "bash",
+   "desc": "Find prologue and phone fps mentions in docs",
+   "cmd": "grep -n -i \"libro\\|Para reanudar\\|teléfono\\|fps\" docs/PROGRESO_AUTONOMO.md | tail -30; grep -n -i \"libro\\|teléfono\\|fps\" docs/progreso.json README.md | head -20",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T10:24:47+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T13:20:04+00:00"
 }
