@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-03T22:16:44+00:00",
-   "tipo": "bash",
-   "desc": "Ver quién toma el cerrojo del registro de vigía",
-   "cmd": "cd ~/repo; grep -n \"sWatchLock\\|smg_console_counters\" web/host/*.c | head; sed -n 255,270p web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-03T22:17:03+00:00",
    "tipo": "bash",
    "desc": "Mandar el informe final del error por stderr",
@@ -279,8 +272,15 @@
    "desc": "Subir el conjunto de hilos a 6 y comprobarlo",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+17 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:05:29+00:00",
+   "tipo": "bash",
+   "desc": "Añadir las pruebas del conjunto de hilos",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:05:19+00:00"
+ "actualizado": "2026-11-04T00:05:29+00:00"
 }
