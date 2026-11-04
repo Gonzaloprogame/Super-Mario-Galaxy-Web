@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:00:24+00:00",
-   "tipo": "bash",
-   "desc": "Review the profiler and symbol tools",
-   "cmd": "S=$S; head -40 $S/drive/prof.mjs; head -30 ~/repo/tools/wasm_symbols.py; ls $S/drive",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:30+00:00",
    "tipo": "bash",
    "desc": "Check tour options for ports and stages",
@@ -279,8 +272,15 @@
    "desc": "Report shared-memory frames in the host log",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:31+00:00",
+   "tipo": "bash",
+   "desc": "Paint frames from shared slots in the page",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+95 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:08:18+00:00"
+ "actualizado": "2026-11-04T06:08:31+00:00"
 }
