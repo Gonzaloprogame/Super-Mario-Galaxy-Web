@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:24:27+00:00",
-   "tipo": "bash",
-   "desc": "Wait for both tours to finish",
-   "cmd": "S=$S; until { [ -s $S/long1/run.out ] || ! pgrep -f \"long1/run.sh\" >/dev/null; } && ! pgrep -f \"gfx44/out\" >/dev/null; do sleep 30; done; cat $S/long1/run.out; for t in long1/out_…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T08:51:22+00:00",
-   "tipo": "bash",
-   "desc": "Read the long blind play results",
-   "cmd": "S=$S; cat $S/long1/run.out; t=long1/out_9; echo \"$(head -1 $S/$t/tour.md | grep -o 'Fin: [^.]*'), $(grep -c '| cargó y dibujó |' $S/$t/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T08:51:30+00:00",
-   "tipo": "bash",
-   "desc": "Confirm the engine ended at its time limit",
-   "cmd": "S=$S; grep -n \"report: retraces\\|exit\\|tour: stop 38\" $S/long1/out_9/log_end.txt | tail -5 | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:51:38+00:00",
    "tipo": "bash",
    "desc": "Scale diagnostic length with the tour",
@@ -279,8 +258,29 @@
    "desc": "Retry preview screenshots using require for playwright",
    "cmd": "S=$S; cd $S/fpsprev && sed -i \"s#^import { chromium } from 'playwright';#import { createRequire } from 'node:module';\\nconst { chromium } = createRequire(import.meta.url)('playwri…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:27:44+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test progress",
+   "cmd": "S=$S; tail -5 $S/smoke_fps.log; grep -c . $S/smoke_fps.log",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:27:48+00:00",
+   "tipo": "bash",
+   "desc": "Find README news section",
+   "cmd": "grep -n \"Novedades\\|^## \\|^### \" README.md | head -30; sed -n \"$(grep -n 'Novedades' README.md | head -1 | cut -d: -f1),+6p\" README.md",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:27:51+00:00",
+   "tipo": "bash",
+   "desc": "Read README news head and how-to-play",
+   "cmd": "sed -n 283,292p README.md; sed -n 205,222p README.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:27:33+00:00"
+ "actualizado": "2026-11-04T13:27:51+00:00"
 }
