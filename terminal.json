@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:31:55+00:00",
-   "tipo": "bash",
-   "desc": "Review pending changes",
-   "cmd": "cd ~/repo; git status --short; git diff --stat",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:32:25+00:00",
    "tipo": "bash",
    "desc": "Document and commit the presentation change",
@@ -279,8 +272,15 @@
    "desc": "Add the per-frame guest texture cache",
    "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+86 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:42:52+00:00",
+   "tipo": "bash",
+   "desc": "Invalidate guest textures on game writes",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+28 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:42:43+00:00"
+ "actualizado": "2026-11-04T06:42:52+00:00"
 }
