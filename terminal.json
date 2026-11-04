@@ -3,13 +3,6 @@
   {
    "t": "2026-11-04T13:24:34+00:00",
    "tipo": "bash",
-   "desc": "Read the page styles",
-   "cmd": "sed -n 1,140p web/shell/index.html",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:24:34+00:00",
-   "tipo": "bash",
    "desc": "Read screen markup and search speed displays",
    "cmd": "sed -n 240,293p web/shell/index.html; grep -n -i \"fps\\|ritmo\\|velocidad\\|por segundo\" web/shell/app.js web/host/*.c | head -20",
    "ok": true
@@ -279,8 +272,15 @@
    "desc": "Read gh-pages readme and serve.py tail",
    "cmd": "S=$S; cat $S/gh-pages/LEEME.md; sed -n 30,40p ~/repo/tools/serve.py; grep -n \"LEEME\" ~/repo/tools/*.sh | head -3",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:47:05+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/web/shell/servir.py",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:46:52+00:00"
+ "actualizado": "2026-11-04T14:47:05+00:00"
 }
