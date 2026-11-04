@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:40:49+00:00",
-   "tipo": "bash",
-   "desc": "Confirmar, subir y publicar el arreglo del conjunto de hilos",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+28 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:41:00+00:00",
    "tipo": "bash",
    "desc": "Analizar el desglose de las cargas de la gira",
@@ -279,8 +272,15 @@
    "desc": "Generar el texto del rastro en el informe",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:32:28+00:00",
+   "tipo": "bash",
+   "desc": "Ampliar el búfer, añadir la prueba y compilar",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+12 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:29:17+00:00"
+ "actualizado": "2026-11-04T01:32:28+00:00"
 }
