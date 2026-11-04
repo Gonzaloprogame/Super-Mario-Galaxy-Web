@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:12:24+00:00",
-   "tipo": "bash",
-   "desc": "Commit tour starting-scene fix and push",
-   "cmd": "git add -A && git commit -q -m \"Gira y ruta: cada parada anota la escena en la que empezó  … (+6 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:13:30+00:00",
    "tipo": "bash",
    "desc": "Inspect segment 8 details",
@@ -279,8 +272,15 @@
    "desc": "Check baseline memory samples so far",
    "cmd": "S=$S; cat $S/mem/base.rss | tail -5; grep -c . $S/mem/base.rss; grep -E \"^\\[host\\] (stage|tour)\" $S/mem/base/log_tail.txt 2>/dev/null | tail -3",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T20:12:12+00:00",
+   "tipo": "bash",
+   "desc": "Stash the unmeasured memory fix",
+   "cmd": "git stash push -m \"memoria: no rellenar de ceros la arena nueva (sin medir aún)\" web/platform/memory_shim_wasm.c && git status --short | wc -l && git stash list | head -2",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T20:11:50+00:00"
+ "actualizado": "2026-11-04T20:12:12+00:00"
 }
