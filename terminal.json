@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:47:47+00:00",
-   "tipo": "bash",
-   "desc": "Add local download instructions to README",
-   "cmd": "python3 - <<'EOF'  … (+27 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:47:56+00:00",
    "tipo": "bash",
    "desc": "Fix README link and check zip download URL",
@@ -279,8 +272,15 @@
    "desc": "Mutation check: test must fail on a planted bug",
    "cmd": "S=$S; rm -rf $S/p27m && mkdir -p $S/p27m/lib/gx && ln -s $S/p27/b/include $S/p27m/include && sed 's/(v \\& 1) == 0 ? idx - 2 : idx - 1/(v \\& 1) == 1 ? idx - 2 : idx - 1/' $S/p27/b/…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:56:59+00:00",
+   "tipo": "bash",
+   "desc": "Add in-place index reservation to Aurora copy",
+   "cmd": "S=$S; cd $S/p27/b && python3 - <<'EOF'  … (+108 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:56:43+00:00"
+ "actualizado": "2026-11-04T15:56:59+00:00"
 }
