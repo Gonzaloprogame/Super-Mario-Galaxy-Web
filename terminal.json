@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:15:28+00:00",
-   "tipo": "bash",
-   "desc": "Leer cómo reúne el módulo de juego sus fuentes de plataforma",
-   "cmd": "cd ~/repo; sed -n 25,66p web/game/CMakeLists.txt",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:20:06+00:00",
-   "tipo": "bash",
-   "desc": "Enlazar el reloj creciente en el motor y compilar",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:22:18+00:00",
    "tipo": "bash",
    "desc": "Ejecutar las pruebas de la página y del puente",
@@ -279,8 +265,22 @@
    "desc": "Review the profiler and symbol tools",
    "cmd": "S=$S; head -40 $S/drive/prof.mjs; head -30 ~/repo/tools/wasm_symbols.py; ls $S/drive",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:30+00:00",
+   "tipo": "bash",
+   "desc": "Check tour options for ports and stages",
+   "cmd": "cd ~/repo; sed -n 1,60p tools/galaxy_tour.mjs | grep -n -i \"port\\|--\\|usage\" | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:00:37+00:00",
+   "tipo": "bash",
+   "desc": "Prepare a one-stage list for profiling",
+   "cmd": "S=$S; head -3 $S/galaxies.txt; grep -n -i \"garden\\|Peach\" $S/galaxies.txt; mkdir -p $S/perf1; grep -i \"PeachCastleGarden\" $S/galaxies.txt > $S/perf1/stages.txt || echo \"PeachCastl…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:00:24+00:00"
+ "actualizado": "2026-11-04T06:00:37+00:00"
 }
