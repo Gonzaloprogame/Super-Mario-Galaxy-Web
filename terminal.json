@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:09:55+00:00",
-   "tipo": "bash",
-   "desc": "Buscar los bucles sin llamadas en nebula_game_main",
-   "cmd": "S=$S; sed -n 1568427,1582709p $S/headless.dis > $S/game_main.dis; python3 -I - <<'EOF'  … (+24 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:10:01+00:00",
    "tipo": "bash",
    "desc": "Ver los bucles sin llamadas más pequeños",
@@ -279,8 +272,15 @@
    "desc": "Read doc header, resume section, blocks 11-12",
    "cmd": "cd ~/repo; sed -n 1,46p docs/PROGRESO_AUTONOMO.md; sed -n 293,332p docs/PROGRESO_AUTONOMO.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:57:31+00:00",
+   "tipo": "bash",
+   "desc": "Read the pre-fix catcher outcome for comparison",
+   "cmd": "S=$S; cat $S/catch3/run.out | grep -i 'run\\|hang' | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:57:27+00:00"
+ "actualizado": "2026-11-04T05:57:31+00:00"
 }
