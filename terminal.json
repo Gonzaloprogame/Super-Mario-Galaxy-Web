@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:37:42+00:00",
-   "tipo": "bash",
-   "desc": "Compare memory samples with and without fix",
-   "cmd": "S=$S; tail -3 $S/mem/fix.rss; echo \"base:\"; sed -n 3,6p $S/mem/base.rss",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:37:53+00:00",
    "tipo": "bash",
    "desc": "Check whether the fix memory run finished",
@@ -279,8 +272,15 @@
    "desc": "Repeat the mission transition to catch the panic",
    "cmd": "S=$S; (for i in 1 2 3 4 5; do echo HeavensDoorGalaxy:1; echo HeavensDoorGalaxy:2; done) > $S/missions/hdx.txt; cd ~/repo && timeout 1500 node tools/galaxy_tour.mjs --site $S/site8…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:53:46+00:00",
+   "tipo": "bash",
+   "desc": "Build mission lists and run missions 2-3 tour",
+   "cmd": "S=$S; for pair in \"2 3\" \"4 5\" \"6 7\"; do set -- $pair; f=$S/missions/m$1$2.txt; : > $f; for n in $1 $2; do grep -v '^\\s*$' $S/galaxies.txt | grep -v '^#' | sed \"s/\\$/:$n/\" >> $f; d…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:53:27+00:00"
+ "actualizado": "2026-11-04T23:53:46+00:00"
 }
