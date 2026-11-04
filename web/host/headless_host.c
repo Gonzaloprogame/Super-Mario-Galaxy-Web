@@ -192,6 +192,13 @@ static _Atomic uint32_t sPeMarkers;
 static char sStage[64];
 
 static uint64_t now_micros(void);
+/* The host's time by the retraces counted so far (ms, 16.7 ms steps): an atomic read where now_micros calls out to
+   JS (the browser's clock). The hot services mark their calls with it: the game calls gpu_coherent and audio_dsp
+   thousands of times a frame, and two clock reads in each were most of what those calls cost (some 13 % of the game
+   thread's work in the castle garden). */
+static inline uint64_t retrace_ms(void) {
+    return atomic_load_explicit(&sRetraces, memory_order_relaxed) * 1000 / 60;
+}
 
 /* ---- the watch log: the host's reports in a ring of shared memory the page reads by itself ----
    The engine's stderr reaches the page through the game's thread: Emscripten proxies a pthread's write to the worker's
@@ -249,13 +256,20 @@ static void host_log(const char* format, ...) {
 typedef struct {
     const char* what;
     char detail[96];
-    uint64_t at;
+    uint64_t at; /* retrace_ms */
     uint32_t count;
 } TrailEntry;
 static TrailEntry sTrail[SMG_TRAIL];
 static _Atomic int sTrailCount;
 
 static void trail(const char* what, const char* detail) {
+    /* The same call again, without detail (the hot services): counted in place */
+    const int last = atomic_load_explicit(&sTrailCount, memory_order_relaxed) - 1;
+    if (detail == NULL && last >= 0 && sTrail[last].what == what && sTrail[last].detail[0] == '\0') {
+        sTrail[last].count++;
+        sTrail[last].at = retrace_ms();
+        return;
+    }
     char text[sizeof(sTrail[0].detail)] = "";
     /* The game's names are Shift-JIS: their other bytes as \xNN, so the log stays text */
     for (size_t i = 0, o = 0; detail != NULL && detail[i] != '\0' && o + 5 < sizeof(text); i++) {
@@ -267,7 +281,7 @@ static void trail(const char* what, const char* detail) {
         }
     }
     int count = atomic_load_explicit(&sTrailCount, memory_order_relaxed);
-    TrailEntry entry = {what, "", now_micros(), 1};
+    TrailEntry entry = {what, "", retrace_ms(), 1};
     memcpy(entry.detail, text, sizeof(text));
     for (int i = count - 1; i >= 0; i--) {
         if (sTrail[i].what == what && strcmp(sTrail[i].detail, text) == 0) {
@@ -288,14 +302,14 @@ static void trail(const char* what, const char* detail) {
 /* "X 'detail' (N times, the last M ms ago); ..." from the oldest to the newest */
 static void describe_trail(char* out, size_t size) {
     const int count = atomic_load_explicit(&sTrailCount, memory_order_acquire);
-    const uint64_t now = now_micros();
+    const uint64_t now = retrace_ms();
     size_t used = (size_t)snprintf(out, size, "the game's last calls to the host:");
     for (int i = 0; i < count && used < size; i++) {
         const TrailEntry* const entry = &sTrail[i];
         used += (size_t)snprintf(out + used, size - used, "%s %s%s%s%s (%u times, the last %" PRIu64 " ms ago)",
                                  i > 0 ? ";" : "", entry->what != NULL ? entry->what : "?",
                                  entry->detail[0] != '\0' ? " '" : "", entry->detail, entry->detail[0] != '\0' ? "'" : "",
-                                 entry->count, now > entry->at ? (now - entry->at) / 1000 : 0);
+                                 entry->count, now > entry->at ? now - entry->at : 0);
     }
     if (count == 0) {
         snprintf(out + used, size - used, " none yet");
@@ -309,7 +323,7 @@ static _Atomic uint64_t sInServiceSince;
 #define SERVICE_ENTER(name)                              \
     do {                                                 \
         atomic_fetch_add(&sWatch.beat, 1);               \
-        atomic_store(&sInServiceSince, now_micros());    \
+        atomic_store(&sInServiceSince, retrace_ms());    \
         atomic_store(&sInService, (const char*)(name));  \
         trail((const char*)(name), NULL);                \
     } while (0)
@@ -981,7 +995,7 @@ static void check_stall(uint64_t retrace) {
     const char* service = atomic_load(&sInService);
     if (service != NULL) {
         snprintf(inService, sizeof(inService), "the game's thread has been inside the host's %s for %" PRIu64 " ms",
-                 service, (now_micros() - atomic_load(&sInServiceSince)) / 1000);
+                 service, retrace_ms() - atomic_load(&sInServiceSince));
     }
 #if defined(__EMSCRIPTEN__)
     {

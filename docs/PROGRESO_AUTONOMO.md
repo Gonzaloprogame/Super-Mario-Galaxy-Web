@@ -396,6 +396,17 @@ mayoría de las texturas se enlaza una sola vez por fotograma; lo que ahorraría
 eso depende de que el juego vacíe siempre su caché antes de que la GPU lea (sin comprobar para las lecturas del
 disco). No se hace.
 
+**El hilo del juego gastaba ~13 % en leer el reloj para el rastro de diagnóstico** (bloque 10, mío). Perfil del jardín
+(`$S/perf4`): de las 187 muestras de `svc_gpu_coherent`, 163 eran `clock_gettime` (llamada a JS) y 6 su trabajo; el
+juego lo llama miles de veces por fotograma (cada vaciado de caché de `J3DModel::viewCalc` y del audio), y
+`SERVICE_ENTER` leía el reloj dos veces. Ahora el rastro y «dentro del servicio desde» usan los retrazados contados
+(`retrace_ms`, una lectura atómica, pasos de 16,7 ms) y una llamada repetida sin detalle se cuenta en su sitio.
+**Medido** (`$S/perf5`, mismos 20 s del jardín): trabajo del hilo del juego **1729 → 1385 muestras (−20 %)**,
+`svc_gpu_coherent` 10,8 % → 1,3 %, el reloj 16,9 % → 6,6 % (lo que queda son lecturas del propio juego, `OSGetTick`, y
+dos por subtrama en el mezclador de Nebula, que no se toca). `browser_smoke` 54 PASS (con el aviso de bloqueo y su
+rastro). Comprobado de paso en el desensamblado que `OSGetTick` pasa por `__wrap_clock_gettime` (el reloj del
+bloque 12): el perfilador pierde ese marco al ponerlo en línea.
+
 **Por qué el teléfono suma y no solapa** (27 fps: 20 ms procesar + 8 terminar + 8 esperando al juego): al final de cada
 fotograma el juego espera a que la GPU acabe ese fotograma (`MainLoopFramework::endFrame` → `waitDrawDoneAndSetAlarm`
 → `GXDrawDone`), como en la consola; durante la lógica del fotograma siguiente no sale GX y el hilo de render espera.

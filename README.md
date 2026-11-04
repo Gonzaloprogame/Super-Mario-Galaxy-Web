@@ -289,6 +289,8 @@ Publicado en la página, todavía sin número de versión:
   instrucción de multiplicar y sumar exacta, así que se calcula de otra forma con el mismo resultado: probado contra
   la biblioteca de C en 3 millones de casos, con los mismos píxeles en el navegador que en nativo y frente a ffmpeg
   con fotogramas reales.
+- 🏃 **El hilo del juego trabaja un 20 % menos:** el registro de diagnóstico de las últimas llamadas al host leía el
+  reloj del navegador miles de veces por fotograma; ahora usa los retrazados contados.
 - 🖼️ **Cada fotograma llega a la pantalla sin copias de más:** el motor lo deja en memoria compartida y la página lo
   pinta desde allí, en vez de copiarlo y clonarlo en un mensaje. En el entorno de desarrollo, terminar cada fotograma
   pasó de 15,2 ms a 9,8 ms en el jardín del castillo (sin medir todavía en un teléfono).
