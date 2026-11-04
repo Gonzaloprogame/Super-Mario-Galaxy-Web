@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:07+00:00",
-   "tipo": "bash",
-   "desc": "Verify the site build includes the clock fix",
-   "cmd": "cd ~/repo; git log -1 --format=%cd 1db2ac5; grep -c wrap_clock_gettime build/all/engine/smg_web.js.symbols build/all/game/smg_headless_web.js.symbols; cmp build/all/engine/smg_web…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:57:21+00:00",
-   "tipo": "bash",
-   "desc": "Publish the fixed engine to gh-pages",
-   "cmd": "S=$S; cd ~/repo; cp build/site/smg_web.wasm build/site/smg_headless_web.wasm $S/gh-pages/; cp build/site/bridge/gx_bridge.wasm $S/gh-pages/bridge/; cd $S/gh-pages; git add -A; git…  … (+5 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:25+00:00",
    "tipo": "bash",
    "desc": "Locate block 12 and resume section",
@@ -279,8 +265,22 @@
    "desc": "Look for disassembly tools",
    "cmd": "S=$S; ls $S/tools; ls ~/tools/emsdk/upstream/bin | grep -i \"wasm-dis\\|objdump\\|wasm-opt\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:45+00:00",
+   "tipo": "bash",
+   "desc": "Find nand_main function index",
+   "cmd": "grep \":nand_main$\" ~/repo/build/all/engine/smg_web.js.symbols",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:50+00:00",
+   "tipo": "bash",
+   "desc": "Disassemble the engine wasm",
+   "cmd": "~/tools/emsdk/upstream/bin/wasm-dis ~/repo/build/site/smg_web.wasm -o $S/perf1/smg_web.wat",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:03:34+00:00"
+ "actualizado": "2026-11-04T06:03:50+00:00"
 }
