@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:52:40+00:00",
-   "tipo": "bash",
-   "desc": "Make the tour check frames painted on the page",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+25 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:52:46+00:00",
-   "tipo": "bash",
-   "desc": "Stop the graphics tour running the old script",
-   "cmd": "S=$S; pkill -f \"gfx44/out\" ; sleep 3; pgrep -f \"gfx44/out\" || echo parado; head -3 $S/gfx44/out/tour.md 2>/dev/null",
-   "ok": false
-  },
-  {
-   "t": "2026-11-04T07:52:50+00:00",
-   "tipo": "bash",
-   "desc": "Check which tours are still running",
-   "cmd": "pgrep -fa \"galaxy_tour\" | cut -c1-160",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:52:53+00:00",
    "tipo": "bash",
    "desc": "Confirm the surviving tour is the long play",
@@ -279,8 +258,29 @@
    "desc": "Search for any FPS overlay in engine or patches",
    "cmd": "grep -rn -i \"fps\\|framerate\\|frame rate\" web/ --include=*.c --include=*.cpp --include=*.js --include=*.h --include=*.patch -l | head; grep -rn -i \"renderdebug\\|imgui\" web/shell/ap…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:02+00:00",
+   "tipo": "bash",
+   "desc": "Read presenter and smoke test hooks",
+   "cmd": "sed -n 1,109p web/shell/present.js; grep -n \"smgPresenter\\|sintétic\\|synthetic\\|fixture_emptydol\" web/tests/browser_smoke.mjs | head -30",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:05+00:00",
+   "tipo": "bash",
+   "desc": "Read smoke test synthetic frame checks and run helper",
+   "cmd": "sed -n 355,397p web/tests/browser_smoke.mjs; sed -n 30,100p web/tests/browser_smoke.mjs",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:25:09+00:00",
+   "tipo": "bash",
+   "desc": "Check how build copies shell files",
+   "cmd": "grep -n \"present.js\\|controls.js\\|shell/\" tools/build_web.sh | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:24:50+00:00"
+ "actualizado": "2026-11-04T13:25:09+00:00"
 }
