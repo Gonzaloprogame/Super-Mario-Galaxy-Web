@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:36:11+00:00",
-   "tipo": "bash",
-   "desc": "Ver los cambios de escenario y los vídeos del recorrido",
-   "cmd": "curl -s -m 20 \"127.0.0.1:18777/log?tail=100000\" > $S/story/full.log; S=$S; grep -E \"^\\[host\\] (stage:|load |movies|stall|memory)|THP|thp|resumed\" $S/story/full.log | cut -c1-220 |…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T00:36:20+00:00",
-   "tipo": "bash",
-   "desc": "Buscar los vídeos en el registro",
-   "cmd": "S=$S; grep -i \"movie\\|thp\\|decode\" $S/story/full.log | head; tail -3 $S/story/full.log | cut -c1-400; grep -n \"movies\" ~/repo/web/host/headless_host.c | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:36:25+00:00",
    "tipo": "bash",
    "desc": "Ver cuándo informa el host de los vídeos",
@@ -279,8 +265,22 @@
    "desc": "Ver quién llama al servicio de nombres de objetos",
    "cmd": "cd ~/repo; sed -n 520,530p third_party/nebula/native/include/nebula_game_api.h; grep -rn \"object_name(\" third_party/nebula/native/sdk third_party/nebula/native/petari/src 2>/dev/n…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:28:34+00:00",
+   "tipo": "bash",
+   "desc": "Leer el resto del informe de bloqueo",
+   "cmd": "cd ~/repo; sed -n 926,960p web/host/headless_host.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T01:28:34+00:00",
+   "tipo": "bash",
+   "desc": "Leer las migas de servicio y el informe de bloqueo",
+   "cmd": "cd ~/repo; sed -n 240,256p web/host/headless_host.c; sed -n 905,925p web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:28:24+00:00"
+ "actualizado": "2026-11-04T01:28:34+00:00"
 }
