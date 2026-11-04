@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:41:29+00:00",
-   "tipo": "bash",
-   "desc": "Search the JAudio mixer for clock reads",
-   "cmd": "cd ~/repo; grep -rln \"JAudioHostMixer\" third_party/nebula/native web 2>/dev/null | head -5; f=$(grep -rln \"class JAudioHostMixer\" third_party/nebula/native 2>/dev/null | head -1);…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:41:33+00:00",
    "tipo": "bash",
    "desc": "Read the mixer's timing code",
@@ -279,8 +272,15 @@
    "desc": "Commit the tour length fix",
    "cmd": "cd ~/repo; git commit -qam \"Gira: la duración del modo diagnóstico sale de las paradas y sus fotogramas (una hora fija cortó una gira larga en la parada 38)  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:55:44+00:00",
+   "tipo": "bash",
+   "desc": "Read the graphics tour results",
+   "cmd": "S=$S; t=gfx44/out; head -1 $S/$t/tour.md; echo \"$(grep -c '| cargó y dibujó |' $S/$t/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/$t/tour.md)\"; grep '^| [A-Z].*Galaxy' $S/$t/tour.m…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T08:52:11+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T08:55:44+00:00"
 }
