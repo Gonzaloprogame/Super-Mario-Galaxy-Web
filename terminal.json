@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:31:50+00:00",
-   "tipo": "bash",
-   "desc": "Measure host-service overhead on the game thread",
-   "cmd": "S=$S; SYM=$S/perf4_symbols; G=$S/perf4/dump/worker_0.cpuprofile; node $S/tools/prof_total.mjs $G $SYM 400 | grep -E \"work samples|svc_gpu_coherent|svc_audio_dsp|nebula_gpu_coheren…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:32:01+00:00",
    "tipo": "bash",
    "desc": "Find uses of the service timestamps",
@@ -279,8 +272,15 @@
    "desc": "Check both tours' progress",
    "cmd": "S=$S; cat $S/long1/run.out; echo \"largo: $(grep -c '^| [A-Z].*Galaxy' $S/long1/out_9/tour.md) paradas\"; grep '^| [A-Z].*Galaxy' $S/long1/out_9/tour.md | grep -v '| cargó y dibujó …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T08:00:49+00:00",
+   "tipo": "bash",
+   "desc": "Wait for halfway results",
+   "cmd": "until [ -s $TMP ]; do sleep 30; done; cat $TMP",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T08:00:43+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T08:00:55+00:00"
 }
