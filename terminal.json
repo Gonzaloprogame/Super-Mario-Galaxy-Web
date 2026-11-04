@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:10:16+00:00",
-   "tipo": "bash",
-   "desc": "Revert the texture-cache patch and stats",
-   "cmd": "cd ~/repo; git status --short; git rm -q --cached web/aurora/patches/0027-guest-textures-hashed-once-per-frame.patch 2>/dev/null; rm web/aurora/patches/0027-guest-textures-hashed-…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:20:22+00:00",
-   "tipo": "bash",
-   "desc": "Rebuild without patch 0027",
-   "cmd": "cd ~/repo; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1; ninja -C build/all smg_headless_web smg_web gx_bridge gx_replay gx_demo 2>&1 | grep -E \"error|FAILED|Re-running|aplic…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:20:32+00:00",
    "tipo": "bash",
    "desc": "Document the discarded texture-cache experiment",
@@ -279,8 +265,22 @@
    "desc": "Read finishStop and the screenshot step",
    "cmd": "cd ~/repo; sed -n 50,58p tools/galaxy_tour.mjs; sed -n 140,160p tools/galaxy_tour.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:52:40+00:00",
+   "tipo": "bash",
+   "desc": "Make the tour check frames painted on the page",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+25 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T07:52:46+00:00",
+   "tipo": "bash",
+   "desc": "Stop the graphics tour running the old script",
+   "cmd": "S=$S; pkill -f \"gfx44/out\" ; sleep 3; pgrep -f \"gfx44/out\" || echo parado; head -3 $S/gfx44/out/tour.md 2>/dev/null",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:52:30+00:00"
+ "actualizado": "2026-11-04T07:52:46+00:00"
 }
