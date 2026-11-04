@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:07:39+00:00",
-   "tipo": "bash",
-   "desc": "Check scratch tools and the resume section",
-   "cmd": "S=$S; ls -la $S/tools $S/drive 2>/dev/null | head -30; cd ~/repo && sed -n \"$(grep -n '^## Para reanudar' docs/PROGRESO_AUTONOMO.md | cut -d: -f1),+28p\" docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:07:45+00:00",
-   "tipo": "bash",
-   "desc": "Inspect profiling scripts before saving them in repo",
-   "cmd": "S=$S; ls -la $S/tools; head -15 $S/drive/prof.mjs; for f in $S/tools/*.mjs; do echo \"== $f\"; head -6 $f; done; grep -n \"scratchpad\\|/tmp/\" $S/drive/prof.mjs $S/tools/*.mjs | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:07:59+00:00",
    "tipo": "bash",
    "desc": "Save profiling tools into the repository",
@@ -279,8 +265,22 @@
    "desc": "Build engine with patch 0027",
    "cmd": "S=$S; cd ~/repo && cp $S/p27/pending/0027-index-writer-in-place.patch web/aurora/patches/ && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && (time ninja -C build/all smg_head…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:07:58+00:00",
+   "tipo": "bash",
+   "desc": "Check build progress and patched tree",
+   "cmd": "S=$S; tail -3 $S/p27/build.log; grep -c \"0027\" ~/repo/build/all/aurora/aurora-patched/.web-patches; ls ~/repo/build/all/aurora/aurora-patched/lib/gx/index_writer.hpp",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T16:08:04+00:00",
+   "tipo": "bash",
+   "desc": "Park patch outside the tree during build",
+   "cmd": "S=$S; cd ~/repo && cmp web/aurora/patches/0027-index-writer-in-place.patch $S/p27/pending/0027-index-writer-in-place.patch && rm web/aurora/patches/0027-index-writer-in-place.patc…",
+   "ok": true
   }
  ],
  "estado": "en espera",
- "actualizado": "2026-11-04T16:07:52+00:00"
+ "actualizado": "2026-11-04T16:08:09+00:00"
 }
