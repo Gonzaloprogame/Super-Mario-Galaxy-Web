@@ -33,9 +33,12 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. Rutas: `$S` es la carpeta de trabajo local de la sesión (fuera del repositorio:
 disco del usuario, NAND, capturas y registros de la gira, que no se suben nunca).
 
-- **Siguiente:** recompilar `build/site` (`tools/build_web.sh`, ya sin gira en marcha) y probar el libro del prólogo
-  en modo diagnóstico (el juego a toda velocidad, sin renderizador), pulsando A como una persona, por si el cuelgue del
-  PC del usuario se reproduce aquí; después, medidas de rendimiento.
+- **En curso:** cazar el cuelgue raro a toda velocidad (`$S/catch2/run.sh 10`: giras de diagnóstico de los 40
+  escenarios con el perfilador; si se cuelga, `prof_N.txt` y `hang_log_N.txt` en `$S/catch2`, con el rastro de las
+  últimas llamadas). Mapa de símbolos: `build/all/game/smg_headless_web.js.symbols`; índices de tabla:
+  `$S/tools/table_index.py`.
+- **Después:** rendimiento (medidas en el PC/móvil del usuario: `[host] load …`, `render thread … per frame`),
+  y jugar galaxias (lo que la gira no comprueba).
 - **Bloqueados:** cuelgue del libro del prólogo (falta el registro `[vigía]` del usuario; puede ser el mismo fallo de
   memoria arreglado en el bloque 3, sin comprobar); PAL y japonesa (Nebula solo
   prepara RMGE01; sin disco para probar); mando real (solo probado con uno simulado).

@@ -170,10 +170,10 @@ de esta tabla: 3 de noviembre de 2026*):
 
 ### 🐞 Fallos conocidos
 
-- 🧊 **Cuelgue en el libro del prólogo:** en un PC el juego se paró en la segunda página del libro, con todo el juego
-  quieto (ni dibujo, ni disco, ni sonido) y fuera de cualquier servicio del motor. Todavía no se reproduce en el
-  entorno de desarrollo; el aviso de bloqueo ya dice si el juego espera algo o da vueltas en un bucle, y con ese dato
-  se buscará la causa.
+- 🧊 **Cuelgues raros a toda velocidad:** en un PC el juego se paró en la segunda página del libro del prólogo, y en el
+  entorno de desarrollo una vez en *StarDustGalaxy* (en unas 350 cargas): el hilo principal del juego da vueltas en su
+  propio código. Puede que el fallo de memoria ya arreglado fuera la causa del primero; si vuelve a pasar, el aviso de
+  bloqueo dice ahora lo último que hizo el juego: copia el registro con «Copiar el registro».
 - 🐢 **Velocidad:** en teléfonos va por debajo de 30 fps; en escritorio con GPU por software es mucho más lento.
 - ⏸️ **Pausas la primera vez:** cada combinación de efectos nueva crea un *pipeline* gráfico en mitad del juego (una
   pausa pequeña). Desde la segunda sesión en el mismo navegador se preparan antes de jugar, en la pantalla de carga.
@@ -294,6 +294,14 @@ Publicado en la página, todavía sin número de versión:
   escribía encima de datos del motor, y tras unas cuantas galaxias el motor moría (`table index is out of bounds`,
   en *CocoonExGalaxy*). Ahora usa la memoria del host; una prueba nueva lo comprueba.
 - 🧾 **Los errores del motor traen su pila** en el registro, para saber dónde fue.
+- 🕹️ **El modo diagnóstico recibe los controles:** el hilo del mando no llegaba a arrancar (no quedaban hilos libres
+  para él) y el juego no veía las pulsaciones. Ahora el motor cuenta sus hilos al arrancar y, si faltaran, lo dice.
+- 🧠 **Alarma de memoria:** si algo escribe a través de un puntero nulo (lo que mató a *CocoonExGalaxy*), el registro lo
+  dice (`[host] memory error`).
+- 🔎 **El aviso de bloqueo dice qué hizo el juego por última vez** (el objeto que creaba, el escenario, la GX…), para
+  localizar cuelgues que no dejan error.
+- ⏱️ **Cargas medidas:** de media 1,3 s de trabajo del propio juego por galaxia; con gráficos, el resto es esperar al
+  renderizador.
 - 🎮 **Mandos físicos** (Gamepad API, distribución estándar); probados con un mando simulado, falta uno real.
 - 🧊 **EggStarGalaxy ya no se cuelga:** el juego manda una tira de triángulos de 0 vértices, y Aurora reservaba unos
   4 GB para ella (parche 0025).
