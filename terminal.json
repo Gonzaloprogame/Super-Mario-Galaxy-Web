@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:55:44+00:00",
-   "tipo": "bash",
-   "desc": "Read the graphics tour results",
-   "cmd": "S=$S; t=gfx44/out; head -1 $S/$t/tour.md; echo \"$(grep -c '| cargó y dibujó |' $S/$t/tour.md) de $(grep -c '^| [A-Z].*Galaxy' $S/$t/tour.md)\"; grep '^| [A-Z].*Galaxy' $S/$t/tour.m…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:55:50+00:00",
    "tipo": "bash",
    "desc": "List graphics tour screenshots",
@@ -279,8 +272,15 @@
    "desc": "Summarize smoke test results",
    "cmd": "F=$S/smoke_fps2.log; grep -v \"GET /\" $F | grep -E \"^(FAIL|exit)|Error:|TypeError\"; echo \"PASS: $(grep -c '^PASS' $F)  FAIL: $(grep -c '^FAIL' $F)\"; grep \"fps\" $F | grep -E \"^(PASS…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:30:31+00:00",
+   "tipo": "bash",
+   "desc": "Commit, push, and check gh-pages state",
+   "cmd": "S=$S; cd ~/repo && sed -i 's|- \\*\\*Vista previa\\*\\* con una imagen sintética (degradado, nada del juego) en escritorio y móvil: `$S/fpsprev`.|&\\n- **Resultado:** `browser_smoke.mj…  … (+9 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:30:18+00:00"
+ "actualizado": "2026-11-04T13:30:31+00:00"
 }
