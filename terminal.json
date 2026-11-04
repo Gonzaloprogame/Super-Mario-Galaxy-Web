@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:08:10+00:00",
-   "tipo": "bash",
-   "desc": "Hand the frame slots to the page from the host",
-   "cmd": "cd ~/repo; sed -i 's|^#include <cstring>$|#include <cstdlib>\\n#include <cstring>|' web/host/aurora_bridge.cpp; python3 - <<'EOF'  … (+19 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:08:13+00:00",
    "tipo": "bash",
    "desc": "Read the Aurora report line",
@@ -279,8 +272,15 @@
    "desc": "Aggregate warnings from graphics tour logs",
    "cmd": "S=$S; ls $S/tour/all40 $S/tour/batch_00 | head; find $S/tour -name \"log_*.txt\" | head; grep -i -h \"unsupported\\|unimplemented\\|not implemented\\|warn\\|unknown\\|invalid\\|stub\\|TODO\"…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:39:00+00:00",
+   "tipo": "bash",
+   "desc": "Read guest array uploads and storage users",
+   "cmd": "cd ~/repo/build/all/aurora/aurora-patched/lib; sed -n 480,530p gx/command_processor.cpp; grep -rn \"push_storage(\" --include=*.cpp . | grep -v \"^./gfx/common.cpp\" | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:38:50+00:00"
+ "actualizado": "2026-11-04T06:39:00+00:00"
 }
