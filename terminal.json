@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:40:33+00:00",
-   "tipo": "bash",
-   "desc": "Commit doc; find texture source hashing",
-   "cmd": "cd ~/repo; git commit -qam \"Progreso: lo que queda en el hilo de render, medido, y por qué en el teléfono el juego y el render no se solapan  … (+3 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:40:37+00:00",
    "tipo": "bash",
    "desc": "Read texture hashing and its callers",
@@ -279,8 +272,15 @@
    "desc": "Document the discarded texture-cache experiment",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+17 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:30:37+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the rebuild to finish",
+   "cmd": "until [ -s $TMP ] && ! pgrep -f \"ninja -C build/all\" >/dev/null; do sleep 15; done; cat $TMP",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:20:32+00:00"
+ "actualizado": "2026-11-04T07:30:37+00:00"
 }
