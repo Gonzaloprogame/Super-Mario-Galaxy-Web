@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:36:36+00:00",
-   "tipo": "bash",
-   "desc": "Show game build CMake files",
-   "cmd": "cd ~/repo/web; cat game/CMakeLists.txt cmake/SmgGame.cmake",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:36:44+00:00",
    "tipo": "bash",
    "desc": "Search Nebula native for stubs and nonmatching",
@@ -279,8 +272,15 @@
    "desc": "Implement tour test events and run settings in host",
    "cmd": "python3 - <<'EOF'  … (+265 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:52:31+00:00",
+   "tipo": "bash",
+   "desc": "Replace strtok and run clangd check",
+   "cmd": "python3 - <<'EOF'  … (+25 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:52:17+00:00"
+ "actualizado": "2026-11-04T18:52:31+00:00"
 }
