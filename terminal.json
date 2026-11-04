@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:00:30+00:00",
-   "tipo": "bash",
-   "desc": "Check tour options for ports and stages",
-   "cmd": "cd ~/repo; sed -n 1,60p tools/galaxy_tour.mjs | grep -n -i \"port\\|--\\|usage\" | head -30",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:37+00:00",
    "tipo": "bash",
    "desc": "Prepare a one-stage list for profiling",
@@ -279,8 +272,15 @@
    "desc": "Paint frames from shared slots in the page",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+95 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:08:38+00:00",
+   "tipo": "bash",
+   "desc": "Read the existing presenter-channel test",
+   "cmd": "cd ~/repo; sed -n 322,375p web/tests/browser_smoke.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:08:31+00:00"
+ "actualizado": "2026-11-04T06:08:38+00:00"
 }
