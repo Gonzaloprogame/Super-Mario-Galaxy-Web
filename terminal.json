@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:36:25+00:00",
-   "tipo": "bash",
-   "desc": "Ver cuándo informa el host de los vídeos",
-   "cmd": "cd ~/repo; sed -n 785,800p web/host/headless_host.c; S=$S; grep -E \"object|name\" $S/story/full.log | head -5 | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:39:57+00:00",
    "tipo": "bash",
    "desc": "Recompilar y ejecutar la prueba de la página completa",
@@ -279,8 +272,15 @@
    "desc": "Leer las migas de servicio y el informe de bloqueo",
    "cmd": "cd ~/repo; sed -n 240,256p web/host/headless_host.c; sed -n 905,925p web/host/headless_host.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T01:28:53+00:00",
+   "tipo": "bash",
+   "desc": "Localizar las funciones donde dejar el rastro",
+   "cmd": "cd ~/repo; grep -n \"^static void svc_game_stage\\|^static int svc_test_scene_frame\\|^static void svc_object_name\\|^static uint64_t now_micros\\|now_micros(void)\" web/host/headless_h…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T01:28:34+00:00"
+ "actualizado": "2026-11-04T01:28:53+00:00"
 }
