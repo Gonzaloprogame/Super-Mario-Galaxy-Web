@@ -286,3 +286,6 @@ vez: sin cuelgue. **No es determinista**: una vez en unas 70 cargas a toda veloc
   espera al renderizador al cargar): objetos creados → escenas → GX → audio → cola del renderizador. Prueba nueva en
   `browser_smoke.mjs` (51 PASS, 0 FAIL). El hilo atascado del cuelgue de StarDust era `boot_thread`, el principal del
   juego (índice de tabla 13911, `$S/tools/table_index.py`).
+- **Cazador, segunda vuelta** (con el rastro; un reinicio del contenedor por medio): 10 giras más de los 40 escenarios
+  a toda velocidad, sin cuelgues. En total, unas 720 cargas en modo diagnóstico y **un solo cuelgue** (StarDustGalaxy).
+  Queda vigilado: si vuelve, aquí o en el PC del usuario, el aviso dirá lo último que hizo el juego.
