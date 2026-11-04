@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:13:44+00:00",
-   "tipo": "bash",
-   "desc": "Ver cómo arrancan el SO las pruebas del planificador",
-   "cmd": "cd ~/repo; grep -n \"nebula_os_boot\\|int main\" third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c | head; grep -n \"void nebula_os_boot\" third_party/nebula/native/sdk/os/os…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:13:56+00:00",
    "tipo": "bash",
    "desc": "Leer el final de las pruebas del planificador",
@@ -279,8 +272,15 @@
    "desc": "Read the host retrace clock loop",
    "cmd": "cd ~/repo; sed -n 1008,1050p web/host/headless_host.c; grep -n \"nebula_game_vi_retrace\" -r web/ third_party/nebula/native/host | grep -v \"^web/host/headless_host.c\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:59:37+00:00",
+   "tipo": "bash",
+   "desc": "Find uses of the combination ratio and video interval",
+   "cmd": "cd ~/repo/third_party/nebula/native/petari; grep -rn \"CombinationRatio\\|getVideoInterval\\|sVideoInterval\" src include | grep -v \"^src/Game/System/MainLoopFramework.cpp:39[89]\" | h…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:59:28+00:00"
+ "actualizado": "2026-11-04T05:59:37+00:00"
 }
