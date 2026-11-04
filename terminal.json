@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:31:30+00:00",
-   "tipo": "bash",
-   "desc": "Find the game thread profile with matching symbols",
-   "cmd": "S=$S; SYM=$S/perf4_symbols; ls -la $SYM; G=\"\"; for f in $S/perf4/dump/*.cpuprofile; do node $S/tools/prof_total.mjs $f $SYM 400 | grep -q \"nebula_game_main\" && G=\"$G $f\"; done; ec…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T07:31:35+00:00",
-   "tipo": "bash",
-   "desc": "Inclusive game thread profile and clock callers",
-   "cmd": "S=$S; SYM=$S/perf4_symbols; G=$S/perf4/dump/worker_0.cpuprofile; node $S/tools/prof_total.mjs $G $SYM 25; echo; node $S/tools/prof_callers.mjs $G $SYM \"_emscripten_get_now\" | head…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:31:43+00:00",
    "tipo": "bash",
    "desc": "Read the service trail recording code",
@@ -279,8 +265,22 @@
    "desc": "Commit the tour's painted-frames check",
    "cmd": "cd ~/repo; git add tools/galaxy_tour.mjs; git commit -q -m \"Gira: con gráficos, cada parada cuenta los fotogramas que la página pintó, y sin ninguno es un problema  … (+5 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:56:07+00:00",
+   "tipo": "bash",
+   "desc": "Update the resume section and commit",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+14 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T07:56:13+00:00",
+   "tipo": "bash",
+   "desc": "Wait for halfway results of both tours",
+   "cmd": "S=$S; until [ -s $S/long1/run.out ] || [ \"$(grep -c '^| [A-Z].*Galaxy' $S/gfx44/out/tour.md 2>/dev/null)\" -ge 22 ] 2>/dev/null; do sleep 20; done; cat $S/long1/run.out; grep -c '^…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:55:57+00:00"
+ "actualizado": "2026-11-04T07:56:13+00:00"
 }
