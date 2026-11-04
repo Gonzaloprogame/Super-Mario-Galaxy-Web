@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:47:20+00:00",
-   "tipo": "bash",
-   "desc": "Serve a downloaded copy with servir.py and check the page",
-   "cmd": "S=$S; rm -rf $S/descarga && mkdir -p $S/descarga && cd $S/gh-pages && git archive HEAD | tar -x -C $S/descarga && cp ~/repo/web/shell/servir.py $S/descarga/ && cd $S/descarga && (…  … (+11 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:47:28+00:00",
    "tipo": "bash",
    "desc": "Add servir.py to the site build",
@@ -279,8 +272,15 @@
    "desc": "",
    "cmd": "$S/p27/b/lib/gx/index_writer.hpp",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T15:56:01+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/web/tests/index_writer_test.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:55:40+00:00"
+ "actualizado": "2026-11-04T15:56:01+00:00"
 }
