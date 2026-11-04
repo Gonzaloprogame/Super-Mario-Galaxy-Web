@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T20:57:15+00:00",
-   "tipo": "bash",
-   "desc": "Check test progress before committing",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/mem/smoke.log) PASS $(grep -c '^FAIL' $S/mem/smoke.log) FAIL $(grep '^exit' $S/mem/smoke.log)\"; grep -E \"^  (bien|PROBLEMAS)\" $S/route4.log…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T20:57:21+00:00",
    "tipo": "bash",
    "desc": "Stash memory fix and docs while tests run",
@@ -279,8 +272,15 @@
    "desc": "Locate page reads in galaxy_tour",
    "cmd": "grep -n \"const lines = (await page.textContent('#log'))\\|const state = await page.evaluate\\|painted = await page.evaluate\\|chromium.launch\\|page.on('pageerror'\" tools/galaxy_tour.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:56:25+00:00",
+   "tipo": "bash",
+   "desc": "Handle page crashes and capture Chromium log in tour",
+   "cmd": "python3 - <<'EOF'  … (+48 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:56:12+00:00"
+ "actualizado": "2026-11-04T23:56:25+00:00"
 }
