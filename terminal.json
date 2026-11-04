@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T07:00:26+00:00",
-   "tipo": "bash",
-   "desc": "Count the bytes the cache saves from hashing",
-   "cmd": "cd ~/repo/build/all/aurora/aurora-patched; python3 - <<'EOF'  … (+31 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T07:02:33+00:00",
    "tipo": "bash",
    "desc": "Wait for the timing comparison to finish",
@@ -279,8 +272,15 @@
    "desc": "Document the audio contract limit and commit",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+14 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:52:10+00:00",
+   "tipo": "bash",
+   "desc": "Graphics tour of the 44 stages with the new build",
+   "cmd": "S=$S; mkdir -p $S/gfx44; cd ~/repo; timeout 7100 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/galaxies.txt --out $S/gfx44/out --nand $S/drive/nand…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:51:59+00:00"
+ "actualizado": "2026-11-04T07:52:10+00:00"
 }
