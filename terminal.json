@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T17:57:20+00:00",
-   "tipo": "bash",
-   "desc": "Make side-by-side comparison image for review",
-   "cmd": "S=$S; python3 -I - \"$S/gfx44/out/shots/BeltConveyerExGalaxy_1.png\" \"$S/gfx44b/out/shots/BeltConveyerExGalaxy_1.png\" \"$S/p27/compare_belt.png\" <<'EOF'  … (+9 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T17:57:32+00:00",
-   "tipo": "bash",
-   "desc": "Verify gh-pages engine matches the previous site copy",
-   "cmd": "S=$S; G=$S/gh-pages; for f in smg_web.js smg_web.wasm smg_headless_web.js smg_headless_web.wasm gx/gx_demo.js gx/gx_demo.wasm bridge/gx_bridge.js bridge/gx_bridge.wasm bridge/gx_r…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T17:57:42+00:00",
    "tipo": "bash",
    "desc": "Update progress log and README for publication",
@@ -279,8 +265,22 @@
    "desc": "Check how the build is configured",
    "cmd": "cd ~/repo && grep -n \"cmake \" tools/build_web.sh | head -3; grep -m3 -n \"CMAKE_EXPORT_COMPILE_COMMANDS\\|CMAKE_TOOLCHAIN_FILE\\|CMAKE_BUILD_TYPE\" build/all/CMakeCache.txt",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T18:48:44+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/tools/code_index.sh",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T18:48:48+00:00",
+   "tipo": "bash",
+   "desc": "Generate compile database and test clangd check",
+   "cmd": "chmod +x tools/code_index.sh && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/code_index.sh index && timeout 300 tools/code_index.sh check web/host/headless_host.c | …",
+   "ok": false
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T18:48:35+00:00"
+ "actualizado": "2026-11-04T18:48:48+00:00"
 }
