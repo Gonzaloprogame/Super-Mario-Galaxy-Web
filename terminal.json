@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:54:35+00:00",
-   "tipo": "bash",
-   "desc": "Add full epilogue segment to the route",
-   "cmd": "cat >> tools/routes/historia.txt <<'EOF'  … (+13 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:54:36+00:00",
    "tipo": "bash",
    "desc": "Run the full epilogue segment",
@@ -279,8 +272,15 @@
    "desc": "Stop segment 14 run by PID",
    "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in \"node tools/story_rout…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T22:56:00+00:00",
+   "tipo": "bash",
+   "desc": "List orphaned Chromium and server processes",
+   "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in *\"serve.py 18814\"*|*ch…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T22:55:55+00:00"
+ "actualizado": "2026-11-04T22:56:00+00:00"
 }
