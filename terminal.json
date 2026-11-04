@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T14:43:43+00:00",
-   "tipo": "bash",
-   "desc": "Read milestone percentages",
-   "cmd": "python3 -c \"  … (+5 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T14:46:39+00:00",
-   "tipo": "bash",
-   "desc": "Read build docs, submodules, and server script",
-   "cmd": "sed -n \"$(grep -n '## 🛠️ Compilar' README.md | cut -d: -f1),+20p\" README.md; cat .gitmodules 2>/dev/null; ls; head -30 tools/serve.py; du -sh $S 2>/dev/null; ls $S/gh-pages | wc -…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T14:46:52+00:00",
-   "tipo": "bash",
-   "desc": "Read gh-pages readme and serve.py tail",
-   "cmd": "S=$S; cat $S/gh-pages/LEEME.md; sed -n 30,40p ~/repo/tools/serve.py; grep -n \"LEEME\" ~/repo/tools/*.sh | head -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T14:47:05+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +258,29 @@
    "desc": "Check patch format and how patches are applied",
    "cmd": "cd ~/repo && head -12 web/aurora/patches/0025-draws-under-three-vertices.patch; grep -rn \"aurora-patched\\|patches\" CMakeLists.txt web/CMakeLists.txt tools/*.sh 2>/dev/null | head …",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T15:55:15+00:00",
+   "tipo": "bash",
+   "desc": "Find how patched Aurora tree is produced and its license",
+   "cmd": "cd ~/repo && grep -rln \"aurora-patched\" --include=*.txt --include=*.cmake --include=*.sh . 2>/dev/null | grep -v \"^./build\\|third_party\" | head; ls third_party | head; ls third_pa…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T15:55:17+00:00",
+   "tipo": "bash",
+   "desc": "Read how CMake applies Aurora patches",
+   "cmd": "grep -n \"patch\" web/aurora/CMakeLists.txt | head -20",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T15:55:25+00:00",
+   "tipo": "bash",
+   "desc": "Make before/after copies of patched Aurora sources",
+   "cmd": "S=$S; rm -rf $S/p27 && mkdir -p $S/p27/a $S/p27/b && cd ~/repo/build/all/aurora/aurora-patched && cp -r lib include $S/p27/a/ && cp -r lib include $S/p27/b/ && ls $S/p27/b; cat $S…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T15:55:07+00:00"
+ "actualizado": "2026-11-04T15:55:25+00:00"
 }
