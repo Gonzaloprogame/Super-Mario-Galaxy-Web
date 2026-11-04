@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:41:15+00:00",
-   "tipo": "bash",
-   "desc": "Cazar el cuelgue jugando a ciegas con el perfilador",
-   "cmd": "S=$S; mkdir -p $S/catch3; sed -e \"s#\\$S/catch/#\\$S/catch3/#g\" -e \"s#--stages \\$S/tour/all40#--stages \\$S/galaxies.txt#\" -e \"s#--frames 300 --hang 900 --mode diagnostic#--frames 18…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:41:30+00:00",
    "tipo": "bash",
    "desc": "Anotar el cuelgue jugando a ciegas",
@@ -279,8 +272,15 @@
    "desc": "Ver cómo definen nebula_host las pruebas del planificador",
    "cmd": "cd ~/repo; grep -n \"nebula_host\" third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c third_party/nebula/native/sdk/nebula_sdk.h | head -5",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:14:18+00:00",
+   "tipo": "bash",
+   "desc": "Leer la definición de nebula_host en la prueba",
+   "cmd": "cd ~/repo; sed -n 10,18p third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:14:08+00:00"
+ "actualizado": "2026-11-04T04:14:18+00:00"
 }
