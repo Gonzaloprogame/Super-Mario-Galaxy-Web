@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:01+00:00",
-   "tipo": "bash",
-   "desc": "List site files differing from gh-pages",
-   "cmd": "S=$S; cd ~/repo/build/site; for f in $(find . -type f ! -name '*.symbols' | sed 's|^\\./||'); do if [ -f \"$S/gh-pages/$f\" ]; then cmp -s \"$f\" \"$S/gh-pages/$f\" || echo \"DIFF $f\"; el…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:57:07+00:00",
    "tipo": "bash",
    "desc": "Verify the site build includes the clock fix",
@@ -279,8 +272,15 @@
    "desc": "Read the NAND thread loop",
    "cmd": "cd ~/repo; grep -n \"nand_main\" -r web/host/*.c | head; n=$(grep -n \"static void\\* nand_main\" web/host/console_services.c | cut -d: -f1); sed -n \"$((n-10)),$((n+45))p\" web/host/con…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:03:34+00:00",
+   "tipo": "bash",
+   "desc": "Look for disassembly tools",
+   "cmd": "S=$S; ls $S/tools; ls ~/tools/emsdk/upstream/bin | grep -i \"wasm-dis\\|objdump\\|wasm-opt\"",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:03:24+00:00"
+ "actualizado": "2026-11-04T06:03:34+00:00"
 }
