@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:34:53+00:00",
-   "tipo": "bash",
-   "desc": "Esperar el final del juego a ciegas",
-   "cmd": "S=$S; until ! pgrep -f out_play1 >/dev/null; do sleep 10; done; head -1 $S/tour/out_play1/tour.md; grep -c \"cargó y dibujó\" $S/tour/out_play1/tour.md; grep -v \"| cargó y dibujó | …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:35:07+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir la nota del cazador",
@@ -279,8 +272,15 @@
    "desc": "Añadir la prueba del reloj y ejecutar las pruebas del SO",
    "cmd": "cd ~/repo; python3 - <<'EOF'  … (+20 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:13:44+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo arrancan el SO las pruebas del planificador",
+   "cmd": "cd ~/repo; grep -n \"nebula_os_boot\\|int main\" third_party/nebula/native/sdk/os/tests/os_scheduler_tests.c | head; grep -n \"void nebula_os_boot\" third_party/nebula/native/sdk/os/os…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:13:35+00:00"
+ "actualizado": "2026-11-04T04:13:44+00:00"
 }
