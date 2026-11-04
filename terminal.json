@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:05:45+00:00",
-   "tipo": "bash",
-   "desc": "Drill into the enqueued op lambda",
-   "cmd": "S=$S; node $S/tools/prof_callees.mjs $S/perf1/dump/worker_6.cpuprofile ~/repo/build/all/engine/smg_web.js.symbols 'enqueue_op(aurora::gfx::detail::FramePacket&, unsigned int)::$_0…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:05:59+00:00",
    "tipo": "bash",
    "desc": "Read the page's presenter and memory access",
@@ -279,8 +272,15 @@
    "desc": "Locate Aurora's FIFO source and patches",
    "cmd": "cd ~/repo; grep -rln \"draw_prim_as_written\" --include=*.cpp . 2>/dev/null | grep -v \"^./build/\" | head; ls web/aurora/patches | tail -5; grep -n \"aurora\" web/cmake/*.cmake | grep …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:37:12+00:00",
+   "tipo": "bash",
+   "desc": "Find the patched Aurora source tree",
+   "cmd": "cd ~/repo; grep -rl \"draw_prim_as_written\" build/ 2>/dev/null | grep \"\\.cpp$\" | head -3; grep -rn \"patches\" tools/*.sh web/aurora/*.sh 2>/dev/null | head -5; ls web/aurora",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:36:35+00:00"
+ "actualizado": "2026-11-04T06:37:12+00:00"
 }
