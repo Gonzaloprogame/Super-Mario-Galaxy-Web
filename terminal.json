@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:20:51+00:00",
-   "tipo": "bash",
-   "desc": "Publish updated progress file to gh-pages",
-   "cmd": "S=$S; cd $S/gh-pages && ls progreso.json && cp ~/repo/docs/progreso.json progreso.json && git add progreso.json && git commit -q -m \"Progreso: libro del prólogo comprobado por el …  … (+3 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:24:19+00:00",
    "tipo": "bash",
    "desc": "Locate current FPS counter code",
@@ -279,8 +272,15 @@
    "desc": "Check smoke test status",
    "cmd": "F=$S/smoke_fps3.log; grep -E \"^exit\" $F; echo \"PASS $(grep -c '^PASS' $F) FAIL $(grep -c '^FAIL' $F)\"; grep -E \"^(FAIL)\" $F",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:25:30+00:00",
+   "tipo": "bash",
+   "desc": "Check final smoke test results",
+   "cmd": "F=$S/smoke_fps3.log; grep -E \"^exit\" $F; echo \"PASS $(grep -c '^PASS' $F) FAIL $(grep -c '^FAIL' $F)\"; grep -E \"^(FAIL|PASS.*móvil)\" $F; grep -v \"GET /\" $F | grep -E \"Error:|TypeE…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T14:24:37+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T14:25:30+00:00"
 }
