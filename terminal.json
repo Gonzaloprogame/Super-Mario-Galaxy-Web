@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:07:09+00:00",
-   "tipo": "bash",
-   "desc": "Read the memory handoff and bridge API",
-   "cmd": "cd ~/repo; sed -n 1085,1125p web/host/headless_host.c; grep -n \"smg_bridge_\\w*(\" web/host/aurora_bridge.h | head -40",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:07:13+00:00",
    "tipo": "bash",
    "desc": "Read the presentation API and its callers",
@@ -279,8 +272,15 @@
    "desc": "Attribute JS WebGPU calls under draw and frame end",
    "cmd": "S=$S; cat > $S/tools/prof_js_under.mjs <<'EOF'  … (+20 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:38:03+00:00",
+   "tipo": "bash",
+   "desc": "Learn what the GX replay tool does",
+   "cmd": "cd ~/repo; sed -n 1,30p web/bridge/gx_replay.html | grep -v \"^\\s*$\" | head -30; ls web/bridge; grep -n \"replay\" docs/PUENTE_FIFO.md | head -10",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:37:45+00:00"
+ "actualizado": "2026-11-04T06:38:03+00:00"
 }
