@@ -595,7 +595,7 @@ diagnóstico, `$S/route1` y `$S/route2`):
 | 9 | Segunda batalla con Bowser, `grandstar@` | vuelve al Observatorio ✅ |
 | 10 | Flota de Bowser Jr., `grandstar@` | vuelve al Observatorio ✅ |
 | 11 | Batalla final, `grandstar@` (sin gráficos) | el juego **empieza el vídeo del final**; sin decodificador en esta compilación, se queda en la escena |
-| 12 | Batalla final con gráficos | en curso |
+| 12 | Batalla final con gráficos, `grandstar@` y 12 000 fotogramas de espera | los vídeos del final: **10 115 fotogramas, 0 rechazados**; después el juego pasa solo al epílogo (`EpilogueDemoStage`) ✅. Sin errores ni cuelgues. La parada terminó antes del final del epílogo: los créditos y el aviso de guardar, sin ver aún |
 
 **Qué demuestra:** la lógica de progreso del juego (estrellas, Observatorio, jefes, el inicio del final) funciona en
 el motor web sin cuelgues. **No** demuestra que cada nivel se pueda pasar jugando: los ganchos toman las estrellas.

@@ -25,8 +25,8 @@ de las partes comprobadas, no de una estimación.
 | Parte | Criterio | Cómo se comprueba | Estado |
 |---|---|---|---|
 | A. Todos los escenarios | Los 44 escenarios cargan, dibujan y aguantan jugados a ciegas | `tools/galaxy_tour.mjs` (con gráficos y `--play`) | **Hecho** para la misión 1 de cada galaxia; faltan las demás misiones |
-| B. Progreso de la historia | Estrellas, Observatorio con 1-6 Grandes Estrellas, jefes y final, sin cuelgues, con la lógica del propio juego | `tools/story_route.mjs` con `tools/routes/historia.txt` (ganchos de prueba de Nebula) | **En curso**: ver `PROGRESO_AUTONOMO.md` (bloque 19) |
-| C. El final | Tras la última Gran Estrella: los vídeos del final, los créditos y la vuelta a la partida | La ruta, segmento final con gráficos | **En curso** |
+| B. Progreso de la historia | Estrellas, Observatorio con 1-6 Grandes Estrellas, jefes y final, sin cuelgues, con la lógica del propio juego | `tools/story_route.mjs` con `tools/routes/historia.txt` (ganchos de prueba de Nebula) | **Hecho** para la ruta actual: 12 de 12 segmentos (`PROGRESO_AUTONOMO.md`, bloque 19); faltan los jefes intermedios |
+| C. El final | Tras la última Gran Estrella: los vídeos del final, los créditos y la vuelta a la partida | La ruta, segmento final con gráficos | **En curso**: vídeos del final (10 115 fotogramas, 0 rechazados) y paso al epílogo comprobados; falta el final del epílogo |
 | D. Partida real | Una persona juega y marca la lista | `docs/PRUEBA_DE_PARTIDA.md` | **Pendiente** del usuario |
 
 ## Próximos pasos, por prioridad
