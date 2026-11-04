@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:38:08+00:00",
-   "tipo": "bash",
-   "desc": "Read SurfingLv1 note and Nebula host test hooks",
-   "cmd": "cd ~/repo; sed -n 225,232p docs/PROGRESO_AUTONOMO.md; sed -n 195,205p docs/MOTOR_WEB.md; grep -n -i \"dos veces\\|doble\\|twice\" README.md docs/MOTOR_WEB.md | head; grep -rn \"GALAXY_…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:38:13+00:00",
    "tipo": "bash",
    "desc": "Check save export and Nebula test env vars",
@@ -279,8 +272,15 @@
    "desc": "Check smoke test progress",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke.log) PASS $(grep -c '^FAIL' $S/b1_smoke.log) FAIL $(grep '^exit' $S/b1_smoke.log)\"; grep -E \"^(FAIL|PASS gira)\" $S/b1_smoke.log; e…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:03:11+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/tools/story_route.mjs",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:02:35+00:00"
+ "actualizado": "2026-11-04T19:03:11+00:00"
 }
