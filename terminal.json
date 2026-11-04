@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:00:37+00:00",
-   "tipo": "bash",
-   "desc": "Prepare a one-stage list for profiling",
-   "cmd": "S=$S; head -3 $S/galaxies.txt; grep -n -i \"garden\\|Peach\" $S/galaxies.txt; mkdir -p $S/perf1; grep -i \"PeachCastleGarden\" $S/galaxies.txt > $S/perf1/stages.txt || echo \"PeachCastl…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:00:41+00:00",
    "tipo": "bash",
    "desc": "Run the castle garden in graphics mode for profiling",
@@ -279,8 +272,15 @@
    "desc": "Read the existing presenter-channel test",
    "cmd": "cd ~/repo; sed -n 322,375p web/tests/browser_smoke.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:09:05+00:00",
+   "tipo": "bash",
+   "desc": "Add a browser test for shared-memory frames",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+51 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:08:38+00:00"
+ "actualizado": "2026-11-04T06:09:05+00:00"
 }
