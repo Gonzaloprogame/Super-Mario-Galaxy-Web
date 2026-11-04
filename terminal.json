@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:25:02+00:00",
-   "tipo": "bash",
-   "desc": "Read presenter and smoke test hooks",
-   "cmd": "sed -n 1,109p web/shell/present.js; grep -n \"smgPresenter\\|sintétic\\|synthetic\\|fixture_emptydol\" web/tests/browser_smoke.mjs | head -30",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T13:25:05+00:00",
-   "tipo": "bash",
-   "desc": "Read smoke test synthetic frame checks and run helper",
-   "cmd": "sed -n 355,397p web/tests/browser_smoke.mjs; sed -n 30,100p web/tests/browser_smoke.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:25:09+00:00",
    "tipo": "bash",
    "desc": "Check how build copies shell files",
@@ -279,8 +265,22 @@
    "desc": "Add servir.py to the site build",
    "cmd": "kill $(pgrep -f \"servir.py 8123\") 2>/dev/null; cd ~/repo && sed -i 's#   \"$ROOT\"/web/shell/fps.js \"$ROOT\"/web/shell/audio_worklet.js#   \"$ROOT\"/web/shell/fps.js \"$ROOT\"/web/shell/…",
    "ok": false
+  },
+  {
+   "t": "2026-11-04T14:47:34+00:00",
+   "tipo": "bash",
+   "desc": "Stop test server and add servir.py to build",
+   "cmd": "ps -eo pid,args | grep \"[s]ervir.py 8123\" | grep -v bash | awk '{print $1}' | xargs -r kill; cd ~/repo && sed -i 's#   \"$ROOT\"/web/shell/fps.js \"$ROOT\"/web/shell/audio_worklet.js#…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T14:47:47+00:00",
+   "tipo": "bash",
+   "desc": "Add local download instructions to README",
+   "cmd": "python3 - <<'EOF'  … (+27 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:47:28+00:00"
+ "actualizado": "2026-11-04T14:47:47+00:00"
 }
