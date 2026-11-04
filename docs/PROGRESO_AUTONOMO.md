@@ -382,6 +382,12 @@ puente (`gx_bridge.html`, `gx_replay.html`), que no reciben la memoria. Un `Shar
   (4,1 frente a 3,3 fps en este contenedor, con la GPU por software). La imagen es la misma.
 - **Sin medir en el teléfono**: allí terminar costaba unos 8 ms.
 
+**Comprobado en los 44 escenarios** (gira con gráficos con lo publicado, `$S/gfx44`, 300 fotogramas por parada; la
+gira cuenta ahora los fotogramas que la página pinta): **44 de 44 cargan, dibujan y se ven en la página** (de 309 a
+~330 fotogramas pintados cada una, todos por la memoria compartida); carga media 7,9 s (GPU por software, con la gira
+larga de diagnóstico a la vez). Solo un aviso, el ya conocido de SurfingLv1 (coordenada de textura sin texgen, parche
+0022). Las capturas revisadas se ven bien, sin fotogramas mezclados.
+
 **Lo que queda, medido** (`$S/perf2`, con el cambio; trabajo del hilo de render = 100 %):
 - procesar el flujo 67 %: `draw_prim` 42 % (unas 39 000 primitivas por fotograma, cada una con su paso por
   `draw_prim_as_written`: 14 % propio, `push_gx_draw` 12 %, del que `hash_texture_source` 2,5 %, índices 12 %), las
