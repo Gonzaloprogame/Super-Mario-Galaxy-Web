@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T06:43:19+00:00",
-   "tipo": "bash",
-   "desc": "Read the patch application commands",
-   "cmd": "cd ~/repo; sed -n 52,75p web/aurora/CMakeLists.txt",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T06:43:27+00:00",
    "tipo": "bash",
    "desc": "Verify the patch series applies cleanly",
@@ -279,8 +272,15 @@
    "desc": "Search the JAudio mixer for clock reads",
    "cmd": "cd ~/repo; grep -rln \"JAudioHostMixer\" third_party/nebula/native web 2>/dev/null | head -5; f=$(grep -rln \"class JAudioHostMixer\" third_party/nebula/native 2>/dev/null | head -1);…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T07:41:33+00:00",
+   "tipo": "bash",
+   "desc": "Read the mixer's timing code",
+   "cmd": "cd ~/repo; sed -n 210,232p third_party/nebula/runtime/src/jaudio_host_mixer.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T07:41:29+00:00"
+ "actualizado": "2026-11-04T07:41:33+00:00"
 }
