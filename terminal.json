@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:48:44+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/tools/code_index.sh",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:48:48+00:00",
-   "tipo": "bash",
-   "desc": "Generate compile database and test clangd check",
-   "cmd": "chmod +x tools/code_index.sh && source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && tools/code_index.sh index && timeout 300 tools/code_index.sh check web/host/headless_host.c | …",
-   "ok": false
-  },
-  {
    "t": "2026-11-04T18:49:02+00:00",
    "tipo": "bash",
    "desc": "Fix cmake source path and retry",
@@ -279,8 +265,22 @@
    "desc": "Read smoke rerun results",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b1_smoke2.log) PASS $(grep -c '^FAIL' $S/b1_smoke2.log) FAIL $(grep '^exit' $S/b1_smoke2.log)\"; grep -E \"^FAIL|gira de prueba\" $S/b1_smoke2…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:06:46+00:00",
+   "tipo": "bash",
+   "desc": "Commit and push hooks and route tooling",
+   "cmd": "git add -A && git commit -q -m \"Ganchos de prueba de Nebula en la gira web, recorrido de la historia y líneas del juego terminadas  … (+13 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:06:47+00:00",
+   "tipo": "bash",
+   "desc": "Run the story route",
+   "cmd": "S=$S; cd ~/repo && node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route1 --nand $S/drive/nand_RMGE01.bin --site $S/site4 > $S/route1.…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:06:36+00:00"
+ "actualizado": "2026-11-04T19:06:47+00:00"
 }
