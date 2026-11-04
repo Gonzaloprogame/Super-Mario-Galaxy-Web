@@ -30,7 +30,7 @@
     },
     {
       "texto": "Rendimiento en el móvil",
-      "detalle": "Unos 27 fps en el primer nivel; objetivo 30 o más",
+      "detalle": "Unos 27 fps medidos en el primer nivel antes de las últimas mejoras; sin medir después; objetivo 30 o más",
       "estado": "pendiente"
     },
     {
@@ -51,6 +51,11 @@
     {
       "texto": "Los 44 escenarios cargan y dibujan",
       "detalle": "Gira automática, 900 fotogramas cada uno; sin jugar",
+      "estado": "hecho"
+    },
+    {
+      "texto": "Libro del prólogo sin cuelgue",
+      "detalle": "Probado por el usuario en el PC donde se colgaba: pasa entero (un intento)",
       "estado": "hecho"
     },
     {
