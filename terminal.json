@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T18:52:31+00:00",
-   "tipo": "bash",
-   "desc": "Replace strtok and run clangd check",
-   "cmd": "python3 - <<'EOF'  … (+25 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:52:36+00:00",
-   "tipo": "bash",
-   "desc": "Find stage and movie log line formats",
-   "cmd": "grep -n 'host_log(\"\\[host\\] stage\\|\"\\[host\\] movie\\|plays a movie\\|\\[host\\] thp\\|THP' web/host/headless_host.c | head",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T18:52:39+00:00",
-   "tipo": "bash",
-   "desc": "Read movie and stage logging details",
-   "cmd": "sed -n 455,470p web/host/headless_host.c; grep -n '\"\\[host\\] stage:' web/host/*.c | head -3",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T18:53:00+00:00",
    "tipo": "bash",
    "desc": "Teach galaxy_tour settings, events, scenes and movies",
@@ -279,8 +258,29 @@
    "desc": "Read roadmap milestones",
    "cmd": "sed -n 1,30p docs/HOJA_DE_RUTA.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:20:42+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/docs/PRUEBA_DE_PARTIDA.md",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:20:49+00:00",
+   "tipo": "bash",
+   "desc": "Break hito 7 into verifiable parts in the roadmap",
+   "cmd": "python3 - <<'EOF'  … (+25 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T19:20:54+00:00",
+   "tipo": "bash",
+   "desc": "Check ending segment progress",
+   "cmd": "S=$S; cat $S/route2.log; grep -E \"^\\[host\\] (test|stage|movie|tour)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route2/12/out/log_tail.txt 2>/dev/null | tail -12; grep -o \"movies: [0-9]*…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:20:29+00:00"
+ "actualizado": "2026-11-04T19:20:54+00:00"
 }
