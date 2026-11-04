@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T01:28:24+00:00",
-   "tipo": "bash",
-   "desc": "Ver quién llama al servicio de nombres de objetos",
-   "cmd": "cd ~/repo; sed -n 520,530p third_party/nebula/native/include/nebula_game_api.h; grep -rn \"object_name(\" third_party/nebula/native/sdk third_party/nebula/native/petari/src 2>/dev/n…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T01:28:34+00:00",
    "tipo": "bash",
    "desc": "Leer el resto del informe de bloqueo",
@@ -279,8 +272,15 @@
    "desc": "Cazar otra vez el cuelgue guardando el perfil en bruto",
    "cmd": "S=$S; mkdir -p $S/catch3/first; mv $S/catch3/out_1 $S/catch3/prof_1.txt $S/catch3/hang_log_1.txt $S/catch3/tour_1.log $S/catch3/run.out $S/catch3/first/ 2>/dev/null; timeout 7000 …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:45:34+00:00",
+   "tipo": "bash",
+   "desc": "Desensamblar el motor de diagnóstico",
+   "cmd": "S=$S; cd ~/repo; ~/tools/emsdk/upstream/bin/llvm-objdump -d build/site/smg_headless_web.wasm > $S/headless.dis 2>/dev/null; grep -n \"^[0-9a-f]* <\" $S/headless.dis | head -3; grep …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:45:18+00:00"
+ "actualizado": "2026-11-04T02:45:34+00:00"
 }
