@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:20:44+00:00",
-   "tipo": "bash",
-   "desc": "Commit and push doc updates",
-   "cmd": "grep -rln \"progreso.json\" web/tests tools 2>/dev/null; git add -A && git commit -q -m \"Progreso: el libro del prólogo ya no se cuelga en el PC del usuario (un intento); fps del te…  … (+3 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:20:51+00:00",
    "tipo": "bash",
    "desc": "Publish updated progress file to gh-pages",
@@ -279,8 +272,15 @@
    "desc": "Record phone measurement and UI fix in docs",
    "cmd": "python3 - <<'EOF'  … (+56 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:24:32+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test status",
+   "cmd": "F=$S/smoke_fps3.log; grep -E \"^exit\" $F; echo \"PASS $(grep -c '^PASS' $F) FAIL $(grep -c '^FAIL' $F)\"; grep -E \"^(FAIL)\" $F",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-04T14:24:14+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-04T14:24:37+00:00"
 }
