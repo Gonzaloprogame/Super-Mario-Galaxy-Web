@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:52:04+00:00",
-   "tipo": "bash",
-   "desc": "Commit the tour length fix",
-   "cmd": "cd ~/repo; git commit -qam \"Gira: la duración del modo diagnóstico sale de las paradas y sus fotogramas (una hora fija cortó una gira larga en la parada 38)  … (+3 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:55:44+00:00",
    "tipo": "bash",
    "desc": "Read the graphics tour results",
@@ -279,8 +272,15 @@
    "desc": "Run smoke test against up-to-date site copy",
    "cmd": "S=$S; cd ~/repo && cp web/shell/index.html web/shell/app.js web/shell/fps.js $S/site2/ && SMG_SITE=$S/site2 timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_fps2.log 2>&1;…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:30:18+00:00",
+   "tipo": "bash",
+   "desc": "Summarize smoke test results",
+   "cmd": "F=$S/smoke_fps2.log; grep -v \"GET /\" $F | grep -E \"^(FAIL|exit)|Error:|TypeError\"; echo \"PASS: $(grep -c '^PASS' $F)  FAIL: $(grep -c '^FAIL' $F)\"; grep \"fps\" $F | grep -E \"^(PASS…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-04T13:28:51+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-04T13:30:18+00:00"
 }
