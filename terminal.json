@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T19:02:16+00:00",
-   "tipo": "bash",
-   "desc": "Search Nebula docs for grand star and ending test notes",
-   "cmd": "cd ~/repo/third_party/nebula && grep -rn -i \"grand star\\|grandstar\\|GALAXY_TEST_GRAND\\|ending\\|KoopaBattleVs3\\|route\" docs/*.md | head -30; cat $S/galaxies.txt | tr '\\n' ' '",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T19:02:35+00:00",
    "tipo": "bash",
    "desc": "Check smoke test progress",
@@ -279,8 +272,15 @@
    "desc": "Read full page test result",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/b4_smoke.log) PASS $(grep -c '^FAIL' $S/b4_smoke.log) FAIL $(grep '^exit' $S/b4_smoke.log)\"; grep \"^FAIL\" $S/b4_smoke.log",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T19:54:03+00:00",
+   "tipo": "bash",
+   "desc": "Wait for the async message in the test and rerun 3 times",
+   "cmd": "python3 - <<'EOF'  … (+21 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T19:53:50+00:00"
+ "actualizado": "2026-11-04T19:54:03+00:00"
 }
