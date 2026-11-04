@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T04:11:03+00:00",
-   "tipo": "bash",
-   "desc": "Leer el cálculo del intervalo de vídeo en JUTVideo",
-   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 25,75p $P/src/JSystem/JUtility/JUTVideo.cpp; grep -rn \"sVideoInterval\\|sVideoLastTick\" $P/src $P/include 2>/dev/null | grep -…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T04:11:12+00:00",
-   "tipo": "bash",
-   "desc": "Buscar dónde se usa el intervalo de vídeo",
-   "cmd": "cd ~/repo; P=third_party/nebula/native/petari; grep -rn \"sVideoInterval\\|getVideoInterval\" $P/src $P/include 2>/dev/null | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T04:11:18+00:00",
    "tipo": "bash",
    "desc": "Leer el bucle que usa el intervalo de vídeo",
@@ -279,8 +265,22 @@
    "desc": "Read README hang-related sections",
    "cmd": "cd ~/repo; sed -n 36,42p README.md; sed -n 168,180p README.md; sed -n 290,300p README.md; sed -n 345,352p README.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T05:58:24+00:00",
+   "tipo": "bash",
+   "desc": "Update README with the clock fix",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+30 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T05:58:29+00:00",
+   "tipo": "bash",
+   "desc": "Update the live progress panel data",
+   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+8 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T05:58:13+00:00"
+ "actualizado": "2026-11-04T05:58:29+00:00"
 }
