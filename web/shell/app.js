@@ -197,6 +197,63 @@ const nandStore = {
   },
 };
 
+// The saved game as a file: downloaded, or loaded in place of this browser's (the one before kept as RMGE01.anterior,
+// as at each start). The format is the host's (web/host/console_services.c, smg_console_nand_export): "SMGN", the
+// count, then each entry (directory flag, path length and path, data size and data). A file is checked whole before
+// it replaces anything, and refused while the engine runs: its next save would overwrite it.
+const SAVE_ID = 'RMGE01';
+function nandSummary(bytes) {
+  if (bytes.length < 8 || String.fromCharCode(...bytes.slice(0, 4)) !== 'SMGN') return null;
+  const le = (at, n) => { let v = 0; for (let i = n - 1; i >= 0; i--) v = v * 256 + bytes[at + i]; return v; };
+  const count = le(4, 4);
+  let at = 8, folders = 0, files = 0;
+  for (let k = 0; k < count; k++) {
+    if (bytes.length - at < 3) return null;
+    const length = le(at + 1, 2);
+    if (length === 0 || bytes.length - at < 7 + length) return null;
+    const size = le(at + 3 + length, 4);
+    if (bytes.length - at - 7 - length < size) return null;
+    if (bytes[at]) folders++; else files++;
+    at += 7 + length + size;
+  }
+  return at === bytes.length ? { folders, files } : null;
+}
+$('save-export').addEventListener('click', async () => {
+  const data = await nandStore.get(SAVE_ID);
+  if (!data) {
+    $('save-info').textContent = 'No hay ninguna partida guardada en este navegador todavía.';
+    return;
+  }
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([data], { type: 'application/octet-stream' }));
+  link.download = `${SAVE_ID}-partida.bin`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+  $('save-info').textContent = `Partida descargada (${data.length} bytes).`;
+});
+$('save-import-button').addEventListener('click', () => $('save-import').click());
+$('save-import').addEventListener('change', async () => {
+  const file = $('save-import').files[0];
+  $('save-import').value = '';
+  if (!file) return;
+  if (document.body.dataset.state === 'running') {
+    $('save-info').textContent = 'Con el motor en marcha no se puede cargar una partida: recarga la página y cárgala antes de arrancar.';
+    return;
+  }
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const summary = nandSummary(bytes);
+  if (!summary) {
+    $('save-info').textContent = `«${file.name}» no es una partida de este motor: no se ha cambiado nada.`;
+    return;
+  }
+  const before = await nandStore.get(SAVE_ID);
+  if (before) await nandStore.put(`${SAVE_ID}.anterior`, before);
+  await nandStore.put(SAVE_ID, bytes);
+  $('save-info').textContent = `Partida cargada (${summary.folders} carpetas y ${summary.files} archivos)` +
+    (before ? '; la de antes queda guardada aparte.' : '.');
+  log(`[página] partida cargada de «${file.name}»: ${bytes.length} bytes`);
+});
+
 // The controls (controls.js): written into the engine's memory once the engine gives it
 const controls = smgAttachControls($('pad'), $('screen'));
 

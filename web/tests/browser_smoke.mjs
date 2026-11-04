@@ -452,6 +452,53 @@ await withServer('isolated', async (url) => {
           'gira de prueba: un ajuste o un evento desconocido se dice en el registro');
   }
 
+  // The saved game as a file (web/shell/app.js): loaded whole or not at all, the one before kept apart, downloaded as
+  // stored, and refused while the engine runs. A synthetic save in the host's format (console_services.c): one
+  // folder and one file of 3 bytes.
+  {
+    const u16 = (v) => Buffer.from([v & 255, v >> 8]);
+    const u32 = (v) => { const b = Buffer.alloc(4); b.writeUInt32LE(v); return b; };
+    const entry = (dir, path, data) => Buffer.concat([Buffer.from([dir ? 1 : 0]), u16(path.length), Buffer.from(path), u32(data.length), data]);
+    const save = (bytes) => Buffer.concat([Buffer.from('SMGN'), u32(2), entry(true, '/title/test', Buffer.alloc(0)),
+                                          entry(false, '/title/test/a.bin', Buffer.from(bytes))]);
+    const first = save([1, 2, 3]), second = save([4, 5, 6]);
+    const browser = await chromium.launch();
+    const page = await (await browser.newContext({ acceptDownloads: true })).newPage();
+    await page.goto(url);
+    await page.waitForFunction(() => ['ready', 'unsupported'].includes(document.body.dataset.state), null, { timeout: 30000 });
+    await page.click('.saves summary'); // the section starts folded, as a person finds it
+    const info = () => page.textContent('#save-info');
+    const stored = (id) => page.evaluate(async (k) => { const d = await nandStore.get(k); return d ? Array.from(d) : null; }, id);
+    await page.click('#save-export');
+    const none = await info();
+    await page.setInputFiles('#save-import', { name: 'partida.bin', mimeType: 'application/octet-stream', buffer: first });
+    await page.waitForFunction(() => /Partida cargada/.test(document.getElementById('save-info').textContent), null, { timeout: 10000 }).catch(() => {});
+    const loaded = await info();
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#save-export')]);
+    const downloaded = readFileSync(await download.path());
+    await page.setInputFiles('#save-import', { name: 'roto.bin', mimeType: 'application/octet-stream', buffer: Buffer.concat([first.subarray(0, 20)]) });
+    await page.waitForFunction(() => /no es una partida/.test(document.getElementById('save-info').textContent), null, { timeout: 10000 }).catch(() => {});
+    const refused = await info();
+    const afterBad = await stored('RMGE01');
+    await page.setInputFiles('#save-import', { name: 'otra.bin', mimeType: 'application/octet-stream', buffer: second });
+    await page.waitForFunction(() => /aparte/.test(document.getElementById('save-info').textContent), null, { timeout: 10000 }).catch(() => {});
+    const now = await stored('RMGE01'), kept = await stored('RMGE01.anterior');
+    await page.evaluate(() => { document.body.dataset.state = 'running'; });
+    await page.setInputFiles('#save-import', { name: 'partida.bin', mimeType: 'application/octet-stream', buffer: first });
+    await page.waitForFunction(() => /motor en marcha/.test(document.getElementById('save-info').textContent), null, { timeout: 10000 }).catch(() => {});
+    const running = await info(), whileRunning = await stored('RMGE01');
+    await browser.close();
+    check(/No hay ninguna partida/.test(none), `partida: descargar sin partida lo dice ("${none}")`);
+    check(/Partida cargada \(1 carpetas y 1 archivos\)/.test(loaded) && Buffer.compare(downloaded, first) === 0,
+          `partida: una partida válida se carga y se descarga igual, byte a byte ("${loaded}", ${downloaded.length} bytes)`);
+    check(/no es una partida/.test(refused) && Buffer.compare(Buffer.from(afterBad || []), first) === 0,
+          `partida: un archivo que no lo es se rechaza sin tocar la guardada ("${refused}")`);
+    check(Buffer.compare(Buffer.from(now || []), second) === 0 && Buffer.compare(Buffer.from(kept || []), first) === 0,
+          'partida: al cargar otra, la de antes queda guardada aparte');
+    check(/motor en marcha/.test(running) && Buffer.compare(Buffer.from(whileRunning || []), second) === 0,
+          `partida: con el motor en marcha no se carga ninguna ("${running}")`);
+  }
+
   // An RVZ disc image (synthetic, from tools/rvz_fixture via web/tests/run_rvz_tests.sh): its game partition is read in
   // the page, without game.pak
   const rvz = join(root, 'build/rvz-tests/rvz_zstd_128k.rvz');

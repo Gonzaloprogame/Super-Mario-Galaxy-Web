@@ -77,6 +77,11 @@
   #run { font-weight: 700; font-size: 1.02rem; padding: 12px 26px;
          background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 6px 20px rgba(123,140,255,.35); }
   #run:not(:disabled):hover { filter: brightness(1.1); }
+  .saves { margin-top: 14px; }
+  .saves summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+  .saves p { margin: 8px 0 0; font-size: .85rem; }
+  .saves .actions { margin-top: 10px; }
+  .saves button { padding: 8px 14px; font-size: .9rem; }
 
   #status { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
             font-size: .92rem; }
@@ -266,6 +271,18 @@
       <button id="run" type="button">▶ Arrancar el motor</button>
       <span class="muted" style="font-size: .85rem">Necesita un navegador con WebGPU (Chrome o Edge recientes).</span>
     </div>
+    <!-- The saved game as a file (web/shell/app.js, saves): a backup, or to take it to another browser -->
+    <details class="saves">
+      <summary>💾 Partida guardada</summary>
+      <p class="muted">La partida se guarda en este navegador. Puedes descargarla como archivo (copia de seguridad, otro
+        navegador, la copia local) o cargar una. Al cargarla, la de antes se guarda aparte.</p>
+      <div class="actions">
+        <button id="save-export" type="button">⬇ Descargar la partida</button>
+        <button id="save-import-button" type="button">⬆ Cargar una partida</button>
+        <input id="save-import" type="file" hidden>
+        <span id="save-info" class="muted" style="font-size: .85rem" role="status"></span>
+      </div>
+    </details>
   </section>
 
   <div id="status" role="status" aria-live="polite">Comprobando el navegador…</div>
