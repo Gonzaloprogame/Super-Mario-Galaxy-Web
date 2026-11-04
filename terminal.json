@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T13:24:29+00:00",
-   "tipo": "bash",
-   "desc": "Read the screen info code",
-   "cmd": "sed -n 190,240p web/shell/app.js; grep -n \"screen-info\" web/shell/*.html web/shell/*.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T13:24:34+00:00",
    "tipo": "bash",
    "desc": "Read the page styles",
@@ -279,8 +272,15 @@
    "desc": "Read build docs, submodules, and server script",
    "cmd": "sed -n \"$(grep -n '## 🛠️ Compilar' README.md | cut -d: -f1),+20p\" README.md; cat .gitmodules 2>/dev/null; ls; head -30 tools/serve.py; du -sh $S 2>/dev/null; ls $S/gh-pages | wc -…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T14:46:52+00:00",
+   "tipo": "bash",
+   "desc": "Read gh-pages readme and serve.py tail",
+   "cmd": "S=$S; cat $S/gh-pages/LEEME.md; sed -n 30,40p ~/repo/tools/serve.py; grep -n \"LEEME\" ~/repo/tools/*.sh | head -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T14:46:39+00:00"
+ "actualizado": "2026-11-04T14:46:52+00:00"
 }
