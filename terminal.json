@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:12:21+00:00",
-   "tipo": "bash",
-   "desc": "Ver el estado del motor de diagnóstico",
-   "cmd": "curl -s 127.0.0.1:18777/state | cut -c1-300; echo; curl -s \"127.0.0.1:18777/log?tail=40\" | cut -c1-200 | tail -15",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:12:27+00:00",
    "tipo": "bash",
    "desc": "Leer la salida del conductor",
@@ -279,8 +272,15 @@
    "desc": "Hacer que el perfilador encuentre la página de la gira",
    "cmd": "S=$S; sed -i \"s/t.url.includes('18760')/t.url.startsWith('http:\\/\\/127.0.0.1:')/\" $S/drive/prof.mjs; grep -n \"pageTarget =\" $S/drive/prof.mjs",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T00:54:03+00:00",
+   "tipo": "bash",
+   "desc": "Anotar las cargas y el cuelgue y subir las herramientas",
+   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+28 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T00:53:47+00:00"
+ "actualizado": "2026-11-04T00:54:03+00:00"
 }
