@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:08:17+00:00",
-   "tipo": "bash",
-   "desc": "Update resume section and push",
-   "cmd": "python3 - <<'EOF'  … (+42 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:43:40+00:00",
-   "tipo": "bash",
-   "desc": "Read block 13 performance analysis",
-   "cmd": "sed -n \"$(grep -n '^### Bloque 13' docs/PROGRESO_AUTONOMO.md | cut -d: -f1),$(grep -n '^### Bloque 14' docs/PROGRESO_AUTONOMO.md | cut -d: -f1)p\" docs/PROGRESO_AUTONOMO.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:43:47+00:00",
-   "tipo": "bash",
-   "desc": "Locate draw_prim_as_written code and patches",
-   "cmd": "grep -rln \"draw_prim_as_written\" web/ build/all/aurora/aurora-patched/lib 2>/dev/null | head; ls web/aurora/patches | tail -12",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:43:52+00:00",
    "tipo": "bash",
    "desc": "Find draw path functions in patched Aurora",
@@ -279,8 +258,29 @@
    "desc": "Check build result and patched tree match",
    "cmd": "S=$S; grep -E \"error|warning|^exit|^real|FAILED\" $S/p27/build.log | head; cd ~/repo && diff -r build/all/aurora/aurora-patched/lib $S/p27/b/lib && echo \"patched tree = p27/b\"; ls …",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:12:48+00:00",
+   "tipo": "bash",
+   "desc": "Read build_web.sh copy layout",
+   "cmd": "sed -n 30,60p tools/build_web.sh",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T16:12:55+00:00",
+   "tipo": "bash",
+   "desc": "Assemble site3 with the new engine",
+   "cmd": "S=$S; B=~/repo/build/all; rm -rf $S/site3 && cp -r $S/site2 $S/site3 && cp $B/engine/smg_web.js $B/engine/smg_web.wasm $B/game/smg_headless_web.js $B/game/smg_headless_web.wasm $S…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T16:12:59+00:00",
+   "tipo": "bash",
+   "desc": "Profile the garden with patch 0027",
+   "cmd": "S=$S; $S/perfrun.sh perf7 $S/site3 $S/perf7_symbols > $S/perf7.summary 2>&1; echo \"exit $?\" >> $S/perf7.summary",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:12:44+00:00"
+ "actualizado": "2026-11-04T16:12:59+00:00"
 }
