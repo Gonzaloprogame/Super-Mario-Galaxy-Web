@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:48:33+00:00",
-   "tipo": "bash",
-   "desc": "Ir directamente a StarDustGalaxy en modo diagnóstico",
-   "cmd": "cd ~/repo; cp build/all/game/smg_headless_web.js build/all/game/smg_headless_web.wasm build/site/; S=$S; echo StarDustGalaxy > $S/tour/stardust; timeout 900 node tools/galaxy_tour…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:49:35+00:00",
    "tipo": "bash",
    "desc": "Esperar a ver si StarDustGalaxy se cuelga",
@@ -279,8 +272,15 @@
    "desc": "Comprobar que la gira arranca tras el reinicio",
    "cmd": "S=$S; until [ -f $S/catch2/out_1/tour.md ] && grep -q \"cargó y dibujó\" $S/catch2/out_1/tour.md || ! pgrep -f catch2/run.sh >/dev/null; do sleep 5; done; head -5 $S/catch2/out_1/to…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:03:19+00:00",
+   "tipo": "bash",
+   "desc": "Ver el bucle de la gira",
+   "cmd": "cd ~/repo; grep -n \"for (;;) {\\|await sleep(5000);\" tools/galaxy_tour.mjs | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:03:08+00:00"
+ "actualizado": "2026-11-04T02:03:19+00:00"
 }
