@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T02:03:49+00:00",
-   "tipo": "bash",
-   "desc": "Corregir el comentario de --play",
-   "cmd": "cd ~/repo; sed -i 's|^// --play \\[seed\\]: plays badly|// --play <seed>: plays badly|' tools/galaxy_tour.mjs; grep -n \"^// --play\" tools/galaxy_tour.mjs; node --check tools/galaxy_…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T02:04:10+00:00",
    "tipo": "bash",
    "desc": "Confirmar y subir la opción de juego a ciegas",
@@ -279,8 +272,15 @@
    "desc": "Leer el bucle que usa el intervalo de vídeo",
    "cmd": "cd ~/repo; P=third_party/nebula/native/petari; sed -n 385,425p $P/src/Game/System/MainLoopFramework.cpp; cd third_party/nebula && git log --oneline -1 2>/dev/null; git -C native/p…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T04:11:28+00:00",
+   "tipo": "bash",
+   "desc": "Ver cómo modifica el proyecto el código de Nebula",
+   "cmd": "cd ~/repo; ls web; ls web/game; grep -rn \"patch\\|REPLACES\" web/game/CMakeLists.txt | head -10; ls web/platform; grep -rn \"petari.*patch\\|nebula.*patch\" tools/fetch_sources.sh | he…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T04:11:18+00:00"
+ "actualizado": "2026-11-04T04:11:28+00:00"
 }
