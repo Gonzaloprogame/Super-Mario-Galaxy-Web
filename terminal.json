@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T08:51:48+00:00",
-   "tipo": "bash",
-   "desc": "See how app.js reads the run length",
-   "cmd": "cd ~/repo; grep -n \"seconds\" web/shell/app.js | head",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T08:51:56+00:00",
-   "tipo": "bash",
-   "desc": "Long blind play on the remaining 7 stages",
-   "cmd": "S=$S; cd ~/repo; timeout 3500 node tools/galaxy_tour.mjs --site $S/site2 --disc $S/disc/smg.rvz --stages $S/long1/rest.txt --out $S/long1/out_9b --nand $S/drive/nand_RMGE01.bin --…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T08:52:04+00:00",
    "tipo": "bash",
    "desc": "Commit the tour length fix",
@@ -279,8 +265,22 @@
    "desc": "Check smoke test result",
    "cmd": "F=$TMP cat $F; S=$S; grep -v \"GET /\" $S/smoke_fps.log | tail -15",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T13:28:34+00:00",
+   "tipo": "bash",
+   "desc": "Compare site copies with the source shell",
+   "cmd": "S=$S; cd ~/repo && grep -c attachMemory build/site/present.js $S/site2/present.js; for f in index.html app.js present.js controls.js audio_worklet.js; do cmp -s web/shell/$f $S/si…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T13:28:40+00:00",
+   "tipo": "bash",
+   "desc": "Run smoke test against up-to-date site copy",
+   "cmd": "S=$S; cd ~/repo && cp web/shell/index.html web/shell/app.js web/shell/fps.js $S/site2/ && SMG_SITE=$S/site2 timeout 1700 node web/tests/browser_smoke.mjs > $S/smoke_fps2.log 2>&1;…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T13:28:27+00:00"
+ "actualizado": "2026-11-04T13:28:40+00:00"
 }
