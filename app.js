@@ -202,6 +202,14 @@ const controls = smgAttachControls($('pad'), $('screen'));
 
 // What the screen shows comes only from frames the engine posted (web/shell/present.js): nothing is drawn here.
 const presenter = smgAttachPresenter($('screen'));
+// The frame-rate badge over the screen (web/shell/fps.js), shown or hidden with its button (remembered)
+const fps = smgAttachFps($('fps'), presenter);
+const showFpsButton = () => $('fps-toggle').setAttribute('aria-pressed', String(fps.visible));
+showFpsButton();
+$('fps-toggle').addEventListener('click', () => {
+  fps.setVisible(!fps.visible);
+  showFpsButton();
+});
 setInterval(() => {
   if (presenter.frames > 0) {
     $('screen-info').textContent = `Fotogramas mostrados: ${presenter.frames} (${presenter.width}×${presenter.height}), ` +
