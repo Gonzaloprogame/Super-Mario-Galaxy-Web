@@ -1,0 +1,336 @@
+diff -ruN a/lib/gfx/recording.cpp b/lib/gfx/recording.cpp
+--- a/lib/gfx/recording.cpp	2026-11-04 15:55:25.397994364 +0000
++++ b/lib/gfx/recording.cpp	2026-11-04 15:56:59.671116435 +0000
+@@ -286,9 +286,9 @@
+   pass.sealed = true;
+ }
+ 
+-Range push(ByteBuffer& target, const uint8_t* data, size_t length, size_t alignment) {
+-  // A buffer mapped for the GPU has a fixed size: past it the data is dropped (an empty range) and said once a frame,
+-  // instead of the abort growing it would be.
++// A buffer mapped for the GPU has a fixed size: past it the data is dropped (an empty range) and said once a frame,
++// instead of the abort growing it would be.
++static bool overflows(const ByteBuffer& target, size_t length, size_t alignment) {
+   if (!target.owned() && target.data() != nullptr &&
+       AURORA_ALIGN(target.size(), alignment != 0 ? alignment : 1) + length > target.capacity())
+     UNLIKELY {
+@@ -298,8 +298,14 @@
+         Log.error("A frame buffer of {} bytes is full: {} more bytes dropped (and what follows this frame)",
+                   target.capacity(), length);
+       }
+-      return {};
++      return true;
+     }
++  return false;
++}
++
++Range push(ByteBuffer& target, const uint8_t* data, size_t length, size_t alignment) {
++  if (overflows(target, length, alignment))
++    UNLIKELY { return {}; }
+   if (alignment != 0) {
+     const size_t begin = target.size();
+     const size_t alignedBegin = AURORA_ALIGN(begin, alignment);
+@@ -1467,6 +1473,30 @@
+   return push(current_frame_packet().indices, data, length, alignment);
+ }
+ 
++Range map_indices(size_t count, size_t alignment, uint16_t*& out) {
++  out = nullptr;
++  if (!check_recording("map_indices")) {
++    return {};
++  }
++  ByteBuffer& target = current_frame_packet().indices;
++  const size_t length = count * sizeof(uint16_t);
++  if (overflows(target, length, alignment))
++    UNLIKELY { return {}; }
++  if (alignment != 0) {
++    const size_t begin = target.size();
++    const size_t alignedBegin = AURORA_ALIGN(begin, alignment);
++    if (alignedBegin > begin) {
++      target.append_zeroes(alignedBegin - begin);
++    }
++  }
++  const auto begin = target.size();
++  if (length > 0) {
++    // The index buffer only holds u16 indices and aligned starts: the room is u16-aligned
++    out = reinterpret_cast<uint16_t*>(target.append_uninitialized(length));
++  }
++  return {static_cast<uint32_t>(begin), static_cast<uint32_t>(length)};
++}
++
+ Range push_uniform(const uint8_t* data, size_t length) {
+   ZoneScoped;
+   if (!check_recording("push_uniform")) {
+diff -ruN a/lib/gfx/recording.hpp b/lib/gfx/recording.hpp
+--- a/lib/gfx/recording.hpp	2026-11-04 15:55:25.397863141 +0000
++++ b/lib/gfx/recording.hpp	2026-11-04 15:56:59.671797323 +0000
+@@ -85,6 +85,9 @@
+   return push_verts(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T), alignment);
+ }
+ Range push_indices(const uint8_t* data, size_t length, size_t alignment);
++// Room for count u16 indices at the end of the frame's index buffer, for the caller to write in place (out); out is
++// null when nothing is reserved (no recording, a full buffer, or no indices), with the same range push_indices gives.
++Range map_indices(size_t count, size_t alignment, uint16_t*& out);
+ template <typename T>
+ Range push_indices(ArrayRef<T> data, size_t alignment) {
+   return push_indices(reinterpret_cast<const uint8_t*>(data.data()), data.size() * sizeof(T), alignment);
+diff -ruN a/lib/gx/command_processor.cpp b/lib/gx/command_processor.cpp
+--- a/lib/gx/command_processor.cpp	2026-11-04 15:55:25.399027399 +0000
++++ b/lib/gx/command_processor.cpp	2026-11-04 15:57:16.678191456 +0000
+@@ -5,6 +5,7 @@
+ #include "dolphin/gd/GDGeometry.h"
+ #include "dolphin/gx/GXAurora.h"
+ #include "gx.hpp"
++#include "index_writer.hpp"
+ #include "pipeline.hpp"
+ #include "readback.hpp"
+ #include "regs.hpp"
+@@ -31,78 +32,6 @@
+ namespace {
+ constexpr Module Log{"aurora::gx::fifo"};
+ 
+-u16 prepare_idx_buffer(ByteBuffer& buf, GXPrimitive prim, u16 vtxStart, u16 vtxCount) noexcept {
+-  u16 numIndices = 0;
+-  if (prim == GX_QUADS) {
+-    buf.reserve_extra((vtxCount / 4) * 6 * sizeof(u16));
+-
+-    for (u16 v = 0; v < vtxCount; v += 4) {
+-      u16 idx0 = vtxStart + v;
+-      u16 idx1 = vtxStart + v + 1;
+-      u16 idx2 = vtxStart + v + 2;
+-      u16 idx3 = vtxStart + v + 3;
+-
+-      buf.append(idx0);
+-      buf.append(idx1);
+-      buf.append(idx2);
+-      numIndices += 3;
+-
+-      buf.append(idx2);
+-      buf.append(idx3);
+-      buf.append(idx0);
+-      numIndices += 3;
+-    }
+-  } else if (prim == GX_TRIANGLES) {
+-    buf.reserve_extra(vtxCount * sizeof(u16));
+-    for (u16 v = 0; v < vtxCount; ++v) {
+-      const u16 idx = vtxStart + v;
+-      buf.append(idx);
+-      ++numIndices;
+-    }
+-  } else if (prim == GX_TRIANGLEFAN) {
+-    // Under 3 vertices there is no triangle: (vtxCount - 3) wrapped, asking for ~4 GB (a hang in the 32-bit browser
+-    // build, where the size wrapped again)
+-    buf.reserve_extra((vtxCount < 3 ? vtxCount : (u32(vtxCount) - 3) * 3 + 3) * sizeof(u16));
+-    for (u16 v = 0; v < vtxCount; ++v) {
+-      const u16 idx = vtxStart + v;
+-      if (v < 3) {
+-        buf.append(idx);
+-        ++numIndices;
+-        continue;
+-      }
+-      buf.append(std::array{vtxStart, static_cast<u16>(idx - 1), idx});
+-      numIndices += 3;
+-    }
+-  } else if (prim == GX_TRIANGLESTRIP) {
+-    buf.reserve_extra((vtxCount < 3 ? vtxCount : (static_cast<u32>(vtxCount) - 3) * 3 + 3) * sizeof(u16));
+-    for (u16 v = 0; v < vtxCount; ++v) {
+-      const u16 idx = vtxStart + v;
+-      if (v < 3) {
+-        buf.append(idx);
+-        ++numIndices;
+-        continue;
+-      }
+-      if ((v & 1) == 0) {
+-        buf.append(std::array{static_cast<u16>(idx - 2), static_cast<u16>(idx - 1), idx});
+-      } else {
+-        buf.append(std::array{static_cast<u16>(idx - 1), static_cast<u16>(idx - 2), idx});
+-      }
+-      numIndices += 3;
+-    }
+-  } else if (prim == GX_LINES || prim == GX_LINESTRIP || prim == GX_POINTS) {
+-    buf.reserve_extra(6 * sizeof(u16));
+-    buf.append<u16>(0);
+-    buf.append<u16>(1);
+-    buf.append<u16>(3);
+-    buf.append<u16>(3);
+-    buf.append<u16>(2);
+-    buf.append<u16>(0);
+-    numIndices = 6;
+-  } else
+-    UNLIKELY FATAL("unsupported primitive type {}", static_cast<u32>(prim));
+-  return numIndices;
+-}
+-
+ // GX FIFO opcodes - use CP_ prefix to avoid clashing with GXCommandList.h macros
+ constexpr u8 CP_CMD_NOP = GX_NOP;
+ constexpr u8 CP_CMD_LOAD_CP_REG = GX_LOAD_CP_REG;
+@@ -632,10 +561,12 @@
+ 
+   if (prim != GX_TRIANGLES) {
+     ZoneScopedN("build idx buffer");
+-    static ByteBuffer idxBuf;
+-    numIndices = prepare_idx_buffer(idxBuf, prim, 0, vtxCount);
+-    idxRange = gfx::push_indices(idxBuf.data(), idxBuf.size(), 4);
+-    idxBuf.clear();
++    const u32 length = idx_buffer_length(prim, vtxCount);
++    if (length == UINT32_MAX)
++      UNLIKELY FATAL("unsupported primitive type {}", static_cast<u32>(prim));
++    u16* out;
++    idxRange = gfx::map_indices(length, 4, out);
++    numIndices = out != nullptr ? write_idx_buffer(out, prim, 0, vtxCount) : static_cast<u16>(length);
+   }
+ 
+   push_gx_draw(prim, fmt, vtxCount, vertRange, idxRange, numIndices);
+@@ -771,16 +702,28 @@
+   if (canMerge) {
+     u32 numIndices = 0;
+     gfx::Range idxRange;
+-    static ByteBuffer idxBuf;
+     const bool hadIndexRange = lastDraw->idxRange.size != 0;
+-    if (lastDraw->indexCount == 0 && prim != GX_TRIANGLES) {
+-      // Generate triangle index buffer for previous draw
+-      lastDraw->indexCount = prepare_idx_buffer(idxBuf, GX_TRIANGLES, 0, lastDraw->vtxCount);
++    // The previous draw's own indices, when it had none yet (a triangle list) and this primitive needs some
++    const u16 prevVtxCount = static_cast<u16>(lastDraw->vtxCount);
++    const bool indexPrevious = lastDraw->indexCount == 0 && prim != GX_TRIANGLES;
++    if (indexPrevious) {
++      lastDraw->indexCount = idx_buffer_length(GX_TRIANGLES, prevVtxCount);
+     }
+     if (lastDraw->indexCount != 0) {
+-      numIndices += prepare_idx_buffer(idxBuf, prim, lastDraw->vtxCount, vtxCount);
+-      idxRange = gfx::push_indices(idxBuf.data(), idxBuf.size(), hadIndexRange ? 0 : 4);
+-      idxBuf.clear();
++      const u32 prevLength = indexPrevious ? lastDraw->indexCount : 0;
++      const u32 length = idx_buffer_length(prim, vtxCount);
++      if (length == UINT32_MAX)
++        UNLIKELY FATAL("unsupported primitive type {}", static_cast<u32>(prim));
++      u16* out;
++      idxRange = gfx::map_indices(prevLength + length, hadIndexRange ? 0 : 4, out);
++      if (out != nullptr) {
++        if (indexPrevious) {
++          write_idx_buffer(out, GX_TRIANGLES, 0, prevVtxCount);
++        }
++        numIndices += write_idx_buffer(out + prevLength, prim, prevVtxCount, vtxCount);
++      } else {
++        numIndices += static_cast<u16>(length);
++      }
+     }
+     CHECK(lastDraw->vertRange.offset + lastDraw->vertRange.size == vertRange.offset,
+           "Non-consecutive vertex ranges ({} < {})", lastDraw->vertRange.offset + lastDraw->vertRange.size,
+diff -ruN a/lib/gx/index_writer.hpp b/lib/gx/index_writer.hpp
+--- a/lib/gx/index_writer.hpp	1970-01-01 00:00:00.000000000 +0000
++++ b/lib/gx/index_writer.hpp	2026-11-04 15:55:40.338482159 +0000
+@@ -0,0 +1,95 @@
++#pragma once
++
++// The index list of one GX primitive, written in place in the frame's index buffer. It replaces appending each index
++// to a staging buffer that was then copied to the frame's (prepare_idx_buffer + push_indices, about a tenth of the
++// render thread in Super Mario Galaxy, where ~39 000 primitives a frame are merged into a few hundred draws).
++// The values and counts are those prepare_idx_buffer gave, quirks included (web/tests/index_writer_test.cpp checks
++// it against a copy of it): a quad list whose count is not a multiple of 4 also writes its last, partial quad, and the
++// count is returned as a u16, as before.
++
++#include <dolphin/gx/GXEnum.h>
++
++#include <cstdint>
++
++namespace aurora::gx::fifo {
++
++// The number of indices write_idx_buffer writes, or UINT32_MAX for a primitive it does not know
++constexpr uint32_t idx_buffer_length(GXPrimitive prim, uint16_t vtxCount) noexcept {
++  switch (prim) {
++  case GX_QUADS:
++    return (static_cast<uint32_t>(vtxCount) + 3) / 4 * 6;
++  case GX_TRIANGLES:
++    return vtxCount;
++  case GX_TRIANGLEFAN:
++  case GX_TRIANGLESTRIP:
++    return vtxCount < 3 ? vtxCount : (static_cast<uint32_t>(vtxCount) - 3) * 3 + 3;
++  case GX_LINES:
++  case GX_LINESTRIP:
++  case GX_POINTS:
++    return 6; // one quad, drawn once per instance
++  default:
++    return UINT32_MAX;
++  }
++}
++
++// Writes idx_buffer_length(prim, vtxCount) indices to out; returns their count as a u16
++inline uint16_t write_idx_buffer(uint16_t* out, GXPrimitive prim, uint16_t vtxStart, uint16_t vtxCount) noexcept {
++  const uint32_t length = idx_buffer_length(prim, vtxCount);
++  switch (prim) {
++  case GX_QUADS:
++    for (uint32_t v = 0; v < vtxCount; v += 4, out += 6) {
++      const uint16_t i0 = static_cast<uint16_t>(vtxStart + v);
++      out[0] = i0;
++      out[1] = static_cast<uint16_t>(i0 + 1);
++      out[2] = static_cast<uint16_t>(i0 + 2);
++      out[3] = static_cast<uint16_t>(i0 + 2);
++      out[4] = static_cast<uint16_t>(i0 + 3);
++      out[5] = i0;
++    }
++    break;
++  case GX_TRIANGLES:
++    for (uint32_t v = 0; v < vtxCount; ++v) {
++      out[v] = static_cast<uint16_t>(vtxStart + v);
++    }
++    break;
++  case GX_TRIANGLEFAN:
++  case GX_TRIANGLESTRIP: {
++    const uint32_t first = vtxCount < 3 ? vtxCount : 3;
++    for (uint32_t v = 0; v < first; ++v) {
++      *out++ = static_cast<uint16_t>(vtxStart + v);
++    }
++    if (prim == GX_TRIANGLEFAN) {
++      for (uint32_t v = 3; v < vtxCount; ++v, out += 3) {
++        const uint16_t idx = static_cast<uint16_t>(vtxStart + v);
++        out[0] = vtxStart;
++        out[1] = static_cast<uint16_t>(idx - 1);
++        out[2] = idx;
++      }
++    } else {
++      for (uint32_t v = 3; v < vtxCount; ++v, out += 3) {
++        const uint16_t idx = static_cast<uint16_t>(vtxStart + v);
++        // Every other triangle swaps its first two corners, keeping the strip's winding
++        out[0] = static_cast<uint16_t>((v & 1) == 0 ? idx - 2 : idx - 1);
++        out[1] = static_cast<uint16_t>((v & 1) == 0 ? idx - 1 : idx - 2);
++        out[2] = idx;
++      }
++    }
++    break;
++  }
++  case GX_LINES:
++  case GX_LINESTRIP:
++  case GX_POINTS:
++    out[0] = 0;
++    out[1] = 1;
++    out[2] = 3;
++    out[3] = 3;
++    out[4] = 2;
++    out[5] = 0;
++    break;
++  default:
++    return 0;
++  }
++  return static_cast<uint16_t>(length);
++}
++
++} // namespace aurora::gx::fifo
+diff -ruN a/lib/internal.hpp b/lib/internal.hpp
+--- a/lib/internal.hpp	2026-11-04 15:55:25.392808350 +0000
++++ b/lib/internal.hpp	2026-11-04 15:56:59.670437745 +0000
+@@ -304,6 +304,14 @@
+     m_length += size;
+   }
+ 
++  // Room for size bytes at the end, not cleared: the caller writes all of them
++  [[nodiscard]] uint8_t* append_uninitialized(size_t size) {
++    resize(m_length + size, false);
++    uint8_t* const begin = m_data + m_length;
++    m_length += size;
++    return begin;
++  }
++
+   void release() {
+     if (m_data != nullptr && m_owned) {
+       free(m_data);

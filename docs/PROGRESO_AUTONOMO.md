@@ -42,8 +42,10 @@ del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión n
   (borra y monta `build/site`; para giras largas, monta otra copia y pásala con `SMG_SITE=<carpeta>`). Pruebas:
   `node web/tests/browser_smoke.mjs` (58 de 58 el 2026-11-04). Con el disco real hace falta que el usuario vuelva a
   dar su `.rvz` (no se guarda en ningún sitio del repositorio).
-- **Siguiente:** rendimiento del hilo de render. En el teléfono, procesar el flujo GX cuesta 16–22 ms por fotograma,
-  más de la mitad (bloque 16); aquí es el 59 % de su trabajo (bloque 13). Perfil con `tools/perf/` (ver su
+- **En curso (bloque 18):** parche 0027 (índices escritos en su sitio): procesar el flujo −15 % en el jardín; pruebas
+  58/58 y 56/56; falta la gira con gráficos de los 44 escenarios y publicarlo.
+- **Siguiente:** más rendimiento del hilo de render. En el teléfono, procesar el flujo GX costaba 16–22 ms por
+  fotograma, más de la mitad (bloque 16); aquí es el 59 % de su trabajo (bloque 13). Perfil con `tools/perf/` (ver su
   `LEEME.md`), con el mapa de símbolos del mismo binario. Ideas ya medidas y descartadas o pendientes: bloque 13.
 - **Después:** jugar galaxias de verdad (misiones, jefes; la gira no lo comprueba), y medidas en el PC y el móvil del
   usuario (ahora puede usarlo en local y pasar el registro).
@@ -502,3 +504,42 @@ guardan en el repositorio). Del registro, por informe de 10 s (600 retrazados) e
 - **Para que Claude pruebe en el ordenador del usuario:** hace falta una sesión que corra allí (la app de escritorio
   de Claude o `claude remote-control` en la carpeta clonada) o que el usuario comparta la carpeta en la app de
   escritorio (Ajustes, Claude Code, Remote Control) para que esta sesión pueda pedirla.
+
+### Bloque 18: índices escritos en su sitio (parche 0027) (2026-11-04)
+
+**Por qué:** en el teléfono, procesar el flujo GX es más de la mitad del fotograma (bloque 16). Perfil del jardín con
+el binario de entonces (`$S/perf6`, 20 s): construir los índices de cada primitiva era el **12,6 %** del trabajo del
+hilo de render (`prepare_idx_buffer` 6,7 %: un `append` por índice con su comprobación de capacidad, en un búfer
+aparte; `push_indices` 5,9 %: la copia de ese búfer al del fotograma). El juego manda unas 39 000 primitivas por
+fotograma y Aurora las fusiona en unos pocos cientos de dibujos, así que esto se repite decenas de miles de veces.
+
+**Cambio (parche de Aurora 0027):**
+- `lib/gx/index_writer.hpp`: `idx_buffer_length` y `write_idx_buffer`, que escriben los índices directamente.
+  Los valores y la cuenta son los de `prepare_idx_buffer`, incluidas sus rarezas: una lista de cuadriláteros cuyo
+  número no es múltiplo de 4 escribe también el último cuadrilátero incompleto, y la cuenta se devuelve como u16.
+- `gfx::map_indices`: reserva el sitio en el búfer de índices del fotograma, con el mismo límite de búfer lleno que
+  `push`, sacado a `overflows`. Además, `ByteBuffer::append_uninitialized`.
+- Las dos llamadas que generaban índices (`handle_draw_unmerged` y la fusión de `draw_prim_as_written`) escriben en
+  su sitio. `prepare_idx_buffer` desaparece. La tercera (`DRAW_INDEXED`) copia índices ya hechos y no cambia.
+- Única diferencia de comportamiento: una lista de cuadriláteros de más de 65 532 vértices hacía que el bucle u16
+  original no acabara nunca; ahora termina.
+
+**Prueba nueva:** `web/tests/run_index_writer_test.sh` compara `write_idx_buffer` con una copia del original en todas
+las primitivas, de 0 a 300 vértices, recuentos grandes y 10 comienzos, incluidos los que desbordan u16: 21 490 casos,
+0 fallos, en nativo y en WebAssembly. Con un fallo puesto a propósito (la paridad de las tiras), 3030 fallos.
+
+**Medido** (jardín, 3000 fotogramas, el mismo guion `perfrun.sh` en `$S`, dos tandas alternas de cada versión):
+
+| | Procesar el flujo (ms/fotograma) | Terminar (ms/fotograma) |
+|---|---|---|
+| Antes (`perf6`, `perf6b`) | 17,24 · 17,49 | 8,57 · 9,86 |
+| Con 0027 (`perf7`, `perf7b`) | 14,19 · 15,33 | 9,94 · 10,01 |
+
+- Procesar baja de 17,4 a 14,8 ms de media (**−15 %**). Los índices pasan del 12,6 % al 4,7 % del trabajo
+  (`map_indices` + `write_idx_buffer`); `draw_prim_as_written` baja del 44 % al 37 %.
+- Terminar varía entre 8,6 y 9,9 ms ya sin el cambio (GPU emulada en este contenedor). El búfer de índices mide lo
+  mismo en las dos versiones (539 KB de pico), así que su subida media (+0,8 ms) se toma como ruido. Contando
+  terminar, el total baja de 26,6 a 24,8 ms (−7 %).
+- Sin medir en el teléfono: allí procesar costaba 16–22 ms, y la proporción de índices debería ser parecida.
+- **Pruebas:** `browser_smoke.mjs` 58 de 58 y `bridge_smoke.mjs` 56 de 56 con el motor nuevo (`SMG_SITE=$S/site3`).
+- **Pendiente antes de publicar:** gira con gráficos de los 44 escenarios con el motor nuevo.
