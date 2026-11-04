@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 void* nebula_web_mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset) {
     (void)prot;
@@ -24,12 +25,18 @@ void* nebula_web_mmap(void* addr, size_t length, int prot, int flags, int fd, of
         return MAP_FAILED;
     }
     const size_t arena = length / 2;
+    /* The heap's end before the allocation: an arena wholly above it is memory the module has just grown, which
+       WebAssembly gives zeroed. Clearing it again would write every page of it (512 MB for the console's arena), and
+       the browser would then count all of them as the page's memory, used or not: a phone kills the tab sooner. */
+    const uintptr_t heapEnd = (uintptr_t)sbrk(0);
     void* p = aligned_alloc(arena, arena);
     if (p == NULL) {
         errno = ENOMEM;
         return MAP_FAILED;
     }
-    memset(p, 0, arena);
+    if ((uintptr_t)p < heapEnd) {
+        memset(p, 0, arena); /* memory the heap had before: it may hold old data */
+    }
     return p;
 }
 

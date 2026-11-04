@@ -601,3 +601,45 @@ diagnóstico, `$S/route1` y `$S/route2`):
 el motor web sin cuelgues. **No** demuestra que cada nivel se pueda pasar jugando: los ganchos toman las estrellas.
 Para eso está `docs/PRUEBA_DE_PARTIDA.md` (la lista para una partida real). El hito 7 queda desglosado en partes
 comprobables en `docs/HOJA_DE_RUTA.md`.
+
+### Bloque 20: la página se cerraba de golpe en momentos de mucha carga (2026-11-04)
+
+**Informe del usuario:** cierres «en momentos aleatorios, donde requiera de muchos recursos, y se cierra la página».
+Una página que se cierra sola, sin un error del motor, es casi siempre el navegador matando la pestaña por la memoria.
+
+**Medido** (Chromium del contenedor, memoria residente por proceso con `$S/mem/sample.sh`, jardín del castillo, 600
+fotogramas más 1500 de espera):
+- La memoria de WebAssembly del motor es **fija**: 1061 MB en los 196 informes de la batalla final. No hay fuga en
+  el juego, pero la cifra es enorme para un teléfono.
+- El proceso de la página llegaba a **1061 MB residentes** ya en la pantalla de archivos.
+
+**Causa:**
+- `web/platform/memory_shim_wasm.c` (nuestro sustituto de `mmap` en wasm) reservaba la arena de la consola, 512 MB
+  alineados a su tamaño para que los 29 bits bajos sean la dirección física, y la **rellenaba entera de ceros**.
+  Escribir los 512 MB obliga al sistema a dar a la página toda esa RAM.
+- En el PC, Nebula reserva ese espacio sin memoria detrás («The reservation is address space only», `memory.c`) y
+  solo activa MEM1 y MEM2 (88 MB como mucho).
+- La memoria que WebAssembly acaba de crecer ya viene a cero.
+
+**Arreglo:** no se rellena la arena si está entera por encima del final del montón de antes (`sbrk(0)`): es memoria
+recién crecida, ya a cero. Si el asignador devuelve memoria usada antes, se rellena como siempre.
+
+**Comprobado:**
+
+| Jardín del castillo | Antes | Con el arreglo |
+|---|---|---|
+| Página (máximo residente) | 1061 MB | **613 MB** (−448 MB, −42 %) |
+| El juego | cargó y dibujó, 2771 fotogramas en pantalla | cargó y dibujó, 2779 |
+
+El proceso de la GPU (unos 650-700 MB) es aquí una GPU emulada en la CPU, así que no se puede comparar con un
+teléfono.
+
+**Aviso de la sesión cerrada de golpe** (`web/shell/app.js`, `sessionTrace`): mientras el motor corre, la página
+guarda cada 5 s la escena, la memoria, los fps y las últimas líneas del registro. Si el navegador mata la pestaña, la
+visita siguiente lo dice y deja copiar lo que pasó, para investigar los cierres que queden. Tres comprobaciones nuevas
+en `browser_smoke.mjs`.
+
+**Pruebas con el arreglo:** `browser_smoke.mjs` 68/68 y la ruta de la historia sin gráficos, 11 de 11 segmentos bien (`$S/route4`).
+
+**Falta:** confirmar en el dispositivo del usuario que los cierres bajan o desaparecen. Si siguen, el aviso trae la
+escena y la memoria de cada uno.
