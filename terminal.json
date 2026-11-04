@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T00:54:03+00:00",
-   "tipo": "bash",
-   "desc": "Anotar las cargas y el cuelgue y subir las herramientas",
-   "cmd": "cd ~/repo; cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+28 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T00:54:15+00:00",
    "tipo": "bash",
    "desc": "Escribir y probar el traductor de índices de tabla",
@@ -279,8 +272,15 @@
    "desc": "Comprobar que las pulsaciones llegan al juego",
    "cmd": "S=$S; until grep -q \"tour: stop 2 of\" $S/tour/out_play1/log_tail.txt 2>/dev/null || ! pgrep -f out_play1 >/dev/null; do sleep 4; done; grep -o \"Wii Remote reports [0-9]*\" $S/tour/…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T02:34:46+00:00",
+   "tipo": "bash",
+   "desc": "Leer las palabras de control durante el juego a ciegas",
+   "cmd": "S=$S; cat > $S/tools/peek_words.mjs <<'EOF'  … (+19 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T02:34:33+00:00"
+ "actualizado": "2026-11-04T02:34:46+00:00"
 }
