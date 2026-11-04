@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T15:44:42+00:00",
-   "tipo": "bash",
-   "desc": "Read index buffer preparation code",
-   "cmd": "grep -n \"prepare_idx_buffer\" lib/gx/*.cpp lib/gx/*.hpp | head -4; sed -n \"$(grep -n 'u32 prepare_idx_buffer' lib/gx/command_processor.cpp | cut -d: -f1),+50p\" lib/gx/command_proce…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T15:44:48+00:00",
-   "tipo": "bash",
-   "desc": "Read prepare_idx_buffer and push helpers",
-   "cmd": "sed -n 30,85p lib/gx/command_processor.cpp; sed -n 285,310p lib/gfx/recording.cpp; sed -n 1450,1470p lib/gfx/recording.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T15:45:30+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Run browser and bridge smoke tests on site3",
    "cmd": "S=$S; cd ~/repo && SMG_SITE=$S/site3 timeout 1700 node web/tests/browser_smoke.mjs > $S/p27/smoke.log 2>&1; echo \"exit $?\" >> $S/p27/smoke.log; timeout 1700 node web/tests/bridge_…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T16:54:01+00:00",
+   "tipo": "bash",
+   "desc": "Document block 18 in progress log",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+39 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T16:54:11+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test progress",
+   "cmd": "S=$S; for f in smoke bridge; do echo \"$f: $(grep -c '^PASS' $S/p27/$f.log 2>/dev/null) PASS, $(grep -c '^FAIL' $S/p27/$f.log 2>/dev/null) FAIL, $(grep '^exit' $S/p27/$f.log 2>/dev…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T16:53:41+00:00"
+ "actualizado": "2026-11-04T16:54:11+00:00"
 }
