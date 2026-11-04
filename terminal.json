@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T05:57:59+00:00",
-   "tipo": "bash",
-   "desc": "Play blind four more tours (seeds 5-8)",
-   "cmd": "S=$S; timeout 7100 $S/catch5/run.sh 8 5 > $S/catch5/run.out 2>&1",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:58:10+00:00",
-   "tipo": "bash",
-   "desc": "Record the in-game proof in the progress doc",
-   "cmd": "cd ~/repo; python3 - <<'EOF'  … (+29 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T05:58:13+00:00",
-   "tipo": "bash",
-   "desc": "Read README hang-related sections",
-   "cmd": "cd ~/repo; sed -n 36,42p README.md; sed -n 168,180p README.md; sed -n 290,300p README.md; sed -n 345,352p README.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T05:58:24+00:00",
    "tipo": "bash",
    "desc": "Update README with the clock fix",
@@ -279,8 +258,29 @@
    "desc": "Inclusive render-thread profile",
    "cmd": "S=$S; cat > $S/tools/prof_total.mjs <<'EOF'  … (+20 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:49+00:00",
+   "tipo": "bash",
+   "desc": "Look up the EM_ASM code by address",
+   "cmd": "cd ~/repo; grep -o \"1150274: *([^)]*) *=> *{[^}]*}[^,]*\" build/site/smg_web.js | head -3 | cut -c1-600; grep -n \"1150274\" build/site/smg_web.js | cut -c1-200 | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:54+00:00",
+   "tipo": "bash",
+   "desc": "Find the source of the present EM_ASM",
+   "cmd": "cd ~/repo; grep -rn \"smgPresentChannel\\|smg-present\" web/ third_party/aurora* 2>/dev/null | grep -v \"^web/aurora/patches\" | head; grep -ln \"smg-present\" web/aurora/patches/* 2>/de…",
+   "ok": true
+  },
+  {
+   "t": "2026-11-04T06:04:58+00:00",
+   "tipo": "bash",
+   "desc": "Read the XFB present path",
+   "cmd": "cd ~/repo; sed -n 135,175p web/host/aurora_bridge.cpp; sed -n 300,360p web/host/aurora_bridge.cpp",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T06:04:43+00:00"
+ "actualizado": "2026-11-04T06:04:58+00:00"
 }
