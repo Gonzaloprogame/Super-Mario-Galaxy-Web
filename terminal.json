@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T21:54:43+00:00",
-   "tipo": "bash",
-   "desc": "Inspect what the killed epilogue run observed",
-   "cmd": "S=$S; sed -n 1,6p $S/route3/13/out/tour.md; grep -E \"^\\[host\\] (stage|tour|test|the game|memory)|aurora (ERROR|FATAL)\" $S/route3/13/out/log_tail.txt | tail -5; grep -o \"report: re…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T21:54:57+00:00",
    "tipo": "bash",
    "desc": "List leftover processes from the killed epilogue run",
@@ -279,8 +272,15 @@
    "desc": "Read Chromium log and last page log lines",
    "cmd": "S=$S; wc -l $S/missions/m23/browser.log; grep -iE \"crash|oom|memory|killed|signal|fatal|check failed|error\" $S/missions/m23/browser.log | head -15 | cut -c1-250; echo ---; tail -8…",
    "ok": true
+  },
+  {
+   "t": "2026-11-04T23:58:48+00:00",
+   "tipo": "bash",
+   "desc": "Rerun tour with Chromium stderr to capture crash reason",
+   "cmd": "S=$S; cd ~/repo && mv $S/missions/m23 $S/missions/m23_crash2 && DEBUG=pw:browser timeout 900 node tools/galaxy_tour.mjs --site $S/site8 --disc $S/disc/smg.rvz --stages $S/missions…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:57:46+00:00"
+ "actualizado": "2026-11-04T23:58:48+00:00"
 }
