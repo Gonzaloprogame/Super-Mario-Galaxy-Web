@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:47:40+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/web/platform/dvd_missing_note_wasm.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:47:46+00:00",
    "tipo": "bash",
    "desc": "Report recent missing files when the game stops",
@@ -279,8 +272,15 @@
    "desc": "Update version labels in README, page, panel and roadmap",
    "cmd": "python3 - <<'EOF'  … (+80 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T07:05:17+00:00",
+   "tipo": "bash",
+   "desc": "Build the release site from branch sources",
+   "cmd": "ME=$$; n=0; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in *galaxy_tour*|*st…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T07:00:12+00:00"
+ "actualizado": "2026-11-05T07:05:17+00:00"
 }
