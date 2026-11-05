@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:19:28+00:00",
-   "tipo": "bash",
-   "desc": "Document release and commit",
-   "cmd": "python3 - <<'EOF'  … (+63 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:19:35+00:00",
    "tipo": "bash",
    "desc": "Create and push the v1.0.0-rc.1 tag",
@@ -279,8 +272,15 @@
    "desc": "Stash the log changes while the test runs",
    "cmd": "git stash push -m \"registro de la página sin reescribir y la gira leyendo solo lo nuevo (prueba en curso)\" >/dev/null && git status --short | wc -l",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:55:30+00:00",
+   "tipo": "bash",
+   "desc": "Read page test results",
+   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/full/smoke_log.log) PASS $(grep -c '^FAIL' $S/full/smoke_log.log) FAIL\"; grep -E \"^FAIL|registro:\" $S/full/smoke_log.log | cut -c1-220",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T14:53:44+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T14:55:30+00:00"
 }
