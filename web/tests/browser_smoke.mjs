@@ -501,6 +501,32 @@ await withServer('isolated', async (url) => {
           `partida: con el motor en marcha no se carga ninguna ("${running}")`);
   }
 
+  // The log (web/shell/app.js, log): each line added at the end, not the whole text rewritten (which slowed the page
+  // as it grew); the shown text capped; the last lines kept by their number for readers (smgLogSince)
+  {
+    const browser = await chromium.launch();
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(url);
+    await page.waitForFunction(() => ['ready', 'unsupported'].includes(document.body.dataset.state), null, { timeout: 30000 });
+    const r = await page.evaluate(() => {
+      const line = '[host] ' + 'x'.repeat(150);
+      const start = performance.now();
+      for (let i = 0; i < 30000; i++) log(`${line} ${i}`);
+      const ms = performance.now() - start;
+      const shown = document.getElementById('log').textContent;
+      const since = smgLogSince(29990);
+      const old = smgLogSince(0);
+      return { ms: Math.round(ms), shown: shown.length, lastShown: shown.trimEnd().split('\n').pop().slice(-6),
+               since: since.lines.length, sinceLast: since.lines[since.lines.length - 1].slice(-6), next: since.next,
+               lost: old.lost, kept: old.lines.length };
+    });
+    await browser.close();
+    check(r.ms < 3000 && r.shown <= 10000 * 170 && /29999$/.test(r.lastShown),
+          `registro: 30 000 líneas en ${r.ms} ms, lo mostrado limitado (${r.shown} caracteres) y con la última`);
+    check(r.since === 10 && /29999$/.test(r.sinceLast) && r.next === 30000 && r.kept === 20000 && r.lost === 10000,
+          `registro: las líneas nuevas por su número (smgLogSince) y las 20 000 últimas guardadas (${JSON.stringify(r)})`);
+  }
+
   // The last session's trace (web/shell/app.js, sessionTrace): a session the browser closed while the game ran is
   // said on the next visit, until dismissed; while the engine runs the trace is kept unclean, and a normal close
   // (pagehide) marks it clean

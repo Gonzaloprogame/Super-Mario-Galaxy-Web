@@ -12,9 +12,43 @@ function setStatus(text, kind = 'info') {
   statusEl.dataset.kind = kind;
 }
 
+// The engine's log. Each line is a text node of its own, added at the end: rewriting the whole text per line
+// (textContent +=), or adding to one text node, copied all of it each time, on the thread that paints the frames, and
+// an hour of play or a list of the scene's actors made the page answer late. On screen, the last 10 000 lines; for
+// readers (the tour, tests) the last 20 000 by their number since the run started (globalThis.smgLogSince).
+const LOG_SHOWN_MAX = 10000;
+const LOG_KEPT = 20000;
+const logLines = { list: [], first: 0 }; // first: the number of list[0] since the run started
+let logShown = 0;
+function clearLog() {
+  logEl.textContent = '';
+  logShown = 0;
+  logLines.list = [];
+  logLines.first = 0;
+}
+// The lines from number n on: { next, lines, lost } (lost: how many of them were no longer kept)
+globalThis.smgLogSince = (n) => ({
+  next: logLines.first + logLines.list.length,
+  lines: logLines.list.slice(Math.max(0, n - logLines.first)),
+  lost: Math.max(0, logLines.first - n),
+});
+
 function log(text) {
-  logEl.textContent += text + '\n';
-  logEl.scrollTop = logEl.scrollHeight;
+  logEl.appendChild(document.createTextNode(text + '\n'));
+  if (++logShown > LOG_SHOWN_MAX) {
+    // The oldest lines go, a quarter of them at a time
+    for (let i = 0; i < LOG_SHOWN_MAX / 4; i++) logEl.removeChild(logEl.firstChild);
+    logShown -= LOG_SHOWN_MAX / 4;
+  }
+  logLines.list.push(text);
+  if (logLines.list.length > LOG_KEPT) {
+    const drop = logLines.list.length - LOG_KEPT;
+    logLines.list.splice(0, drop);
+    logLines.first += drop;
+  }
+  if (logEl.closest('details')?.open) {
+    logEl.scrollTop = logEl.scrollHeight;
+  }
   loading.line(text);
   globalThis.smgSessionTrace?.line(text); // defined below (a log before it is not traced)
 }
@@ -406,7 +440,7 @@ addEventListener('pagehide', () => {
         await navigator.clipboard.writeText(text);
         $('crash-copy').textContent = 'Copiado';
       } catch {
-        logEl.textContent += `\n[página] la sesión anterior, cerrada de golpe:\n${text}\n`;
+        log(`[página] la sesión anterior, cerrada de golpe:\n${text}`);
         $('crash-copy').textContent = 'Está en el registro de abajo: cópialo de ahí';
       }
     });
@@ -472,7 +506,7 @@ async function start() {
   if (mode === 'graphics') {
     startAudio();
   }
-  logEl.textContent = '';
+  clearLog();
   $('screen-card').hidden = mode !== 'graphics';
   if (mode === 'graphics') {
     requestAnimationFrame(() => $('screen-card').scrollIntoView({ behavior: 'smooth', block: 'start' }));

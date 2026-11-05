@@ -141,7 +141,8 @@ try {
     })();
   }
 
-  let seen = 0;            // log lines handled
+  let seen = 0;            // log lines handled (their number since the run started)
+  const allLines = [];     // every line read, in order
   let lastFullLog = 0;     // when the whole log was last written
   let lastGx = 0;          // GX bytes in the last report
   let end = '';
@@ -158,9 +159,22 @@ try {
     }
     const state = await page.evaluate(() => document.body.dataset.state);
     painted = await page.evaluate(() => (globalThis.smgPresenter ? globalThis.smgPresenter.frames : 0));
-    const lines = (await page.textContent('#log')).split('\n').map((l) => l.replace(/^\[vigía\] /, ''));
+    // The new lines (web/shell/app.js, smgLogSince): not the whole log each time, which grew large on a long run
+    const fresh = await page.evaluate((n) => (globalThis.smgLogSince ? globalThis.smgLogSince(n) : null), seen);
+    let newLines;
+    if (fresh) {
+      if (fresh.lost > 0) allLines.push(`[gira] ${fresh.lost} líneas del registro ya no estaban en la página`);
+      newLines = fresh.lines.flatMap((entry) => entry.split('\n')).map((l) => l.replace(/^\[vigía\] /, ''));
+      seen = fresh.next;
+    } else {
+      // A page from before smgLogSince: the whole text, as before
+      const lines = (await page.textContent('#log')).split('\n').map((l) => l.replace(/^\[vigía\] /, ''));
+      newLines = lines.slice(allLines.length, Math.max(allLines.length, lines.length - 1));
+    }
+    allLines.push(...newLines);
+    const lines = allLines;
     lastLines = lines;
-    for (const line of lines.slice(seen)) {
+    for (const line of newLines) {
       let m;
       // The host's report also counts the game's NAND requests: what a stop added (its saves among them)
       const nand = /^\[host\] report: .*NAND requests (\d+)/.exec(line);
@@ -210,8 +224,6 @@ try {
         end = 'gira terminada';
       }
     }
-    // The log ends in a newline: its last element is empty, and the next reading's first new line takes its place
-    seen = Math.max(0, lines.length - 1);
     // The log's last lines, to follow a run while it goes (game data: they stay in the output folder)
     writeFileSync(join(args.out, 'log_tail.txt'), lines.slice(-60).join('\n'));
     // The whole log once a minute too: a run cut off from outside (a time limit) keeps what it saw
