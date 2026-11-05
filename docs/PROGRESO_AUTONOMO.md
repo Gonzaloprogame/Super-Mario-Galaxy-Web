@@ -33,26 +33,28 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. `$S` es la carpeta de trabajo local de cada sesión (fuera del repositorio: disco
 del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión nueva empieza con `$S` vacía.**
 
-- **Estado (2026-11-04, bloques 12 a 17):** reloj estrictamente creciente (8 giras a ciegas sin cuelgues), fotogramas
-  por memoria compartida, rastro de diagnóstico sin leer el reloj; 44/44 escenarios con gráficos y 44/44 jugando a
-  ciegas 90 s; el libro del prólogo pasa en el PC del usuario (un intento); contador de fps nuevo; fps medidos en el
-  teléfono del usuario (22–33, media 27,6); descarga para usarlo en local (`servir.py`), que el usuario ya usa. Todo
-  en la rama y publicado en gh-pages.
-- **Montar en una sesión nueva:** emsdk 6.0.13 (`docs/ENTORNO.md`), `tools/fetch_sources.sh`, `tools/build_web.sh`
-  (borra y monta `build/site`; para giras largas, monta otra copia y pásala con `SMG_SITE=<carpeta>`). Pruebas:
-  `node web/tests/browser_smoke.mjs` (58 de 58 el 2026-11-04). Con el disco real hace falta que el usuario vuelva a
-  dar su `.rvz` (no se guarda en ningún sitio del repositorio).
-- **Hecho (bloque 18):** parche 0027 (índices escritos en su sitio): procesar el flujo −15 % en el jardín; pruebas
-  58/58 y 56/56; 44/44 con gráficos; publicado. Falta que el usuario mida fps en su teléfono.
-- **Siguiente:** más rendimiento del hilo de render. En el teléfono, procesar el flujo GX costaba 16–22 ms por
-  fotograma, más de la mitad (bloque 16); aquí es el 59 % de su trabajo (bloque 13). Perfil con `tools/perf/` (ver su
-  `LEEME.md`), con el mapa de símbolos del mismo binario. Ideas ya medidas y descartadas o pendientes: bloque 13.
-- **Después:** jugar galaxias de verdad (misiones, jefes; la gira no lo comprueba), y medidas en el PC y el móvil del
-  usuario (ahora puede usarlo en local y pasar el registro).
-- **Ojo:** las tareas de fondo se cortan a los 30 min si no se les da `timeout` (hasta 2 h); las giras de 44 paradas
-  tardan más de 1 h. No uses `pkill -f` con un patrón que también case con tu propia orden.
-- **Bloqueados:** PAL y japonesa (Nebula solo prepara RMGE01; sin disco para probar); mando real (solo probado con uno
-  simulado).
+- **Estado (2026-11-05): versión 1.0.0-rc.1 publicada** (gh-pages `e0c21ad`, etiqueta `v1.0.0-rc.1`; bloque 22).
+  - Hito 7 al 62 %, por partes: A (todas las misiones) y B (la historia, con ganchos) hechas; C (el final) a medias:
+    vídeos y epílogo sí, la vuelta a la partida sin ver; D (partida real) pendiente del usuario.
+  - Memoria −42 %, y aviso de la sesión cerrada de golpe.
+- **Montar en una sesión nueva:**
+  - emsdk 6.0.13 (`docs/ENTORNO.md`), `tools/fetch_sources.sh`, `tools/build_web.sh`;
+  - pruebas: `browser_smoke` 68/68, `bridge_smoke` 56/56, `run_index_writer_test.sh`;
+  - con el disco hace falta que el usuario vuelva a dar su `.rvz`;
+  - ruta: `node tools/story_route.mjs --disc <rvz> --route tools/routes/historia.txt --out <dir>`;
+  - misiones: `tools/routes/misiones.txt` con `tools/galaxy_tour.mjs`.
+- **Siguiente:**
+  1. Lo que diga el usuario: cierres de la página en su dispositivo (con el texto del aviso) y su partida real
+     (`docs/PRUEBA_DE_PARTIDA.md`). Si confirma el principio a fin, la versión pasa a 1.0.0 sin más cambios.
+  2. Ver qué hace el juego tras los créditos: con pulsaciones solo en el epílogo, no al azar desde el principio (el
+     segmento 14 volvió a la pantalla de archivos sin vídeo).
+  3. Rendimiento (`writeBuffer` y las copias del EFB, bloque 13).
+- **Ojo:**
+  - Las tareas de fondo se cortan a los 30 min si no se les da `timeout` (2 h como mucho).
+  - No uses `pkill -f` con un patrón que case con tu propia orden.
+  - Pedir una misión que no existe lee fuera de la tabla de misiones y, en Chromium, mata la pestaña (bloque 21):
+    usa `tools/routes/misiones.txt`.
+- **Bloqueados:** PAL y japonesa (Nebula solo prepara RMGE01); mando real.
 
 ## Bloques de trabajo
 
@@ -681,3 +683,22 @@ fotogramas por parada, jugando a ciegas, semilla 5): las 61 misiones 2-5 de las 
 `kGalaxyStages` de Nebula, **cargan y aguantan sin errores ni cierres, 61 de 61**. Con la misión 1 de los 44
 escenarios (bloques 1 y 13), quedan recorridas todas las misiones a las que se puede entrar, sin las ocultas. Siguen
 sin estar jugadas: cargar y aguantar a ciegas no es pasarlas.
+
+### Bloque 22: versión 1.0.0-rc.1 (2026-11-05)
+
+**Pedido por el usuario:** publicar la 1.0.0, «la versión oficial». Como el principio a fin no está confirmado
+jugando, eligió publicarla como **1.0.0-rc.1** (candidata) y subir la etiqueta. Pasará a 1.0.0 sin más cambios cuando
+su partida real lo confirme.
+
+**Hecho:**
+- Página, README (aviso de cabecera, tabla de estado, novedades, próximos pasos), panel y hoja de ruta con la versión.
+- Sitio compilado entero desde la rama con `tools/build_web.sh`.
+- Publicado en gh-pages (`e0c21ad`); etiqueta anotada `v1.0.0-rc.1` subida a GitHub.
+
+**Comprobado antes de publicar** (con ese mismo sitio compilado):
+- `browser_smoke` 68/68, `bridge_smoke` 56/56, índices 21 490/21 490;
+- el jardín con gráficos: cargó y dibujó, 979 fotogramas en pantalla, sin problemas;
+- la ruta de la historia, segmentos 1, 8 y 11 (prólogo, primera batalla con Bowser, batalla final): 3 de 3 bien.
+
+**No se dice** que sea jugable de principio a fin. El mensaje de felicitación que pidió el usuario queda para cuando
+lo sea.
