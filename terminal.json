@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T21:54:57+00:00",
-   "tipo": "bash",
-   "desc": "List leftover processes from the killed epilogue run",
-   "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null); case \"$c\" in *route3/13*|*--remote-debugging*18…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T21:55:17+00:00",
    "tipo": "bash",
    "desc": "Add play directive and epilogue-with-buttons segment",
@@ -279,8 +272,15 @@
    "desc": "Rerun tour with Chromium stderr to capture crash reason",
    "cmd": "S=$S; cd ~/repo && mv $S/missions/m23 $S/missions/m23_crash2 && DEBUG=pw:browser timeout 900 node tools/galaxy_tour.mjs --site $S/site8 --disc $S/disc/smg.rvz --stages $S/missions…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:00:08+00:00",
+   "tipo": "bash",
+   "desc": "Run the same tour with the pre-fix engine",
+   "cmd": "S=$S; cd ~/repo && rm -rf $S/missions/m23old && DEBUG=pw:browser timeout 600 node tools/galaxy_tour.mjs --site $S/site5 --disc $S/disc/smg.rvz --stages $S/missions/m23.txt --out $…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-04T23:58:48+00:00"
+ "actualizado": "2026-11-05T00:00:08+00:00"
 }
