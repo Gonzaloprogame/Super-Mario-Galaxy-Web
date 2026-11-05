@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:04:47+00:00",
-   "tipo": "bash",
-   "desc": "Relink Node host with symbols and name the crashing stack",
-   "cmd": "S=$S; cd ~/repo && python3 - <<'EOF'  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:05:47+00:00",
    "tipo": "bash",
    "desc": "Document the crash diagnosis and commit",
@@ -279,8 +272,15 @@
    "desc": "Fast-forward main to the development branch",
    "cmd": "git merge-base --is-ancestor origin/main ccr-8700b376-tetafz && echo \"avance directo posible\" && git push origin ccr-8700b376-tetafz:main 2>&1 | tail -3; git ls-remote origin refs…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:40:02+00:00",
+   "tipo": "bash",
+   "desc": "Verify the README now on main",
+   "cmd": "git fetch -q origin main && git show origin/main:README.md | sed -n 7,13p",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:39:59+00:00"
+ "actualizado": "2026-11-05T10:40:02+00:00"
 }
