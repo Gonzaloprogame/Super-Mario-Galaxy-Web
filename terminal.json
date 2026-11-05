@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:39:52+00:00",
-   "tipo": "bash",
-   "desc": "Commit README and review files that would reach main",
-   "cmd": "git add README.md docs/img/interfaz.png && git commit -q -m \"README puesto al día para la 1.0.0-rc.1  … (+7 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T10:39:59+00:00",
-   "tipo": "bash",
-   "desc": "Fast-forward main to the development branch",
-   "cmd": "git merge-base --is-ancestor origin/main ccr-8700b376-tetafz && echo \"avance directo posible\" && git push origin ccr-8700b376-tetafz:main 2>&1 | tail -3; git ls-remote origin refs…",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T10:40:02+00:00",
    "tipo": "bash",
    "desc": "Verify the README now on main",
@@ -279,8 +265,22 @@
    "desc": "Move the extracted star positions out of the repo",
    "cmd": "S=$S; cd ~/repo && grep -c \"tp:\" tools/routes/partida_estrellas.txt && cp tools/routes/partida_estrellas.txt $S/full/partida_estrellas.txt && cmp tools/routes/partida_estrellas.tx…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:28:22+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/repo/tools/make_star_route.mjs",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T15:28:30+00:00",
+   "tipo": "bash",
+   "desc": "Check the generator reproduces the route and commit it",
+   "cmd": "S=$S; cd ~/repo && node tools/make_star_route.mjs $S/full/partida_estrellas_check.txt $S/full/discover/log_full.txt $S/full/discover2/log_end.txt | cut -c1-120 && diff <(grep -v \"…  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T15:28:07+00:00"
+ "actualizado": "2026-11-05T15:28:30+00:00"
 }
