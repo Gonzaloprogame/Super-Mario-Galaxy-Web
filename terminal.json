@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:41:51+00:00",
-   "tipo": "bash",
-   "desc": "Locate the path-to-entry lookup in SDK or web layer",
-   "cmd": "grep -rn \"DVDConvertPathToEntrynum\\|ConvertPathToEntrynum\" third_party/nebula/native/sdk third_party/nebula/native/petari/src/RVL_SDK 2>/dev/null | grep -v \"^.*://\" | head -5; gre…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:41:58+00:00",
    "tipo": "bash",
    "desc": "Read existing linker wrap setup",
@@ -279,8 +272,15 @@
    "desc": "Verify the commit and push happened",
    "cmd": "sleep 5; cd ~/repo && git log --oneline -2 && git status --short | wc -l && git log origin/ccr-8700b376-tetafz --oneline -1",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:26:10+00:00",
+   "tipo": "bash",
+   "desc": "Record missions result, update hito 7 to 62% and publish panel",
+   "cmd": "python3 - <<'EOF'  … (+43 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T00:08:14+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T00:26:10+00:00"
 }
