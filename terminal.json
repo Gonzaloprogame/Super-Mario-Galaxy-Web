@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T06:57:29+00:00",
-   "tipo": "bash",
-   "desc": "Check how earlier versions were labeled and published",
-   "cmd": "git tag -l | head; grep -rn \"0\\.1\\.1\\|0\\.1\\.0\\|experimental\" web/shell/index.html web/shell/app.js docs/progreso.json README.md | head -15 | cut -c1-200; ls docs | head -40",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T06:57:35+00:00",
-   "tipo": "bash",
-   "desc": "Check remote tags for earlier versions",
-   "cmd": "git ls-remote --tags origin 2>&1 | head -5; git log -1 --format='%h %s' v0.1.0-experimental",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T06:58:19+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T06:59:30+00:00",
    "tipo": "bash",
    "desc": "Read README header",
@@ -279,8 +258,29 @@
    "desc": "Read SAFE_HEAP address checks",
    "cmd": "E=~/tools/emsdk/upstream/emscripten; sed -n 1,30p $E/src/runtime_safe_heap.js",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:31+00:00",
+   "tipo": "bash",
+   "desc": "Find Nebula's GET_STAR hook implementation",
+   "cmd": "cd ~/repo/third_party/nebula && grep -rn \"NEBULA_TEST_GET_STAR\" --include=*.cpp --include=*.c --include=*.hpp . | grep -v \"nebula_game_api.h\" | head -5",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:34+00:00",
+   "tipo": "bash",
+   "desc": "Read the star hook in Nebula's GameScene",
+   "cmd": "sed -n 300,330p native/petari/src/Game/Scene/GameScene.cpp",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:39+00:00",
+   "tipo": "bash",
+   "desc": "Read how the pending star is applied",
+   "cmd": "grep -n \"sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head; n=$(grep -n \"sPendingStar != 0\\|if (sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head -1 | …",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:28:14+00:00"
+ "actualizado": "2026-11-05T14:28:39+00:00"
 }
