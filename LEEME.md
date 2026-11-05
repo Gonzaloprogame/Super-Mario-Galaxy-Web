@@ -1,6 +1,7 @@
-# Sitio publicado (generado)
+# Sitio publicado (generado) · versión 1.0.0-rc.1
 
-Esta rama solo contiene el sitio compilado de Galaxy Web, servido por GitHub Pages. No la edites a mano: se genera con
+Esta rama solo contiene el sitio compilado de Galaxy Web, servido por GitHub Pages. Versión 1.0.0-rc.1, candidata a
+la 1.0.0 (etiqueta `v1.0.0-rc.1` en la rama de desarrollo). No la edites a mano: se genera con
 `tools/build_web.sh` desde la rama `ccr-8700b376-tetafz` (el código fuente y las instrucciones están en esa rama).
 
 ## Usarlo en tu ordenador
