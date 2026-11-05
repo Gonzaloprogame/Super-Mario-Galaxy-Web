@@ -88,8 +88,8 @@ página funciona como un sitio estático (GitHub Pages).
 ## 🖥️ Requisitos
 
 > [!NOTE]
-> Estas cifras salen de lo que se ha medido hasta ahora: un teléfono Android de gama media-alta (unos **27 fps** en
-> el primer nivel) y un equipo de escritorio con Chrome. Son **orientativas** y se irán ajustando con más pruebas.
+> Estas cifras salen de lo que se ha medido hasta ahora: un teléfono Android de gama media-alta (unos **28 fps** de
+> media en el primer nivel, entre 22 y 33 según la escena) y un equipo de escritorio con Chrome. Son **orientativas** y se irán ajustando con más pruebas.
 > Si lo pruebas en otro dispositivo, ¡cuéntanos cómo va!
 
 | | 🟡 Mínimos | 🟢 Recomendados |
@@ -97,7 +97,7 @@ página funciona como un sitio estático (GitHub Pages).
 | **Navegador** | Chrome o Edge **121 o posterior** con **WebGPU** activo | La última versión de Chrome o Edge |
 | **Sistema** | Windows 10, macOS 12, ChromeOS o **Android 12** con WebGPU | Windows 11, macOS reciente o un Android reciente |
 | **Procesador** | 4 núcleos (teléfono de gama media de 2021 en adelante) | 6 núcleos o más, de escritorio o teléfono de gama alta |
-| **Memoria (RAM)** | **4 GB** (el motor reserva ~1,1 GB) | **8 GB** o más |
+| **Memoria (RAM)** | **4 GB** (la página usa unos 600 MB en el primer nivel) | **8 GB** o más |
 | **Gráficos** | GPU integrada compatible con WebGPU | GPU dedicada o integrada reciente |
 | **Almacenamiento** | ~3,3 GB libres para tu archivo `.rvz` | SSD o memoria interna rápida |
 | **Conexión** | Solo para cargar la página (unos 15 MB) | Igual: el juego no usa la red al jugar |
@@ -172,6 +172,12 @@ comprobado (*fecha de esta tabla: 5 de noviembre de 2026*):
 
 ### 🐞 Fallos conocidos
 
+- 🚪 **La página se cerraba de golpe en momentos de mucha carga:** la causa probable, el motor reservando y
+  escribiendo 512 MB de memoria que no usaba, está arreglada en la 1.0.0-rc.1: la página usa un 42 % menos de RAM. Si
+  aun así el navegador la cierra, al volver a abrirla verás un aviso con la escena y las últimas líneas del registro:
+  pulsa «📋 Copiar lo que pasó» y mándalo en una *issue*.
+- 🎬 **Tras los créditos del final:** los vídeos del final y el epílogo funcionan (comprobado con ganchos de prueba),
+  pero no se ha visto todavía cómo vuelve el juego a la partida al terminar los créditos.
 - 🧊 **Cuelgue del libro del prólogo, arreglado en la prueba hecha:** en un PC el juego se paraba en la segunda página
   del libro; con el reloj arreglado (ver «Novedades») ese PC ya lo pasa entero, en un primer intento. Si vuelve a
   pasar, el aviso de bloqueo dice lo último que hizo el juego: copia el registro con «Copiar el registro».
@@ -202,6 +208,10 @@ Llegar hasta aquí ha supuesto resolver problemas que no tienen nada de trivial:
 - 🎬 Reproducir los vídeos del juego con el decodificador de Nebula, píxel a píxel igual que en su versión de PC.
 - 🔎 Diagnosticar cuelgues que no dejan error: un registro que sigue llegando aunque el juego se pare, y un aviso que
   dice dónde se quedó (en qué servicio, qué orden gráfica, si el juego espera o da vueltas).
+- 🗺️ Recorrer **las 105 misiones** a las que se puede entrar y **la historia hasta el final** (estrellas, el
+  Observatorio, los jefes, los vídeos del final) con los ganchos de prueba de Nebula, para encontrar lo que se rompe
+  antes de que lo encuentre quien juega.
+- 🧠 Bajar la memoria de la página un **42 %** y el trabajo de dibujar cada fotograma un **15 %**.
 
 ---
 
@@ -258,6 +268,28 @@ en [`docs/ARCHIVOS_DEL_JUEGO.md`](docs/ARCHIVOS_DEL_JUEGO.md).
 ---
 
 ## ❓ Preguntas frecuentes
+
+<details>
+<summary><b>¿Se puede jugar de principio a fin?</b></summary>
+
+Todavía no está confirmado. Todas las misiones cargan y aguantan, y la historia llega hasta el final cuando se toman
+las estrellas con los ganchos de prueba, pero nadie ha terminado aún una partida jugando a mano. Es justo lo que falta
+para la 1.0.0: si la juegas, la [lista de la partida](docs/PRUEBA_DE_PARTIDA.md) dice qué comprobar.
+</details>
+
+<details>
+<summary><b>¿Qué hago si la página se cierra sola?</b></summary>
+
+Vuelve a abrirla: si se cerró con el juego en marcha, verás un aviso con la escena, la memoria y las últimas líneas
+del registro. Pulsa «📋 Copiar lo que pasó» y mándalo en una *issue*, junto con tu dispositivo y navegador.
+</details>
+
+<details>
+<summary><b>¿Puedo guardar o llevarme la partida?</b></summary>
+
+Sí. En «💾 Partida guardada» puedes descargarla como archivo y cargarla en otro navegador o en la copia local (ver
+«En tu ordenador»). Al cargar una, la de antes se guarda aparte. No la subas a repositorios públicos.
+</details>
 
 <details>
 <summary><b>¿Es un emulador?</b></summary>
@@ -434,6 +466,15 @@ web/tests/run_os_tests.sh                       # capa nativa en wasm (Node)
 web/tests/run_rvz_tests.sh                      # lector RVZ (necesita cargo)
 node web/tests/browser_smoke.mjs                # la página y el motor en Chromium
 node web/tests/bridge_smoke.mjs build/site/bridge   # GX del juego -> Aurora, en Chromium
+web/tests/run_index_writer_test.sh              # índices de Aurora (parche 0027), nativo y wasm
+```
+
+Con tu disco (los informes y capturas se quedan en la carpeta de salida; no los subas):
+
+```sh
+node tools/galaxy_tour.mjs --disc <tu .rvz> --stages tools/routes/misiones.txt --out <carpeta>   # misiones
+node tools/story_route.mjs --disc <tu .rvz> --route tools/routes/historia.txt --out <carpeta>   # la historia
+tools/code_index.sh check web/host/headless_host.c   # análisis C/C++ local con clangd, como wasm32
 ```
 
 Versiones y dependencias en [`docs/ENTORNO.md`](docs/ENTORNO.md).
@@ -451,7 +492,10 @@ Versiones y dependencias en [`docs/ENTORNO.md`](docs/ENTORNO.md).
 | [`docs/DIAGNOSTICO.md`](docs/DIAGNOSTICO.md) | Análisis de Petari y Nebula |
 | [`docs/ARCHIVOS_DEL_JUEGO.md`](docs/ARCHIVOS_DEL_JUEGO.md) | Cómo aportar legalmente los archivos del juego |
 | [`docs/ENTORNO.md`](docs/ENTORNO.md) | Herramientas e instalación |
-| [`docs/HOJA_DE_RUTA.md`](docs/HOJA_DE_RUTA.md) | Hitos y próximos pasos |
+| [`docs/HOJA_DE_RUTA.md`](docs/HOJA_DE_RUTA.md) | Hitos y próximos pasos (el hito 7, por partes) |
+| [`docs/PRUEBA_DE_PARTIDA.md`](docs/PRUEBA_DE_PARTIDA.md) | Lista para una partida real: lo que falta para la 1.0.0 |
+| [`docs/PROGRESO_AUTONOMO.md`](docs/PROGRESO_AUTONOMO.md) | El registro de trabajo, por bloques, con cada medida y prueba |
+| [`tools/perf/LEEME.md`](tools/perf/LEEME.md) | Cómo perfilar el motor |
 | [`docs/DIRECTO.md`](docs/DIRECTO.md) | El panel para directos y la terminal en vivo |
 
 ## 🗂️ Estructura
@@ -464,7 +508,9 @@ Versiones y dependencias en [`docs/ENTORNO.md`](docs/ENTORNO.md).
 | `web/platform/` | Capa de plataforma web (sustitutos de la capa nativa de Nebula) |
 | `web/game/`, `web/engine/`, `web/cmake/` | Compilación del módulo de juego y del motor |
 | `web/bridge/`, `web/tests/` | Pruebas |
-| `tools/` | Descarga de fuentes, compilación, servidor y utilidades |
+| `tools/` | Descarga de fuentes, compilación, servidor, giras de prueba y utilidades |
+| `tools/routes/` | Rutas de prueba: las misiones que existen y la historia |
+| `tools/perf/` | Herramientas de perfil del motor |
 | `third_party/` | Copias de referencia sin modificar (no versionadas) |
 
 ## 🤝 Contribuir
