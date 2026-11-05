@@ -675,3 +675,9 @@ buscar en Node con la pila.
 
 **Siguiente para la parte A del hito 7:** pedir solo las misiones que existen. Hace falta el número de misiones de
 cada galaxia, sacado del disco del usuario en local, sin subirlo.
+
+**Las misiones que existen, todas** (`tools/routes/misiones.txt`, `$S/missions/all`; modo diagnóstico, 900
+fotogramas por parada, jugando a ciegas, semilla 5): las 61 misiones 2-5 de las galaxias que las tienen, según
+`kGalaxyStages` de Nebula, **cargan y aguantan sin errores ni cierres, 61 de 61**. Con la misión 1 de los 44
+escenarios (bloques 1 y 13), quedan recorridas todas las misiones a las que se puede entrar, sin las ocultas. Siguen
+sin estar jugadas: cargar y aguantar a ciegas no es pasarlas.

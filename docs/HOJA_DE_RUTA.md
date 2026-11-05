@@ -20,13 +20,13 @@ estimados por hito.
 ## Hito 7, por partes
 
 El hito 7 se da por completado solo cuando lo estén las cuatro partes. Su porcentaje en `docs/progreso.json` sale
-de las partes comprobadas, no de una estimación.
+de las partes comprobadas: cada parte vale un 25 %, y una a medias, la mitad (hoy A 25 + B 25 + C 12 + D 0 = 62 %).
 
 | Parte | Criterio | Cómo se comprueba | Estado |
 |---|---|---|---|
-| A. Todos los escenarios | Los 44 escenarios cargan, dibujan y aguantan jugados a ciegas | `tools/galaxy_tour.mjs` (con gráficos y `--play`) | **Hecho** para la misión 1 de cada galaxia; faltan las demás misiones |
+| A. Todos los escenarios | Todas las misiones a las que se puede entrar cargan, dibujan y aguantan jugadas a ciegas | `tools/galaxy_tour.mjs` (con gráficos y `--play`), `tools/routes/misiones.txt` | **Hecho**: la misión 1 de los 44 escenarios (con gráficos) y las 61 misiones 2-5 que existen (modo diagnóstico, a ciegas), sin errores |
 | B. Progreso de la historia | Estrellas, Observatorio con 1-6 Grandes Estrellas, jefes y final, sin cuelgues, con la lógica del propio juego | `tools/story_route.mjs` con `tools/routes/historia.txt` (ganchos de prueba de Nebula) | **Hecho** para la ruta actual: 12 de 12 segmentos (`PROGRESO_AUTONOMO.md`, bloque 19); faltan los jefes intermedios |
-| C. El final | Tras la última Gran Estrella: los vídeos del final, los créditos y la vuelta a la partida | La ruta, segmento final con gráficos | **En curso**: vídeos del final (10 115 fotogramas, 0 rechazados) y paso al epílogo comprobados; falta el final del epílogo |
+| C. El final | Tras la última Gran Estrella: los vídeos del final, los créditos y la vuelta a la partida | La ruta, segmento final con gráficos | **En curso**: vídeos del final (10 115 fotogramas, 0 rechazados) y paso al epílogo comprobados; el epílogo aguanta 2 h sin errores; falta ver la vuelta a la partida |
 | D. Partida real | Una persona juega y marca la lista | `docs/PRUEBA_DE_PARTIDA.md` | **Pendiente** del usuario |
 
 ## Próximos pasos, por prioridad
