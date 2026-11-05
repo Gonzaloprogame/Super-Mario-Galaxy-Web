@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:24:30+00:00",
-   "tipo": "bash",
-   "desc": "Add save-nand option and per-stop NAND counts to the tour",
-   "cmd": "python3 - <<'EOF'  … (+34 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:24:43+00:00",
    "tipo": "bash",
    "desc": "Read the NAND count cleanly and add it to the report",
@@ -279,8 +272,15 @@
    "desc": "Test teleporting onto the star later in the mission",
    "cmd": "S=$S; ps aux | grep -c \"[t]ouch1\"; grep \"^BattleShipGalaxy:1\" $S/full/partida_estrellas.txt; printf 'BattleShipGalaxy:1/actors@1500/tp:20319;7425;12796@1800/actors@1900/tp:20319;7…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:59:58+00:00",
+   "tipo": "bash",
+   "desc": "Read what the scene does while a star is being collected",
+   "cmd": "cd ~/repo/third_party/nebula/native/petari && grep -n \"void GameScene::exeGameScenePowerStarGet\\|exePowerStarGet\\|GameScenePowerStarGet\" src/Game/Scene/GameScene.cpp | head -5; n=…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T15:59:44+00:00"
+ "actualizado": "2026-11-05T15:59:58+00:00"
 }
