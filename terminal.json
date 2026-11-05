@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:56:33+00:00",
-   "tipo": "bash",
-   "desc": "Relaunch missions 2-3 tour with crash capture and sampler",
-   "cmd": "S=$S; cd ~/repo && mv $S/missions/m23 $S/missions/m23_crash1 && rm -f $S/missions/m23.log $S/missions/m23.rss && (timeout 7000 node tools/galaxy_tour.mjs --site $S/site8 --disc $S…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:56:56+00:00",
    "tipo": "bash",
    "desc": "Commit the tour crash-capture change",
@@ -279,8 +272,15 @@
    "desc": "Correct docs about the unpushed tag",
    "cmd": "S=$S; cd ~/repo && python3 - <<'EOF'  … (+28 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:34:24+00:00",
+   "tipo": "bash",
+   "desc": "Find the repository's default branch and heads",
+   "cmd": "git ls-remote --symref origin HEAD 2>&1 | head -3; git ls-remote --heads origin 2>&1 | head -10",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T07:35:45+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T10:34:24+00:00"
 }
