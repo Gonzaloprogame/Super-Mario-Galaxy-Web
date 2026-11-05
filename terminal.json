@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:36:26+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T10:39:03+00:00",
    "tipo": "bash",
    "desc": "Apply README section updates",
@@ -279,8 +272,15 @@
    "desc": "Discovery tour for missions 2-5",
    "cmd": "S=$S; cd ~/repo && python3 - \"$S/full/discover2.txt\" <<'EOF'  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:27:20+00:00",
+   "tipo": "bash",
+   "desc": "Check missions 2-5 discovery result",
+   "cmd": "S=$S; tail -2 $S/full/discover2.log | cut -c1-160; sed -n 1p $S/full/discover2/tour.md; echo \"bien: $(grep -c 'cargó y dibujó' $S/full/discover2/tour.md)\"; ls -la $S/full/discover…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T14:58:18+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T15:27:20+00:00"
 }
