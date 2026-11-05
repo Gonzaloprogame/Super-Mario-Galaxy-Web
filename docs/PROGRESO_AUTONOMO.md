@@ -33,7 +33,8 @@ hilo bloqueado en una espera.
 Se actualiza al cerrar cada bloque. `$S` es la carpeta de trabajo local de cada sesión (fuera del repositorio: disco
 del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión nueva empieza con `$S` vacía.**
 
-- **Estado (2026-11-05): versión 1.0.0-rc.1 publicada** (gh-pages `e0c21ad`, etiqueta `v1.0.0-rc.1`; bloque 22).
+- **Estado (2026-11-05): versión 1.0.0-rc.1 publicada** (gh-pages `e0c21ad`; código del commit `ef52a54`; bloque 22).
+  La etiqueta `v1.0.0-rc.1` existe solo en local: subirla da 403 en este entorno (el proxy solo deja subir ramas).
   - Hito 7 al 62 %, por partes: A (todas las misiones) y B (la historia, con ganchos) hechas; C (el final) a medias:
     vídeos y epílogo sí, la vuelta a la partida sin ver; D (partida real) pendiente del usuario.
   - Memoria −42 %, y aviso de la sesión cerrada de golpe.
@@ -693,7 +694,11 @@ su partida real lo confirme.
 **Hecho:**
 - Página, README (aviso de cabecera, tabla de estado, novedades, próximos pasos), panel y hoja de ruta con la versión.
 - Sitio compilado entero desde la rama con `tools/build_web.sh`.
-- Publicado en gh-pages (`e0c21ad`); etiqueta anotada `v1.0.0-rc.1` subida a GitHub.
+- Publicado en gh-pages (`e0c21ad`).
+- Etiqueta anotada `v1.0.0-rc.1` creada en local, en el commit `7cb9c7c`. **No se pudo subir**: `git push origin
+  v1.0.0-rc.1` da HTTP 403 en este entorno, que solo deja subir ramas, y aquí no hay herramienta para crear
+  etiquetas ni releases en GitHub. La puede crear el usuario en GitHub (Releases, «Draft a new release», etiqueta
+  `v1.0.0-rc.1` sobre ese commit) o desde su copia local.
 
 **Comprobado antes de publicar** (con ese mismo sitio compilado):
 - `browser_smoke` 68/68, `bridge_smoke` 56/56, índices 21 490/21 490;
