@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:38:42+00:00",
-   "tipo": "bash",
-   "desc": "List available tour screenshots",
-   "cmd": "S=$S; ls $S/route2/12/out/shots $S/mem/fix/shots $S/route3/13/out/shots 2>/dev/null; ls $S/gfx44b/out/shots | wc -l",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T23:39:01+00:00",
-   "tipo": "editar",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T23:41:12+00:00",
-   "tipo": "bash",
-   "desc": "Pilot tour of 2 galaxies × 7 missions",
-   "cmd": "S=$S; mkdir -p $S/missions && (for g in HeavensDoorGalaxy EggStarGalaxy; do for n in 1 2 3 4 5 6 7; do echo \"$g:$n\"; done; done) > $S/missions/pilot.txt && cd ~/repo && timeout 15…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:41:20+00:00",
    "tipo": "bash",
    "desc": "Show log lines before the FileRipper panic",
@@ -279,8 +258,29 @@
    "desc": "Check tools available for reading disc data",
    "cmd": "python3 -c \"import zstandard; print('zstandard', zstandard.__version__)\" 2>&1; ls ~/repo/tools | head -30",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:06:09+00:00",
+   "tipo": "bash",
+   "desc": "Look for Nebula's galaxy table with star counts",
+   "cmd": "cd ~/repo/third_party/nebula && grep -rn \"kGalaxyStages\" --include=*.cpp --include=*.hpp --include=*.h . | head -5",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T00:06:13+00:00",
+   "tipo": "bash",
+   "desc": "Find the definition of Nebula's galaxy table",
+   "cmd": "grep -rn \"kGalaxyStages\\[\\]\\|kGalaxyStages =\\|struct GalaxyStage\" --include=*.cpp --include=*.hpp --include=*.h . | head -3",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T00:06:15+00:00",
+   "tipo": "bash",
+   "desc": "Read Nebula's galaxy table header",
+   "cmd": "sed -n 1,80p runtime/include/galaxy/gx/galaxy_select.h | cut -c1-140",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:06:02+00:00"
+ "actualizado": "2026-11-05T00:06:15+00:00"
 }
