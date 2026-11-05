@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:39:26+00:00",
-   "tipo": "bash",
-   "desc": "Check the old image and take a new interface screenshot",
-   "cmd": "S=$S; cd ~/repo && python3 -c \"from PIL import Image; im=Image.open('docs/img/interfaz.png'); print(im.size)\"; git log --format='%h %s' -1 -- docs/img/interfaz.png; cat > $S/shot_…  … (+15 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T10:39:40+00:00",
    "tipo": "bash",
    "desc": "Save the new image and check README links",
@@ -279,8 +272,15 @@
    "desc": "Build the touch-the-real-star route from discovery logs",
    "cmd": "S=$S; cd ~/repo && python3 - \"$S/full/discover/log_full.txt\" \"$S/full/discover2/log_end.txt\" \"$S/full\" <<'EOF'  … (+37 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:27:47+00:00",
+   "tipo": "bash",
+   "desc": "Run the touch-the-real-star playthrough",
+   "cmd": "S=$S; cd ~/repo && timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages tools/routes/partida_estrellas.txt --out $S/full/touch1 --nand $S/driv…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T15:27:39+00:00"
+ "actualizado": "2026-11-05T15:27:47+00:00"
 }
