@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:14:13+00:00",
-   "tipo": "bash",
-   "desc": "Check index, bridge and garden results",
-   "cmd": "S=$S; grep -E \"^PASS|^FAIL\" $S/rel/index.log; grep -c \"^PASS\" $S/rel/bridge.log; sed -n 1p $S/rel/garden/tour.md; sed -n 5,6p $S/rel/garden/tour.md | cut -c1-200",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T07:18:44+00:00",
-   "tipo": "bash",
-   "desc": "Read release route results",
-   "cmd": "S=$S; cat $S/rel/status.txt; cat $S/rel/route/route.md | cut -c1-220",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:18:55+00:00",
    "tipo": "bash",
    "desc": "Copy the release build into gh-pages and review changes",
@@ -279,8 +265,22 @@
    "desc": "Append-only page log with cap, tour reads new lines only",
    "cmd": "python3 - <<'EOF'  … (+81 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:53:19+00:00",
+   "tipo": "bash",
+   "desc": "Add log performance checks to the page test",
+   "cmd": "python3 - <<'EOF'  … (+34 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:53:25+00:00",
+   "tipo": "bash",
+   "desc": "Run the page test with the new log",
+   "cmd": "S=$S; cd ~/repo && timeout 1700 node web/tests/browser_smoke.mjs > $S/full/smoke_log.log 2>&1; echo \"exit $?\" >> $S/full/smoke_log.log; echo \"smoke: $(grep -c '^PASS' $S/full/smok…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:53:08+00:00"
+ "actualizado": "2026-11-05T14:53:25+00:00"
 }
