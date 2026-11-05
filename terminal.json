@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:35:59+00:00",
-   "tipo": "bash",
-   "desc": "List README sections",
-   "cmd": "grep -n \"^## \\|^### \" README.md; wc -l README.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T10:36:02+00:00",
    "tipo": "bash",
    "desc": "Read README sections that may be stale",
@@ -279,8 +272,15 @@
    "desc": "Read the full page test results",
    "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/full/smoke_log2.log) PASS $(grep -c '^FAIL' $S/full/smoke_log2.log) FAIL\"; grep -E \"^FAIL|registro:\" $S/full/smoke_log2.log | cut -c1-160",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:58:00+00:00",
+   "tipo": "bash",
+   "desc": "Commit, push and publish the log fix",
+   "cmd": "S=$S; cd ~/repo && git stash pop >/dev/null && git add -A && git commit -q -m \"Página: el registro añade cada línea como un nodo propio (30 000 líneas: de 20 s a 0,3 s), limitado …  … (+12 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:57:43+00:00"
+ "actualizado": "2026-11-05T14:58:00+00:00"
 }
