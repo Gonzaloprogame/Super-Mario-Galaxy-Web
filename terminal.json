@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T22:13:16+00:00",
-   "tipo": "bash",
-   "desc": "Read tour report for segment 14",
-   "cmd": "S=$S; sed -n 1,8p $S/route5/14/out/tour.md; python3 -c \"  … (+2 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T22:25:29+00:00",
-   "tipo": "bash",
-   "desc": "Check segment 14 status",
-   "cmd": "S=$S; tail -3 $S/route5.log; ls $S/route5/14/out/; grep -E \"^\\[host\\] (stage|tour|test|the game|movie)|^\\[página\\] (el motor|Error)|aurora (ERROR|FATAL)\" $S/route5/14/out/log_tail…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T22:55:38+00:00",
    "tipo": "bash",
    "desc": "Check segment 14 progress",
@@ -279,8 +265,22 @@
    "desc": "Run the same tour in Node to catch the out-of-bounds access",
    "cmd": "S=$S; cd ~/repo && SPEC=$(paste -sd, $S/missions/m23.txt) && cp $S/drive/nand_RMGE01.bin $S/missions/nand_node.bin && timeout 300 node build/all/game/smg_headless.js $S/disc/smg.r…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:02:56+00:00",
+   "tipo": "bash",
+   "desc": "Look for a symbol map of the Node build",
+   "cmd": "ls build/all/game/*.symbols 2>&1 | head; grep -n \"emit-symbol-map\\|profiling-funcs\" web/game/CMakeLists.txt web/cmake/SmgGame.cmake | head -3",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T00:03:01+00:00",
+   "tipo": "bash",
+   "desc": "Read link options of the headless targets",
+   "cmd": "sed -n 70,92p web/game/CMakeLists.txt",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:02:48+00:00"
+ "actualizado": "2026-11-05T00:03:01+00:00"
 }
