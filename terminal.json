@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T21:55:17+00:00",
-   "tipo": "bash",
-   "desc": "Add play directive and epilogue-with-buttons segment",
-   "cmd": "python3 - <<'EOF'  … (+39 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T21:55:22+00:00",
    "tipo": "bash",
    "desc": "Run the epilogue segment with button presses",
@@ -279,8 +272,15 @@
    "desc": "Run the same tour with the pre-fix engine",
    "cmd": "S=$S; cd ~/repo && rm -rf $S/missions/m23old && DEBUG=pw:browser timeout 600 node tools/galaxy_tour.mjs --site $S/site5 --disc $S/disc/smg.rvz --stages $S/missions/m23.txt --out $…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:00:23+00:00",
+   "tipo": "bash",
+   "desc": "Check node host argv layout and build",
+   "cmd": "grep -n \"int main(int argc\" -A 30 web/host/headless_host.c | grep -n \"argv\\[\" | head -12; ls -la build/all/game/smg_headless.js build/all/game/smg_headless.wasm 2>&1 | head -3",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:00:08+00:00"
+ "actualizado": "2026-11-05T00:00:23+00:00"
 }
