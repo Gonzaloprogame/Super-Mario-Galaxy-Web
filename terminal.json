@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T22:13:12+00:00",
-   "tipo": "bash",
-   "desc": "Inspect why the game went back to file select",
-   "cmd": "S=$S; grep -E \"^\\[host\\] (stage|tour|test|the game|movie)|^\\[página\\]|aurora (ERROR|FATAL)\" $S/route5/14/out/log_tail.txt | tail -12; grep -o \"movies: [0-9]* frames decoded\" $S/ro…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T22:13:16+00:00",
    "tipo": "bash",
    "desc": "Read tour report for segment 14",
@@ -279,8 +272,15 @@
    "desc": "Rebuild the Node headless host",
    "cmd": "S=$S; cd ~/repo && git stash list | head -2; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && ninja -C build/all smg_headless > $S/missions/node_build.log 2>&1; echo \"build ex…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:02:48+00:00",
+   "tipo": "bash",
+   "desc": "Run the same tour in Node to catch the out-of-bounds access",
+   "cmd": "S=$S; cd ~/repo && SPEC=$(paste -sd, $S/missions/m23.txt) && cp $S/drive/nand_RMGE01.bin $S/missions/nand_node.bin && timeout 300 node build/all/game/smg_headless.js $S/disc/smg.r…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:02:17+00:00"
+ "actualizado": "2026-11-05T00:02:48+00:00"
 }
