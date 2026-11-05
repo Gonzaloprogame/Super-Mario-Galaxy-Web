@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:02:48+00:00",
-   "tipo": "bash",
-   "desc": "Run the same tour in Node to catch the out-of-bounds access",
-   "cmd": "S=$S; cd ~/repo && SPEC=$(paste -sd, $S/missions/m23.txt) && cp $S/drive/nand_RMGE01.bin $S/missions/nand_node.bin && timeout 300 node build/all/game/smg_headless.js $S/disc/smg.r…",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:02:56+00:00",
    "tipo": "bash",
    "desc": "Look for a symbol map of the Node build",
@@ -279,8 +272,15 @@
    "desc": "Check the old image and take a new interface screenshot",
    "cmd": "S=$S; cd ~/repo && python3 -c \"from PIL import Image; im=Image.open('docs/img/interfaz.png'); print(im.size)\"; git log --format='%h %s' -1 -- docs/img/interfaz.png; cat > $S/shot_…  … (+15 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:39:40+00:00",
+   "tipo": "bash",
+   "desc": "Save the new image and check README links",
+   "cmd": "S=$S; cd ~/repo && python3 -c \"  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:39:26+00:00"
+ "actualizado": "2026-11-05T10:39:40+00:00"
 }
