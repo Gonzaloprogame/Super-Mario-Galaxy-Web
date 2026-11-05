@@ -645,3 +645,33 @@ en `browser_smoke.mjs`.
 
 **Falta:** confirmar en el dispositivo del usuario que los cierres bajan o desaparecen. Si siguen, el aviso trae la
 escena y la memoria de cada uno.
+
+### Bloque 21: la pestaña que muere y las misiones que no existen (2026-11-05)
+
+**Gira de misiones 2 y 3** (las 44 galaxias, ordenadas por misión para que cada parada cambie de galaxia; con el
+mismo escenario, el juego no recarga la escena):
+- El proceso de la página murió 3 de 3 veces al pasar de `BattleShipGalaxy:2` a la parada siguiente.
+- Chromium: `Received signal 11 SEGV_ACCERR …724652fc`.
+- Con el motor de antes del arreglo de memoria, igual: no lo causa ese arreglo.
+- Los 32 bits bajos de la dirección son siempre `0x724652fc` (unos 1828 MB) en una memoria de 1055 MB: es un
+  acceso fuera de la memoria de WebAssembly, siempre el mismo.
+
+**En Node el mismo acceso es un error con su pila** (`smg_headless`, ahora con `--emit-symbol-map`):
+`RuntimeError: memory access out of bounds` en
+`strcmp ← MR::isEqualString ← ScenarioData::getValueString ← GalaxyStatusAccessor::getCometName ← EventDirector::init ← GameScene::init`.
+Fue al cargar `BeltConveyerExGalaxy:2`, la parada 3.
+
+**Causa: la prueba, no el juego.** La gira pedía la misión 2 de todas las galaxias, y las pequeñas solo tienen una.
+Con una misión que no existe, el juego lee fuera de la tabla de misiones de esa galaxia (`ScenarioData`) y sigue un
+puntero basura. Jugando no pasa: la pantalla de misiones solo ofrece las que existen.
+
+Lo mismo explica el «File isn't exist.» del primer intento (`HeavensDoorGalaxy` del 1 al 7: una misión que no
+existe). Las 10 transiciones entre las misiones 1 y 2, que existen, no fallaron.
+
+**Lo que sí enseña:** en este Chromium un acceso fuera de la memoria de WebAssembly **mata la pestaña** en vez de dar
+un error. Si en una partida real hubiera un acceso así, el usuario vería justo «se cierra la página». El aviso de la
+sesión cerrada de golpe (bloque 20) y la gira (`page crash`, `browser.log`) lo registran. Con su texto se puede
+buscar en Node con la pila.
+
+**Siguiente para la parte A del hito 7:** pedir solo las misiones que existen. Hace falta el número de misiones de
+cada galaxia, sacado del disco del usuario en local, sin subirlo.

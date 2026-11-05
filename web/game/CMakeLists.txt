@@ -71,7 +71,9 @@ add_executable(smg_headless "${CMAKE_CURRENT_SOURCE_DIR}/../host/headless_host.c
 target_include_directories(smg_headless PRIVATE "${nebula}/include")
 target_compile_options(smg_headless PRIVATE -pthread)
 target_link_libraries(smg_headless PRIVATE smg_game smg_zstd)
-target_link_options(smg_headless PRIVATE ${SMG_WEB_LINK_OPTIONS} -sNODERAWFS -sENVIRONMENT=node)
+# smg_headless.js.symbols (not published): the function names of a stack in Node, where an access out of bounds is a
+# RuntimeError with its stack (in Chromium the same access killed the page: docs/PROGRESO_AUTONOMO.md, block 21)
+target_link_options(smg_headless PRIVATE ${SMG_WEB_LINK_OPTIONS} -sNODERAWFS -sENVIRONMENT=node --emit-symbol-map)
 
 # Variante para navegador del mismo host: el programa se ejecuta dentro de un Worker dedicado (web/shell/boot_worker.post.js),
 # que puede bloquear (Atomics.wait) y lee el game.pak del usuario por trozos (WORKERFS), sin copiarlo a memoria.
