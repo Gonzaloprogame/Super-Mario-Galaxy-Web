@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:07:52+00:00",
-   "tipo": "bash",
-   "desc": "Commit report and missions list, launch missions tour",
-   "cmd": "S=$S; cd ~/repo && git add -A && git status --short && git commit -q -m \"Disco: al pararse el juego, los últimos archivos que pidió y no encontró; lista de las misiones que existen  … (+9 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:08:03+00:00",
    "tipo": "bash",
    "desc": "Verify the commit and push happened",
@@ -279,8 +272,15 @@
    "desc": "Summarize the full playthrough run",
    "cmd": "S=$S; tail -4 $S/full/run1.log; sed -n 1,2p $S/full/run1/tour.md; ls -la $S/full/nand_after_run1.bin 2>&1; python3 - \"$S/full/run1/tour.json\" <<'EOF'  … (+15 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:09+00:00",
+   "tipo": "bash",
+   "desc": "Check Emscripten SAFE_HEAP null-write checks",
+   "cmd": "E=~/tools/emsdk/upstream/emscripten; ls $E/src | grep -i safe; grep -n \"segfault\\|function SAFE_HEAP_STORE\\|dest <= 0\\|< 1024\\|nullptr\" $E/src/runtime_safe_heap.js 2>/dev/null | h…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:27:43+00:00"
+ "actualizado": "2026-11-05T14:28:09+00:00"
 }
