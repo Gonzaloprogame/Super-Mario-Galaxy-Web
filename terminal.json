@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:55:07+00:00",
-   "tipo": "bash",
-   "desc": "Read the last log lines before the page crash",
-   "cmd": "S=$S; tail -12 $S/missions/m23/log_full.txt | cut -c1-260; grep -o \"wasm memory [0-9]* MB\" $S/missions/m23/log_full.txt | uniq -c",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:55:57+00:00",
    "tipo": "bash",
    "desc": "Reproduce the page crash with memory sampling",
@@ -279,8 +272,15 @@
    "desc": "Copy the release build into gh-pages and review changes",
    "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $G && git status --short | head; cp -r $R/build/site/. $G/ && python3 - \"$G/LEEME.md\" <<'EOF'  … (+11 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T07:19:08+00:00",
+   "tipo": "bash",
+   "desc": "Publish version 1.0.0-rc.1 to gh-pages",
+   "cmd": "S=$S; cd $S/gh-pages && git add -A && git commit -q -m \"Versión 1.0.0-rc.1, candidata a la 1.0.0  … (+7 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T07:18:55+00:00"
+ "actualizado": "2026-11-05T07:19:08+00:00"
 }
