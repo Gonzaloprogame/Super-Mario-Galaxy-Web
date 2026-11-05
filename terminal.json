@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T22:55:55+00:00",
-   "tipo": "bash",
-   "desc": "Stop segment 14 run by PID",
-   "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in \"node tools/story_rout…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T22:56:00+00:00",
    "tipo": "bash",
    "desc": "List orphaned Chromium and server processes",
@@ -279,8 +272,15 @@
    "desc": "Relink Node host with symbols and name the crashing stack",
    "cmd": "S=$S; cd ~/repo && python3 - <<'EOF'  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:05:47+00:00",
+   "tipo": "bash",
+   "desc": "Document the crash diagnosis and commit",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+39 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:04:47+00:00"
+ "actualizado": "2026-11-05T00:05:47+00:00"
 }
