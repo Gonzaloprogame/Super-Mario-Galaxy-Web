@@ -71,6 +71,7 @@ const results = [];
 const settings = [];     // the run settings the host applied ([host] test: grand stars / event flag / player)
 const tourProblems = []; // what the host could not read in the list
 let movieFrames = 0;     // movie frames decoded, from the host's reports
+let nandRequests = 0;    // the game's NAND requests (its saves among them), from the host's reports
 let lastScene = '';      // the scene the game is in ([host] stage:): a stop starts there
 let current = null; // the stop being visited
 // With graphics, a stop also has to reach the screen: the frames the page painted meanwhile (web/shell/present.js)
@@ -92,15 +93,15 @@ const writeReport = (end) => {
   writeFileSync(join(args.out, 'tour.json'), JSON.stringify(summary, null, 1));
   const rows = results.map((r) => `| ${r.stop} | ${r.outcome || 'sin terminar'} | ${r.load ?? '—'} | ${r.stalls.length} | ` +
     `${r.drew ? 'sí' : 'no'}${graphics && r.painted !== undefined ? ` (${r.painted} en pantalla)` : ''} | ` +
-    `${r.events.join(', ') || '—'} | ${r.startScene ? `(${r.startScene}) ` : ''}${r.scenes.join(' → ') || '—'} | ${r.movieFrames || 0} | ` +
+    `${r.events.join(', ') || '—'} | ${r.startScene ? `(${r.startScene}) ` : ''}${r.scenes.join(' → ') || '—'} | ${r.movieFrames || 0} | ${r.nandRequests || 0} | ` +
     `${r.problems.join('; ').replace(/\|/g, '/').slice(0, 180) || '—'} |`);
   writeFileSync(join(args.out, 'tour.md'), [
     `Gira: ${results.length} paradas, ${frames} fotogramas de escena cada una, cuelgue si una parada dura más de ` +
     `${hangSeconds} s${args.mode === 'diagnostic' ? ', modo diagnóstico' : ''}${args.play ? `, jugando a ciegas (semilla ${Number(args.play) || 1})` : ''}. Fin: ${end}.`,
     ...(settings.length ? [`Ajustes de prueba: ${settings.join('; ')}.`] : []),
     ...(tourProblems.length ? [`Problemas de la gira: ${tourProblems.join('; ')}.`] : []), '',
-    '| Parada | Resultado | Carga (s) | Paradas | Dibuja | Eventos de prueba | Escenas | Vídeo (fotogramas) | Problemas |',
-    '|---|---|---|---|---|---|---|---|---|', ...rows, ''].join('\n'));
+    '| Parada | Resultado | Carga (s) | Paradas | Dibuja | Eventos de prueba | Escenas | Vídeo (fotogramas) | NAND | Problemas |',
+    '|---|---|---|---|---|---|---|---|---|---|', ...rows, ''].join('\n'));
 };
 
 try {
@@ -161,13 +162,19 @@ try {
     lastLines = lines;
     for (const line of lines.slice(seen)) {
       let m;
+      // The host's report also counts the game's NAND requests: what a stop added (its saves among them)
+      const nand = /^\[host\] report: .*NAND requests (\d+)/.exec(line);
+      if (nand) {
+        nandRequests = Number(nand[1]);
+        if (current) current.nandRequests = nandRequests - current.nandAtStart;
+      }
       if ((m = /^\[host\] tour: stop (\d+) of (\d+), (\S+) scenario (\d+)/.exec(line))) {
         finishStop('cargó y dibujó');
         current = { stop: `${m[3]}:${m[4]}`, since: Date.now(), load: null, stalls: [], problems: [], drew: false,
                     gxAtStart: lastGx, shot: false, paintedAtStart: painted, events: [], scenes: [],
                     // A stop to the stage the game is already in changes no scene: it stays where it started
                     startScene: lastScene,
-                    moviesAtStart: movieFrames, movieFrames: 0 };
+                    moviesAtStart: movieFrames, movieFrames: 0, nandAtStart: nandRequests, nandRequests: 0 };
         results.push(current);
       } else if ((m = /^\[host\] test: (.+?) at frame (\d+) of stop \d+/.exec(line)) && current) {
         current.events.push(`${m[1]}@${m[2]}`);
@@ -233,6 +240,17 @@ try {
   }
   playing = false;
   console.log(`${end}: ${join(args.out, 'tour.md')}`);
+  // --save-nand <file>: the page's save as the run left it, to start another run from it (game data: keep it local)
+  if (args['save-nand'] && !crashed) {
+    const nand = await page.evaluate(async () => { const d = await nandStore.get('RMGE01'); return d ? Array.from(d) : null; })
+      .catch(() => null);
+    if (nand) {
+      writeFileSync(args['save-nand'], Buffer.from(nand));
+      console.log(`partida guardada en ${args['save-nand']} (${nand.length} bytes)`);
+    } else {
+      console.log('sin partida que guardar');
+    }
+  }
 } finally {
   writeFileSync(join(args.out, 'browser.log'), browserLog.join('\n'));
   await browser.close().catch(() => {});
