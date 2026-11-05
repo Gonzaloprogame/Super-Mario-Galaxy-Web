@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:56:56+00:00",
-   "tipo": "bash",
-   "desc": "Commit the tour crash-capture change",
-   "cmd": "git status --short && git add tools/galaxy_tour.mjs && git commit -q -m \"Gira: si la página muere (page crash) lo apunta con lo último que leyó, y guarda el registro de Chromium  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:57:46+00:00",
    "tipo": "bash",
    "desc": "Read Chromium log and last page log lines",
@@ -279,8 +272,15 @@
    "desc": "Find the repository's default branch and heads",
    "cmd": "git ls-remote --symref origin HEAD 2>&1 | head -3; git ls-remote --heads origin 2>&1 | head -10",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:34:38+00:00",
+   "tipo": "bash",
+   "desc": "Inspect the main branch README and its relation to our branch",
+   "cmd": "git fetch -q origin main 2>&1 | tail -1; git log origin/main --oneline -3; git show origin/main:README.md 2>/dev/null | head -20; echo ---; git show origin/main --stat --format='%…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:34:24+00:00"
+ "actualizado": "2026-11-05T10:34:38+00:00"
 }
