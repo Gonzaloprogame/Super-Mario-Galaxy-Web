@@ -3,9 +3,9 @@
   "actualizado": "2026-11-04",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
-    "etiqueta": "Más rápido",
-    "titulo": "Dibujar cuesta un 15 % menos",
-    "detalle": "Los índices de cada primitiva se escriben directamente en su sitio: procesar el flujo de dibujo bajó de 17,4 a 14,8 ms por fotograma en el jardín del castillo. Falta medirlo en el móvil."
+    "etiqueta": "Comprobado",
+    "titulo": "Todas las misiones y la historia hasta el final",
+    "detalle": "Las 105 misiones a las que se puede entrar cargan y aguantan sin errores; la ruta de la historia llega a los vídeos del final y al epílogo. Falta la partida real del usuario."
   },
   "comprobaciones": [
     {
@@ -105,7 +105,7 @@
       "n": 7,
       "nombre": "Jugable de principio a fin",
       "estado": "encurso",
-      "pct": 35
+      "pct": 62
     },
     {
       "n": 8,
