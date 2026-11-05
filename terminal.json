@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:53:27+00:00",
-   "tipo": "bash",
-   "desc": "Repeat the mission transition to catch the panic",
-   "cmd": "S=$S; (for i in 1 2 3 4 5; do echo HeavensDoorGalaxy:1; echo HeavensDoorGalaxy:2; done) > $S/missions/hdx.txt; cd ~/repo && timeout 1500 node tools/galaxy_tour.mjs --site $S/site8…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:53:46+00:00",
    "tipo": "bash",
    "desc": "Build mission lists and run missions 2-3 tour",
@@ -279,8 +272,15 @@
    "desc": "Commit version label preparation",
    "cmd": "git status --short && git add -A && git commit -q -m \"Versión 1.0.0-rc.1 (preparación): página, README, panel y hoja de ruta  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T07:07:26+00:00",
+   "tipo": "bash",
+   "desc": "Count page test results",
+   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/rel/smoke.log) PASS $(grep -c '^FAIL' $S/rel/smoke.log) FAIL\"",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T07:05:57+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T07:07:26+00:00"
 }
