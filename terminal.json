@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:41:43+00:00",
-   "tipo": "bash",
-   "desc": "Find which DVD call leads to the panic",
-   "cmd": "grep -n \"File isn't exist\" -B 25 third_party/nebula/native/petari/src/Game/System/FileRipper.cpp | grep -n \"DVDOpen\\|DVDFastOpen\\|convertPathToEntrynum\\|isExist\\|OSPanic\\|loadToMa…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:41:51+00:00",
    "tipo": "bash",
    "desc": "Locate the path-to-entry lookup in SDK or web layer",
@@ -279,8 +272,15 @@
    "desc": "Commit report and missions list, launch missions tour",
    "cmd": "S=$S; cd ~/repo && git add -A && git status --short && git commit -q -m \"Disco: al pararse el juego, los últimos archivos que pidió y no encontró; lista de las misiones que existen  … (+9 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T00:08:03+00:00",
+   "tipo": "bash",
+   "desc": "Verify the commit and push happened",
+   "cmd": "sleep 5; cd ~/repo && git log --oneline -2 && git status --short | wc -l && git log origin/ccr-8700b376-tetafz --oneline -1",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T00:07:52+00:00"
+ "actualizado": "2026-11-05T00:08:03+00:00"
 }
