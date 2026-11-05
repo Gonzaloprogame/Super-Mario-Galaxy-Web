@@ -707,3 +707,41 @@ su partida real lo confirme.
 
 **No se dice** que sea jugable de principio a fin. El mensaje de felicitación que pidió el usuario queda para cuando
 lo sea.
+
+### Bloque 23: intentar «pasarse el juego» sin jugar a mano (2026-11-05)
+
+**Pedido por el usuario:** que me pase yo el juego, porque en su móvil va a 17-18 fps. Jugar a mano no se puede
+aquí: la GPU es emulada, va a unos 4 fps y solo se pueden mandar pulsaciones a ciegas. Se intentó lo más parecido.
+
+**1. Una partida continua con el gancho `star@`** (`tools/routes/partida_completa.txt`, 101 misiones):
+- Paró en la tercera parada.
+- Tras la Gran Estrella de la Puerta, `star@` en `EggStarGalaxy:1` dio un **error de memoria: 7 bytes escritos por
+  un puntero nulo** (la dirección 72), el juego no volvió al Observatorio, y la pestaña murió en la parada siguiente.
+- El gancho de Nebula (`GameScene.cpp`, `sPendingStar`) solo pone la escena en «estrella conseguida»
+  (`requestPowerStarGetDemo`). No hace lo que hace la estrella al tocarla (`PowerStar::exeStageClearDemo`: su
+  cámara, sus animaciones, Luigi…).
+- Es muy probable que el puntero nulo sea **del gancho y no del juego**, pero **sin comprobar**: la pila de esa
+  escritura no se ha obtenido.
+
+**2. Tocar las estrellas de verdad:**
+- Una gira de descubrimiento con `actors@` en las 102 misiones da las estrellas visibles al empezar: **34**. Las
+  otras **67** aparecen tras un objetivo (un jefe, monedas, una carrera…).
+- Arreglado de paso: el registro de la página se reescribía entero en cada línea, y la gira se paró en la parada 41
+  (bloque 23, `ccdd990`).
+- `tools/make_star_route.mjs` genera en local la ruta que coloca a Mario sobre cada estrella (las posiciones son
+  datos del juego, fuera del repositorio).
+- **Resultado: no recoge ninguna.** Mario queda en el centro de la estrella y cae al suelo de debajo. Probado también
+  más tarde, pasada la presentación de la misión, a 1800 y 2600 fotogramas: igual. Se ve en `actors@`: Mario debajo
+  y la estrella sigue ahí. Sin saber por qué; habría que leer cómo detecta la estrella el contacto.
+
+**Conclusión:**
+- Con estas herramientas no se puede completar el juego entero de forma fiable sin jugar.
+- Lo comprobado antes sigue en pie: las 105 misiones cargan; la historia avanza con `grandstar@` en los jefes y el
+  final llega a sus vídeos y al epílogo (bloques 19 y 22).
+- La partida real (parte D del hito 7) sigue siendo de una persona.
+
+**Pendiente:** la pila del puntero nulo de `star@` en `EggStarGalaxy:1`, para descartar que pase jugando. Se puede
+reproducir en Node (`smg_headless`, bloque 21) con un vigilante de escrituras en las direcciones bajas.
+
+**Ojo:** `kill` dentro de un bucle que busca en las órdenes de los procesos también encuentra la propia orden si su
+texto casa con el patrón (aquí `*chrom*touch1*`): mató la shell. Mata solo PID concretos.
