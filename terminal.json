@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:41:58+00:00",
-   "tipo": "bash",
-   "desc": "Read existing linker wrap setup",
-   "cmd": "sed -n 55,80p web/cmake/SmgGame.cmake; grep -rn \"__wrap_\\w*(\" web/platform/*.c web/host/*.c | head -8",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:42:08+00:00",
    "tipo": "bash",
    "desc": "Read FileRipper loadToMainRAM opening code",
@@ -279,8 +272,15 @@
    "desc": "Record missions result, update hito 7 to 62% and publish panel",
    "cmd": "python3 - <<'EOF'  … (+43 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T06:57:29+00:00",
+   "tipo": "bash",
+   "desc": "Check how earlier versions were labeled and published",
+   "cmd": "git tag -l | head; grep -rn \"0\\.1\\.1\\|0\\.1\\.0\\|experimental\" web/shell/index.html web/shell/app.js docs/progreso.json README.md | head -15 | cut -c1-200; ls docs | head -40",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T00:26:25+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T06:57:29+00:00"
 }
