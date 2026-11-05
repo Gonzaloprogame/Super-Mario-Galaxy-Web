@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:25:04+00:00",
-   "tipo": "bash",
-   "desc": "Generate the full-run route from Nebula's table",
-   "cmd": "python3 - <<'EOF'  … (+28 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:25:12+00:00",
    "tipo": "bash",
    "desc": "Run the full hook-driven playthrough without graphics",
@@ -279,8 +272,15 @@
    "desc": "Stop the touch-star run by PID",
    "cmd": "ME=$$; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in \"node tools/galaxy_tou…",
    "ok": false
+  },
+  {
+   "t": "2026-11-05T16:00:55+00:00",
+   "tipo": "bash",
+   "desc": "Document the playthrough attempt and commit",
+   "cmd": "cd ~/repo && cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+47 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T16:00:10+00:00"
+ "actualizado": "2026-11-05T16:00:55+00:00"
 }
