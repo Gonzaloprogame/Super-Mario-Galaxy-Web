@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T06:59:30+00:00",
-   "tipo": "bash",
-   "desc": "Read README header",
-   "cmd": "sed -n 5,52p README.md",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T06:59:34+00:00",
-   "tipo": "bash",
-   "desc": "Read README status table, news head and next steps",
-   "cmd": "sed -n 144,172p README.md; echo ----; sed -n 300,312p README.md; grep -n \"^## 🗺️ Próximos pasos\" -A 14 README.md | head -16",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T06:59:41+00:00",
-   "tipo": "bash",
-   "desc": "List current news bullets in README",
-   "cmd": "awk 'NR>=304 && NR<=362' README.md | grep -n \"^- \" | cut -c1-110",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:00:12+00:00",
    "tipo": "bash",
    "desc": "Update version labels in README, page, panel and roadmap",
@@ -279,8 +258,29 @@
    "desc": "Read how the pending star is applied",
    "cmd": "grep -n \"sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head; n=$(grep -n \"sPendingStar != 0\\|if (sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head -1 | …",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:48+00:00",
+   "tipo": "bash",
+   "desc": "Find the star get demo and the star's clear demo",
+   "cmd": "cd ~/repo/third_party/nebula/native/petari && grep -rn \"requestPowerStarGetDemo\\|void PowerStar::exeStageClearDemo\" src --include=*.cpp | head -6",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:52+00:00",
+   "tipo": "bash",
+   "desc": "Read GameScene::requestPowerStarGetDemo and locate the star's demo",
+   "cmd": "sed -n 455,480p src/Game/Scene/GameScene.cpp; grep -rn \"exeStageClearDemo\" src/Game/MapObj/PowerStar.cpp | head -2",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:28:56+00:00",
+   "tipo": "bash",
+   "desc": "Compare what the star's own clear demo does",
+   "cmd": "sed -n 801,840p src/Game/MapObj/PowerStar.cpp | grep -n \"MR::\\|requestPowerStarGetDemo\\|requestGrandStar\\|sendStageResult\\|set\\|Demo\" | head -20",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:28:39+00:00"
+ "actualizado": "2026-11-05T14:28:56+00:00"
 }
