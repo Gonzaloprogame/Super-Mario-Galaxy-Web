@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:05:27+00:00",
-   "tipo": "bash",
-   "desc": "Write the release test script",
-   "cmd": "S=$S; R=~/repo; mkdir -p $S/rel && rm -rf $S/rel/* && cat > $S/rel/run.sh <<EOF  … (+12 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:05:30+00:00",
    "tipo": "bash",
    "desc": "Run the release tests",
@@ -279,8 +272,15 @@
    "desc": "Summarize the actor discovery tour",
    "cmd": "S=$S; tail -2 $S/full/discover.log; sed -n 1p $S/full/discover/tour.md; grep -c '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.md; grep '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:51:59+00:00",
+   "tipo": "bash",
+   "desc": "Read the tour failure and stop outcomes",
+   "cmd": "S=$S; grep -v \"^\\s*$\" $S/full/discover.log | tail -14 | cut -c1-200; grep -c \"cargó y dibujó\" $S/full/discover/tour.md; grep \"^| \" $S/full/discover/tour.md | grep -v \"cargó y dibu…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:51:53+00:00"
+ "actualizado": "2026-11-05T14:51:59+00:00"
 }
