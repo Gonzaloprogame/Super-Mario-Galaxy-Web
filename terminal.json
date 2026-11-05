@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:06:09+00:00",
-   "tipo": "bash",
-   "desc": "Look for Nebula's galaxy table with star counts",
-   "cmd": "cd ~/repo/third_party/nebula && grep -rn \"kGalaxyStages\" --include=*.cpp --include=*.hpp --include=*.h . | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:06:13+00:00",
    "tipo": "bash",
    "desc": "Find the definition of Nebula's galaxy table",
@@ -279,8 +272,15 @@
    "desc": "Read the NAND count cleanly and add it to the report",
    "cmd": "python3 - <<'EOF'  … (+27 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:25:04+00:00",
+   "tipo": "bash",
+   "desc": "Generate the full-run route from Nebula's table",
+   "cmd": "python3 - <<'EOF'  … (+28 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:24:43+00:00"
+ "actualizado": "2026-11-05T14:25:04+00:00"
 }
