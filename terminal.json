@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:39:40+00:00",
-   "tipo": "bash",
-   "desc": "Save the new image and check README links",
-   "cmd": "S=$S; cd ~/repo && python3 -c \"  … (+10 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T10:39:52+00:00",
    "tipo": "bash",
    "desc": "Commit README and review files that would reach main",
@@ -279,8 +272,15 @@
    "desc": "Run the touch-the-real-star playthrough",
    "cmd": "S=$S; cd ~/repo && timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages tools/routes/partida_estrellas.txt --out $S/full/touch1 --nand $S/driv…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:28:07+00:00",
+   "tipo": "bash",
+   "desc": "Move the extracted star positions out of the repo",
+   "cmd": "S=$S; cd ~/repo && grep -c \"tp:\" tools/routes/partida_estrellas.txt && cp tools/routes/partida_estrellas.txt $S/full/partida_estrellas.txt && cmp tools/routes/partida_estrellas.tx…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T15:27:59+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T15:28:07+00:00"
 }
