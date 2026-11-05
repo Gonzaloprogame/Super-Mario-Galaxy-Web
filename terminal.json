@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:55:57+00:00",
-   "tipo": "bash",
-   "desc": "Reproduce the page crash with memory sampling",
-   "cmd": "S=$S; printf 'AstroGalaxy:2\\nBattleShipGalaxy:2\\n' > $S/missions/crash.txt; cd ~/repo && rm -rf $S/missions/crash1 $S/missions/crash1.rss && (timeout 900 node tools/galaxy_tour.mj…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-04T23:56:12+00:00",
-   "tipo": "bash",
-   "desc": "Locate page reads in galaxy_tour",
-   "cmd": "grep -n \"const lines = (await page.textContent('#log'))\\|const state = await page.evaluate\\|painted = await page.evaluate\\|chromium.launch\\|page.on('pageerror'\" tools/galaxy_tour.…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:56:25+00:00",
    "tipo": "bash",
    "desc": "Handle page crashes and capture Chromium log in tour",
@@ -279,8 +265,22 @@
    "desc": "Publish version 1.0.0-rc.1 to gh-pages",
    "cmd": "S=$S; cd $S/gh-pages && git add -A && git commit -q -m \"Versión 1.0.0-rc.1, candidata a la 1.0.0  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T07:19:28+00:00",
+   "tipo": "bash",
+   "desc": "Document release and commit",
+   "cmd": "python3 - <<'EOF'  … (+63 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T07:19:35+00:00",
+   "tipo": "bash",
+   "desc": "Create and push the v1.0.0-rc.1 tag",
+   "cmd": "git tag -a v1.0.0-rc.1 -m \"Galaxy Web Port 1.0.0-rc.1, candidata a la 1.0.0  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T07:19:08+00:00"
+ "actualizado": "2026-11-05T07:19:35+00:00"
 }
