@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:05:52+00:00",
-   "tipo": "bash",
-   "desc": "Commit version label preparation",
-   "cmd": "git status --short && git add -A && git commit -q -m \"Versión 1.0.0-rc.1 (preparación): página, README, panel y hoja de ruta  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:07:26+00:00",
    "tipo": "bash",
    "desc": "Count page test results",
@@ -279,8 +272,15 @@
    "desc": "Extract star actors from the saved full log",
    "cmd": "S=$S; ls -la $S/full/discover/log_full.txt; python3 - \"$S/full/discover/log_full.txt\" <<'EOF'  … (+14 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:52:40+00:00",
+   "tipo": "bash",
+   "desc": "Find all writes and reads of the page log",
+   "cmd": "cd ~/repo && grep -n \"logEl\\.\\|#log\\b\\|'log')\" web/shell/app.js | head -20; grep -n \"textContent('#log')\\|#log\" tools/galaxy_tour.mjs web/tests/*.mjs | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:52:19+00:00"
+ "actualizado": "2026-11-05T14:52:40+00:00"
 }
