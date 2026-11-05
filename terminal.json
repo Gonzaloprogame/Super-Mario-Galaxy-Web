@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:05:30+00:00",
-   "tipo": "bash",
-   "desc": "Run the release tests",
-   "cmd": "$S/rel/run.sh",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:05:52+00:00",
    "tipo": "bash",
    "desc": "Commit version label preparation",
@@ -279,8 +272,15 @@
    "desc": "Read the tour failure and stop outcomes",
    "cmd": "S=$S; grep -v \"^\\s*$\" $S/full/discover.log | tail -14 | cut -c1-200; grep -c \"cargó y dibujó\" $S/full/discover/tour.md; grep \"^| \" $S/full/discover/tour.md | grep -v \"cargó y dibu…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:52:19+00:00",
+   "tipo": "bash",
+   "desc": "Extract star actors from the saved full log",
+   "cmd": "S=$S; ls -la $S/full/discover/log_full.txt; python3 - \"$S/full/discover/log_full.txt\" <<'EOF'  … (+14 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:51:59+00:00"
+ "actualizado": "2026-11-05T14:52:19+00:00"
 }
