@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:00:12+00:00",
-   "tipo": "bash",
-   "desc": "Update version labels in README, page, panel and roadmap",
-   "cmd": "python3 - <<'EOF'  … (+80 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:05:17+00:00",
    "tipo": "bash",
    "desc": "Build the release site from branch sources",
@@ -279,8 +272,15 @@
    "desc": "Compare what the star's own clear demo does",
    "cmd": "sed -n 801,840p src/Game/MapObj/PowerStar.cpp | grep -n \"MR::\\|requestPowerStarGetDemo\\|requestGrandStar\\|sendStageResult\\|set\\|Demo\" | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:29:20+00:00",
+   "tipo": "bash",
+   "desc": "Discovery tour listing actors in every mission",
+   "cmd": "S=$S; cd ~/repo && python3 - \"$S/full/discover.txt\" <<'EOF'  … (+10 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:28:56+00:00"
+ "actualizado": "2026-11-05T14:29:20+00:00"
 }
