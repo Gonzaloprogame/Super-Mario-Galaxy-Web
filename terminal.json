@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:54:57+00:00",
-   "tipo": "bash",
-   "desc": "Inspect why the missions tour ended early",
-   "cmd": "S=$S; cat $S/missions/m23.log | tail -15; ls $S/missions/m23/; grep -E \"^\\[host\\] (  |disc paths|the game stopped|stage|tour)|^\\[página\\]\" $S/missions/m23/log_tail.txt | tail -15 …",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:55:07+00:00",
    "tipo": "bash",
    "desc": "Read the last log lines before the page crash",
@@ -279,8 +272,15 @@
    "desc": "Read release route results",
    "cmd": "S=$S; cat $S/rel/status.txt; cat $S/rel/route/route.md | cut -c1-220",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T07:18:55+00:00",
+   "tipo": "bash",
+   "desc": "Copy the release build into gh-pages and review changes",
+   "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $G && git status --short | head; cp -r $R/build/site/. $G/ && python3 - \"$G/LEEME.md\" <<'EOF'  … (+11 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T07:18:44+00:00"
+ "actualizado": "2026-11-05T07:18:55+00:00"
 }
