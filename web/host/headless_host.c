@@ -344,9 +344,14 @@ static void svc_log(void* user, const char* text) {
 
 static void report(void);
 
+/* The disc paths the game asked for and did not find (web/platform/dvd_missing_note_wasm.c) */
+void smg_dvd_missing_report(void);
+
 static void svc_fatal(void* user, const char* text) {
     (void)user;
     fprintf(stderr, "[host] the game stopped: %s\n", text);
+    /* A stop for a missing file ("File isn't exist.") does not say which: the last ones asked for */
+    smg_dvd_missing_report();
     /* The final report through stderr, in order with these lines: the game's own thread is here (it does not hang), and
        through the watch log the page could see the engine's exit before the report (browser_smoke.mjs) */
     atomic_store(&sWatchReader, 0);
