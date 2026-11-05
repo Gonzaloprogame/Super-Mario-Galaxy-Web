@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-04T23:57:46+00:00",
-   "tipo": "bash",
-   "desc": "Read Chromium log and last page log lines",
-   "cmd": "S=$S; wc -l $S/missions/m23/browser.log; grep -iE \"crash|oom|memory|killed|signal|fatal|check failed|error\" $S/missions/m23/browser.log | head -15 | cut -c1-250; echo ---; tail -8…",
-   "ok": true
-  },
-  {
    "t": "2026-11-04T23:58:48+00:00",
    "tipo": "bash",
    "desc": "Rerun tour with Chromium stderr to capture crash reason",
@@ -279,8 +272,15 @@
    "desc": "Inspect the main branch README and its relation to our branch",
    "cmd": "git fetch -q origin main 2>&1 | tail -1; git log origin/main --oneline -3; git show origin/main:README.md 2>/dev/null | head -20; echo ---; git show origin/main --stat --format='%…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:35:59+00:00",
+   "tipo": "bash",
+   "desc": "List README sections",
+   "cmd": "grep -n \"^## \\|^### \" README.md; wc -l README.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:34:38+00:00"
+ "actualizado": "2026-11-05T10:35:59+00:00"
 }
