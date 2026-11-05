@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:02:56+00:00",
-   "tipo": "bash",
-   "desc": "Look for a symbol map of the Node build",
-   "cmd": "ls build/all/game/*.symbols 2>&1 | head; grep -n \"emit-symbol-map\\|profiling-funcs\" web/game/CMakeLists.txt web/cmake/SmgGame.cmake | head -3",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T00:03:01+00:00",
-   "tipo": "bash",
-   "desc": "Read link options of the headless targets",
-   "cmd": "sed -n 70,92p web/game/CMakeLists.txt",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:04:47+00:00",
    "tipo": "bash",
    "desc": "Relink Node host with symbols and name the crashing stack",
@@ -279,8 +265,22 @@
    "desc": "Save the new image and check README links",
    "cmd": "S=$S; cd ~/repo && python3 -c \"  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:39:52+00:00",
+   "tipo": "bash",
+   "desc": "Commit README and review files that would reach main",
+   "cmd": "git add README.md docs/img/interfaz.png && git commit -q -m \"README puesto al día para la 1.0.0-rc.1  … (+7 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T10:39:59+00:00",
+   "tipo": "bash",
+   "desc": "Fast-forward main to the development branch",
+   "cmd": "git merge-base --is-ancestor origin/main ccr-8700b376-tetafz && echo \"avance directo posible\" && git push origin ccr-8700b376-tetafz:main 2>&1 | tail -3; git ls-remote origin refs…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:39:40+00:00"
+ "actualizado": "2026-11-05T10:39:59+00:00"
 }
