@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T10:40:02+00:00",
-   "tipo": "bash",
-   "desc": "Verify the README now on main",
-   "cmd": "git fetch -q origin main && git show origin/main:README.md | sed -n 7,13p",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:19:57+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "Check the generator reproduces the route and commit it",
    "cmd": "S=$S; cd ~/repo && node tools/make_star_route.mjs $S/full/partida_estrellas_check.txt $S/full/discover/log_full.txt $S/full/discover2/log_end.txt | cut -c1-120 && diff <(grep -v \"…  … (+7 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T15:57:59+00:00",
+   "tipo": "bash",
+   "desc": "Check the touch-the-star run progress",
+   "cmd": "S=$S; tail -2 $S/full/touch1.log | cut -c1-160; sed -n 1p $S/full/touch1/tour.md; python3 - \"$S/full/touch1/tour.json\" <<'EOF'  … (+7 líneas)",
+   "ok": false
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T15:28:36+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T15:57:59+00:00"
 }
