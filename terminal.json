@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:18:55+00:00",
-   "tipo": "bash",
-   "desc": "Copy the release build into gh-pages and review changes",
-   "cmd": "S=$S; R=~/repo; G=$S/gh-pages; cd $G && git status --short | head; cp -r $R/build/site/. $G/ && python3 - \"$G/LEEME.md\" <<'EOF'  … (+11 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T07:19:08+00:00",
-   "tipo": "bash",
-   "desc": "Publish version 1.0.0-rc.1 to gh-pages",
-   "cmd": "S=$S; cd $S/gh-pages && git add -A && git commit -q -m \"Versión 1.0.0-rc.1, candidata a la 1.0.0  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:19:28+00:00",
    "tipo": "bash",
    "desc": "Document release and commit",
@@ -279,8 +265,22 @@
    "desc": "Run the page test with the new log",
    "cmd": "S=$S; cd ~/repo && timeout 1700 node web/tests/browser_smoke.mjs > $S/full/smoke_log.log 2>&1; echo \"exit $?\" >> $S/full/smoke_log.log; echo \"smoke: $(grep -c '^PASS' $S/full/smok…",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:53:35+00:00",
+   "tipo": "bash",
+   "desc": "Check test progress and pending changes",
+   "cmd": "S=$S; grep -c '^PASS' $S/full/smoke_log.log; grep -E \"^FAIL|^exit\" $S/full/smoke_log.log; cd ~/repo && git status --short",
+   "ok": true
+  },
+  {
+   "t": "2026-11-05T14:53:40+00:00",
+   "tipo": "bash",
+   "desc": "Stash the log changes while the test runs",
+   "cmd": "git stash push -m \"registro de la página sin reescribir y la gira leyendo solo lo nuevo (prueba en curso)\" >/dev/null && git status --short | wc -l",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:53:25+00:00"
+ "actualizado": "2026-11-05T14:53:40+00:00"
 }
