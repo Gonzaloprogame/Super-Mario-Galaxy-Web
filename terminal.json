@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T00:02:17+00:00",
-   "tipo": "bash",
-   "desc": "Rebuild the Node headless host",
-   "cmd": "S=$S; cd ~/repo && git stash list | head -2; source ~/tools/emsdk/emsdk_env.sh >/dev/null 2>&1 && ninja -C build/all smg_headless > $S/missions/node_build.log 2>&1; echo \"build ex…",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T00:02:48+00:00",
    "tipo": "bash",
    "desc": "Run the same tour in Node to catch the out-of-bounds access",
@@ -279,8 +272,15 @@
    "desc": "Apply README section updates",
    "cmd": "python3 - <<'EOF'  … (+86 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T10:39:26+00:00",
+   "tipo": "bash",
+   "desc": "Check the old image and take a new interface screenshot",
+   "cmd": "S=$S; cd ~/repo && python3 -c \"from PIL import Image; im=Image.open('docs/img/interfaz.png'); print(im.size)\"; git log --format='%h %s' -1 -- docs/img/interfaz.png; cat > $S/shot_…  … (+15 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T10:39:03+00:00"
+ "actualizado": "2026-11-05T10:39:26+00:00"
 }
