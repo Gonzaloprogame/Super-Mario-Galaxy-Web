@@ -1,6 +1,6 @@
 {
-  "version": "0.1.1-experimental",
-  "actualizado": "2026-11-04",
+  "version": "1.0.0-rc.1",
+  "actualizado": "2026-11-05",
   "nota": "Los porcentajes de cada hito son estimaciones; el estado de cada uno sale de lo comprobado (docs/HOJA_DE_RUTA.md).",
   "ahora": {
     "etiqueta": "Comprobado",

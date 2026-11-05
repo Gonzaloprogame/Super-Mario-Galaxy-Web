@@ -4,13 +4,13 @@
 
 # 🌌 Galaxy Web Port
 
-### Un port experimental de *Super Mario Galaxy* al navegador
+### Un port de *Super Mario Galaxy* al navegador · candidata a la 1.0.0
 
 **El código original del juego, compilado a WebAssembly y dibujado con WebGPU.**
 **Sin instalar nada. Sin emulador. Con tu propia copia del juego.**
 
-[![Estado](https://img.shields.io/badge/estado-experimental-ffb36b?style=for-the-badge)](#-estado-del-proyecto)
-[![Versión](https://img.shields.io/badge/versi%C3%B3n-0.1.1--experimental-7b8cff?style=for-the-badge)](#-novedades-de-la-011-experimental)
+[![Estado](https://img.shields.io/badge/estado-candidata%201.0.0-ffb36b?style=for-the-badge)](#-estado-del-proyecto)
+[![Versión](https://img.shields.io/badge/versi%C3%B3n-1.0.0--rc.1-7b8cff?style=for-the-badge)](#-novedades-de-la-100-rc1)
 [![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-b06bff?style=for-the-badge)](LICENSE)
 
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?logo=webassembly&logoColor=white)](#-cómo-funciona)
@@ -33,15 +33,16 @@
 ---
 
 > [!WARNING]
-> ### 🚧 Versión experimental: todavía no se puede jugar de principio a fin
-> Tiene **fallos conocidos y por descubrir**. Hoy se puede llegar a la pantalla de título, elegir un archivo, ver el
-> prólogo con sus vídeos, **jugar el jardín del castillo** y entrar en las **primeras galaxias** (comprobados el observatorio y
-> dos galaxias), pero **el juego no se puede completar**: los 44 escenarios cargan y dibujan, pero las galaxias no se
-> han jugado de principio a fin, y puede haber errores gráficos, sonidos que fallen o partes que vayan lentas.
+> ### 🚧 Versión 1.0.0-rc.1, candidata a la 1.0.0: falta confirmar jugando de principio a fin
+> Comprobado con un disco real:
+> - **Las 105 misiones** a las que se puede entrar cargan y aguantan jugadas a ciegas, sin errores.
+> - **La historia avanza con la lógica del propio juego**: estrellas, el Observatorio con sus Grandes Estrellas, los
+>   jefes, y la batalla final con los vídeos del final y el epílogo. Esto se comprobó con ganchos de prueba que toman
+>   las estrellas, no jugando.
 >
-> **Aun así, es un buen comienzo.** Que el código original del juego arranque, dibuje un nivel completo, suene,
-> responda a los controles y guarde la partida dentro de una pestaña del navegador era el paso más difícil. Lo que
-> queda es avanzar nivel a nivel, corregir lo que aparezca y ganar velocidad. 🌟
+> **Nadie la ha jugado aún de principio a fin con un mando o un teclado.** Puede haber niveles que no se puedan pasar,
+> errores gráficos, sonidos que fallen o partes lentas: los teléfonos van a unos 28 fps. Cuando una partida real lo
+> confirme ([lista de la partida](docs/PRUEBA_DE_PARTIDA.md)), esta versión pasará a llamarse 1.0.0. 🌟
 
 > [!IMPORTANT]
 > ### 🛑 Este repositorio no contiene ningún archivo de Nintendo
@@ -143,9 +144,8 @@ de inmediato.
 
 ## 📊 Estado del proyecto
 
-**Versión 0.1.1-experimental, más lo publicado después en la página** (sin número de versión todavía: ver
-[novedades](#-novedades-desde-la-011-experimental)). Así está cada parte, con lo que de verdad se ha comprobado (*fecha
-de esta tabla: 3 de noviembre de 2026*):
+**Versión 1.0.0-rc.1** ([novedades](#-novedades-de-la-100-rc1)). Así está cada parte, con lo que de verdad se ha
+comprobado (*fecha de esta tabla: 5 de noviembre de 2026*):
 
 | Parte | Estado | Detalle |
 |---|:---:|---|
@@ -156,17 +156,19 @@ de esta tabla: 3 de noviembre de 2026*):
 | Vídeos (THP) | ✅ | Los dos vídeos del prólogo, completos: 12.667 fotogramas, ninguno rechazado, ~3,5 ms cada uno |
 | Jardín del castillo (primer nivel) | ✅ | Escenario, Mario, cielo, efectos y HUD |
 | Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
-| Observatorio (*AstroGalaxy*) | 🧪 | Carga y se mueve; sin jugar a fondo |
+| Observatorio (*AstroGalaxy*) | 🧪 | Carga sin errores con 1 a 6 Grandes Estrellas (lo que el juego abre para cada número); sin jugar a fondo |
 | *EggStarGalaxy* | ✅ | Se colgaba siempre; **arreglado** (parche 0025) y comprobado 4 minutos con el disco |
-| Gira automática: los 40 escenarios restantes | 🧪 | **Los 40 cargan y dibujan** (900 fotogramas cada uno, sin errores ni alarmas de memoria); **ninguno jugado**. Un aviso conocido en *SurfingLv1* (parche 0022) |
+| Todas las misiones | 🧪 | **Las 105 misiones a las que se puede entrar cargan y aguantan** jugadas a ciegas: la 1 de los 44 escenarios con gráficos y las 61 restantes en modo diagnóstico, sin errores; **ninguna jugada a mano**. Un aviso conocido en *SurfingLv1* (parche 0022) |
 | *CocoonExGalaxy* | 🧪 | El motor moría allí tras varias galaxias: **arreglado** (el host pisaba memoria del motor) y comprobado con la gira; sin jugar |
-| Jugar cada galaxia | ⏳ | Cargar y dibujar no es poder jugarla: falta recorrerlas jugando, con sus jefes y sus misiones |
+| Progreso de la historia | 🧪 | Con ganchos de prueba que toman las estrellas: el jardín lleva al Observatorio; las Grandes Estrellas de los jefes devuelven a él; la última pone los vídeos del final (10.115 fotogramas, 0 rechazados) y el epílogo, 2 h sin errores. Sin ver aún la vuelta a la partida tras los créditos |
+| Jugar cada galaxia | ⏳ | Cargar y aguantar no es poder pasarla: falta jugarlas a mano ([lista](docs/PRUEBA_DE_PARTIDA.md)) |
+| Memoria y cierres de la página | 🧪 | La página usa un 42 % menos de RAM (de 1061 a 613 MB en el jardín). Si el navegador la cierra de golpe, la visita siguiente lo avisa y deja copiar lo que pasó |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
 | Sonido (música y efectos) | 🧪 | La mezcla funciona y sus niveles son correctos; sin confirmar en un teléfono |
 | Rendimiento | 🧪 | Android, jardín del castillo, con lo publicado: 22–33 fps por tramos de 10 s, media ~28; el procesado del flujo GX es lo que más cuesta |
 | Cargas de escenario | 🧪 | El disco ya es rápido (~0,4 s por carga); el registro mide cada carga (`[host] load …`) |
 | Versiones PAL y japonesa | ⏳ | Solo se ha probado la norteamericana (RMGE01) |
-| Jugar de principio a fin | ❌ | **Todavía no** |
+| Jugar de principio a fin | ⏳ | **Sin confirmar**: es lo que falta para la 1.0.0 (parte D del hito 7, `docs/HOJA_DE_RUTA.md`) |
 
 ### 🐞 Fallos conocidos
 
@@ -301,9 +303,22 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 
 ---
 
-## 🆕 Novedades desde la 0.1.1-experimental
+## 🆕 Novedades de la 1.0.0-rc.1
 
-Publicado en la página, todavía sin número de versión:
+Todo lo publicado desde la 0.1.1-experimental:
+
+- 🧠 **La página usa un 42 % menos de memoria** (de 1061 a 613 MB en el jardín del castillo): el motor ya no rellena
+  de ceros los 512 MB que reserva para la memoria de la consola. Era la causa probable de que el navegador cerrara la
+  pestaña en momentos de mucha carga.
+- 🚨 **Aviso de la sesión cerrada de golpe:** si el navegador cierra la página mientras juegas, la visita siguiente lo
+  dice, con la escena, la memoria y las últimas líneas del registro para copiarlas.
+- 💾 **Descargar y cargar la partida** en «💾 Partida guardada», como copia de seguridad o para llevarla a otro
+  navegador o a la copia local.
+- 💻 **Úsalo en tu ordenador:** descarga el sitio y arráncalo con `servir.py` (ver «Cómo jugar»).
+- 🗺️ **Todas las misiones y la historia, comprobadas:** las 105 misiones a las que se puede entrar cargan y aguantan
+  sin errores. La ruta de la historia (`tools/story_route.mjs`, con los ganchos de prueba de Nebula: tomar estrellas,
+  Grandes Estrellas, jefes…) llega a los vídeos del final y al epílogo.
+- 🔎 **Si el juego se para por un archivo que falta, el registro dice cuál** buscaba.
 
 - 🏎️ **Dibujar es más rápido:** los índices de cada primitiva (el juego manda unas 39 000 por fotograma) se escriben
   directamente en su sitio en vez de construirse aparte y copiarse. Procesar el flujo de dibujo bajó de 17,4 a 14,8 ms
@@ -389,6 +404,8 @@ Una versión de mantenimiento, a partir de una auditoría del código con
 
 - [x] Comprobar en el PC del usuario que el cuelgue del libro del prólogo ya no sale (pasa entero en un primer intento).
 - [x] Recorrer los 44 escenarios con la gira de prueba y arreglar lo que se pare (los 44 cargan y dibujan).
+- [x] Recorrer todas las misiones a las que se puede entrar (105) y la historia hasta el final con ganchos de prueba.
+- [ ] **Para la 1.0.0:** una partida real de principio a fin ([lista](docs/PRUEBA_DE_PARTIDA.md)).
 - [ ] Jugar cada galaxia de principio a fin.
 - [ ] Oír y ajustar el sonido en dispositivos reales.
 - [ ] Más fotogramas por segundo en teléfonos.
