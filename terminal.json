@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:07:26+00:00",
-   "tipo": "bash",
-   "desc": "Count page test results",
-   "cmd": "S=$S; echo \"smoke: $(grep -c '^PASS' $S/rel/smoke.log) PASS $(grep -c '^FAIL' $S/rel/smoke.log) FAIL\"",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:14:13+00:00",
    "tipo": "bash",
    "desc": "Check index, bridge and garden results",
@@ -279,8 +272,15 @@
    "desc": "Find all writes and reads of the page log",
    "cmd": "cd ~/repo && grep -n \"logEl\\.\\|#log\\b\\|'log')\" web/shell/app.js | head -20; grep -n \"textContent('#log')\\|#log\" tools/galaxy_tour.mjs web/tests/*.mjs | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:53:08+00:00",
+   "tipo": "bash",
+   "desc": "Append-only page log with cap, tour reads new lines only",
+   "cmd": "python3 - <<'EOF'  … (+81 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-05T14:52:40+00:00"
+ "actualizado": "2026-11-05T14:53:08+00:00"
 }
