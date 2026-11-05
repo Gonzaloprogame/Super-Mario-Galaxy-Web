@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T07:05:17+00:00",
-   "tipo": "bash",
-   "desc": "Build the release site from branch sources",
-   "cmd": "ME=$$; n=0; for p in $(ls /proc | grep -E '^[0-9]+$'); do [ \"$p\" = \"$ME\" ] && continue; c=$(tr '\\0' ' ' < /proc/$p/cmdline 2>/dev/null) || continue; case \"$c\" in *galaxy_tour*|*st…",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T07:05:27+00:00",
    "tipo": "bash",
    "desc": "Write the release test script",
@@ -279,8 +272,15 @@
    "desc": "Discovery tour listing actors in every mission",
    "cmd": "S=$S; cd ~/repo && python3 - \"$S/full/discover.txt\" <<'EOF'  … (+10 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-05T14:51:53+00:00",
+   "tipo": "bash",
+   "desc": "Summarize the actor discovery tour",
+   "cmd": "S=$S; tail -2 $S/full/discover.log; sed -n 1p $S/full/discover/tour.md; grep -c '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.md; grep '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-05T14:29:34+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-05T14:51:53+00:00"
 }
