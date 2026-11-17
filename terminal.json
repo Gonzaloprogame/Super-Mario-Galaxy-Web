@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:53:40+00:00",
-   "tipo": "bash",
-   "desc": "Stash the log changes while the test runs",
-   "cmd": "git stash push -m \"registro de la página sin reescribir y la gira leyendo solo lo nuevo (prueba en curso)\" >/dev/null && git status --short | wc -l",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:55:30+00:00",
    "tipo": "bash",
    "desc": "Read page test results",
@@ -279,8 +272,15 @@
    "desc": "Check blind-play part 1 progress",
    "cmd": "S=$S; sed -n 1p $S/play/out1/tour.md; grep -c \"cargó y dibujó\" $S/play/out1/tour.md; grep \"^| [A-Z]\" $S/play/out1/tour.md | grep -v \"^| Parada\" | grep -vE \"\\| — \\|$\" | cut -c1-220…",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T13:48:16+00:00",
+   "tipo": "bash",
+   "desc": "Check blind-play part 1 progress",
+   "cmd": "S=$S; sed -n 1p $S/play/out1/tour.md; grep -c \"cargó y dibujó\" $S/play/out1/tour.md; cat $S/play/status.txt 2>/dev/null; grep \"^| [A-Z]\" $S/play/out1/tour.md | grep -v \"^| Parada\"…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-17T13:18:15+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-17T13:48:16+00:00"
 }
