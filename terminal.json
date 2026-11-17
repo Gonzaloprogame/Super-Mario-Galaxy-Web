@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:28:12+00:00",
-   "tipo": "bash",
-   "desc": "Read Emscripten SAFE_HEAP checks",
-   "cmd": "E=~/tools/emsdk/upstream/emscripten; sed -n 30,80p $E/src/runtime_safe_heap.js",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:28:14+00:00",
    "tipo": "bash",
    "desc": "Read SAFE_HEAP address checks",
@@ -279,8 +272,15 @@
    "desc": "Relink the Node host with SAFE_HEAP for diagnosis",
    "cmd": "python3 - <<'EOF'  … (+15 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:16:39+00:00",
+   "tipo": "bash",
+   "desc": "Reproduce the null write under SAFE_HEAP in Node",
+   "cmd": "S=$S; cd ~/repo && cp $S/drive/nand_RMGE01.bin $S/full/nand_sh.bin && timeout 1500 node build/all/game/smg_headless.js $S/disc/smg.rvz 900 4 $S/full/nand_sh.bin \"\" \"HeavensDoorGal…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:16:28+00:00"
+ "actualizado": "2026-11-17T12:16:39+00:00"
 }
