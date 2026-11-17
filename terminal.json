@@ -1,27 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T15:27:47+00:00",
-   "tipo": "bash",
-   "desc": "Run the touch-the-real-star playthrough",
-   "cmd": "S=$S; cd ~/repo && timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages tools/routes/partida_estrellas.txt --out $S/full/touch1 --nand $S/driv…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T15:28:07+00:00",
-   "tipo": "bash",
-   "desc": "Move the extracted star positions out of the repo",
-   "cmd": "S=$S; cd ~/repo && grep -c \"tp:\" tools/routes/partida_estrellas.txt && cp tools/routes/partida_estrellas.txt $S/full/partida_estrellas.txt && cmp tools/routes/partida_estrellas.tx…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T15:28:22+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/repo/tools/make_star_route.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T15:28:30+00:00",
    "tipo": "bash",
    "desc": "Check the generator reproduces the route and commit it",
@@ -279,8 +258,29 @@
    "desc": "Read the shared input layout and report building",
    "cmd": "grep -n \"WORD\\s*=\\|WORD = {\" -A 12 web/shell/controls.js | head -16; grep -rn \"SMG_INPUT_\" web/host/*.h | head -15; sed -n 105,135p web/host/console_services.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T14:02:53+00:00",
+   "tipo": "bash",
+   "desc": "Read how and when Wii Remote reports are sent",
+   "cmd": "sed -n 180,240p web/host/console_services.c",
+   "ok": true
+  },
+  {
+   "t": "2026-11-17T14:03:01+00:00",
+   "tipo": "bash",
+   "desc": "Find Nebula's handling of Wii Remote reports",
+   "cmd": "cd ~/repo/third_party/nebula/native && grep -rn \"nebula_game_wpad_report\" --include=*.c --include=*.cpp --include=*.h . | grep -v \"^./include\" | head -4",
+   "ok": true
+  },
+  {
+   "t": "2026-11-17T14:03:06+00:00",
+   "tipo": "bash",
+   "desc": "Read Nebula's Wii Remote report intake",
+   "cmd": "sed -n 60,140p sdk/wpad/wpad_native.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T14:02:49+00:00"
+ "actualizado": "2026-11-17T14:03:06+00:00"
 }
