@@ -10,6 +10,7 @@
 //   node tools/galaxy_tour.mjs --disc <your .rvz> --stages <file> --out <folder> [--nand <file>] [--frames 900]
 //        [--hang 180] [--port 18790] [--site build/site] [--mode graphics|diagnostic] [--debug-port N]
 // --debug-port: Chromium's remote debugging port, for a profiler during a hang (scratchpad tools, not here).
+// --play-from-scene <Stage>: with --play, the presses start only when the game enters that scene.
 // --play <seed>: plays badly during each stop (the keyboard: the stick in changing directions, A, B, shake, Z, C), to
 // run the stages' gameplay code (moving, colliding, enemies) and not only their loading. The same seed, the same
 // presses. It proves nothing about a stage being playable: it looks for what stops the engine while it is played.
@@ -73,6 +74,7 @@ const tourProblems = []; // what the host could not read in the list
 let movieFrames = 0;     // movie frames decoded, from the host's reports
 let nandRequests = 0;    // the game's NAND requests (its saves among them), from the host's reports
 let lastScene = '';      // the scene the game is in ([host] stage:): a stop starts there
+const playGate = { open: true }; // --play-from-scene: the presses wait for that scene
 let current = null; // the stop being visited
 // With graphics, a stop also has to reach the screen: the frames the page painted meanwhile (web/shell/present.js)
 const graphics = args.mode !== 'diagnostic';
@@ -121,8 +123,10 @@ try {
   await page.fill('#seconds', args.mode === 'diagnostic' ? String(diagnosticSeconds) : '0');
   await page.click('#run');
 
-  // --play: a press every 0.7 s from a seeded generator (xorshift), until the tour ends
+  // --play: a press every 0.7 s from a seeded generator (xorshift), until the tour ends. --play-from-scene <Stage>:
+  // only once the game is in that scene (an ending's epilogue: presses before it would skip the movies)
   let playing = !!args.play;
+  playGate.open = !args['play-from-scene'];
   if (playing) {
     let seed = (Number(args.play) || 1) >>> 0 || 1;
     const random = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; };
@@ -131,6 +135,10 @@ try {
     (async () => {
       let held = [];
       while (playing) {
+        if (!playGate.open) {
+          await sleep(700);
+          continue;
+        }
         for (const key of held) await page.keyboard.up(key).catch(() => {});
         held = [...sticks[Math.floor(random() * sticks.length)]];
         if (random() < 0.6) held.push(buttons[Math.floor(random() * buttons.length)]);
@@ -198,6 +206,10 @@ try {
         tourProblems.push(m[1]);
       } else if ((m = /^\[host\] stage: (\S+)/.exec(line))) {
         lastScene = m[1];
+        if (!playGate.open && m[1] === args['play-from-scene']) {
+          playGate.open = true;
+          allLines.push(`[gira] pulsaciones a ciegas desde la escena ${m[1]}`);
+        }
         if (current && current.scenes[current.scenes.length - 1] !== m[1]) current.scenes.push(m[1]);
       } else if ((m = /^\[host\] movies: (\d+) frames decoded/.exec(line))) {
         movieFrames = Number(m[1]);

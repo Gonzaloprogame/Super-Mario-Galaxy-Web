@@ -77,3 +77,14 @@ play 7
 frames 600
 hang 3600
 expect movie
+---
+# El final entero con gráficos: la Gran Estrella, los vídeos del final sin tocar nada, y pulsaciones a ciegas solo
+# desde el epílogo (lo que el juego hace al acabar los créditos: volver a la partida, guardar)
+grandstars=6
+KoopaBattleVs3Galaxy:1/grandstar@900/wait@30000
+mode graphics
+play 7
+play_from_scene EpilogueDemoStage
+frames 600
+hang 3600
+expect movie
