@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:28:39+00:00",
-   "tipo": "bash",
-   "desc": "Read how the pending star is applied",
-   "cmd": "grep -n \"sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head; n=$(grep -n \"sPendingStar != 0\\|if (sPendingStar\" native/petari/src/Game/Scene/GameScene.cpp | head -1 | …",
-   "ok": true
-  },
-  {
-   "t": "2026-11-05T14:28:48+00:00",
-   "tipo": "bash",
-   "desc": "Find the star get demo and the star's clear demo",
-   "cmd": "cd ~/repo/third_party/nebula/native/petari && grep -rn \"requestPowerStarGetDemo\\|void PowerStar::exeStageClearDemo\" src --include=*.cpp | head -6",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:28:52+00:00",
    "tipo": "bash",
    "desc": "Read GameScene::requestPowerStarGetDemo and locate the star's demo",
@@ -279,8 +265,22 @@
    "desc": "Add ASSERTIONS to the diagnostic build and rerun",
    "cmd": "S=$S; cd ~/repo && sed -i 's/    target_link_options(smg_headless PRIVATE -sSAFE_HEAP=2) # 2: unaligned accesses (legal on the console) only warned/    # 2: unaligned accesses (le…",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:19:02+00:00",
+   "tipo": "bash",
+   "desc": "Name the segfault stack",
+   "cmd": "for n in 17060 59 57 17015; do grep -m1 \"^$n:\" build/all/game/smg_headless.js.symbols || echo \"$n:?\"; done | cut -c1-200; S=$S; grep -n \"segmentation\" $S/full/safeheap_run3.log | …",
+   "ok": true
+  },
+  {
+   "t": "2026-11-17T12:19:10+00:00",
+   "tipo": "bash",
+   "desc": "Read the host report function",
+   "cmd": "n=$(grep -n \"^static void report(void) {\" web/host/headless_host.c | cut -d: -f1); echo \"línea $n\"; sed -n \"${n},$((n+60))p\" web/host/headless_host.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:18:53+00:00"
+ "actualizado": "2026-11-17T12:19:10+00:00"
 }
