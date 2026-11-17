@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:53:08+00:00",
-   "tipo": "bash",
-   "desc": "Append-only page log with cap, tour reads new lines only",
-   "cmd": "python3 - <<'EOF'  … (+81 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:53:19+00:00",
    "tipo": "bash",
    "desc": "Add log performance checks to the page test",
@@ -279,8 +272,15 @@
    "desc": "Read the no-interruption SAFE_HEAP run result",
    "cmd": "S=$S; cat $TMP | head -12 | cut -c1-200",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:47:32+00:00",
+   "tipo": "bash",
+   "desc": "Record the null-pointer diagnosis and commit",
+   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+33 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:46:55+00:00"
+ "actualizado": "2026-11-17T12:47:32+00:00"
 }
