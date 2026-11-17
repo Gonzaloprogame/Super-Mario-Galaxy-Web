@@ -1038,7 +1038,9 @@ static void check_low_memory(void) {
 #endif
 
 static void report(void) {
-#if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__) && !defined(SMG_SAFE_HEAP)
+    /* Not with SAFE_HEAP (web/game/CMakeLists.txt): its own checks stop a write through a null pointer as it happens,
+       and reading the low addresses here would be one of them */
     check_low_memory();
 #endif
     SmgConsoleCounters console;

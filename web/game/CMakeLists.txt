@@ -74,6 +74,15 @@ target_link_libraries(smg_headless PRIVATE smg_game smg_zstd)
 # smg_headless.js.symbols (not published): the function names of a stack in Node, where an access out of bounds is a
 # RuntimeError with its stack (in Chromium the same access killed the page: docs/PROGRESO_AUTONOMO.md, block 21)
 target_link_options(smg_headless PRIVATE ${SMG_WEB_LINK_OPTIONS} -sNODERAWFS -sENVIRONMENT=node --emit-symbol-map)
+# SMG_SAFE_HEAP=ON (diagnosis only, never published): every load and store of the Node host checked by Emscripten, so
+# a write through a null pointer stops with its stack instead of corrupting the module's data (docs/PROGRESO_AUTONOMO.md,
+# block 24). Only a relink: cmake -DSMG_SAFE_HEAP=ON build/all && ninja -C build/all smg_headless
+option(SMG_SAFE_HEAP "Node host with Emscripten's SAFE_HEAP=2 (diagnosis)" OFF)
+if(SMG_SAFE_HEAP)
+    # 2: unaligned accesses (legal on the console) only warned; ASSERTIONS: SAFE_HEAP=2 calls warnOnce, defined only with it
+    target_link_options(smg_headless PRIVATE -sSAFE_HEAP=2 -sASSERTIONS=1)
+    target_compile_definitions(smg_headless PRIVATE SMG_SAFE_HEAP=1)
+endif()
 
 # Variante para navegador del mismo host: el programa se ejecuta dentro de un Worker dedicado (web/shell/boot_worker.post.js),
 # que puede bloquear (Atomics.wait) y lee el game.pak del usuario por trozos (WORKERFS), sin copiarlo a memoria.
