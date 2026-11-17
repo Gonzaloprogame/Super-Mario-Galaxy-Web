@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T15:27:39+00:00",
-   "tipo": "bash",
-   "desc": "Build the touch-the-real-star route from discovery logs",
-   "cmd": "S=$S; cd ~/repo && python3 - \"$S/full/discover/log_full.txt\" \"$S/full/discover2/log_end.txt\" \"$S/full\" <<'EOF'  … (+37 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T15:27:47+00:00",
    "tipo": "bash",
    "desc": "Run the touch-the-real-star playthrough",
@@ -279,8 +272,15 @@
    "desc": "Read mouse/touch aim code and host pointer handling",
    "cmd": "sed -n 88,122p web/shell/controls.js; grep -n \"POINTER\\b\\|WORD.POINTER\\|pointer\" web/host/console_services.c web/host/headless_host.c | head -20",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T14:02:49+00:00",
+   "tipo": "bash",
+   "desc": "Read the shared input layout and report building",
+   "cmd": "grep -n \"WORD\\s*=\\|WORD = {\" -A 12 web/shell/controls.js | head -16; grep -rn \"SMG_INPUT_\" web/host/*.h | head -15; sed -n 105,135p web/host/console_services.c",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T14:02:23+00:00"
+ "actualizado": "2026-11-17T14:02:49+00:00"
 }
