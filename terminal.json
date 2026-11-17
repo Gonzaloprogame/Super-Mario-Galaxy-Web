@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:25:34+00:00",
-   "tipo": "bash",
-   "desc": "Commit tour save-nand and full-run route",
-   "cmd": "git status --short && git add tools/galaxy_tour.mjs tools/routes/partida_completa.txt && git commit -q -m \"Gira: guarda la partida al terminar (--save-nand) y lo que guardó el jue…  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:27:43+00:00",
    "tipo": "bash",
    "desc": "Summarize the full playthrough run",
@@ -279,8 +272,15 @@
    "desc": "Check what survived the session restart",
    "cmd": "S=$S; ls $S 2>&1 | head -5; ls -la $S/disc/smg.rvz 2>&1 | head -1; ls ~/tools/emsdk/emsdk_env.sh 2>&1; ls ~/repo/build/all/engine/smg_web.wasm 2>&1; cd ~/repo && git status --shor…",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:12:14+00:00",
+   "tipo": "escribir",
+   "desc": "",
+   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:11:50+00:00"
+ "actualizado": "2026-11-17T12:12:14+00:00"
 }
