@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:51:53+00:00",
-   "tipo": "bash",
-   "desc": "Summarize the actor discovery tour",
-   "cmd": "S=$S; tail -2 $S/full/discover.log; sed -n 1p $S/full/discover/tour.md; grep -c '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.md; grep '^| [A-Z][a-z]*Galaxy' $S/full/discover/tour.…",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:51:59+00:00",
    "tipo": "bash",
    "desc": "Read the tour failure and stop outcomes",
@@ -279,8 +272,15 @@
    "desc": "Rerun the sequence under SAFE_HEAP",
    "cmd": "S=$S; cd ~/repo && cp $S/drive/nand_RMGE01.bin $S/full/nand_sh.bin && timeout 1500 node build/all/game/smg_headless.js $S/disc/smg.rvz 900 4 $S/full/nand_sh.bin \"\" \"HeavensDoorGal…",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:21:31+00:00",
+   "tipo": "bash",
+   "desc": "Name the stack of the segfault in EggStarGalaxy",
+   "cmd": "S=$S; cd ~/repo && grep -A 30 \"RuntimeError: Aborted(segmentation\" $S/full/safeheap_run4.log | grep -o \"wasm-function\\[[0-9]*\\]\" | grep -o \"[0-9]*\" | head -24 | while read n; do g…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:21:25+00:00"
+ "actualizado": "2026-11-17T12:21:31+00:00"
 }
