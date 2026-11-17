@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T15:28:30+00:00",
-   "tipo": "bash",
-   "desc": "Check the generator reproduces the route and commit it",
-   "cmd": "S=$S; cd ~/repo && node tools/make_star_route.mjs $S/full/partida_estrellas_check.txt $S/full/discover/log_full.txt $S/full/discover2/log_end.txt | cut -c1-120 && diff <(grep -v \"…  … (+7 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T15:57:59+00:00",
    "tipo": "bash",
    "desc": "Check the touch-the-star run progress",
@@ -279,8 +272,15 @@
    "desc": "Read Nebula's Wii Remote report intake",
    "cmd": "sed -n 60,140p sdk/wpad/wpad_native.c",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T14:03:26+00:00",
+   "tipo": "bash",
+   "desc": "Check blind-play part 2 progress",
+   "cmd": "S=$S; sed -n 1p $S/play/out2/tour.md; grep -c \"cargó y dibujó\" $S/play/out2/tour.md; grep \"^| [A-Z]\" $S/play/out2/tour.md | grep -v \"^| Parada\" | grep -vE \"\\| — \\|$\" | cut -c1-220…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T14:03:06+00:00"
+ "actualizado": "2026-11-17T14:03:26+00:00"
 }
