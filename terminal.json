@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:28:31+00:00",
-   "tipo": "bash",
-   "desc": "Find Nebula's GET_STAR hook implementation",
-   "cmd": "cd ~/repo/third_party/nebula && grep -rn \"NEBULA_TEST_GET_STAR\" --include=*.cpp --include=*.c --include=*.hpp . | grep -v \"nebula_game_api.h\" | head -5",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:28:34+00:00",
    "tipo": "bash",
    "desc": "Read the star hook in Nebula's GameScene",
@@ -279,8 +272,15 @@
    "desc": "Use SAFE_HEAP=2 and reproduce again",
    "cmd": "S=$S; cd ~/repo && sed -i 's/target_link_options(smg_headless PRIVATE -sSAFE_HEAP=1)/target_link_options(smg_headless PRIVATE -sSAFE_HEAP=2) # 2: unaligned accesses (legal on the …",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:18:03+00:00",
+   "tipo": "bash",
+   "desc": "Read the SAFE_HEAP run output",
+   "cmd": "S=$S; grep -v \"^var Module\" $S/full/safeheap_run2.log | head -30 | cut -c1-240",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:17:59+00:00"
+ "actualizado": "2026-11-17T12:18:03+00:00"
 }
