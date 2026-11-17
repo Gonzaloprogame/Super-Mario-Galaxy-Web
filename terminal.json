@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:52:19+00:00",
-   "tipo": "bash",
-   "desc": "Extract star actors from the saved full log",
-   "cmd": "S=$S; ls -la $S/full/discover/log_full.txt; python3 - \"$S/full/discover/log_full.txt\" <<'EOF'  … (+14 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:52:40+00:00",
    "tipo": "bash",
    "desc": "Find all writes and reads of the page log",
@@ -279,8 +272,15 @@
    "desc": "Let the Observatory story run after the Grand Star without forcing a change",
    "cmd": "S=$S; cd ~/repo && cp $S/drive/nand_RMGE01.bin $S/full/nand_sh.bin && timeout 2400 node build/all/game/smg_headless.js $S/disc/smg.rvz 1500 4 $S/full/nand_sh.bin \"\" \"HeavensDoorGa…",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:32:08+00:00",
+   "tipo": "bash",
+   "desc": "Commit the SAFE_HEAP diagnostic option",
+   "cmd": "git status --short && git add -A && git commit -q -m \"Diagnóstico: opción SMG_SAFE_HEAP (desactivada) para el host de Node, con la pila de cada acceso por puntero nulo  … (+9 líneas)",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-17T12:31:56+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-17T12:32:08+00:00"
 }
