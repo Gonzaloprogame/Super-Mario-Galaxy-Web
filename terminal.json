@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T14:28:34+00:00",
-   "tipo": "bash",
-   "desc": "Read the star hook in Nebula's GameScene",
-   "cmd": "sed -n 300,330p native/petari/src/Game/Scene/GameScene.cpp",
-   "ok": true
-  },
-  {
    "t": "2026-11-05T14:28:39+00:00",
    "tipo": "bash",
    "desc": "Read how the pending star is applied",
@@ -279,8 +272,15 @@
    "desc": "Read the SAFE_HEAP run output",
    "cmd": "S=$S; grep -v \"^var Module\" $S/full/safeheap_run2.log | head -30 | cut -c1-240",
    "ok": true
+  },
+  {
+   "t": "2026-11-17T12:18:53+00:00",
+   "tipo": "bash",
+   "desc": "Add ASSERTIONS to the diagnostic build and rerun",
+   "cmd": "S=$S; cd ~/repo && sed -i 's/    target_link_options(smg_headless PRIVATE -sSAFE_HEAP=2) # 2: unaligned accesses (legal on the console) only warned/    # 2: unaligned accesses (le…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-17T12:18:03+00:00"
+ "actualizado": "2026-11-17T12:18:53+00:00"
 }
