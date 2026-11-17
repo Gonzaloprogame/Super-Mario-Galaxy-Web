@@ -745,3 +745,27 @@ reproducir en Node (`smg_headless`, bloque 21) con un vigilante de escrituras en
 
 **Ojo:** `kill` dentro de un bucle que busca en las órdenes de los procesos también encuentra la propia orden si su
 texto casa con el patrón (aquí `*chrom*touch1*`): mató la shell. Mata solo PID concretos.
+
+### Bloque 24: jugable de principio a fin, lo primero (2026-11-17)
+
+**Pedido por el usuario:** que el juego sea jugable de principio a fin sin errores; el rendimiento, después, en PC.
+
+**El puntero nulo del bloque 23, con su pila.**
+- Herramienta: el host de Node con `-sSAFE_HEAP=2 -sASSERTIONS=1` (opción `SMG_SAFE_HEAP`, desactivada por
+  defecto). Para cada lectura o escritura por un puntero nulo, con su pila.
+  - `=2`: los accesos sin alinear, legales en la consola, solo avisan.
+  - `ASSERTIONS`: `=2` llama a `warnOnce`, que solo existe con él.
+  - El detector de escrituras bajas del host se apaga en esa compilación: leer esas direcciones era la primera falsa
+    alarma.
+- Con la Gran Estrella de la Puerta y luego el paso a `EggStarGalaxy:1` forzado por la gira:
+  `GameSystem::updateSceneController → … → StorySequenceExecutorWaitTimeKeepDemoEnd::execute →
+  MR::getSceneObjHolder → GameSystemSceneController::getSceneObjHolder`, una lectura por puntero nulo. La secuencia
+  de historia del Observatorio que sigue a la Gran Estrella pide la escena mientras la gira la está cambiando.
+- **Sin forzar el cambio** (la Gran Estrella y 12 000 fotogramas en el Observatorio): **ningún acceso inválido**, y
+  el juego termina con normalidad. El aviso de «stack cookie» del final sale tras la salida: es la comprobación de
+  `ASSERTIONS` sobre la pila de un hilo del juego, no un fallo.
+- **Conclusión:** el fallo lo provocaba la gira, al cambiar de escenario en mitad de una secuencia de historia. Al
+  jugar no se puede. Las rutas no deben forzar un cambio mientras el Observatorio cuenta su historia.
+
+**Ojo:** `build/all` está configurado con `SMG_SAFE_HEAP=ON` mientras se usa para diagnosticar. Solo afecta a
+`smg_headless` (Node), no a lo que se publica (`smg_web`, `smg_headless_web`). Ponerlo a `OFF` al terminar.
