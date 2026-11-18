@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:17:59+00:00",
-   "tipo": "bash",
-   "desc": "Use SAFE_HEAP=2 and reproduce again",
-   "cmd": "S=$S; cd ~/repo && sed -i 's/target_link_options(smg_headless PRIVATE -sSAFE_HEAP=1)/target_link_options(smg_headless PRIVATE -sSAFE_HEAP=2) # 2: unaligned accesses (legal on the …",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:18:03+00:00",
    "tipo": "bash",
    "desc": "Read the SAFE_HEAP run output",
@@ -279,8 +272,15 @@
    "desc": "Run story route segment 15 (full ending)",
    "cmd": "S=$S; timeout 7000 node tools/story_route.mjs --disc $S/disc/smg.rvz --route tools/routes/historia.txt --out $S/route6 --nand $S/drive/nand_RMGE01.bin --site build/site --only 15 …",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:39:13+00:00",
+   "tipo": "bash",
+   "desc": "Read segment 15 results",
+   "cmd": "S=$S; cat $S/route6.log; cat $S/route6/route.md; head -6 $S/route6/15/out/tour.md",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-18T12:39:24+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-18T13:39:13+00:00"
 }
