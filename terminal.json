@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:47:42+00:00",
-   "tipo": "bash",
-   "desc": "Prepare three blind-play tours over the 105 missions",
-   "cmd": "S=$S; mkdir -p $S/play && cd ~/repo && python3 - \"$S/galaxies.txt\" \"$S/play\" <<'EOF'  … (+20 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-17T12:47:53+00:00",
-   "tipo": "bash",
-   "desc": "Run blind-play tour part 1 (35 missions, 2 min each)",
-   "cmd": "S=$S; cd ~/repo && timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages $S/play/part1.txt --out $S/play/out1 --nand $S/drive/nand_RMGE01.bin -…",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T13:18:05+00:00",
    "tipo": "bash",
    "desc": "Check blind-play part 1 progress",
@@ -279,8 +265,22 @@
    "desc": "Read README, roadmap and progress json sections",
    "cmd": "sed -n 30,48p README.md; echo ----; sed -n 145,180p README.md; echo ----; sed -n 330,370p README.md; echo ----; sed -n 15,35p docs/HOJA_DE_RUTA.md; echo; sed -n 95,115p docs/progr…",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T14:03:49+00:00",
+   "tipo": "bash",
+   "desc": "Bump version to 1.0.0-rc.2 in page, README, roadmap and panel",
+   "cmd": "python3 - <<'EOF'  … (+55 líneas)",
+   "ok": true
+  },
+  {
+   "t": "2026-11-18T14:03:57+00:00",
+   "tipo": "bash",
+   "desc": "Check smoke test version checks; note rc.2 in log",
+   "cmd": "grep -n \"CANDIDATA\\|rc\\.\\|version\" web/tests/browser_smoke.mjs | head; python3 - <<'EOF'  … (+14 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T14:03:30+00:00"
+ "actualizado": "2026-11-18T14:03:57+00:00"
 }
