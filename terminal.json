@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:12:14+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:14:23+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +272,15 @@
    "desc": "List node processes and disc files",
    "cmd": "S=$S; pgrep -a node | cut -c1-150; ls -la $S/disc $S/drive 2>&1 | head",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T11:26:53+00:00",
+   "tipo": "bash",
+   "desc": "Look for the NAND save file",
+   "cmd": "S=$S; find $S -maxdepth 3 -name \"*nand*\" 2>/dev/null | head; cat $S/play/run.sh",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T11:26:41+00:00"
+ "actualizado": "2026-11-18T11:26:53+00:00"
 }
