@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:21:25+00:00",
-   "tipo": "bash",
-   "desc": "Rerun the sequence under SAFE_HEAP",
-   "cmd": "S=$S; cd ~/repo && cp $S/drive/nand_RMGE01.bin $S/full/nand_sh.bin && timeout 1500 node build/all/game/smg_headless.js $S/disc/smg.rvz 900 4 $S/full/nand_sh.bin \"\" \"HeavensDoorGal…",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:21:31+00:00",
    "tipo": "bash",
    "desc": "Name the stack of the segfault in EggStarGalaxy",
@@ -279,8 +272,15 @@
    "desc": "Write block 24 results into the progress log",
    "cmd": "python3 - <<'EOF'  … (+33 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:40:25+00:00",
+   "tipo": "bash",
+   "desc": "Read the resume section",
+   "cmd": "sed -n 31,60p docs/PROGRESO_AUTONOMO.md",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:40:20+00:00"
+ "actualizado": "2026-11-18T13:40:25+00:00"
 }
