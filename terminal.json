@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T14:01:37+00:00",
-   "tipo": "bash",
-   "desc": "Run blind-play tour part 2",
-   "cmd": "S=$S; cd ~/repo && timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages $S/play/part2.txt --out $S/play/out2 --nand $S/drive/nand_RMGE01.bin -…",
-   "ok": true
-  },
-  {
-   "t": "2026-11-17T14:01:43+00:00",
-   "tipo": "bash",
-   "desc": "Locate the blind-play loop in the tour",
-   "cmd": "grep -n \"let playing = !!args.play;\\|while (playing)\\|--play <seed>\" tools/galaxy_tour.mjs | head",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T14:01:46+00:00",
    "tipo": "bash",
    "desc": "Read the blind-play loop",
@@ -279,8 +265,22 @@
    "desc": "Compare built site against gh-pages worktree",
    "cmd": "S=$S; cd $S/gh-pages && git fetch -q origin gh-pages && git status -sb | head -2; git log --oneline -3 origin/gh-pages; ls; diff -rq ~/repo/build/site . 2>/dev/null | grep -v \"\\.g…",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T14:09:13+00:00",
+   "tipo": "bash",
+   "desc": "Check version lines in gh-pages LEEME",
+   "cmd": "S=$S; cd $S/gh-pages && grep -n \"rc\\|ef52a54\\|versión\\|Versión\" LEEME.md | head",
+   "ok": true
+  },
+  {
+   "t": "2026-11-18T14:09:23+00:00",
+   "tipo": "bash",
+   "desc": "Publish rc.2 to gh-pages",
+   "cmd": "S=$S; cd $S/gh-pages && cp ~/repo/build/site/index.html ~/repo/build/site/progreso.json . && sed -i '1s/1.0.0-rc.1/1.0.0-rc.2/; 3s/Versión 1.0.0-rc.1/Versión 1.0.0-rc.2/; 4s/commi…  … (+3 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T14:09:09+00:00"
+ "actualizado": "2026-11-18T14:09:23+00:00"
 }
