@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:21:31+00:00",
-   "tipo": "bash",
-   "desc": "Name the stack of the segfault in EggStarGalaxy",
-   "cmd": "S=$S; cd ~/repo && grep -A 30 \"RuntimeError: Aborted(segmentation\" $S/full/safeheap_run4.log | grep -o \"wasm-function\\[[0-9]*\\]\" | grep -o \"[0-9]*\" | head -24 | while read n; do g…",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:31:49+00:00",
    "tipo": "bash",
    "desc": "Let the Observatory story run after the Grand Star without forcing a change",
@@ -279,8 +272,15 @@
    "desc": "Read the resume section",
    "cmd": "sed -n 31,60p docs/PROGRESO_AUTONOMO.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:42:15+00:00",
+   "tipo": "bash",
+   "desc": "Update resume section and turn SAFE_HEAP off",
+   "cmd": "python3 - <<'EOF'  … (+15 líneas)",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:40:25+00:00"
+ "actualizado": "2026-11-18T13:42:15+00:00"
 }
