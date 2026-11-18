@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:46:55+00:00",
-   "tipo": "bash",
-   "desc": "Read the no-interruption SAFE_HEAP run result",
-   "cmd": "S=$S; cat $TMP | head -12 | cut -c1-200",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:47:32+00:00",
    "tipo": "bash",
    "desc": "Record the null-pointer diagnosis and commit",
@@ -279,8 +272,15 @@
    "desc": "Update roadmap, commit and push",
    "cmd": "python3 - <<'EOF'  … (+16 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T14:03:26+00:00",
+   "tipo": "bash",
+   "desc": "Find version and percent references",
+   "cmd": "grep -rn \"rc\\.1\\|rc 1\\|62 %\\|62%\\|\\\"62\\|: 62\" --include=*.md --include=*.json --include=*.html --include=*.js --include=*.sh --include=*.txt . 2>/dev/null | grep -v \"^./third_part…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-18T13:42:54+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-18T14:03:26+00:00"
 }
