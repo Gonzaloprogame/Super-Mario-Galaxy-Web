@@ -44,12 +44,13 @@ del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión n
   - con el disco hace falta que el usuario vuelva a dar su `.rvz`;
   - ruta: `node tools/story_route.mjs --disc <rvz> --route tools/routes/historia.txt --out <dir>`;
   - misiones: `tools/routes/misiones.txt` con `tools/galaxy_tour.mjs`.
+- **Estado (2026-11-18), bloque 24:** las 105 misiones jugadas a ciegas 2 min, 105/105 sin roturas; el final
+  entero con gráficos llega a los créditos sin roturas. Lo que falta solo lo puede comprobar una partida real.
 - **Siguiente:**
-  1. Lo que diga el usuario: cierres de la página en su dispositivo (con el texto del aviso) y su partida real
-     (`docs/PRUEBA_DE_PARTIDA.md`). Si confirma el principio a fin, la versión pasa a 1.0.0 sin más cambios.
-  2. Ver qué hace el juego tras los créditos: con pulsaciones solo en el epílogo, no al azar desde el principio (el
-     segmento 14 volvió a la pantalla de archivos sin vídeo).
-  3. Rendimiento (`writeBuffer` y las copias del EFB, bloque 13).
+  1. La partida real del usuario (`docs/PRUEBA_DE_PARTIDA.md`), con atención a lo que hace el juego al acabar los
+     créditos (aquí no guardó ni cambió de escena en 11 min de pulsaciones a ciegas). Si confirma el principio a fin,
+     la versión pasa a 1.0.0.
+  2. Después, el rendimiento en PC (`writeBuffer` y las copias del EFB, bloque 13).
 - **Ojo:**
   - Las tareas de fondo se cortan a los 30 min si no se les da `timeout` (2 h como mucho).
   - No uses `pkill -f` con un patrón que case con tu propia orden.
@@ -767,5 +768,28 @@ texto casa con el patrón (aquí `*chrom*touch1*`): mató la shell. Mata solo PI
 - **Conclusión:** el fallo lo provocaba la gira, al cambiar de escenario en mitad de una secuencia de historia. Al
   jugar no se puede. Las rutas no deben forzar un cambio mientras el Observatorio cuenta su historia.
 
-**Ojo:** `build/all` está configurado con `SMG_SAFE_HEAP=ON` mientras se usa para diagnosticar. Solo afecta a
-`smg_headless` (Node), no a lo que se publica (`smg_web`, `smg_headless_web`). Ponerlo a `OFF` al terminar.
+`build/all` vuelve a tener `SMG_SAFE_HEAP=OFF` (se usó solo para este diagnóstico; nunca afectó a lo publicado).
+
+**Jugar cada misión a ciegas, 2 min.** Las 105 misiones, en tres tandas de 35 (`--play 11`, 7200 fotogramas de
+escena, modo diagnóstico, cuelgue a los 300 s). Cada tanda tarda algo más de una hora.
+- Tanda 1: 35/35 «cargó y dibujó», sin problemas.
+- Tanda 2: 35/35, sin problemas.
+- Tanda 3: 35/35, sin problemas.
+- Ni cierres de la pestaña, ni cuelgues, ni escrituras por puntero nulo, ni errores de Aurora. Esto no dice que cada
+  misión se pueda pasar: dice que jugarla, mal, 2 minutos, no rompe el motor.
+
+**El final entero con gráficos** (segmento 15 de `tools/routes/historia.txt`, `--play-from-scene EpilogueDemoStage`):
+- La Gran Estrella de la batalla final; los vídeos del final sin tocar nada: 16 638 fotogramas decodificados,
+  ninguno rechazado; la escena `EpilogueDemoStage`.
+- En el epílogo, pulsaciones a ciegas: el juego siguió leyendo el disco unos 24 min (los créditos) y dibujando hasta
+  el final de la parada (unos 11 min más). Sin cuelgues ni paradas: «bien», 60 min.
+- **Lo que no se ve desde aquí:** tras los créditos no hubo petición a la NAND (no guardó) ni otra escena. No se sabe
+  si el juego esperaba una pulsación concreta o si los créditos aún no habían terminado del todo. Lo dirá la partida
+  real (`docs/PRUEBA_DE_PARTIDA.md`): queda como punto a comprobar.
+
+**El puntero en los menús («A dos veces»).** Los informes del mando salen cada 10 ms y Nebula los encola: la página
+no pierde pulsaciones. Parece cosa de cómo el menú del juego atiende el puntero; sin poder comprobarlo desde aquí,
+queda pendiente. No impide jugar.
+
+**Estado:** nada de lo que se puede probar desde aquí rompe la partida. Falta la partida real del usuario para decir
+«jugable de principio a fin».
