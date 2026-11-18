@@ -10,7 +10,7 @@
 **Sin instalar nada. Sin emulador. Con tu propia copia del juego.**
 
 [![Estado](https://img.shields.io/badge/estado-candidata%201.0.0-ffb36b?style=for-the-badge)](#-estado-del-proyecto)
-[![Versión](https://img.shields.io/badge/versi%C3%B3n-1.0.0--rc.1-7b8cff?style=for-the-badge)](#-novedades-de-la-100-rc1)
+[![Versión](https://img.shields.io/badge/versi%C3%B3n-1.0.0--rc.2-7b8cff?style=for-the-badge)](#-novedades-de-la-100-rc2)
 [![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-b06bff?style=for-the-badge)](LICENSE)
 
 [![WebAssembly](https://img.shields.io/badge/WebAssembly-654FF0?logo=webassembly&logoColor=white)](#-cómo-funciona)
@@ -33,11 +33,12 @@
 ---
 
 > [!WARNING]
-> ### 🚧 Versión 1.0.0-rc.1, candidata a la 1.0.0: falta confirmar jugando de principio a fin
+> ### 🚧 Versión 1.0.0-rc.2, candidata a la 1.0.0: falta confirmar jugando de principio a fin
 > Comprobado con un disco real:
-> - **Las 105 misiones** a las que se puede entrar cargan y aguantan jugadas a ciegas, sin errores.
+> - **Las 105 misiones** a las que se puede entrar cargan y aguantan jugadas a ciegas 2 minutos cada una, sin
+>   errores ni cierres de la página.
 > - **La historia avanza con la lógica del propio juego**: estrellas, el Observatorio con sus Grandes Estrellas, los
->   jefes, y la batalla final con los vídeos del final y el epílogo. Esto se comprobó con ganchos de prueba que toman
+>   jefes, y la batalla final con los vídeos del final, el epílogo y sus créditos. Esto se comprobó con ganchos de prueba que toman
 >   las estrellas, no jugando.
 >
 > **Nadie la ha jugado aún de principio a fin con un mando o un teclado.** Puede haber niveles que no se puedan pasar,
@@ -144,8 +145,8 @@ de inmediato.
 
 ## 📊 Estado del proyecto
 
-**Versión 1.0.0-rc.1** ([novedades](#-novedades-de-la-100-rc1)). Así está cada parte, con lo que de verdad se ha
-comprobado (*fecha de esta tabla: 5 de noviembre de 2026*):
+**Versión 1.0.0-rc.2** ([novedades](#-novedades-de-la-100-rc2)). Así está cada parte, con lo que de verdad se ha
+comprobado (*fecha de esta tabla: 18 de noviembre de 2026*):
 
 | Parte | Estado | Detalle |
 |---|:---:|---|
@@ -158,9 +159,9 @@ comprobado (*fecha de esta tabla: 5 de noviembre de 2026*):
 | Primera galaxia (*HeavensDoorGalaxy*) | ✅ | Se juega en un PC; una advertencia de Aurora corregida por el camino (parche 0022) |
 | Observatorio (*AstroGalaxy*) | 🧪 | Carga sin errores con 1 a 6 Grandes Estrellas (lo que el juego abre para cada número); sin jugar a fondo |
 | *EggStarGalaxy* | ✅ | Se colgaba siempre; **arreglado** (parche 0025) y comprobado 4 minutos con el disco |
-| Todas las misiones | 🧪 | **Las 105 misiones a las que se puede entrar cargan y aguantan** jugadas a ciegas: la 1 de los 44 escenarios con gráficos y las 61 restantes en modo diagnóstico, sin errores; **ninguna jugada a mano**. Un aviso conocido en *SurfingLv1* (parche 0022) |
+| Todas las misiones | 🧪 | **Las 105 misiones a las que se puede entrar cargan y aguantan** jugadas a ciegas: la 1 de los 44 escenarios con gráficos, y las 105 en modo diagnóstico, 2 minutos cada una con pulsaciones al azar, sin errores ni cierres; **ninguna jugada a mano**. Un aviso conocido en *SurfingLv1* (parche 0022) |
 | *CocoonExGalaxy* | 🧪 | El motor moría allí tras varias galaxias: **arreglado** (el host pisaba memoria del motor) y comprobado con la gira; sin jugar |
-| Progreso de la historia | 🧪 | Con ganchos de prueba que toman las estrellas: el jardín lleva al Observatorio; las Grandes Estrellas de los jefes devuelven a él; la última pone los vídeos del final (10.115 fotogramas, 0 rechazados) y el epílogo, 2 h sin errores. Sin ver aún la vuelta a la partida tras los créditos |
+| Progreso de la historia | 🧪 | Con ganchos de prueba que toman las estrellas: el jardín lleva al Observatorio; las Grandes Estrellas de los jefes devuelven a él; la última pone los vídeos del final (16.638 fotogramas, 0 rechazados), el epílogo y sus créditos, sin errores. Sin ver aún la vuelta a la partida tras los créditos |
 | Jugar cada galaxia | ⏳ | Cargar y aguantar no es poder pasarla: falta jugarlas a mano ([lista](docs/PRUEBA_DE_PARTIDA.md)) |
 | Memoria y cierres de la página | 🧪 | La página usa un 42 % menos de RAM (de 1061 a 613 MB en el jardín). Si el navegador la cierra de golpe, la visita siguiente lo avisa y deja copiar lo que pasó |
 | Controles: táctil, teclado y ratón | ✅ | Palanca, botones, puntero y agitar |
@@ -176,8 +177,11 @@ comprobado (*fecha de esta tabla: 5 de noviembre de 2026*):
   escribiendo 512 MB de memoria que no usaba, está arreglada en la 1.0.0-rc.1: la página usa un 42 % menos de RAM. Si
   aun así el navegador la cierra, al volver a abrirla verás un aviso con la escena y las últimas líneas del registro:
   pulsa «📋 Copiar lo que pasó» y mándalo en una *issue*.
-- 🎬 **Tras los créditos del final:** los vídeos del final y el epílogo funcionan (comprobado con ganchos de prueba),
-  pero no se ha visto todavía cómo vuelve el juego a la partida al terminar los créditos.
+- 🎬 **Tras los créditos del final:** los vídeos del final, el epílogo y los créditos funcionan (comprobado con
+  ganchos de prueba y pulsaciones a ciegas), pero en 11 minutos de pulsaciones tras los créditos el juego no guardó
+  ni cambió de pantalla. Falta ver, jugando de verdad, cómo vuelve a la partida.
+- 🖱️ **El puntero en los menús:** a veces hay que pulsar A dos veces. La página no pierde pulsaciones; parece cosa de
+  cómo el menú atiende el puntero. No impide jugar.
 - 🧊 **Cuelgue del libro del prólogo, arreglado en la prueba hecha:** en un PC el juego se paraba en la segunda página
   del libro; con el reloj arreglado (ver «Novedades») ese PC ya lo pasa entero, en un primer intento. Si vuelve a
   pasar, el aviso de bloqueo dice lo último que hizo el juego: copia el registro con «Copiar el registro».
@@ -334,6 +338,21 @@ Se guardan en el almacenamiento del navegador para esa página. Si borras los da
 </details>
 
 ---
+
+## 🆕 Novedades de la 1.0.0-rc.2
+
+La página es la misma que en la rc.1; lo nuevo es lo comprobado (bloque 24 de `docs/PROGRESO_AUTONOMO.md`):
+
+- 🎮 **Las 105 misiones, jugadas a ciegas 2 minutos cada una** con pulsaciones al azar, en tres tandas: 105 de 105
+  sin cierres de la página, cuelgues, accesos a memoria inválidos ni errores de gráficos. No dice que cada misión se
+  pueda pasar: dice que jugarla, mal, no rompe el motor.
+- 🏁 **El final entero con gráficos:** la batalla final, los vídeos del final sin tocar nada (16 638 fotogramas,
+  ninguno rechazado), el epílogo y sus créditos, una hora sin errores.
+- 🔍 **El fallo de puntero nulo visto al probar la historia era de la herramienta de pruebas**, que cambiaba de nivel
+  en mitad de una escena del Observatorio. Comprobado con una compilación que revisa cada acceso a memoria: jugando no
+  pasa.
+- 🧰 **Herramientas de prueba:** pulsaciones a ciegas solo desde una escena (`--play-from-scene`), para recorrer el
+  final sin saltarse los vídeos.
 
 ## 🆕 Novedades de la 1.0.0-rc.1
 

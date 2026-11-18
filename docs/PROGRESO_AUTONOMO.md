@@ -44,6 +44,8 @@ del usuario, NAND, capturas y registros, que no se suben nunca). **Una sesión n
   - con el disco hace falta que el usuario vuelva a dar su `.rvz`;
   - ruta: `node tools/story_route.mjs --disc <rvz> --route tools/routes/historia.txt --out <dir>`;
   - misiones: `tools/routes/misiones.txt` con `tools/galaxy_tour.mjs`.
+- **Versión 1.0.0-rc.2 publicada (2026-11-18)**: la misma página que la rc.1 con lo comprobado en el bloque 24
+  (README, hoja de ruta y `docs/progreso.json` al día; hito 7 sigue al 62 %).
 - **Estado (2026-11-18), bloque 24:** las 105 misiones jugadas a ciegas 2 min, 105/105 sin roturas; el final
   entero con gráficos llega a los créditos sin roturas. Lo que falta solo lo puede comprobar una partida real.
 - **Siguiente:**
@@ -793,3 +795,7 @@ queda pendiente. No impide jugar.
 
 **Estado:** nada de lo que se puede probar desde aquí rompe la partida. Falta la partida real del usuario para decir
 «jugable de principio a fin».
+
+**Versión 1.0.0-rc.2 (2026-11-18).** Pedida por el usuario, con la hoja de ruta y el README al día. La página no
+cambia respecto a la rc.1 salvo el número de versión; el hito 7 sigue al 62 % (la parte C, a medias, no cumple aún
+su criterio: falta la vuelta a la partida tras los créditos).

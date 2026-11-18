@@ -17,7 +17,7 @@ en `COMPILACION_WASM.md`.
 El panel del directo (`web/shell/overlay.html`) muestra este estado desde `docs/progreso.json`, con porcentajes
 estimados por hito.
 
-**Versión publicada: 1.0.0-rc.1** (candidata). Para llamarse 1.0.0 le falta la parte D del hito 7: una partida real
+**Versión publicada: 1.0.0-rc.2** (candidata; la rc.1 era del 5 de noviembre). Para llamarse 1.0.0 le falta la parte D del hito 7: una partida real
 de principio a fin (`PRUEBA_DE_PARTIDA.md`). Con eso confirmado, la versión se renombra sin más cambios.
 
 ## Hito 7, por partes
