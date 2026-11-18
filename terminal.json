@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:31:49+00:00",
-   "tipo": "bash",
-   "desc": "Let the Observatory story run after the Grand Star without forcing a change",
-   "cmd": "S=$S; cd ~/repo && cp $S/drive/nand_RMGE01.bin $S/full/nand_sh.bin && timeout 2400 node build/all/game/smg_headless.js $S/disc/smg.rvz 1500 4 $S/full/nand_sh.bin \"\" \"HeavensDoorGa…",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:32:08+00:00",
    "tipo": "bash",
    "desc": "Commit the SAFE_HEAP diagnostic option",
@@ -279,8 +272,15 @@
    "desc": "Update resume section and turn SAFE_HEAP off",
    "cmd": "python3 - <<'EOF'  … (+15 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:42:21+00:00",
+   "tipo": "bash",
+   "desc": "Find hito 7 part C in roadmap",
+   "cmd": "grep -n \"C\\b\\|parte C\\|62\" docs/HOJA_DE_RUTA.md | head -15",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:42:15+00:00"
+ "actualizado": "2026-11-18T13:42:21+00:00"
 }
