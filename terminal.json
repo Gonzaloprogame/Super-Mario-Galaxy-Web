@@ -1,20 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-05T16:00:55+00:00",
-   "tipo": "bash",
-   "desc": "Document the playthrough attempt and commit",
-   "cmd": "cd ~/repo && cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+47 líneas)",
-   "ok": true
-  },
-  {
-   "t": "2026-11-17T12:11:50+00:00",
-   "tipo": "bash",
-   "desc": "Check what survived the session restart",
-   "cmd": "S=$S; ls $S 2>&1 | head -5; ls -la $S/disc/smg.rvz 2>&1 | head -1; ls ~/tools/emsdk/emsdk_env.sh 2>&1; ls ~/repo/build/all/engine/smg_web.wasm 2>&1; cd ~/repo && git status --shor…",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:12:14+00:00",
    "tipo": "escribir",
    "desc": "",
@@ -279,8 +265,22 @@
    "desc": "Check repo and test state",
    "cmd": "S=$S; git log --oneline -1; git status --short | head; cat $S/play/status.txt; ls $S/play/; ls build/site | head; ps aux | grep -c \"node tools\"",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T11:26:35+00:00",
+   "tipo": "bash",
+   "desc": "Check running processes and disc files",
+   "cmd": "S=$S; ps aux | grep -E \"node|chrom\" | grep -v grep | head; ls $S/disc $S/drive",
+   "ok": true
+  },
+  {
+   "t": "2026-11-18T11:26:41+00:00",
+   "tipo": "bash",
+   "desc": "List node processes and disc files",
+   "cmd": "S=$S; pgrep -a node | cut -c1-150; ls -la $S/disc $S/drive 2>&1 | head",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T11:26:26+00:00"
+ "actualizado": "2026-11-18T11:26:41+00:00"
 }
