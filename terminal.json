@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:19:10+00:00",
-   "tipo": "bash",
-   "desc": "Read the host report function",
-   "cmd": "n=$(grep -n \"^static void report(void) {\" web/host/headless_host.c | cut -d: -f1); echo \"línea $n\"; sed -n \"${n},$((n+60))p\" web/host/headless_host.c",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:19:20+00:00",
    "tipo": "bash",
    "desc": "Find the low-memory check definition and calls",
@@ -279,8 +272,15 @@
    "desc": "Find when disc reads stopped and how blind play works",
    "cmd": "S=$S; L=$S/route6/15/out/log_full.txt; grep \"report:\" $L | sed -E 's/.*retraces ([0-9]+).*disc reads ([0-9]+).*Wii Remote reports ([0-9]+).*/\\1 \\2 \\3/' | awk 'NR>1 && $2!=p {print…",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:39:56+00:00",
+   "tipo": "bash",
+   "desc": "List screenshots and test events",
+   "cmd": "S=$S; ls -la $S/route6/15/out/shots | tail -5; grep -n \"test:\" $S/route6/15/out/log_full.txt | tail -5",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:39:45+00:00"
+ "actualizado": "2026-11-18T13:39:56+00:00"
 }
