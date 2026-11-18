@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:19:20+00:00",
-   "tipo": "bash",
-   "desc": "Find the low-memory check definition and calls",
-   "cmd": "grep -n \"static void check_low_memory\\|check_low_memory()\" web/host/headless_host.c | head -4",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:19:59+00:00",
    "tipo": "bash",
    "desc": "Skip the low-memory check in the SAFE_HEAP build and relink",
@@ -279,8 +272,15 @@
    "desc": "List screenshots and test events",
    "cmd": "S=$S; ls -la $S/route6/15/out/shots | tail -5; grep -n \"test:\" $S/route6/15/out/log_full.txt | tail -5",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:40:05+00:00",
+   "tipo": "bash",
+   "desc": "Read block 24 of the progress log",
+   "cmd": "grep -n \"^## \\|^### \" docs/PROGRESO_AUTONOMO.md | tail -8; sed -n \"$(grep -n 'Bloque 24' docs/PROGRESO_AUTONOMO.md | head -1 | cut -d: -f1),\\$p\" docs/PROGRESO_AUTONOMO.md | head -…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:39:56+00:00"
+ "actualizado": "2026-11-18T13:40:05+00:00"
 }
