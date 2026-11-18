@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:14:23+00:00",
-   "tipo": "escribir",
-   "desc": "",
-   "cmd": "~/.claude/plans/lovely-munching-gizmo.md",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:16:28+00:00",
    "tipo": "bash",
    "desc": "Relink the Node host with SAFE_HEAP for diagnosis",
@@ -279,8 +272,15 @@
    "desc": "Look for the NAND save file",
    "cmd": "S=$S; find $S -maxdepth 3 -name \"*nand*\" 2>/dev/null | head; cat $S/play/run.sh",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T11:27:03+00:00",
+   "tipo": "bash",
+   "desc": "Run blind-play batch 3 of missions",
+   "cmd": "S=$S; timeout 7000 node tools/galaxy_tour.mjs --site build/site --disc $S/disc/smg.rvz --stages $S/play/part3.txt --out $S/play/out3 --nand $S/drive/nand_RMGE01.bin --frames 7200 …",
+   "ok": true
   }
  ],
- "estado": "trabajando",
- "actualizado": "2026-11-18T11:26:53+00:00"
+ "estado": "en espera",
+ "actualizado": "2026-11-18T11:27:15+00:00"
 }
