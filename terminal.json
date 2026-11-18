@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T14:01:46+00:00",
-   "tipo": "bash",
-   "desc": "Read the blind-play loop",
-   "cmd": "sed -n 124,142p tools/galaxy_tour.mjs",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T14:01:59+00:00",
    "tipo": "bash",
    "desc": "Add --play-from-scene to the tour",
@@ -279,8 +272,15 @@
    "desc": "Publish rc.2 to gh-pages",
    "cmd": "S=$S; cd $S/gh-pages && cp ~/repo/build/site/index.html ~/repo/build/site/progreso.json . && sed -i '1s/1.0.0-rc.1/1.0.0-rc.2/; 3s/Versión 1.0.0-rc.1/Versión 1.0.0-rc.2/; 4s/commi…  … (+3 líneas)",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T14:46:24+00:00",
+   "tipo": "bash",
+   "desc": "Fast-forward main to the working branch",
+   "cmd": "git fetch -q origin main && git merge-base --is-ancestor origin/main HEAD && echo \"fast-forward ok\" && git log --oneline origin/main -1 && git push origin HEAD:main 2>&1 | tail -2…",
+   "ok": true
   }
  ],
- "estado": "en espera",
- "actualizado": "2026-11-18T14:42:15+00:00"
+ "estado": "trabajando",
+ "actualizado": "2026-11-18T14:46:24+00:00"
 }
