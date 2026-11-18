@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:18:03+00:00",
-   "tipo": "bash",
-   "desc": "Read the SAFE_HEAP run output",
-   "cmd": "S=$S; grep -v \"^var Module\" $S/full/safeheap_run2.log | head -30 | cut -c1-240",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:18:53+00:00",
    "tipo": "bash",
    "desc": "Add ASSERTIONS to the diagnostic build and rerun",
@@ -279,8 +272,15 @@
    "desc": "Read segment 15 results",
    "cmd": "S=$S; cat $S/route6.log; cat $S/route6/route.md; head -6 $S/route6/15/out/tour.md",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T13:39:21+00:00",
+   "tipo": "bash",
+   "desc": "Inspect what happened after the ending videos",
+   "cmd": "S=$S; ls $S/route6/15/out; grep -nE \"scene|play|movie|Epilogue|test:\" $S/route6/15/out/log_end.txt | tail -25",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T13:39:13+00:00"
+ "actualizado": "2026-11-18T13:39:21+00:00"
 }
