@@ -1,13 +1,6 @@
 {
  "lineas": [
   {
-   "t": "2026-11-17T12:47:32+00:00",
-   "tipo": "bash",
-   "desc": "Record the null-pointer diagnosis and commit",
-   "cmd": "cat >> docs/PROGRESO_AUTONOMO.md <<'EOF'  … (+33 líneas)",
-   "ok": true
-  },
-  {
    "t": "2026-11-17T12:47:42+00:00",
    "tipo": "bash",
    "desc": "Prepare three blind-play tours over the 105 missions",
@@ -279,8 +272,15 @@
    "desc": "Find version and percent references",
    "cmd": "grep -rn \"rc\\.1\\|rc 1\\|62 %\\|62%\\|\\\"62\\|: 62\" --include=*.md --include=*.json --include=*.html --include=*.js --include=*.sh --include=*.txt . 2>/dev/null | grep -v \"^./third_part…",
    "ok": true
+  },
+  {
+   "t": "2026-11-18T14:03:30+00:00",
+   "tipo": "bash",
+   "desc": "Read README, roadmap and progress json sections",
+   "cmd": "sed -n 30,48p README.md; echo ----; sed -n 145,180p README.md; echo ----; sed -n 330,370p README.md; echo ----; sed -n 15,35p docs/HOJA_DE_RUTA.md; echo; sed -n 95,115p docs/progr…",
+   "ok": true
   }
  ],
  "estado": "trabajando",
- "actualizado": "2026-11-18T14:03:26+00:00"
+ "actualizado": "2026-11-18T14:03:30+00:00"
 }
